@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="navigation-wasm-js">
+    <output-path>$PROJECT_DIR$/navigation/build/libs</output-path>
+    <root id="archive" name="navigation-wasm-js.jar">
+      <element id="module-output" name="AnimationSample.navigation.wasmJsMain" />
+    </root>
+  </artifact>
+</component>

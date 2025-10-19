@@ -29,6 +29,7 @@ datastorePreferences = "1.1.7"
 
 [libraries]
 androidx-navigationevent-navigationevent = { module = "androidx.navigationevent:navigationevent", version.ref = "androidxNavigationeventVersion" }
+androidx-runtime-tracing = { module = "androidx.compose.runtime:runtime-tracing" }
 haze = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }

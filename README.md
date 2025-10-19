@@ -40,3 +40,6 @@ https://github.com/user-attachments/assets/5eca9ee9-7c40-4199-b082-3697d8109140
 Import 模块 :transition
 
 [具体使用案例](https://github.com/Chiu-xaH/HFUT-Schedule)
+
+## 下一步计划
+手搓导航栈以解决Navigation2的性能问题

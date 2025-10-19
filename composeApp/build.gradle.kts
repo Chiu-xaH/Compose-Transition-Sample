@@ -65,9 +65,11 @@ kotlin {
             // 透明状态栏
             implementation(libs.accompanist.systemuicontroller)
             implementation(libs.navigation.compose)
+            implementation(libs.androidx.runtime.tracing)
         }
         commonMain.dependencies {
             implementation(project(":transition"))
+            implementation(project(":navigation"))
 
             implementation(compose.runtime)
             implementation(compose.foundation)
