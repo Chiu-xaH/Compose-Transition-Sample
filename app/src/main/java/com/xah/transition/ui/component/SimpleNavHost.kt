@@ -1,24 +1,34 @@
 package com.xah.transition.ui.component
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Transition
+import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
@@ -30,6 +40,12 @@ import com.xah.transition.ui.model.UnderPageVisualEffect
 import com.xah.transition.ui.state.LocalNavStackState
 import com.xah.transition.ui.style.scaleMirror
 
+
+private val spring = spring(
+    dampingRatio = 0.825f,
+    stiffness = 200f,
+    visibilityThreshold = Rect.VisibilityThreshold
+)
 @Composable
 fun SimpleNavHost(
     state: NavStackState,
@@ -63,8 +79,15 @@ fun SimpleNavHost(
             /* ----------------------------
              * 下层是否被覆盖（普通导航）
              * ---------------------------- */
+//            val coveredTransition = updateTransition(
+//                targetState = stack.size > 1,
+//                label = "UnderCovered"
+//            )
+
+            val isCovered = stack.size > 1 && !state.isPopping
+
             val coveredTransition = updateTransition(
-                targetState = stack.size > 1,
+                targetState = isCovered,
                 label = "UnderCovered"
             )
 
@@ -73,18 +96,18 @@ fun SimpleNavHost(
              * ---------------------------- */
             val baseScale by coveredTransition.animateFloat(
                 label = "baseScale",
-                transitionSpec = { spring() }
-            ) { covered -> if (covered) 0.9f else 1f }
+                transitionSpec = {  tween(450)}
+            ) { covered -> if (covered) 0.875f else 1f }
 
             val baseBlur by coveredTransition.animateDp(
                 label = "baseBlur",
-                transitionSpec = { spring() }
-            ) { covered -> if (covered) 16.dp else 0.dp }
+                transitionSpec = {  tween(450)  }
+            ) { covered -> if (covered) 20.dp else 0.dp }
 
             val baseDim by coveredTransition.animateFloat(
                 label = "baseDim",
-                transitionSpec = { spring() }
-            ) { covered -> if (covered) 0.35f else 0f }
+                transitionSpec = { tween(450)  }
+            ) { covered -> if (covered) 0.2f else 0f }
 
             /* ----------------------------
              * 预测式叠加（关键）
@@ -139,17 +162,31 @@ private fun PageContainer(
 ) {
     val state = LocalNavStackState.current
 
+
     // 上层页面动画
     val selfScale by transition.animateFloat(
         label = "selfScale",
-        transitionSpec = { spring() }
+        transitionSpec = {  tween(450)  }
     ) { phase ->
         if (isUnder) 1f else when (phase) {
             NavPhase.Entering -> 0f
             NavPhase.Active -> 1f
+            NavPhase.Exiting -> 0f   // 👈 关键
             else -> 1f
         }
     }
+    val selfCorner by transition.animateDp (
+        label = "selfCorner",
+        transitionSpec = { tween(450) }
+    ) { phase ->
+        if (isUnder) 0.dp else when (phase) {
+            NavPhase.Entering -> 100.dp
+            NavPhase.Active -> 0.dp
+            NavPhase.Exiting -> 100.dp
+            else -> 0.dp
+        }
+    }
+
 
     // 状态闭环
     LaunchedEffect(transition.currentState, transition.targetState) {
@@ -194,6 +231,7 @@ private fun PageContainer(
                     it
                 }
             }
+            .clip(RoundedCornerShape(selfCorner))
     ) {
         entry.destination.Content()
     }

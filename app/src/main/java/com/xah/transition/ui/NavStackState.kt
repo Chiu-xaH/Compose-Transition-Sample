@@ -3,6 +3,7 @@ package com.xah.transition.ui
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.xah.transition.ui.model.BackStackEntry
 import com.xah.transition.ui.model.Destination
@@ -15,6 +16,9 @@ class NavStackState(
 ) {
     private val _stack = mutableStateListOf<BackStackEntry>()
     val stack: List<BackStackEntry> get() = _stack
+
+    var isPopping by mutableStateOf(false)
+        private set
 
     // 预测进度（0f ~ 1f）
     var predictiveProgress by mutableFloatStateOf(0f)
@@ -55,16 +59,26 @@ class NavStackState(
         }
     }
 
+//    fun requestPop() {
+//        if (_stack.size <= 1) return
+//        _stack.last().transitionState.targetState = NavPhase.Exiting
+//    }
     fun requestPop() {
         if (_stack.size <= 1) return
+        isPopping = true
         _stack.last().transitionState.targetState = NavPhase.Exiting
     }
 
+
+//    fun commitPop(entryId: String) {
+//        _stack.removeAll { it.id == entryId }
+//    }
     fun commitPop(entryId: String) {
         _stack.removeAll { it.id == entryId }
+        isPopping = false
     }
 
-    
+
     private fun pushDestination(dest: Destination) {
         val entry = BackStackEntry(
             id = UUID.randomUUID().toString(),

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -50,7 +51,7 @@ fun HomeScreen() {
 @Composable
 fun SecondScreen(userId : String) {
     val navStackState = LocalNavStackState.current
-    Box(modifier = Modifier.fillMaxSize().background(Color.Red)) {
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.inversePrimary)) {
         Button(
             onClick = {
                 navStackState.navigate(NavCommand.Pop)
