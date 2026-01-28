@@ -7,7 +7,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -20,7 +19,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -30,7 +28,6 @@ import com.xah.transition.state.TransitionConfig
 import com.xah.transition.style.TransitionLevel
 import com.xah.transition.style.transitionBackground
 import com.xah.transition.util.TransitionBackHandler
-import com.xah.transition.util.allRouteStack
 import com.xah.transition.util.isCurrentRouteWithoutArgs
 import com.xah.transition.util.isInBottom
 import com.xah.transition.util.previousRouteWithArgWithoutValues
@@ -137,10 +134,10 @@ fun TransitionScaffold(
         }
     }
 
-    val targetColor =  containerColor ?: if(TransitionConfig.transplantBackground) Color.Transparent else MaterialTheme.colorScheme.surface
+    val targetColor = if(TransitionConfig.transplantBackground) Color.Transparent else (containerColor ?: MaterialTheme.colorScheme.surface)
 
     Scaffold(
-        containerColor =  targetColor,
+        containerColor = targetColor ,
         modifier = modifier.scale(scale),
         topBar = topBar,
         bottomBar = {

@@ -31,7 +31,7 @@ private val spring = spring(
     stiffness = TransitionConfig.curveStyle.stiffness.toFloat(),
     visibilityThreshold = Rect.VisibilityThreshold
 )
-// 容器共享元素 如果两个容器颜色不同，可以启用渐变fade参数
+// 容器共享元素
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun Modifier.containerShare(
