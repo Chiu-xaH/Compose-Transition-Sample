@@ -14,14 +14,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.xah.transition.ui.NavStackState
-import com.xah.transition.ui.component.SimpleNavHost
+import com.xah.transition.ui.component.TransitionNavHost
 import com.xah.transition.ui.model.NavCommand
 import com.xah.transition.ui.state.LocalNavStackState
 
 @Composable
 fun App() {
     val nav = remember { NavStackState(startDestination = HomeDestination) }
-    SimpleNavHost(state = nav)
+    TransitionNavHost(state = nav)
 }
 
 @Composable

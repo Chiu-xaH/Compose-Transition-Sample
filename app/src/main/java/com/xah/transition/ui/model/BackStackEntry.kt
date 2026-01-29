@@ -1,5 +1,6 @@
 package com.xah.transition.ui.model
 
+import android.accessibilityservice.GestureDescription
 import androidx.compose.animation.core.MutableTransitionState
 
 class BackStackEntry(

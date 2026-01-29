@@ -24,17 +24,11 @@ class NavStackState(
     var predictiveProgress by mutableFloatStateOf(0f)
         private set
 
-//    fun beginPredictivePop() {
-//        if (_stack.size <= 1) return
-//        val top = _stack.last()
-//        top.transitionState.targetState = NavPhase.Predictive
-//    }
     fun beginPredictivePop() {
         if (_stack.size <= 1) return
         predictiveProgress = 0f
         _stack.last().transitionState.targetState = NavPhase.Predictive
     }
-
 
     fun updatePredictiveProgress(progress: Float) {
         predictiveProgress = progress
@@ -59,20 +53,12 @@ class NavStackState(
         }
     }
 
-//    fun requestPop() {
-//        if (_stack.size <= 1) return
-//        _stack.last().transitionState.targetState = NavPhase.Exiting
-//    }
     fun requestPop() {
         if (_stack.size <= 1) return
         isPopping = true
         _stack.last().transitionState.targetState = NavPhase.Exiting
     }
 
-
-//    fun commitPop(entryId: String) {
-//        _stack.removeAll { it.id == entryId }
-//    }
     fun commitPop(entryId: String) {
         _stack.removeAll { it.id == entryId }
         isPopping = false
@@ -82,7 +68,7 @@ class NavStackState(
     private fun pushDestination(dest: Destination) {
         val entry = BackStackEntry(
             id = UUID.randomUUID().toString(),
-            destination = dest
+            destination = dest,
         )
         entry.transitionState.targetState = NavPhase.Entering
         _stack += entry
@@ -96,37 +82,4 @@ class NavStackState(
         rootEntry.transitionState.targetState = NavPhase.Active
         _stack += rootEntry
     }
-/*
-    fun requestPop() {
-        if (_stack.size <= 1) return
-
-        val top = _stack.last()
-        top.transitionState.targetState = NavPhase.Exiting
-    }
-
-    fun commitPop(entryId: String) {
-        val index = _stack.indexOfFirst { it.id == entryId }
-        if (index != -1) {
-            _stack.removeAt(index)
-        }
-    }
-
-    fun navigate(command: NavCommand) {
-        when (command) {
-            is NavCommand.Push -> pushDestination(command.destination)
-            is NavCommand.Pop -> requestPop()
-        }
-    }
-
-
-    private fun pushDestination(dest: Destination) {
-        val entry = BackStackEntry(
-            id = UUID.randomUUID().toString(),
-            destination = dest
-        )
-        entry.transitionState.targetState = NavPhase.Entering
-        _stack += entry
-    }
-
- */
 }

@@ -1,40 +1,70 @@
 package com.xah.transition.ui.model
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.lerp
-import androidx.compose.ui.unit.lerp
 
+/** lerp
+ * 1. 预测式返回时：
+ * 背景从 Background->PredictiveBackground 按predictiveProgress定进度
+ * 主体从 Full->PredictiveSelf 按predictiveProgress定进度
+ *
+ * 2. 正常情况返回时：
+ * 原来的背景从 Background->Full 按transition()动画播放
+ * 原来的主体从 Full->None 按transition()动画播放
+ *
+ * 3. 正常情况前进时：
+ * 原来的主体变背景，从Full->Background 按transition()动画播放
+ * 主体从 None->Full 按transition()动画播放
+ */
 @Immutable
 data class UnderPageVisualEffect(
     val scale: Float,
     val blur: Dp,
-    val dim: Float
+    val mask: Float,
+    val corner : Dp,
+    val alpha : Float
 ) {
     companion object {
-        val None = UnderPageVisualEffect(
+        // 上层页面完全展开或背景完全清晰
+        val Full = UnderPageVisualEffect(
             scale = 1f,
             blur = 0.dp,
-            dim = 0f
+            mask = 0f,
+            corner = 0.dp,
+            alpha = 1f,
+        )
+        // 上层页面回缩
+        val None = UnderPageVisualEffect(
+            scale = 0f,
+            blur = 0.dp,
+            mask = 0f,
+            corner = 100.dp,
+            alpha = 1f
+        )
+        // 背景 下层页面
+        val Background = UnderPageVisualEffect(
+            scale = 0.875f,
+            blur = 25.dp,
+            mask = 0.2f,
+            corner = 0.dp,
+            alpha = 1f
+        )
+        // 预测式时的背景 不完全清晰 从 Background->PredictiveBackground scale、blur、dim略减小
+        val PredictiveBackground = UnderPageVisualEffect(
+            scale = 0.875f,
+            blur = 12.5.dp,
+            mask = 0.1f,
+            corner = 0.dp,
+            alpha = 1f
+        )
+        // 预测式时的前景 不完全变小，露出下层一些背景即可
+        val PredictiveSelf = UnderPageVisualEffect(
+            scale = 0.875f,
+            blur = 0.dp,
+            mask = 0f,
+            corner = 25.dp,
+            alpha = 1f
         )
     }
-}
-
-@Stable
-class PredictiveEffectScope(
-    val progress: Float
-) {
-    // 背景压暗程度（0f ~ 1f）
-    val dimAlpha: Float
-        get() = lerp(0f, 0.35f, progress)
-
-    // 背景缩放
-    val scale: Float
-        get() = lerp(1f, 0.92f, progress)
-
-    // 背景模糊
-    val blur: Dp
-        get() = lerp(0.dp, 16.dp, progress)
 }

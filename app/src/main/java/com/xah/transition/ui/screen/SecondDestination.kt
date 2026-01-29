@@ -7,6 +7,7 @@ data class SecondDestination(
     val userId: String
 ) : Destination {
 
+    override val description: String = "Second"
     override val key = "second_$userId"
 
     @Composable

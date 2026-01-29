@@ -5,6 +5,7 @@ import com.xah.transition.ui.model.Destination
 
 object HomeDestination : Destination {
     override val key = "home"
+    override val description: String = "Home"
 
     @Composable
     override fun Content() {
