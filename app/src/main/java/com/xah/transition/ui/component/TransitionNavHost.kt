@@ -124,10 +124,6 @@ fun TransitionNavHost(
                 corner = lerp(UnderPageVisualEffect.Full.corner, UnderPageVisualEffect.PredictiveSelf.corner, state.predictiveProgress)
             )
 
-//            LaunchedEffect(backgroundDuration) {
-//                Log.d("isCovered $isCovered ","backgroundDuration $backgroundDuration topEffect=$topEffect")
-//            }
-
             // 下层（背景）
             if (under != null) {
                 key(under.id) {
@@ -159,7 +155,6 @@ fun TransitionNavHost(
                         effect =
                             // 没被覆盖，此页面还在显示，不能有enterTopEffect特效否则被缩小了
                             if(under == null) underEffect
-//                                UnderPageVisualEffect.Full
                             else if(isInPredictive) predictiveTopEffect
                             else topEffect
                     )
@@ -177,13 +172,13 @@ private fun PageContainer(
     effect: UnderPageVisualEffect
 ) {
     val state = LocalNavStackState.current
-//    LaunchedEffect(effect) {
-//        if(isUnder == false) {
-//            return@LaunchedEffect
-//        }
-//        Log.d("isUnder $isUnder","topEffect=$effect")
-//
-//    }
+    LaunchedEffect(effect) {
+        if(isUnder == false) {
+            return@LaunchedEffect
+        }
+        Log.d("isUnder $isUnder","topEffect=$effect")
+
+    }
     // 状态闭环
     LaunchedEffect(transition.currentState, transition.targetState) {
         if (!transition.isRunning && transition.currentState == transition.targetState) {
