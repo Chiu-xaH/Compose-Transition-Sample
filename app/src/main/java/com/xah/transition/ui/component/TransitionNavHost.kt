@@ -1,6 +1,5 @@
 package com.xah.transition.ui.component
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.core.SpringSpec
@@ -17,6 +16,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
@@ -27,11 +29,13 @@ import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
 import com.xah.transition.ui.NavStackState
 import com.xah.transition.ui.model.BackStackEntry
+import com.xah.transition.ui.model.NavActionState
 import com.xah.transition.ui.model.NavCommand
 import com.xah.transition.ui.model.NavPhase
 import com.xah.transition.ui.model.UnderPageVisualEffect
 import com.xah.transition.ui.state.LocalNavStackState
 import com.xah.transition.ui.style.scaleMirror
+import com.xah.transition.util.LogUtil
 import kotlin.coroutines.cancellation.CancellationException
 
 private fun <T> transition() :  SpringSpec<T> = spring(
@@ -49,8 +53,8 @@ fun TransitionNavHost(
         BackHandler(enabled = state.stack.size > 1) {
             state.navigate(NavCommand.Pop)
         }
-        // 预测式返回
-        PredictiveBackHandler(enabled = state.stack.size > 1) { progress ->
+        // 预测式返回 state.stack.size > 1
+        PredictiveBackHandler(enabled = false) { progress ->
             state.beginPredictivePop()
             try {
                 progress.collect { event ->
@@ -61,21 +65,56 @@ fun TransitionNavHost(
                 state.cancelPredictivePop()
             }
         }
-        // 容器
-        Box(modifier) {
-            val stack = state.stack
-            val top = stack.lastOrNull()
-            val under = stack.getOrNull(stack.lastIndex - 1)
 
-            val isCovered = stack.size > 1 && !state.isPopping
 
+        val stack = state.stack
+        val top = stack.lastOrNull()
+        val under = stack.getOrNull(stack.lastIndex - 1)
+
+        // 三态：NONE=稳定，PUSH_ING=新页进入中，POP_ING=顶层退出中
+        // 「下层被盖住」= 有上层 且 (稳定态 或 PUSH 已到「待 commit」)。PUSH_ING 且未 pendingPush 时 isCovered=false
+        val isCovered = stack.size > 1 && (
+                state.currentAction == NavActionState.NONE ||
+                        (state.currentAction == NavActionState.PUSH_ING && state.pendingPushEntryId)
+                )
+
+        val predictiveProgress = state.predictiveProgress
+        val isInPredictive = predictiveProgress != 0f
+
+        // 栈层数变化时重建 transition，避免 Second→Third 时沿用上一层的 duration=1，导致动画从 1→0 反了
+        key(stack.size) {
             val coveredTransition = updateTransition(
                 targetState = isCovered,
                 label = "UnderCovered"
             )
 
-            val predictiveProgress = state.predictiveProgress
-            val isInPredictive = predictiveProgress != 0f
+            // Push：只有 coveredTransition 真正跑过（isRunning 曾为 true）后才允许 commit，避免 pendingPush 一设就立刻 commit
+            var didRunCoveredTransitionForPush by remember { mutableStateOf(false) }
+            LaunchedEffect(coveredTransition.isRunning, state.pendingPushEntryId) {
+                if (state.pendingPushEntryId && coveredTransition.isRunning) {
+                    didRunCoveredTransitionForPush = true
+                }
+                if (!state.pendingPushEntryId) {
+                    didRunCoveredTransitionForPush = false
+                }
+            }
+
+            // Pop：Exiting 结束后不立刻 commitPop，等下层 coveredTransition 结束后再移除
+            // Push：pendingPush 且 coveredTransition 曾跑过且已结束，才 commitPush
+            LaunchedEffect(
+                state.pendingPopEntryId,
+                state.pendingPushEntryId,
+                coveredTransition.isRunning,
+                didRunCoveredTransitionForPush
+            ) {
+                if (state.pendingPopEntryId != null && !coveredTransition.isRunning) {
+                    val id = state.pendingPopEntryId!!
+                    state.commitPop(id)
+                }
+                if (state.pendingPushEntryId && didRunCoveredTransitionForPush && !coveredTransition.isRunning) {
+                    state.commitPush()
+                }
+            }
 
             // 正常情况返回时
             val backgroundDuration by coveredTransition.animateFloat(
@@ -91,73 +130,161 @@ fun TransitionNavHost(
 
             // 背景效果（进入时：Background -> Full，退出时：Full -> Background）
             val underEffect = UnderPageVisualEffect(
-                scale = lerp(UnderPageVisualEffect.Full.scale, UnderPageVisualEffect.Background.scale, backgroundDuration),
-                blur = lerp(UnderPageVisualEffect.Full.blur, UnderPageVisualEffect.Background.blur, backgroundDuration),
-                mask = lerp(UnderPageVisualEffect.Full.mask, UnderPageVisualEffect.Background.mask, backgroundDuration),
-                alpha = lerp(UnderPageVisualEffect.Full.alpha, UnderPageVisualEffect.Background.alpha, backgroundDuration),
-                corner = lerp(UnderPageVisualEffect.Full.corner, UnderPageVisualEffect.Background.corner, backgroundDuration)
+                scale = lerp(
+                    UnderPageVisualEffect.Full.scale,
+                    UnderPageVisualEffect.Background.scale,
+                    backgroundDuration
+                ),
+                blur = lerp(
+                    UnderPageVisualEffect.Full.blur,
+                    UnderPageVisualEffect.Background.blur,
+                    backgroundDuration
+                ),
+                mask = lerp(
+                    UnderPageVisualEffect.Full.mask,
+                    UnderPageVisualEffect.Background.mask,
+                    backgroundDuration
+                ),
+                alpha = lerp(
+                    UnderPageVisualEffect.Full.alpha,
+                    UnderPageVisualEffect.Background.alpha,
+                    backgroundDuration
+                ),
+                corner = lerp(
+                    UnderPageVisualEffect.Full.corner,
+                    UnderPageVisualEffect.Background.corner,
+                    backgroundDuration
+                )
             )
 
             // 主体效果（进入时：None -> Full，退出时：Full -> None）
             val topEffect = UnderPageVisualEffect(
-                scale = lerp(UnderPageVisualEffect.None.scale, UnderPageVisualEffect.Full.scale, backgroundDuration),
-                blur = lerp(UnderPageVisualEffect.None.blur, UnderPageVisualEffect.Full.blur, backgroundDuration),
-                mask = lerp(UnderPageVisualEffect.None.mask, UnderPageVisualEffect.Full.mask, backgroundDuration),
-                alpha = lerp(UnderPageVisualEffect.None.alpha, UnderPageVisualEffect.Full.alpha, backgroundDuration),
-                corner = lerp(UnderPageVisualEffect.None.corner, UnderPageVisualEffect.Full.corner, backgroundDuration)
+                scale = lerp(
+                    UnderPageVisualEffect.None.scale,
+                    UnderPageVisualEffect.Full.scale,
+                    backgroundDuration
+                ),
+                blur = lerp(
+                    UnderPageVisualEffect.None.blur,
+                    UnderPageVisualEffect.Full.blur,
+                    backgroundDuration
+                ),
+                mask = lerp(
+                    UnderPageVisualEffect.None.mask,
+                    UnderPageVisualEffect.Full.mask,
+                    backgroundDuration
+                ),
+                alpha = lerp(
+                    UnderPageVisualEffect.None.alpha,
+                    UnderPageVisualEffect.Full.alpha,
+                    backgroundDuration
+                ),
+                corner = lerp(
+                    UnderPageVisualEffect.None.corner,
+                    UnderPageVisualEffect.Full.corner,
+                    backgroundDuration
+                )
             )
 
             // 预测式返回时的背景和前景过渡（背景：Background -> PredictiveBackground，前景：Full -> PredictiveSelf）
             val predictiveUnderEffect = UnderPageVisualEffect(
-                scale = lerp(UnderPageVisualEffect.Background.scale, UnderPageVisualEffect.PredictiveBackground.scale, state.predictiveProgress),
-                blur = lerp(UnderPageVisualEffect.Background.blur, UnderPageVisualEffect.PredictiveBackground.blur, state.predictiveProgress),
-                mask = lerp(UnderPageVisualEffect.Background.mask, UnderPageVisualEffect.PredictiveBackground.mask, state.predictiveProgress),
-                alpha = lerp(UnderPageVisualEffect.Background.alpha, UnderPageVisualEffect.PredictiveBackground.alpha, state.predictiveProgress),
-                corner = lerp(UnderPageVisualEffect.Background.corner, UnderPageVisualEffect.PredictiveBackground.corner, state.predictiveProgress)
+                scale = lerp(
+                    UnderPageVisualEffect.Background.scale,
+                    UnderPageVisualEffect.PredictiveBackground.scale,
+                    state.predictiveProgress
+                ),
+                blur = lerp(
+                    UnderPageVisualEffect.Background.blur,
+                    UnderPageVisualEffect.PredictiveBackground.blur,
+                    state.predictiveProgress
+                ),
+                mask = lerp(
+                    UnderPageVisualEffect.Background.mask,
+                    UnderPageVisualEffect.PredictiveBackground.mask,
+                    state.predictiveProgress
+                ),
+                alpha = lerp(
+                    UnderPageVisualEffect.Background.alpha,
+                    UnderPageVisualEffect.PredictiveBackground.alpha,
+                    state.predictiveProgress
+                ),
+                corner = lerp(
+                    UnderPageVisualEffect.Background.corner,
+                    UnderPageVisualEffect.PredictiveBackground.corner,
+                    state.predictiveProgress
+                )
             )
 
             val predictiveTopEffect = UnderPageVisualEffect(
-                scale = lerp(UnderPageVisualEffect.Full.scale, UnderPageVisualEffect.PredictiveSelf.scale, state.predictiveProgress),
-                blur = lerp(UnderPageVisualEffect.Full.blur, UnderPageVisualEffect.PredictiveSelf.blur, state.predictiveProgress),
-                mask = lerp(UnderPageVisualEffect.Full.mask, UnderPageVisualEffect.PredictiveSelf.mask, state.predictiveProgress),
-                alpha = lerp(UnderPageVisualEffect.Full.alpha, UnderPageVisualEffect.PredictiveSelf.alpha, state.predictiveProgress),
-                corner = lerp(UnderPageVisualEffect.Full.corner, UnderPageVisualEffect.PredictiveSelf.corner, state.predictiveProgress)
+                scale = lerp(
+                    UnderPageVisualEffect.Full.scale,
+                    UnderPageVisualEffect.PredictiveSelf.scale,
+                    state.predictiveProgress
+                ),
+                blur = lerp(
+                    UnderPageVisualEffect.Full.blur,
+                    UnderPageVisualEffect.PredictiveSelf.blur,
+                    state.predictiveProgress
+                ),
+                mask = lerp(
+                    UnderPageVisualEffect.Full.mask,
+                    UnderPageVisualEffect.PredictiveSelf.mask,
+                    state.predictiveProgress
+                ),
+                alpha = lerp(
+                    UnderPageVisualEffect.Full.alpha,
+                    UnderPageVisualEffect.PredictiveSelf.alpha,
+                    state.predictiveProgress
+                ),
+                corner = lerp(
+                    UnderPageVisualEffect.Full.corner,
+                    UnderPageVisualEffect.PredictiveSelf.corner,
+                    state.predictiveProgress
+                )
             )
 
-            // 下层（背景）
-            if (under != null) {
-                key(under.id) {
-                    PageContainer(
-                        entry = under,
-                        transition = rememberTransition(
-                            under.transitionState,
-                            under.id
-                        ),
-                        isUnder = true,
-                        effect =
-                            if(isInPredictive) predictiveUnderEffect
-                            else if(!isCovered) topEffect
-                            else underEffect
-                    )
-                }
+            // 下层：预测式用预测效果；否则一律用 underEffect（由 backgroundDuration 驱动：1=Background 被盖住，0=Full 露出）
+            val underPageEffect = when {
+                isInPredictive -> predictiveUnderEffect
+                else -> underEffect
             }
 
-            // 上层（前景）
-            if (top != null) {
-                key(top.id) {
-                    PageContainer(
-                        entry = top,
-                        transition = rememberTransition(
-                            top.transitionState,
-                            top.id
-                        ),
-                        isUnder = false,
-                        effect =
-                            // 没被覆盖，此页面还在显示，不能有enterTopEffect特效否则被缩小了
-                            if(under == null) underEffect
-                            else if(isInPredictive) predictiveTopEffect
-                            else topEffect
-                    )
+            val topPageEffect = when {
+                under == null -> underEffect   // 单页时用 Full，避免被缩小
+                isInPredictive -> predictiveTopEffect
+                else -> topEffect
+            }
+
+            // 容器
+            Box(modifier) {
+                // 下层（背景）
+                if (under != null) {
+                    key(under.id) {
+                        PageContainer(
+                            entry = under,
+                            transition = rememberTransition(
+                                under.transitionState,
+                                under.id
+                            ),
+                            isUnder = true,
+                            effect = underPageEffect
+                        )
+                    }
+                }
+
+                // 上层（前景）
+                if (top != null) {
+                    key(top.id) {
+                        PageContainer(
+                            entry = top,
+                            transition = rememberTransition(
+                                top.transitionState,
+                                top.id
+                            ),
+                            isUnder = false,
+                            effect = topPageEffect
+                        )
+                    }
                 }
             }
         }
@@ -172,19 +299,17 @@ private fun PageContainer(
     effect: UnderPageVisualEffect
 ) {
     val state = LocalNavStackState.current
-    LaunchedEffect(effect) {
-        if(isUnder == false) {
-            return@LaunchedEffect
-        }
-        Log.d("isUnder $isUnder","topEffect=$effect")
 
-    }
-    // 状态闭环
-    LaunchedEffect(transition.currentState, transition.targetState) {
+    // 状态闭环：动画到达目标且未在跑时回调（Push 只设 pending，由 LaunchedEffect 在 coveredTransition 结束后 commit）
+    LaunchedEffect(transition.currentState, transition.targetState, transition.isRunning) {
         if (!transition.isRunning && transition.currentState == transition.targetState) {
             when (transition.currentState) {
-                NavPhase.Entering -> entry.transitionState.targetState = NavPhase.Active
-                NavPhase.Exiting -> state.commitPop(entry.id)
+                NavPhase.Active -> {
+                    if (state.currentAction == NavActionState.PUSH_ING && entry.id == state.stack.lastOrNull()?.id) {
+                        state.onEnteringTransitionComplete()  // 仅设 pendingPushEntryId，等 coveredTransition 结束后 commitPush()
+                    }
+                }
+                NavPhase.Exiting -> state.onExitingTransitionComplete(entry.id)
                 else -> Unit
             }
         }

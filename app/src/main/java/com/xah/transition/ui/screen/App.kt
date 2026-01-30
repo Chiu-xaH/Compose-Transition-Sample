@@ -54,11 +54,26 @@ fun SecondScreen(userId : String) {
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.inversePrimary)) {
         Button(
             onClick = {
+                navStackState.navigate(NavCommand.Push(ThirdDestination))
+            },
+            modifier = Modifier.align(Alignment.Center)
+        ) {
+            Text("$userId to ThirdScreen")
+        }
+    }
+}
+
+@Composable
+fun ThirdScreen() {
+    val navStackState = LocalNavStackState.current
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.primaryContainer)) {
+        Button(
+            onClick = {
                 navStackState.navigate(NavCommand.Pop)
             },
             modifier = Modifier.align(Alignment.Center)
         ) {
-            Text("$userId Back to HomeScreen")
+            Text("Back to")
         }
     }
 }
