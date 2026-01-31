@@ -1,4 +1,4 @@
-package com.xah.transition.ui.model
+package com.xah.navigation.model
 
 sealed interface NavCommand {
     data class Push(

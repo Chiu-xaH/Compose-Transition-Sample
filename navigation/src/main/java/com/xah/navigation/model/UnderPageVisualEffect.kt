@@ -1,4 +1,4 @@
-package com.xah.transition.ui.model
+package com.xah.navigation.model
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.Dp
@@ -47,6 +47,20 @@ data class UnderPageVisualEffect(
             scale = 0.875f,
             blur = 25.dp,
             mask = 0.2f,
+            corner = 0.dp,
+            alpha = 1f
+        )
+        val BackgroundWithoutBlur = UnderPageVisualEffect(
+            scale = 0.875f,
+            blur = 0.dp,
+            mask = 0.25f,
+            corner = 0.dp,
+            alpha = 1f
+        )
+        val BackgroundWithoutScale = UnderPageVisualEffect(
+            scale = 1f,
+            blur = 0.dp,
+            mask = 0.25f,
             corner = 0.dp,
             alpha = 1f
         )

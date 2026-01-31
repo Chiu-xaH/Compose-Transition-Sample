@@ -13,10 +13,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.xah.transition.ui.NavStackState
-import com.xah.transition.ui.component.TransitionNavHost
-import com.xah.transition.ui.model.NavCommand
-import com.xah.transition.ui.state.LocalNavStackState
+import com.xah.navigation.state.NavStackState
+import com.xah.navigation.component.TransitionNavHost
+import com.xah.navigation.model.NavCommand
+import com.xah.navigation.state.LocalNavStackState
+import com.xah.transition.ui.screen.destination.HomeDestination
+import com.xah.transition.ui.screen.destination.SecondDestination
+import com.xah.transition.ui.screen.destination.ThirdDestination
 
 @Composable
 fun App() {

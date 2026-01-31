@@ -1,17 +1,17 @@
-package com.xah.transition.ui
+package com.xah.navigation.state
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.xah.transition.ui.model.BackStackEntry
-import com.xah.transition.ui.model.Destination
-import com.xah.transition.ui.model.NavActionState
-import com.xah.transition.ui.model.NavCommand
-import com.xah.transition.ui.model.NavPhase
+import com.xah.navigation.model.BackStackEntry
+import com.xah.navigation.model.Destination
+import com.xah.navigation.model.NavActionState
+import com.xah.navigation.model.NavCommand
+import com.xah.navigation.model.NavPhase
 import java.util.UUID
-
+import kotlin.collections.plusAssign
 
 class NavStackState(
     startDestination : Destination

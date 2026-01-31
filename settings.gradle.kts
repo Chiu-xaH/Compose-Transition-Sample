@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Transition"
 include(":app")
- 
+include(":navigation")

@@ -1,4 +1,4 @@
-package com.xah.transition.ui.model
+package com.xah.navigation.model
 
 import androidx.compose.animation.core.MutableTransitionState
 
@@ -8,4 +8,3 @@ class BackStackEntry(
 ) {
     val transitionState = MutableTransitionState(NavPhase.Entering)
 }
-

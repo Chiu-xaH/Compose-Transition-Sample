@@ -1,4 +1,4 @@
-package com.xah.transition.ui.model
+package com.xah.navigation.model
 
 // 动画驱动状态机
 enum class NavPhase {
