@@ -2,7 +2,7 @@ package com.xah.navigation.component
 
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.PredictiveBackHandler
-import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.animateFloat
@@ -28,33 +28,42 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
-import com.xah.navigation.state.NavStackState
+import com.mxalbert.sharedelements.DelayExit
+import com.mxalbert.sharedelements.SharedElementsRoot
+import com.mxalbert.sharedelements.SharedElementsRootScope
 import com.xah.navigation.model.BackStackEntry
 import com.xah.navigation.model.NavActionState
 import com.xah.navigation.model.NavCommand
 import com.xah.navigation.model.NavPhase
 import com.xah.navigation.model.UnderPageVisualEffect
 import com.xah.navigation.state.LocalNavStackState
-import com.xah.navigation.state.LocalSharedTransitionScope
+import com.xah.navigation.state.NavStackState
 import com.xah.navigation.style.scaleMirror
-import kotlin.collections.getOrNull
-import kotlin.collections.lastIndex
 import kotlin.coroutines.cancellation.CancellationException
 
 private fun <T> transition() :  SpringSpec<T> = spring(
     dampingRatio = 1f,
     stiffness = 200f,
 )
-
+/*
+AnimatedContent(
+                    targetState = ,
+                    transitionSpec = { fadeIn() togetherWith fadeOut() },
+                    label = "SharedElementProvider"
+                ) {  ->
+                    CompositionLocalProvider(LocalAnimatedContentScope provides this) {
+                    }
+                }
+ */
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun TransitionNavHost(
     state: NavStackState,
     modifier: Modifier = Modifier
 ) {
-    SharedTransitionLayout {
+    SharedElementsRoot {
         CompositionLocalProvider(
             LocalNavStackState provides state,
-            LocalSharedTransitionScope provides this
         ) {
             // 普通返回
             BackHandler(enabled = state.stack.size > 1) {
@@ -262,6 +271,7 @@ fun TransitionNavHost(
                     else -> topEffect
                 }
 
+
                 // 容器
                 Box(modifier) {
                     // 下层（背景）
@@ -278,6 +288,7 @@ fun TransitionNavHost(
                             )
                         }
                     }
+
 
                     // 上层（前景）
                     if (top != null) {
@@ -299,8 +310,9 @@ fun TransitionNavHost(
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
-private fun PageContainer(
+private fun SharedElementsRootScope.PageContainer(
     entry: BackStackEntry,
     transition: Transition<NavPhase>,
     isUnder: Boolean,
