@@ -3,7 +3,6 @@ package com.xah.transition.ui.screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -13,14 +12,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.mxalbert.sharedelements.SharedMaterialContainer
+import com.xah.container.SharedContainer
+import com.xah.container.SharedContainerRoot
 import com.xah.navigation.component.TransitionNavHost
-import com.xah.navigation.component.containerShare
+import com.xah.navigation.model.NavActionState
 import com.xah.navigation.model.NavCommand
 import com.xah.navigation.state.LocalNavStackState
 import com.xah.navigation.state.NavStackState
@@ -35,7 +34,14 @@ import com.xah.transition.ui.screen.destination.ThirdDestination
 @Composable
 fun App() {
     val nav = remember { NavStackState(startDestination = HomeDestination) }
-    TransitionNavHost(state = nav)
+    SharedContainerRoot {
+        TransitionNavHost(
+            state = nav,
+            sharedContainerKeyForEntry = { entry ->
+                (entry.destination as? SecondDestination)?.let { "Item #${it.userId}" }
+            }
+        )
+    }
 }
 
 @Composable
@@ -53,11 +59,11 @@ fun HomeScreen() {
             items(30) { index ->
                 val route = "Item #$index"
                 Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
-                    SharedMaterialContainer(
+                    SharedContainer (
                         key = route,
                         screenKey = "Home",
                         color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = MaterialTheme.shapes.small,
+                        cornerRadius = 8.dp,
 //                    elevation = 2.dp,
 //                    transitionSpec = MaterialFadeInTransitionSpec
                     ) {
@@ -87,8 +93,9 @@ fun SecondScreen(userId : Int) {
     val navStackState = LocalNavStackState.current
     val route = "Item #$userId"
 
-    SharedMaterialContainer(
+    SharedContainer(
         key = route,
+        cornerRadius = 25.dp,
         color = MaterialTheme.colorScheme.surface,
         screenKey = "Second",
         isFullscreen = true,

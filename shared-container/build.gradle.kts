@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.xah.navigation"
+    namespace = "com.xah.container"
     compileSdk = Integer.parseInt(libs.versions.maxAndroidVersion.get())
 
     defaultConfig {
@@ -40,7 +40,5 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.material3)
-//    implementation(project(":shared-elements"))
-    implementation(project(":shared-container"))
     implementation(project(":common"))
 }

@@ -63,5 +63,7 @@ dependencies {
 
     implementation(libs.accompanist.systemuicontroller)
     implementation(project(":navigation"))
-    implementation(project(":shared-elements"))
+//    implementation(project(":shared-elements"))
+    implementation(project(":shared-container"))
+    implementation(project(":common"))
 }

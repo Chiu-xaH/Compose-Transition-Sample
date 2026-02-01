@@ -22,4 +22,5 @@ dependencyResolutionManagement {
 rootProject.name = "Transition"
 include(":app")
 include(":navigation")
-include(":shared-elements")
+include(":shared-container")
+include(":common")

@@ -30,7 +30,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.xah.navigation.component.containerShare
 import com.xah.navigation.state.LocalAnimatedContentScope
 import com.xah.navigation.state.LocalSharedTransitionScope
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
@@ -52,7 +51,6 @@ fun HomeScreenT(onPush : (Int) -> Unit) {
                 val route = "Item #$index"
                 SmallCard(
                     modifier = Modifier
-                        .containerShare(route)
                         .padding(CARD_NORMAL_DP*2),
                     color = MaterialTheme.colorScheme.primaryContainer
                 ) {
@@ -73,7 +71,6 @@ fun SecondScreenT(userId : Int,onBack : () -> Unit) {
     val route = "Item #$userId"
     Box(
         modifier = Modifier
-            .containerShare(route)
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
     ) {
