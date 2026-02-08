@@ -1,6 +1,9 @@
 package com.xah.container
 
 import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 
 /**
@@ -17,9 +20,9 @@ open class SharedContainerTransitionSpec(
      * rendering the new screen makes the animation not smooth.
      */
     val animationSpec : AnimationSpec<Float> = tween(
-        durationMillis = 400,
+        durationMillis = 750,
+        easing = FastOutSlowInEasing
     ),
-    val waitForFrames: Long = 500L,
     val direction: TransitionDirection = TransitionDirection.Auto,
     val fadeMode: FadeMode = FadeMode.Cross,
     val fadeProgressThresholds: ProgressThresholds? = null

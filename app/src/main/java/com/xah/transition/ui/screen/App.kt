@@ -3,6 +3,7 @@ package com.xah.transition.ui.screen
 import android.os.Build
 import android.view.RoundedCorner
 import android.view.View
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -110,7 +111,7 @@ fun SecondScreen(userId : Int) {
 
     SharedContainer(
         key = route,
-        cornerRadius = with(density) {
+        cornerRadius = if(navStackState.currentAction == NavActionState.NONE) 0.dp else with(density) {
             ScreenCornerHelper.corner.toDp()
         },
         color = MaterialTheme.colorScheme.surface,
@@ -172,3 +173,4 @@ class ScreenCornerHelper(view : View) {
         }
     }
 }
+

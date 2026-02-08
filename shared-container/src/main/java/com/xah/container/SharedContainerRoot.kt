@@ -222,7 +222,7 @@ private fun SharedContainerTransitionsOverlay(rootState: SharedContainerRootStat
 //                                easing = spec.easing
 //                            )
                         )
-                        delay(spec.waitForFrames)
+//                        delay(spec.waitForFrames)
 //                        repeat(spec.waitForFrames) { withFrameNanos {} }
                         transition.onTransitionFinished()
                     }
@@ -294,6 +294,7 @@ private class SharedContainerRootState {
         getTracker(containerInfo).onContainerPositioned(container, setShouldHide)
     }
 
+
     fun onContainerDisposed(containerInfo: SharedContainerInfo) {
         choreographer.postCallback(containerInfo) {
             val tracker = getTracker(containerInfo)
@@ -310,7 +311,7 @@ private class SharedContainerRootState {
         return trackers[containerInfo.key] ?: SharedContainerTracker { transition ->
             recomposeScope?.invalidate()
             (scope as Scope).isRunningTransition = transition != null ||
-                trackers.values.any { it.transition != null }
+                    trackers.values.any { it.transition != null }
         }.also { trackers = trackers + (containerInfo.key to it) }
     }
 
@@ -452,6 +453,17 @@ private class SharedContainerTracker(
             is StartContainerRegistered -> {
                 if (container.info == curState.startContainerInfo) {
                     state = StartContainerPositioned(startContainer = container)
+                }
+            }
+            is InTransition -> {
+                // Update bounds even during transition to handle cases where container position changes
+                val inProgress = transition as? InProgress
+                if (inProgress != null) {
+                    if (container.info == inProgress.startContainer.info) {
+                        inProgress.startContainer.bounds = container.bounds
+                    } else if (container.info == inProgress.endContainer.info) {
+                        inProgress.endContainer.bounds = container.bounds
+                    }
                 }
             }
             else -> Unit
@@ -599,7 +611,7 @@ private class PositionedSharedContainer(
     val compositionLocalContext: CompositionLocalContext,
     val placeholder: @Composable () -> Unit,
     val overlay: @Composable (SharedContainerTransitionState) -> Unit,
-    val bounds: Rect?
+    var bounds: Rect?
 )
 
 private sealed class SharedContainerTransition(val startContainer: PositionedSharedContainer) {
