@@ -23,6 +23,9 @@ interface SharedContainerController {
 
     /** Animate back to 0f and cancel the transition. */
     fun cancel(key: Any)
+
+    /** Cancel all active transitions (e.g., when back gesture is triggered). */
+    fun cancelAll()
 }
 
 val LocalSharedContainerController = staticCompositionLocalOf<SharedContainerController?> { null }

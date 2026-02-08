@@ -3,15 +3,13 @@ package com.xah.transition.ui.screen.test
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -26,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,6 +35,7 @@ import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CARD_NORMAL_DP
 import com.xah.transition.ui.component.SmallCard
 import com.xah.transition.ui.component.TransplantListItem
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreenT(onPush : (Int) -> Unit) {
@@ -119,3 +119,58 @@ fun ShareTest() {
     }
 }
 
+
+@Composable
+@Preview
+fun ContainerTest() {
+    val scope = rememberCoroutineScope()
+//    val controller = rememberSharedContainerController(SpringContainerAnimation(stiffness = 100f))
+
+//    val collapsedSpec = ContainerVisualState(
+//        cornerRadius = 24.dp,
+//        color = Color.Blue
+//    )
+//
+//    val expandedSpec = ContainerVisualState(
+//        cornerRadius = 0.dp,
+//        color = Color.Green
+//    )
+//
+//    Box() {
+//        SharedContainerMask(controller.progress,collapsedSpec,expandedSpec)
+//
+//    }
+
+    Column {
+//        Box(
+//            modifier = Modifier.background(Color.Red)
+//        ) {
+//        }
+//        Box(
+//            modifier = Modifier
+//                .height(200.dp)
+//                .scale(controller.progress)
+//                .background(Color.Red)
+//        ) {
+//            Text("progress = ${"%.2f".format(controller.progress)}", modifier = Modifier.align(Alignment.Center))
+//        }
+//        Text("progress = ${"%.2f".format(controller.progress)}")
+//
+//        Button(onClick = {
+//            scope.launch {
+//                controller.expand()
+//            }
+//        }) {
+//            Text("展开")
+//        }
+//
+//        Button(onClick = {
+//            scope.launch {
+//                controller.collapse()
+//            }
+//        }) {
+//            Text("收起")
+//        }
+//
+    }
+}

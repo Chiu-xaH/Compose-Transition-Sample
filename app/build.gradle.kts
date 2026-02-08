@@ -65,5 +65,6 @@ dependencies {
     implementation(project(":navigation"))
 //    implementation(project(":shared-elements"))
     implementation(project(":shared-container"))
+//    implementation(project(":shared-test"))
     implementation(project(":common"))
 }

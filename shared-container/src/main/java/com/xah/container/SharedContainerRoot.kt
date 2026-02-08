@@ -1,6 +1,8 @@
 package com.xah.container
 
+import android.util.Log
 import android.view.Choreographer
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -44,6 +46,7 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
+import com.xah.common.util.LogUtil
 import com.xah.container.SharedContainerTracker.State.Empty
 import com.xah.container.SharedContainerTracker.State.EndContainerRegistered
 import com.xah.container.SharedContainerTracker.State.InTransition
@@ -662,6 +665,11 @@ private class SharedContainerControllerImpl(
 
     override fun cancel(key: Any) {
         rootState.trackers[key]?.cancelInteractive()
+        rootState.recomposeScope?.invalidate()
+    }
+
+    override fun cancelAll() {
+        rootState.trackers.values.forEach { it.cancelInteractive() }
         rootState.recomposeScope?.invalidate()
     }
 }

@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
+import com.xah.common.util.LogUtil
 import com.xah.navigation.model.BackStackEntry
 import com.xah.navigation.model.NavActionState
 import com.xah.navigation.model.NavCommand
@@ -52,19 +53,18 @@ private fun <T> transition() :  SpringSpec<T> = spring(
 fun TransitionNavHost(
     state: NavStackState,
     modifier: Modifier = Modifier,
-    /** 当前 top 对应的共享容器 key，与 [SharedContainer] 的 key 一致；用于展开过程中按返回时打断共享容器动画。 */
-    sharedContainerKeyForEntry: (BackStackEntry) -> Any? = { null }
+//    /** 当前 top 对应的共享容器 key，与 [SharedContainer] 的 key 一致；用于展开过程中按返回时打断共享容器动画。 */
+//    sharedContainerKeyForEntry: (BackStackEntry) -> Any? = { null }
 ) {
-    val containerController = LocalSharedContainerController.current
     CompositionLocalProvider(
         LocalNavStackState provides state,
     ) {
+        val containerController = LocalSharedContainerController.current
+
         // 普通返回；展开过程中按返回时先打断共享容器动画再 pop
         BackHandler(enabled = state.stack.size > 1) {
-            val top = state.stack.lastOrNull()
-            if (top != null && state.currentAction == NavActionState.PUSH_ING) {
-                val key = sharedContainerKeyForEntry(top)
-                if (key != null) containerController?.cancel(key)
+            if (state.currentAction == NavActionState.PUSH_ING) {
+                containerController?.cancelAll()
             }
             state.navigate(NavCommand.Pop)
         }

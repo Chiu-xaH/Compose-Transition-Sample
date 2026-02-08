@@ -1,5 +1,8 @@
 package com.xah.transition.ui.screen
 
+import android.os.Build
+import android.view.RoundedCorner
+import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -12,9 +15,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.xah.container.SharedContainer
 import com.xah.container.SharedContainerRoot
@@ -33,13 +42,18 @@ import com.xah.transition.ui.screen.destination.ThirdDestination
 
 @Composable
 fun App() {
+    val view = LocalView.current
+    LaunchedEffect(Unit) {
+        ScreenCornerHelper(view)
+    }
     val nav = remember { NavStackState(startDestination = HomeDestination) }
+
     SharedContainerRoot {
         TransitionNavHost(
             state = nav,
-            sharedContainerKeyForEntry = { entry ->
-                (entry.destination as? SecondDestination)?.let { "Item #${it.userId}" }
-            }
+//            sharedContainerKeyForEntry = { entry ->
+//                (entry.destination as? SecondDestination)?.let { "Item #${it.userId}" }
+//            }
         )
     }
 }
@@ -92,10 +106,13 @@ fun HomeScreen() {
 fun SecondScreen(userId : Int) {
     val navStackState = LocalNavStackState.current
     val route = "Item #$userId"
+    val density = LocalDensity.current
 
     SharedContainer(
         key = route,
-        cornerRadius = 25.dp,
+        cornerRadius = with(density) {
+            ScreenCornerHelper.corner.toDp()
+        },
         color = MaterialTheme.colorScheme.surface,
         screenKey = "Second",
         isFullscreen = true,
@@ -119,6 +136,8 @@ fun SecondScreen(userId : Int) {
 
 }
 
+
+
 @Composable
 fun ThirdScreen() {
     val navStackState = LocalNavStackState.current
@@ -134,3 +153,22 @@ fun ThirdScreen() {
     }
 }
 
+class ScreenCornerHelper(view : View) {
+    companion object {
+        var corner : Int = 0
+            private set
+    }
+
+    init {
+        corner = view.getScreenRoundCorner()
+    }
+
+    private fun View.getScreenRoundCorner() : Int {
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            return 0
+        } else {
+            val insets = rootWindowInsets ?: return 0
+            return insets.getRoundedCorner(RoundedCorner.POSITION_TOP_LEFT)?.radius ?: 0
+        }
+    }
+}
