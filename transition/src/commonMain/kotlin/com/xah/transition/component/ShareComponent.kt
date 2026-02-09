@@ -17,6 +17,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
 import com.xah.transition.state.LocalAnimatedContentScope
 import com.xah.transition.state.LocalAppNavController
 import com.xah.transition.state.LocalSharedTransitionScope
@@ -24,6 +27,7 @@ import com.xah.transition.state.NavAction
 import com.xah.transition.state.TransitionConfig
 import com.xah.transition.style.TransitionLevel
 import com.xah.transition.util.currentRouteWithoutArgs
+import com.xah.transition.util.getScreenCorner
 import com.xah.transition.util.isCurrentRouteWithoutArgs
 
 private val spring = spring(
@@ -41,6 +45,7 @@ fun Modifier.containerShare(
     if(TransitionConfig.transitionBackgroundStyle.level == TransitionLevel.NONE_ALL) {
         return this
     }
+    val density = LocalDensity.current
     val sharedTransitionScope = LocalSharedTransitionScope.current
     val animatedContentScope = LocalAnimatedContentScope.current
     with(sharedTransitionScope) {
@@ -50,6 +55,13 @@ fun Modifier.containerShare(
         val boundsTransform = BoundsTransform { _,_ ->
             spring
         }
+//        val screenCorner = with(density) { getScreenCorner().toDp() }
+//        if(screenCorner == 0.dp) {
+//             不变
+//            roundShape
+//        } else {
+//            lerp(roundShape,screenCorner,0f)
+//        }
 
         return this@containerShare
             .sharedBounds(

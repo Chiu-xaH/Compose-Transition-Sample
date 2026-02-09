@@ -2,6 +2,13 @@
 
 使用Compose Multiplatform对Navigation和Modifier.shareElement/shareBounds封装创建的一个容器过渡转场动画，支持在NavHost下无限打开N级界面，有四档背景特效调节(模糊、缩放、压暗)
 
+## 重构计划
+上周重开了项目，打算作为第二代，导航栈不用官方的库了，无论是Naviagtion2还是3，共享容器也不用Compose的Modifier.shareElements和shareBounds了，可定制性太低了，一代虽然借助上面的Api二次封装实现了动效，但是效果、性能都不太满意。
+
+这次重写后，性能好了很多，可定制性也大大提高了，但是仍然有很多问题还未处理，例如打断动画、并发动画等，目前还无法达到能用的程度，全都处理的差不多了Push代码吧，等正式上线应该要很久了……（视频见下图链接）
+
+https://github.com/Chiu-xaH/Navigation-Transition-Share/discussions/2
+
 ## 平台
 Wasm(JS)、Desktop(JVM)、iOS、Android
 

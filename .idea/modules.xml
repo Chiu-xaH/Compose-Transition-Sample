@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/composeApp/AnimationSample.composeApp.nativeMain.iml" filepath="$PROJECT_DIR$/.idea/modules/composeApp/AnimationSample.composeApp.nativeMain.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/transition/AnimationSample.transition.jvmMain.iml" filepath="$PROJECT_DIR$/.idea/modules/transition/AnimationSample.transition.jvmMain.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/transition/AnimationSample.transition.nativeMain.iml" filepath="$PROJECT_DIR$/.idea/modules/transition/AnimationSample.transition.nativeMain.iml" />
     </modules>
   </component>
 </project>
