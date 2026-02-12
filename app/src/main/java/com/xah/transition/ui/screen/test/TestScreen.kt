@@ -3,15 +3,19 @@ package com.xah.transition.ui.screen.test
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -28,19 +32,24 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.xah.container.BottomExtensionContainer
 import com.xah.navigation.state.LocalAnimatedContentScope
 import com.xah.navigation.state.LocalSharedTransitionScope
+import com.xah.transition.R
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CARD_NORMAL_DP
 import com.xah.transition.ui.component.SmallCard
 import com.xah.transition.ui.component.TransplantListItem
-import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreenT(onPush : (Int) -> Unit) {
     val scrollState = rememberLazyGridState()
-
     Box(modifier = Modifier.fillMaxSize()) {
         LazyVerticalGrid(
             state = scrollState,
@@ -49,17 +58,18 @@ fun HomeScreenT(onPush : (Int) -> Unit) {
         ) {
             items(30) { index ->
                 val route = "Item #$index"
-                SmallCard(
-                    modifier = Modifier
-                        .padding(CARD_NORMAL_DP*2),
-                    color = MaterialTheme.colorScheme.primaryContainer
-                ) {
-                    TransplantListItem(
-                        headlineContent = { Text(route) },
-                        modifier = Modifier.clickable {
-                            onPush(index)
-                        }
-                    )
+                Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                    SmallCard(
+                        modifier = Modifier.containerShare(route, null,null),
+                        color = MaterialTheme.colorScheme.primaryContainer
+                    ) {
+                        TransplantListItem(
+                            headlineContent = { Text(route) },
+                            modifier = Modifier.clickable {
+                                onPush(index)
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -68,9 +78,11 @@ fun HomeScreenT(onPush : (Int) -> Unit) {
 
 @Composable
 fun SecondScreenT(userId : Int,onBack : () -> Unit) {
+    val density = LocalDensity.current
     val route = "Item #$userId"
     Box(
         modifier = Modifier
+            .containerShare(route, Color.Red,null)
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
     ) {
@@ -80,6 +92,27 @@ fun SecondScreenT(userId : Int,onBack : () -> Unit) {
                 modifier = Modifier.align(Alignment.Center)
             ) {
                 Text("${userId} Back")
+            }
+        }
+    }
+
+}
+
+
+@Preview
+@Composable
+fun Extension() {
+    var expand by remember { mutableStateOf(false) }
+    val height by animateFloatAsState(
+        if(expand) 200f else 0f,
+        tween(400)
+    )
+    Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.align(Alignment.Center)) {
+            BottomExtensionContainer(height, modifier = Modifier.clip(MaterialTheme.shapes.extraLarge)) {
+                Image(painterResource(R.drawable.ic_jd),null, modifier = Modifier.clickable {
+                    expand = !expand
+                })
             }
         }
     }
@@ -174,3 +207,5 @@ fun ContainerTest() {
 //
     }
 }
+
+
