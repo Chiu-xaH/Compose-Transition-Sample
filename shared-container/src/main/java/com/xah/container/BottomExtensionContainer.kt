@@ -6,8 +6,8 @@ import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -97,9 +97,8 @@ private fun Modifier.bottomExtension(
                 onDrawWithContent {
                     // 使用缓存的自定义渲染效果
                     parentGraphicsLayer.renderEffect = customRenderEffect
-                    parentGraphicsLayer.clip = true
                     withTransform({
-                        clipRect(0f, 0f, parentRect.width,extensionHeight )
+                        clipRect(0f, 0f, parentRect.width,extensionHeight)
                     }) {
                         drawLayer(parentGraphicsLayer)
                     }
@@ -120,9 +119,6 @@ private const val SHADER_CODE = """
     uniform float extensionHeight; // 延展高度
 
     half4 main(float2 fragCoord) {
-        // 将 y 坐标限制在延展范围内
-        float yInExtension = mod(fragCoord.y, extensionHeight);
-
         // 始终采样底部 1 像素行
         float2 bottomCoord = float2(fragCoord.x, size.y - 1.0);
 

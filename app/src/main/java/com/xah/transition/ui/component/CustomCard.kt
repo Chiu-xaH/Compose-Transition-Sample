@@ -1,55 +1,73 @@
 package com.xah.transition.ui.component
 
-import androidx.compose.animation.AnimatedContentScope
-import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+
+
+val CARD_NORMAL_DP : Dp = 2.5.dp
+
+val APP_HORIZONTAL_DP = 16.25.dp
 
 @Composable
-fun MyCustomCard(
+fun CustomCard(
     modifier: Modifier = Modifier,
-    containerColor : Color? = null,
-    hasElevation : Boolean = false,
-    content: @Composable () -> Unit) {
+    color : Color? = null,
+    shadow : Dp = 0.dp,
+    shape: Shape = MaterialTheme.shapes.medium,
+    border : BorderStroke? = null,
+    content: @Composable () -> Unit
+) {
     val baseModifier = Modifier
         .fillMaxWidth()
         .padding(horizontal = APP_HORIZONTAL_DP, vertical = CARD_NORMAL_DP)
 
     Card(
-        elevation = CardDefaults.cardElevation(defaultElevation = if(hasElevation) 1.75.dp else 0.dp),
+        border = border,
         modifier = baseModifier.then(modifier),
-        shape = MaterialTheme.shapes.medium,
-        colors = if(containerColor == null) CardDefaults.cardColors() else CardDefaults.cardColors(containerColor = containerColor)
+        shape = shape,
+        elevation =  CardDefaults. cardElevation(shadow),
+        colors = if(color == null) CardDefaults.cardColors() else CardDefaults.cardColors(containerColor = color)
     ) {
         content()
     }
 }
+
+
+@Composable
+fun cardNormalColor(enableAlpha : Boolean = false): Color {
+    val overlay = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = .05f)
+    if(enableAlpha) {
+        return overlay
+    }
+    val base = MaterialTheme.colorScheme.surface
+    return overlay.compositeOver(base)
+}
 // 小卡片
 @Composable
 fun SmallCard(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.fillMaxSize(),
     color : Color? = null,
+    shadow : Dp = 0.dp,
     content: @Composable () -> Unit
 ) {
     Card(
         modifier = modifier,
         shape = MaterialTheme.shapes.small,
+        elevation = CardDefaults.cardElevation(shadow),
         colors = CardDefaults.cardColors(containerColor = color ?: cardNormalColor())
     ) {
         content()
@@ -58,7 +76,6 @@ fun SmallCard(
 
 @Composable
 fun TransplantListItem(
-    modifier: Modifier = Modifier,
     headlineContent :  @Composable () -> Unit,
     overlineContent  : @Composable() (() -> Unit)? = null,
     supportingContent : @Composable() (() -> Unit)? = null,
@@ -66,6 +83,7 @@ fun TransplantListItem(
     leadingContent : @Composable() (() -> Unit)? = null,
     colors : Color? = null,
     usePadding : Boolean = true,
+    modifier: Modifier = Modifier
 ) {
     ListItem(
         headlineContent = headlineContent,
@@ -85,18 +103,19 @@ fun TransplantListItem(
 }
 
 @Composable
-private fun CardListItem(
-    modifier: Modifier = Modifier,
-    cardModifier : Modifier = Modifier,
+private fun PCardListItem(
     headlineContent :  @Composable () -> Unit,
     overlineContent  : @Composable() (() -> Unit)? = null,
     supportingContent : @Composable() (() -> Unit)? = null,
     trailingContent : @Composable() (() -> Unit)? = null,
     leadingContent : @Composable() (() -> Unit)? = null,
-    hasElevation : Boolean = false,
-    containerColor : Color? = null,
+    color : Color? = null,
+    shape: Shape = MaterialTheme.shapes.medium,
+    shadow: Dp = 0.dp,
+    modifier: Modifier = Modifier,
+    cardModifier : Modifier = Modifier
 ) {
-    MyCustomCard(hasElevation = hasElevation, containerColor = containerColor, modifier = cardModifier) {
+    CustomCard( color = color, modifier = cardModifier, shape = shape, shadow = shadow) {
         TransplantListItem(
             headlineContent = headlineContent,
             overlineContent = overlineContent,
@@ -111,30 +130,22 @@ private fun CardListItem(
 
 
 @Composable
-fun StyleCardListItem(
-    modifier: Modifier = Modifier,
-    cardModifier: Modifier = Modifier,
+fun CardListItem(
     headlineContent :  @Composable () -> Unit,
     overlineContent  : @Composable() (() -> Unit)? = null,
     supportingContent : @Composable() (() -> Unit)? = null,
     trailingContent : @Composable() (() -> Unit)? = null,
     leadingContent : @Composable() (() -> Unit)? = null,
     color : Color? = null,
+    shape: Shape = MaterialTheme.shapes.medium,
+    shadow: Dp = 0.dp,
+    modifier: Modifier = Modifier,
+    cardModifier: Modifier = Modifier,
 ) {
-    CardListItem(
-        modifier = modifier, cardModifier = cardModifier,
-        headlineContent, overlineContent, supportingContent, trailingContent,leadingContent,
-        hasElevation = false,
-        containerColor = color ?: cardNormalColor()
+    PCardListItem(
+        headlineContent, overlineContent, supportingContent, trailingContent,leadingContent, modifier = modifier, cardModifier = cardModifier,
+        color = color ?: cardNormalColor(),
+        shape = shape, shadow = shadow
     )
 }
-
-@Composable
-fun cardNormalColor() : Color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = .05f)
-
-val CARD_NORMAL_DP : Dp = 2.5.dp
-
-val APP_HORIZONTAL_DP : Dp = 16.25.dp
-
-
 
