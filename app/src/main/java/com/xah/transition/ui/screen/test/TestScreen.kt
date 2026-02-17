@@ -23,9 +23,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -44,16 +41,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.xah.container.BottomExtensionContainer
+import com.xah.container.container.BottomExtensionContainer
 import com.xah.navigation.state.LocalAnimatedContentScope
 import com.xah.navigation.state.LocalSharedTransitionScope
 import com.xah.transition.R
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CARD_NORMAL_DP
 import com.xah.transition.ui.component.SmallCard
-import com.xah.transition.ui.component.CardListItem
 import com.xah.transition.ui.component.TransplantListItem
-import com.xah.transition.ui.component.cardNormalColor
 
 @Composable
 fun HomeScreenT(onPush : (Int) -> Unit) {

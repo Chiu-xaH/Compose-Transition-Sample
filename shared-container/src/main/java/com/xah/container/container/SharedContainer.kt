@@ -1,4 +1,4 @@
-package com.xah.container
+package com.xah.container.container
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -10,6 +10,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
+import com.xah.container.animation.DefaultSharedContainerTransitionSpec
+import com.xah.container.LocalSharedContainerEnabled
+import com.xah.container.animation.SharedContainerTransitionSpec
 
 /**
  * A "shared container" transition primitive.

@@ -1,18 +1,18 @@
-package com.xah.container
+package com.xah.container.animation
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
 
 abstract class KeyframeBasedMotion : PathMotion {
 
-    private var start = Offset.Unspecified
-    private var end = Offset.Unspecified
+    private var start = Offset.Companion.Unspecified
+    private var end = Offset.Companion.Unspecified
     private var keyframes: Pair<FloatArray, LongArray>? = null
 
     protected abstract fun getKeyframes(start: Offset, end: Offset): Pair<FloatArray, LongArray>
 
     private fun LongArray.getOffset(index: Int) =
-        @Suppress("INVISIBLE_MEMBER") Offset(get(index))
+        @Suppress("INVISIBLE_MEMBER") (Offset(get(index)))
 
     override fun invoke(start: Offset, end: Offset, fraction: Float): Offset {
         var frac = fraction
@@ -69,4 +69,3 @@ abstract class KeyframeBasedMotion : PathMotion {
         return lerp(start, end, intervalFraction)
     }
 }
-

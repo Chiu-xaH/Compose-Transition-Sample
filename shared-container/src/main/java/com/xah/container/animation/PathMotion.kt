@@ -1,4 +1,4 @@
-package com.xah.container
+package com.xah.container.animation
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp

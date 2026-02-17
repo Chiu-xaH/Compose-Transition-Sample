@@ -20,8 +20,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import com.xah.common.util.ScreenCornerHelper
-import com.xah.container.SharedContainer
-import com.xah.container.SharedContainerRoot
+import com.xah.container.container.SharedContainer
+import com.xah.container.container.SharedContainerRoot
 import com.xah.navigation.component.TransitionNavHost
 import com.xah.navigation.model.NavActionState
 import com.xah.navigation.model.NavCommand

@@ -1,4 +1,4 @@
-package com.xah.container
+package com.xah.container.animation
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable

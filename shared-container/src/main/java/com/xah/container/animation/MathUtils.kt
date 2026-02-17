@@ -1,9 +1,11 @@
-package com.xah.container
+package com.xah.container.animation
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.layout.lerp
+import com.xah.container.container.FadeMode
+import com.xah.container.container.FadeThroughProgressThreshold
+import com.xah.container.container.TransitionDirection
 import androidx.compose.ui.util.lerp as lerpFloat
 
 internal val Rect.area: Float

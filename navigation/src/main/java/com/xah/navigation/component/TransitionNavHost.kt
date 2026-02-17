@@ -24,12 +24,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
-import com.xah.container.LocalSharedContainerController
+import com.xah.container.controller.LocalSharedContainerController
 import com.xah.container.LocalSharedContainerEnabled
 import com.xah.navigation.model.BackStackEntry
 import com.xah.navigation.model.NavActionState

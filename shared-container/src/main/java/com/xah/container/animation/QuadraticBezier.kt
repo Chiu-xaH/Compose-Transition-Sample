@@ -1,4 +1,4 @@
-package com.xah.container
+package com.xah.container.animation
 
 import androidx.compose.ui.geometry.Offset
 
@@ -61,7 +61,7 @@ internal object QuadraticBezier {
 
         cur = start
         var length = 0f
-        var last = Offset.Unspecified
+        var last = Offset.Companion.Unspecified
         val result = LongArray(count)
         val lengths = FloatArray(count)
         for (i in result.indices) {
@@ -86,4 +86,3 @@ internal object QuadraticBezier {
         return lengths to result
     }
 }
-

@@ -1,10 +1,7 @@
-package com.xah.container
+package com.xah.container.container
 
-import android.util.Log
 import android.view.Choreographer
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
@@ -26,7 +23,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
@@ -46,15 +42,23 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
-import com.xah.common.util.LogUtil
-import com.xah.container.SharedContainerTracker.State.Empty
-import com.xah.container.SharedContainerTracker.State.EndContainerRegistered
-import com.xah.container.SharedContainerTracker.State.InTransition
-import com.xah.container.SharedContainerTracker.State.StartContainerPositioned
-import com.xah.container.SharedContainerTracker.State.StartContainerRegistered
-import com.xah.container.SharedContainerTransition.InProgress
-import com.xah.container.SharedContainerTransition.WaitingForEndContainerPosition
-import kotlinx.coroutines.delay
+import com.xah.container.animation.DefaultSharedContainerTransitionSpec
+import com.xah.container.controller.LocalSharedContainerController
+import com.xah.container.animation.PathMotion
+import com.xah.container.controller.SharedContainerController
+import com.xah.container.animation.SharedContainerTransitionSpec
+import com.xah.container.animation.applyTo
+import com.xah.container.animation.calculateAlpha
+import com.xah.container.animation.calculateDirection
+import com.xah.container.animation.calculateTopCenter
+import com.xah.container.container.SharedContainerTracker.State.Empty
+import com.xah.container.container.SharedContainerTracker.State.EndContainerRegistered
+import com.xah.container.container.SharedContainerTracker.State.InTransition
+import com.xah.container.container.SharedContainerTracker.State.StartContainerPositioned
+import com.xah.container.container.SharedContainerTracker.State.StartContainerRegistered
+import com.xah.container.container.SharedContainerTransition.InProgress
+import com.xah.container.container.SharedContainerTransition.WaitingForEndContainerPosition
+import com.xah.container.animation.lerpSize
 
 @Composable
 internal fun BaseSharedContainer(
@@ -203,11 +207,6 @@ private fun SharedContainerTransitionsOverlay(rootState: SharedContainerRootStat
                         animated.animateTo(
                             targetValue = settleTarget,
                             animationSpec = settleSpec.animationSpec
-//                                tween(
-//                                durationMillis = settleSpec.durationMillis,
-//                                delayMillis = settleSpec.delayMillis,
-//                                easing = settleSpec.easing
-//                            )
                         )
                         tracker.onSettleFinished(reached = settleTarget, transition = transition)
                     }
@@ -216,14 +215,7 @@ private fun SharedContainerTransitionsOverlay(rootState: SharedContainerRootStat
                         animated.animateTo(
                             targetValue = 1f,
                             animationSpec = spec.animationSpec
-//                                tween(
-//                                durationMillis = spec.durationMillis,
-//                                delayMillis = spec.delayMillis,
-//                                easing = spec.easing
-//                            )
                         )
-//                        delay(spec.waitForFrames)
-//                        repeat(spec.waitForFrames) { withFrameNanos {} }
                         transition.onTransitionFinished()
                     }
                 }
@@ -758,7 +750,12 @@ private fun SharedContainerOverlayContentLayers(
 ) {
     // Route A: draw both start/end placeholders in overlay, and crossfade them.
     fun contentAlpha(isStart: Boolean): Float =
-        calculateAlpha(direction = direction, fadeMode = fadeMode, fraction = fadeFraction, isStart = isStart)
+        calculateAlpha(
+            direction = direction,
+            fadeMode = fadeMode,
+            fraction = fadeFraction,
+            isStart = isStart
+        )
 
     // End layer first when FadeMode.Out (end should be behind).
     val endFirst = fadeMode == FadeMode.Out

@@ -1,13 +1,13 @@
-package com.xah.container
+package com.xah.container.animation
 
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import com.xah.container.container.FadeMode
+import com.xah.container.container.TransitionDirection
 
 /**
- * Animation spec for [SharedContainer].
+ * Animation spec for [com.xah.container.container.SharedContainer].
  *
  * This module is intentionally decoupled from navigation. The integration layer (e.g. your
  * NavHost) controls when both start/end containers appear/disappear; this spec only controls how
