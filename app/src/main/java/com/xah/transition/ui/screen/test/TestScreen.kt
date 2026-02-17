@@ -41,7 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.xah.container.container.BottomExtensionContainer
+//import com.xah.container.container.BottomExtensionContainer
 import com.xah.navigation.state.LocalAnimatedContentScope
 import com.xah.navigation.state.LocalSharedTransitionScope
 import com.xah.transition.R
@@ -101,7 +101,7 @@ fun SecondScreenT(userId : Int,onBack : () -> Unit) {
 
 }
 
-
+/*
 @Preview
 @Composable
 fun Extension() {
@@ -166,6 +166,8 @@ fun Extension() {
         }
     }
 }
+
+ */
 
 @Preview
 @Composable
