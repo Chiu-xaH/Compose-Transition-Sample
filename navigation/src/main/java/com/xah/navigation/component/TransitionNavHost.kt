@@ -176,27 +176,27 @@ fun TransitionNavHost(
             val underEffect = UnderPageVisualEffect(
                 scale = lerp(
                     UnderPageVisualEffect.Full.scale,
-                    UnderPageVisualEffect.BackgroundWithoutScale.scale,
+                    UnderPageVisualEffect.Background.scale,
                     backgroundScaleDuration
                 ),
                 blur = lerp(
                     UnderPageVisualEffect.Full.blur,
-                    UnderPageVisualEffect.BackgroundWithoutScale.blur,
+                    UnderPageVisualEffect.Background.blur,
                     backgroundBlurDuration
                 ),
                 mask = lerp(
                     UnderPageVisualEffect.Full.mask,
-                    UnderPageVisualEffect.BackgroundWithoutScale.mask,
+                    UnderPageVisualEffect.Background.mask,
                     backgroundDuration
                 ),
                 alpha = lerp(
                     UnderPageVisualEffect.Full.alpha,
-                    UnderPageVisualEffect.BackgroundWithoutScale.alpha,
+                    UnderPageVisualEffect.Background.alpha,
                     backgroundDuration
                 ),
                 corner = lerp(
                     UnderPageVisualEffect.Full.corner,
-                    UnderPageVisualEffect.BackgroundWithoutScale.corner,
+                    UnderPageVisualEffect.Background.corner,
                     backgroundDuration
                 )
             )

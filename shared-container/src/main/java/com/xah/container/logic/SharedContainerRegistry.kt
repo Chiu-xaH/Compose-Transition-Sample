@@ -27,17 +27,18 @@ class SharedContainerRegistry {
     ) {
 
         val state = states[key] ?: return
-        val from = state.layoutRect ?: return
+        val rectFrom = state.layoutRect ?: return
 
         state.isRunning = true
 
         onSwapContent()
         awaitFrame()
 
-        val to = state.layoutRect ?: return
+        val rectTo = state.layoutRect ?: return
 
-        state.rectFrom = from
-        state.rectTo = to
+        state.rectFrom = rectFrom
+        state.rectTo = rectTo
+        state.targetRect = state.rectFrom
 
         state.animation.snapTo(0f)
         state.animation.animateTo(1f,testSpring)
@@ -51,17 +52,18 @@ class SharedContainerRegistry {
     ) {
 
         val state = states[key] ?: return
-        val from = state.layoutRect ?: return
+        val rectFrom = state.layoutRect ?: return
 
         state.isRunning = true
 
         onSwapContent()
         awaitFrame()
 
-        val to = state.layoutRect ?: return
+        val rectTo = state.layoutRect ?: return
 
-        state.rectFrom = from
-        state.rectTo = to
+        state.rectFrom = rectFrom
+        state.rectTo = rectTo
+        state.targetRect = state.rectTo
 
         state.animation.snapTo(0f)
         state.animation.animateTo(1f,testSpring)

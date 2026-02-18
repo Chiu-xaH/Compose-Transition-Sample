@@ -17,24 +17,10 @@ class SharedContainerState() {
     var rectFrom by mutableStateOf<Rect?>(null)
     var rectTo by mutableStateOf<Rect?>(null)
 
+    var targetRect by mutableStateOf<Rect?>(null)
 
     val animation = Animatable(0f)
     var isRunning by mutableStateOf(false)
 
-    fun currentVisualRect(): Rect? {
-        val from = rectFrom
-        val to = rectTo
-        val p = animation.value
-
-        return when {
-            from != null && to != null -> Rect(
-                lerp(from.left, to.left, p),
-                lerp(from.top, to.top, p),
-                lerp(from.right, to.right, p),
-                lerp(from.bottom, to.bottom, p)
-            )
-            else -> layoutRect
-        }
-    }
-
+    var content: (@Composable () -> Unit)? = null
 }
