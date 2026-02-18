@@ -1,4 +1,4 @@
-package com.xah.container
+package com.xah.container.ui.overlay
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -9,11 +9,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.zIndex
+import com.xah.container.logic.SharedContainerRegistry
+import com.xah.container.ui.util.LocalSharedContainerRegistry
 import kotlin.math.roundToInt
 
 
@@ -35,10 +40,10 @@ fun SharedContainerRoot(
             // Overlay 永远在界面下面
             Box(Modifier.zIndex(-1f)) {
                 registry.runningStates.forEach { state ->
-                    if (state.transitionFrom != null && state.transitionTo != null) {
+                    if (state.rectFrom != null && state.rectTo != null) {
 
-                        val s = state.transitionFrom!!
-                        val e = state.transitionTo!!
+                        val s = state.rectFrom!!
+                        val e = state.rectTo!!
                         val p = state.animation.value
 
                         val left = lerp(s.left, e.left, p)
@@ -55,7 +60,13 @@ fun SharedContainerRoot(
                                     with(density) { height.toDp() }
                                 )
                                 .background(Color.Black)
-
+//                                .drawWithCache {
+//                                    onDrawWithContent {
+//                                        state.layoutLayer?.let {
+//                                            drawLayer(it)
+//                                        }
+//                                    }
+//                                }
                         )
                     }
                 }

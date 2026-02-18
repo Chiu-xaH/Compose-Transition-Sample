@@ -1,7 +1,6 @@
-package com.xah.container
+package com.xah.container.logic
 
 import androidx.compose.animation.core.spring
-import androidx.compose.runtime.staticCompositionLocalOf
 import kotlinx.coroutines.android.awaitFrame
 
 class SharedContainerRegistry {
@@ -37,8 +36,8 @@ class SharedContainerRegistry {
 
         val to = state.layoutRect ?: return
 
-        state.transitionFrom = from
-        state.transitionTo = to
+        state.rectFrom = from
+        state.rectTo = to
 
         state.animation.snapTo(0f)
         state.animation.animateTo(1f,testSpring)
@@ -61,17 +60,12 @@ class SharedContainerRegistry {
 
         val to = state.layoutRect ?: return
 
-        state.transitionFrom = from
-        state.transitionTo = to
+        state.rectFrom = from
+        state.rectTo = to
 
         state.animation.snapTo(0f)
         state.animation.animateTo(1f,testSpring)
 
         state.isRunning = false
     }
-}
-
-
-val LocalSharedContainerRegistry = staticCompositionLocalOf<SharedContainerRegistry> {
-    error("未提供SharedContainerRegistry,请确认是否使用了本Library的SharedContainerRoot")
 }

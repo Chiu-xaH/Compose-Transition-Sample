@@ -24,9 +24,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.xah.common.util.ScreenCornerHelper
-import com.xah.container.LocalSharedContainerRegistry
-import com.xah.container.SharedContainer
-import com.xah.container.SharedContainerRoot
+import com.xah.container.ui.util.LocalSharedContainerRegistry
+import com.xah.container.ui.container.SharedContainer
+import com.xah.container.ui.overlay.SharedContainerRoot
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -86,10 +86,10 @@ fun ContainerTest() {
                     ) {
                         Box(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .clip(RoundedCornerShape(ScreenCornerHelper.corner))
-//                                .size(200.dp)
-//                                .clip(RoundedCornerShape(5.dp))
+//                                .fillMaxSize()
+//                                .clip(RoundedCornerShape(ScreenCornerHelper.corner))
+                                .size(200.dp)
+                                .clip(RoundedCornerShape(5.dp))
                                 .background(Color.Green)
                                 .clickable {
                                     scope.launch {
