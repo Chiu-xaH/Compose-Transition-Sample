@@ -28,8 +28,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
-import com.xah.container.controller.LocalSharedContainerController
-import com.xah.container.LocalSharedContainerEnabled
 import com.xah.navigation.model.BackStackEntry
 import com.xah.navigation.model.NavActionState
 import com.xah.navigation.model.NavCommand
@@ -56,12 +54,12 @@ fun TransitionNavHost(
     CompositionLocalProvider(
         LocalNavStackState provides state,
     ) {
-        val containerController = LocalSharedContainerController.current
+//        val containerController = LocalSharedContainerController.current
 
         // 普通返回；展开过程中按返回时先打断共享容器动画再 pop
         BackHandler(enabled = state.stack.size > 1) {
             if (state.currentAction == NavActionState.PUSH_ING) {
-                containerController?.cancelAll()
+//                containerController?.cancelAll()
             }
             state.navigate(NavCommand.Pop)
         }
@@ -308,7 +306,7 @@ fun TransitionNavHost(
                 if (under != null) {
                     key(under.id) {
                         CompositionLocalProvider(
-                            LocalSharedContainerEnabled provides enableUnderSharedContainer
+//                            LocalSharedContainerEnabled provides enableUnderSharedContainer
                         ) {
                             PageContainer(
                                 entry = under,

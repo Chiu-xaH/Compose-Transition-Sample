@@ -20,8 +20,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import com.xah.common.util.ScreenCornerHelper
-import com.xah.container.container.SharedContainer
-import com.xah.container.container.SharedContainerRoot
+import com.xah.container.SharedContainer
+import com.xah.container.SharedContainerRoot
 import com.xah.navigation.component.TransitionNavHost
 import com.xah.navigation.model.NavActionState
 import com.xah.navigation.model.NavCommand
@@ -62,12 +62,12 @@ fun HomeScreen() {
             items(30) { index ->
                 val route = "Item #$index"
                 Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
-                    SharedContainer (
-                        key = route,
-                        screenKey = "Home",
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        cornerRadius = 8.dp,
-                    ) {
+//                    SharedContainer (
+//                        key = route,
+//                        screenKey = "Home",
+//                        color = MaterialTheme.colorScheme.primaryContainer,
+//                        cornerRadius = 8.dp,
+//                    ) {
                         SmallCard(
                             modifier = Modifier,
                             color = MaterialTheme.colorScheme.primaryContainer
@@ -79,7 +79,7 @@ fun HomeScreen() {
                                 }
                             )
                         }
-                    }
+//                    }
                 }
             }
         }
@@ -92,15 +92,13 @@ fun SecondScreen(userId : Int) {
     val route = "Item #$userId"
     val density = LocalDensity.current
 
-    SharedContainer(
-        key = route,
-        cornerRadius = if(navStackState.currentAction == NavActionState.NONE) 0.dp else with(density) {
-            ScreenCornerHelper.corner.toDp()
-        },
-        color = MaterialTheme.colorScheme.primaryContainer,
-        screenKey = "Second",
-        isFullscreen = true,
-    ) {
+//    SharedContainer(
+//        key = route,
+//        cornerRadius = if(navStackState.currentAction == NavActionState.NONE) 0.dp else ScreenCornerHelper.corner,
+//        color = MaterialTheme.colorScheme.primaryContainer,
+//        screenKey = "Second",
+//        isFullscreen = true,
+//    ) {
         Box(
             modifier = Modifier
 //            .containerShare(route)
@@ -116,7 +114,7 @@ fun SecondScreen(userId : Int) {
                 Text("$userId to ThirdScreen")
             }
         }
-    }
+//    }
 
 }
 
