@@ -71,11 +71,11 @@ fun HomeScreen() {
                             TransplantListItem(
                                 headlineContent = { Text(route) },
                                 modifier = Modifier.clickable {
-//                                    scope.launch {
-//                                        registry.push(route) {
+                                    scope.launch {
+                                        registry.push(route) {
                                             navStackState.navigate(NavCommand.Push(SecondDestination(userId = index)))
-//                                        }
-//                                    }
+                                        }
+                                    }
                                 }
                             )
                         }
@@ -103,11 +103,11 @@ fun SecondScreen(userId : Int) {
         ) {
             Button(
                 onClick = {
-//                    scope.launch {
-//                        registry.push(route) {
-                            navStackState.navigate(NavCommand.Push(ThirdDestination))
-//                        }
-//                    }
+                    scope.launch {
+                        registry.pop(route) {
+                            navStackState.navigate(NavCommand.Pop)
+                        }
+                    }
                 },
                 modifier = Modifier.align(Alignment.Center)
             ) {

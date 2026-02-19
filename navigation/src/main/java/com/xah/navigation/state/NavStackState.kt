@@ -104,8 +104,6 @@ class NavStackState(
         pendingPopEntryId = null
     }
 
-
-
     init {
         val rootEntry = BackStackEntry(
             id = UUID.randomUUID().toString(),

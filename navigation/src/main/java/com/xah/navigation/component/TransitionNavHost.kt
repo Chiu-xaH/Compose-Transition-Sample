@@ -2,6 +2,7 @@ package com.xah.navigation.component
 
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.PredictiveBackHandler
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.Transition
@@ -54,9 +55,6 @@ fun TransitionNavHost(
     ) {
         // 普通返回；展开过程中按返回时先打断共享容器动画再 pop
         BackHandler(enabled = state.stack.size > 1) {
-            if (state.currentAction == NavActionState.PUSH_ING) {
-//                containerController?.cancelAll()
-            }
             state.navigate(NavCommand.Pop)
         }
         // 预测式返回 state.stack.size > 1
@@ -90,8 +88,7 @@ fun TransitionNavHost(
         // When the under page is always composed, shared-container registrations on the under page
         // can re-trigger transitions during stable states. Disable them unless we are actually
         // transitioning or in predictive back.
-        val enableUnderSharedContainer =
-            isInPredictive || state.currentAction != NavActionState.NONE
+        val enableUnderSharedContainer = isInPredictive || state.currentAction != NavActionState.NONE
 
         // 栈层数变化时重建 transition，避免 Second→Third 时沿用上一层的 duration=1，导致动画从 1→0 反了
         key(stack.size) {

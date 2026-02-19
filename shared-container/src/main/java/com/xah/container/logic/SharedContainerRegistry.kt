@@ -2,7 +2,7 @@ package com.xah.container.logic
 
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import com.xah.container.logic.model.ShardContainerAction
+import com.xah.container.logic.model.SharedContainerAction
 import com.xah.container.logic.model.SharedContainerState
 import kotlinx.coroutines.android.awaitFrame
 
@@ -41,7 +41,7 @@ class SharedContainerRegistry {
 
         // 开始标识位
         state.isRunning = true
-        state.action = ShardContainerAction.PUSH
+        state.action = SharedContainerAction.PUSH
 
         onSwapContent()
         awaitFrame()
@@ -54,7 +54,7 @@ class SharedContainerRegistry {
 
         // 结束标志位
         state.isRunning = false
-        state.action = ShardContainerAction.NONE
+        state.action = SharedContainerAction.NONE
     }
 
     suspend fun pop(
@@ -68,7 +68,7 @@ class SharedContainerRegistry {
 
         // 开始标识位
         state.isRunning = true
-        state.action = ShardContainerAction.POP
+        state.action = SharedContainerAction.POP
 
         onSwapContent()
         awaitFrame()
@@ -81,6 +81,6 @@ class SharedContainerRegistry {
 
         // 结束标志位
         state.isRunning = false
-        state.action = ShardContainerAction.NONE
+        state.action = SharedContainerAction.NONE
     }
 }

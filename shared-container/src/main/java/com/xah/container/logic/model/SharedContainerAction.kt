@@ -1,5 +1,5 @@
 package com.xah.container.logic.model
 
-enum class ShardContainerAction {
+enum class SharedContainerAction {
     PUSH,POP,NONE
 }

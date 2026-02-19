@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.util.lerp
@@ -41,6 +42,7 @@ fun SharedContainerOverlay() {
 
             val contentAlpha = lerp(0f,1f,safelyProgress)
             val corner = lerp(state.containerCorner, ScreenCornerHelper.corner, safelyProgress)
+
 
             Box(
                 modifier = Modifier
