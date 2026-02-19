@@ -69,7 +69,6 @@ kotlin {
         }
         commonMain.dependencies {
             implementation(project(":transition"))
-            implementation(project(":navigation"))
 
             implementation(compose.runtime)
             implementation(compose.foundation)
