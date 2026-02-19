@@ -93,6 +93,7 @@ fun ContainerTest() {
                             Image(painterResource(R.drawable.ic_xhs),null)
                         }
                     }
+                    /*
                     SharedContainer(
                         key2,
                         corner = 15.dp,
@@ -119,6 +120,7 @@ fun ContainerTest() {
                         }
 
                     }
+                     */
                 }
                 ScreenState.B -> {
                     SharedContent(

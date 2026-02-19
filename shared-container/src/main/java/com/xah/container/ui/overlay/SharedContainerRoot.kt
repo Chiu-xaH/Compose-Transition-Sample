@@ -7,9 +7,13 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.xah.common.util.ScreenCornerHelper
+import com.xah.container.logic.AdaptiveRectInterpolator
 import com.xah.container.logic.SharedContainerRegistry
 import com.xah.container.ui.util.LocalSharedContainerRegistry
 
@@ -24,6 +28,12 @@ fun SharedContainerRoot(
     }
 
     val registry = remember { SharedContainerRegistry() }
+
+    val screenHeightPx = with(LocalDensity.current) {
+        LocalConfiguration.current.screenHeightDp.dp.toPx()
+    }
+    registry.rectInterpolator = AdaptiveRectInterpolator(screenHeightPx, 1000f)
+
     CompositionLocalProvider(
         LocalSharedContainerRegistry provides registry
     ) {

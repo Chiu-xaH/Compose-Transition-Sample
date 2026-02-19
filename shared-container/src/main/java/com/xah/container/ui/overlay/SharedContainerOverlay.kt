@@ -10,8 +10,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
@@ -20,6 +22,11 @@ import com.xah.common.util.ScreenCornerHelper
 import com.xah.container.ui.util.LocalSharedContainerRegistry
 import kotlin.math.roundToInt
 import androidx.compose.ui.unit.lerp
+import com.xah.container.logic.BezierRectInterpolator
+import com.xah.container.logic.LinearRectInterpolator
+import com.xah.container.logic.RectInterpolator
+import com.xah.container.logic.model.SharedContainerState
+import kotlin.math.min
 
 @Composable
 fun SharedContainerOverlay() {
@@ -35,14 +42,14 @@ fun SharedContainerOverlay() {
 
             val safelyProgress =  (progress*registry.speedUpRadio).coerceIn(0f,1f)
 
-            val left = lerp(container.left, content.left, progress)
-            val top = lerp(container.top, content.top, progress)
-            val width = lerp(container.width, content.width, progress)
-            val height = lerp(container.height, content.height, progress)
+            val rect = registry.rectInterpolator(progress, container, content)
+            val left = rect.left
+            val top = rect.top
+            val width = rect.width
+            val height = rect.height
 
             val contentAlpha = lerp(0f,1f,safelyProgress)
             val corner = lerp(state.containerCorner, ScreenCornerHelper.corner, safelyProgress)
-
 
             Box(
                 modifier = Modifier

@@ -19,6 +19,8 @@ class SharedContainerRegistry {
 
     private val pushAnimation = tween<Float>(800)
 
+    var rectInterpolator: RectInterpolator = LinearRectInterpolator
+
     // 渐隐、圆角变化比容器变化时长
     val speedUpRadio = 1.25f
 
