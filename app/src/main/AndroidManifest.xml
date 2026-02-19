@@ -17,17 +17,19 @@
             android:name=".activity.SecondActivity"
             android:exported="true"
             android:label="@string/title_activity_second"
-            android:theme="@style/Theme.Transition" />
-        <activity
-            android:name=".activity.MainActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.Transition">
+            android:theme="@style/Theme.Transition" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".activity.MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.Transition">
+
         </activity>
     </application>
 

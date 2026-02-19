@@ -1,5 +1,6 @@
 package com.xah.transition.ui.screen.test
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -24,13 +26,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.xah.common.util.ScreenCornerHelper
 import com.xah.container.ui.container.SharedContainer
+import com.xah.container.ui.container.SharedContent
 import com.xah.container.ui.overlay.SharedContainerRoot
 import com.xah.container.ui.util.LocalSharedContainerRegistry
+import com.xah.transition.R
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CardListItem
 import com.xah.transition.ui.component.TransplantListItem
@@ -60,6 +64,8 @@ fun ContainerTest() {
                 ScreenState.A -> {
                     SharedContainer(
                         key,
+                        fillColor = Color(0xffff2442),//Color(0xffff2442)
+                        corner = 20.dp,
                         modifier = Modifier
                             .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
                             .pointerInput(Unit) {
@@ -74,8 +80,7 @@ fun ContainerTest() {
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(100.dp)
-                                .clip(RoundedCornerShape(30.dp))
+                                .size(125.dp)
                                 .background(Color.Red)
                                 .clickable {
                                     scope.launch {
@@ -84,17 +89,20 @@ fun ContainerTest() {
                                         }
                                     }
                                 }
-                        )
+                        ) {
+                            Image(painterResource(R.drawable.ic_xhs),null)
+                        }
                     }
                     SharedContainer(
                         key2,
+                        corner = 15.dp,
+                        fillColor = MaterialTheme.colorScheme.primaryContainer,
                         modifier = Modifier
                             .padding(horizontal = APP_HORIZONTAL_DP)
                             .align(Alignment.Center)
                     ) {
                         Surface(
                             color = MaterialTheme.colorScheme.primaryContainer,
-                            shape = MaterialTheme.shapes.medium
                         ) {
                             TransplantListItem(
                                 headlineContent = {
@@ -113,111 +121,72 @@ fun ContainerTest() {
                     }
                 }
                 ScreenState.B -> {
-                    SharedContainer(
+                    SharedContent(
                         key,
                         modifier = Modifier.align(Alignment.Center)
                     ) {
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-//                                .clip(RoundedCornerShape(ScreenCornerHelper.corner))
-//                                .size(200.dp)
-//                                .size(width = 200.dp, height = 300.dp)
-//                                .clip(RoundedCornerShape(5.dp))
-                                .background(Color.Green)
-                                .clickable {
-                                    scope.launch {
-                                        registry.pop(key) {
-                                            currentState = ScreenState.A
+                                .background(MaterialTheme.colorScheme.surfaceContainer)
+                        ) {
+                            LazyColumn {
+                                items(100) {
+                                    CardListItem(
+                                        headlineContent = {
+                                            Text("测试")
+                                        },
+                                        color = MaterialTheme.colorScheme.surface,
+                                        leadingContent = {
+                                            Text("${it+1}")
+                                        },
+                                        modifier = Modifier.clickable {
+                                            scope.launch {
+                                                registry.pop(key) {
+                                                    currentState = ScreenState.A
+                                                }
+                                            }
                                         }
-                                    }
+                                    )
                                 }
-                        )
+                            }
+                        }
                     }
                 }
                 ScreenState.C -> {
-                    SharedContainer(
+                    SharedContent(
                         key2,
                         modifier = Modifier.align(Alignment.Center)
                     ) {
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-//                                .clip(RoundedCornerShape(ScreenCornerHelper.corner))
-//                                .size(200.dp)
-//                                .size(width = 200.dp, height = 300.dp)
-//                                .clip(RoundedCornerShape(5.dp))
-                                .background(Color.Black)
-                                .clickable {
-                                    scope.launch {
-                                        registry.pop(key2) {
-                                            currentState = ScreenState.A
+                                .background(MaterialTheme.colorScheme.surfaceContainer)
+                        ) {
+                            LazyColumn {
+                                items(100) {
+                                    CardListItem(
+                                        headlineContent = {
+                                            Text("测试")
+                                        },
+                                        color = MaterialTheme.colorScheme.surface,
+                                        leadingContent = {
+                                            Text("${it+1}")
+                                        },
+                                        modifier = Modifier.clickable {
+                                            scope.launch {
+                                                registry.pop(key2) {
+                                                    currentState = ScreenState.A
+                                                }
+                                            }
                                         }
-                                    }
+                                    )
                                 }
-                        )
+                            }
+                        }
                     }
                 }
             }
-        }
-    }
-}
-
-
-@Preview
-@Composable
-fun ContainerRecordDemo() {
-    var currentState by remember { mutableStateOf(ScreenState.A) }
-    var offsetX by remember { mutableFloatStateOf(0f) }
-    var offsetY by remember { mutableFloatStateOf(0f) }
-    val scope = rememberCoroutineScope()
-
-    Box(Modifier.fillMaxSize()) {
-        // -------------------------
-        // 1️⃣ Screen A
-        if (currentState == ScreenState.A) {
-            Box(
-                modifier = Modifier
-                    .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
-                    .pointerInput(Unit) {
-                        detectDragGestures { change, dragAmount ->
-                            change.consume()
-                            offsetX += dragAmount.x
-                            offsetY += dragAmount.y
-                        }
-                    }
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(RoundedCornerShape(30.dp))
-                        .background(Color.Red)
-                        .clickable {
-                            scope.launch {
-                                currentState = ScreenState.B
-                            }
-                        }
-                )
-            }
-        }
-
-        // -------------------------
-        // 2️⃣ Screen B
-        if (currentState == ScreenState.B) {
-            // B 的内容
-            Box(
-                modifier = Modifier
-                    .size(width = 200.dp, height = 300.dp)
-                    .clip(RoundedCornerShape(5.dp))
-                    .background(Color.Green)
-                    .align(Alignment.Center)
-                    .clickable {
-                        // 回到 A
-                        scope.launch {
-                            currentState = ScreenState.A
-                        }
-                    }
-            )
         }
     }
 }
