@@ -34,26 +34,25 @@ class SharedContainerRegistry {
         key: Any,
         onSwapContent: suspend () -> Unit
     ) {
-
         val state = states[key] ?: return
-        val rectFrom = state.layoutRect ?: return
-        state.contentContainer = state.content
+        // 赋值
+        state.containerLayout = state.layout
+        state.containerRect = state.layoutRect
 
+        // 开始标识位
         state.isRunning = true
         state.action = ShardContainerAction.PUSH
 
         onSwapContent()
         awaitFrame()
 
-        val rectTo = state.layoutRect ?: return
-        state.contentContent = state.content
+        // 赋值
+        state.contentLayout = state.layout
+        state.contentRect = state.layoutRect
 
-        state.rectContainer = rectFrom
-        state.rectContent = rectTo
-
-        state.animation.snapTo(0f)
         state.animation.animateTo(1f,pushAnimation)
 
+        // 结束标志位
         state.isRunning = false
         state.action = ShardContainerAction.NONE
     }
@@ -62,26 +61,25 @@ class SharedContainerRegistry {
         key: Any,
         onSwapContent: suspend () -> Unit
     ) {
-
         val state = states[key] ?: return
-        val rectFrom = state.layoutRect ?: return
-        state.contentContent = state.content
+        // 赋值
+        state.contentLayout = state.layout
+        state.contentRect = state.layoutRect
 
+        // 开始标识位
         state.isRunning = true
         state.action = ShardContainerAction.POP
 
         onSwapContent()
         awaitFrame()
 
-        val rectTo = state.layoutRect ?: return
-        state.contentContainer = state.content
+        // 赋值
+        state.containerLayout = state.layout
+        state.containerRect = state.layoutRect
 
-        state.rectContainer = rectFrom
-        state.rectContent = rectTo
+        state.animation.animateTo(0f,popAnimation)
 
-        state.animation.snapTo(0f)
-        state.animation.animateTo(1f,popAnimation)
-
+        // 结束标志位
         state.isRunning = false
         state.action = ShardContainerAction.NONE
     }

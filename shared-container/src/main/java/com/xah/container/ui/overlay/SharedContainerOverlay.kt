@@ -16,9 +16,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.util.lerp
 import com.xah.common.util.ScreenCornerHelper
-import com.xah.container.logic.model.ShardContainerAction
 import com.xah.container.ui.util.LocalSharedContainerRegistry
 import kotlin.math.roundToInt
+import androidx.compose.ui.unit.lerp
 
 @Composable
 fun SharedContainerOverlay() {
@@ -28,9 +28,9 @@ fun SharedContainerOverlay() {
     registry.runningStates.forEach { state ->
         val progress = state.animation.value
 
-        if (state.rectContainer != null && state.rectContent != null) {
-            val container = state.rectContainer!!
-            val content = state.rectContent!!
+        if (state.containerRect != null && state.contentRect != null) {
+            val container = state.containerRect!!
+            val content = state.contentRect!!
 
             val safelyProgress =  (progress*registry.speedUpRadio).coerceIn(0f,1f)
 
@@ -39,43 +39,8 @@ fun SharedContainerOverlay() {
             val width = lerp(container.width, content.width, progress)
             val height = lerp(container.height, content.height, progress)
 
-            val contentAlpha = when(state.action) {
-                ShardContainerAction.POP -> {
-                    lerp(1f,0f,safelyProgress)
-                }
-                ShardContainerAction.PUSH -> {
-                    lerp(0f,1f,safelyProgress)
-                }
-                ShardContainerAction.NONE -> {
-                    1f
-                }
-            }
-
-            val targetRect = when(state.action) {
-                ShardContainerAction.POP -> {
-                    content
-                }
-                ShardContainerAction.PUSH -> {
-                    container
-                }
-                ShardContainerAction.NONE -> {
-                    null
-                }
-            }
-
-            val cornerContent = ScreenCornerHelper.corner
-
-            val corner =  when(state.action) {
-                ShardContainerAction.POP -> {
-                    androidx.compose.ui.unit.lerp(cornerContent,state.cornerContainer,safelyProgress)
-                }
-                ShardContainerAction.PUSH -> {
-                    androidx.compose.ui.unit.lerp(state.cornerContainer, cornerContent, safelyProgress)
-                }
-                ShardContainerAction.NONE -> {
-                    state.cornerContainer
-                }
-            }
+            val contentAlpha = lerp(0f,1f,safelyProgress)
+            val corner = lerp(state.containerCorner, ScreenCornerHelper.corner, safelyProgress)
 
             Box(
                 modifier = Modifier
@@ -88,9 +53,8 @@ fun SharedContainerOverlay() {
             ) {
                 // 容器及其颜色填充
                 Box(
-                    modifier = Modifier.background(state.fillColor)
+                    modifier = Modifier.background(state.containerColor)
                 ) {
-//                    state.contentContainer?.let { it() }
                     // content.width * scale = lerp.width
                     Box(
                         modifier = Modifier.fillMaxSize()
@@ -98,13 +62,13 @@ fun SharedContainerOverlay() {
                         Box(modifier = Modifier.align(Alignment.TopCenter)) {
                             Box(
                                 modifier = Modifier.graphicsLayer {
-                                    val scale = targetRect?.width?.let { width / it }  ?: 0f
+                                    val scale = width / container.width
                                     scaleX = scale
                                     scaleY = scale
                                     transformOrigin = TransformOrigin(0.5f, 0f)
                                 }
                             ) {
-                                state.contentContainer?.let { it() }
+                                state.containerLayout?.let { it() }
                             }
                         }
                     }
@@ -117,7 +81,7 @@ fun SharedContainerOverlay() {
                             alpha = contentAlpha
                         }
                 ) {
-                    state.contentContent?.let { it() }
+                    state.contentLayout?.let { it() }
                 }
             }
         }

@@ -9,30 +9,32 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.channels.Channel
 
 class SharedContainerState() {
     // 记录Rect（位置、大小）
-    var layoutRect by mutableStateOf<Rect?>(null)
+    var layoutRect: Rect? = null
     // 容器
-    var rectContainer by mutableStateOf<Rect?>(null)
+    var containerRect: Rect? = null
     // 内容
-    var rectContent by mutableStateOf<Rect?>(null)
+    var contentRect: Rect? = null
 
     // 记录布局内容
-    var content : (@Composable () -> Unit)? = null
+    var layout: (@Composable () -> Unit)? = null
     // 容器
-    var contentContainer : (@Composable () -> Unit)? = null
+    var containerLayout: (@Composable () -> Unit)? = null
     // 内容
-    var contentContent: (@Composable () -> Unit)? = null
+    var contentLayout: (@Composable () -> Unit)? = null
 
     // 记录圆角
     // 容器
-    var cornerContainer : Dp = 0.dp
+    var containerCorner: Dp = 0.dp
 
     // 记录背景色用于填充
-    var fillColor : Color = Color.Companion.Black
+    var containerColor: Color = Color.Companion.Black
 
     val animation = Animatable(0f)
     var isRunning by mutableStateOf(false)
     var action by mutableStateOf(ShardContainerAction.NONE)
+
 }

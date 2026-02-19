@@ -24,13 +24,13 @@ private fun Modifier.sharedContainer(
     val registry = LocalSharedContainerRegistry.current
     val state = remember { registry.getOrCreate(key) }
 
-    LaunchedEffect(fillColor,corner,state.action) {
-        state.content = content
+    LaunchedEffect(fillColor,corner) {
+        state.layout = content
         if (fillColor != null) {
-            state.fillColor = fillColor
+            state.containerColor = fillColor
         }
         if (corner != null) {
-            state.cornerContainer = corner
+            state.containerCorner = corner
         }
     }
 

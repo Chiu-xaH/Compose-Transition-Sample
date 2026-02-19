@@ -48,14 +48,10 @@ private fun <T> transition() :  SpringSpec<T> = spring(
 fun TransitionNavHost(
     state: NavStackState,
     modifier: Modifier = Modifier,
-//    /** 当前 top 对应的共享容器 key，与 [SharedContainer] 的 key 一致；用于展开过程中按返回时打断共享容器动画。 */
-//    sharedContainerKeyForEntry: (BackStackEntry) -> Any? = { null }
 ) {
     CompositionLocalProvider(
         LocalNavStackState provides state,
     ) {
-//        val containerController = LocalSharedContainerController.current
-
         // 普通返回；展开过程中按返回时先打断共享容器动画再 pop
         BackHandler(enabled = state.stack.size > 1) {
             if (state.currentAction == NavActionState.PUSH_ING) {
@@ -204,27 +200,27 @@ fun TransitionNavHost(
             // 主体效果（进入时：None -> Full，退出时：Full -> None）
             val topEffect = UnderPageVisualEffect(
                 scale = lerp(
-                    UnderPageVisualEffect.None.scale,
+                    UnderPageVisualEffect.Full.scale,
                     UnderPageVisualEffect.Full.scale,
                     backgroundScaleDuration
                 ),
                 blur = lerp(
-                    UnderPageVisualEffect.None.blur,
+                    UnderPageVisualEffect.Full.blur,
                     UnderPageVisualEffect.Full.blur,
                     backgroundDuration
                 ),
                 mask = lerp(
-                    UnderPageVisualEffect.None.mask,
+                    UnderPageVisualEffect.Full.mask,
                     UnderPageVisualEffect.Full.mask,
                     backgroundDuration
                 ),
                 alpha = lerp(
-                    UnderPageVisualEffect.None.alpha,
+                    0f,
                     UnderPageVisualEffect.Full.alpha,
                     backgroundDuration
                 ),
                 corner = lerp(
-                    UnderPageVisualEffect.None.corner,
+                    UnderPageVisualEffect.Full.corner,
                     UnderPageVisualEffect.Full.corner,
                     backgroundDuration
                 )
@@ -305,19 +301,15 @@ fun TransitionNavHost(
                 // 下层（背景）
                 if (under != null) {
                     key(under.id) {
-                        CompositionLocalProvider(
-//                            LocalSharedContainerEnabled provides enableUnderSharedContainer
-                        ) {
-                            PageContainer(
-                                entry = under,
-                                transition = rememberTransition(
-                                    under.transitionState,
-                                    under.id
-                                ),
-                                isUnder = true,
-                                effect = underPageEffect
-                            )
-                        }
+                        PageContainer(
+                            entry = under,
+                            transition = rememberTransition(
+                                under.transitionState,
+                                under.id
+                            ),
+                            isUnder = true,
+                            effect = underPageEffect
+                        )
                     }
                 }
 
@@ -382,7 +374,6 @@ private fun PageContainer(
             .blur(effect.blur)
             // 缩放
             .let {
-//                it.scale(effect.scale)
                 if (isUnder) {
                     // 背景镜像填充
                     it.scaleMirror(effect.scale)
