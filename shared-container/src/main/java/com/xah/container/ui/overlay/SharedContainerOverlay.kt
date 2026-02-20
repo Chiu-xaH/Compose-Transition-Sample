@@ -2,6 +2,7 @@ package com.xah.container.ui.overlay
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
@@ -10,23 +11,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
+import androidx.compose.ui.zIndex
 import com.xah.common.util.ScreenCornerHelper
+import com.xah.container.logic.model.SharedContainerState
+import com.xah.container.ui.container.bottomExtension
 import com.xah.container.ui.util.LocalSharedContainerRegistry
 import kotlin.math.roundToInt
-import androidx.compose.ui.unit.lerp
-import com.xah.container.logic.BezierRectInterpolator
-import com.xah.container.logic.LinearRectInterpolator
-import com.xah.container.logic.RectInterpolator
-import com.xah.container.logic.model.SharedContainerState
-import kotlin.math.min
 
 @Composable
 fun SharedContainerOverlay() {
@@ -51,6 +49,8 @@ fun SharedContainerOverlay() {
             val contentAlpha = lerp(0f,1f,safelyProgress)
             val corner = lerp(state.containerCorner, ScreenCornerHelper.corner, safelyProgress)
 
+            val graphicsLayer = rememberGraphicsLayer()
+
             Box(
                 modifier = Modifier
                     .offset { IntOffset(left.roundToInt(), top.roundToInt()) }
@@ -60,8 +60,9 @@ fun SharedContainerOverlay() {
                     )
                     .clip(RoundedCornerShape(corner))
             ) {
-                // 容器及其颜色填充
-                Box(
+                // 容器
+                Column (
+                    // 颜色填充
                     modifier = Modifier.background(state.containerColor)
                 ) {
                     // content.width * scale = lerp.width
@@ -77,9 +78,32 @@ fun SharedContainerOverlay() {
                                     transformOrigin = TransformOrigin(0.5f, 0f)
                                 }
                             ) {
-                                state.containerLayout?.let { it() }
+                                Box(modifier = Modifier
+                                    .drawWithContent {
+                                        drawContent()
+                                        graphicsLayer.record {
+                                            this@drawWithContent.drawContent()
+                                        }
+                                    }
+                                ) {
+                                    state.containerLayout?.let { it() }
+                                }
                             }
                         }
+                    }
+                    // 高版本优先使用延展填充
+                    if(SharedContainerState.CAN_USE_SHADER_FILL) {
+                        Box(
+                            modifier = Modifier
+                                .zIndex(-1f)
+                                .graphicsLayer {
+                                    val scale = width / container.width
+                                    scaleX = scale
+                                    scaleY = scale
+                                    transformOrigin = TransformOrigin(0.5f, 0f)
+                                }
+                                .bottomExtension(graphicsLayer,container)
+                        )
                     }
                 }
 

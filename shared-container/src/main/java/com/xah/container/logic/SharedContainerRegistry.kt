@@ -12,17 +12,18 @@ class SharedContainerRegistry {
     val runningStates: List<SharedContainerState>
         get() = states.values.filter { it.isRunning }
 
-    private val popAnimation = spring<Float>(
-        stiffness = 50f,
-        dampingRatio = 0.8f
-    )
+//        spring<Float>(
+//        stiffness = 50f,
+//        dampingRatio = 0.8f
+//    )
 
     private val pushAnimation = tween<Float>(800)
+    private val popAnimation = pushAnimation
 
     var rectInterpolator: RectInterpolator = LinearRectInterpolator
 
     // 渐隐、圆角变化比容器变化时长
-    val speedUpRadio = 1.25f
+    val speedUpRadio = 1.5f
 
     fun getOrCreate(
         key: Any,

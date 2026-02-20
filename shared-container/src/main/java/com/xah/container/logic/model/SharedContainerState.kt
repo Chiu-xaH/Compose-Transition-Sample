@@ -1,5 +1,6 @@
 package com.xah.container.logic.model
 
+import android.os.Build
 import androidx.compose.animation.core.Animatable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,10 +34,13 @@ class SharedContainerState() {
     var containerCorner: Dp = 0.dp
 
     // 记录背景色用于填充
-    var containerColor: Color = Color.Companion.Black
+    var containerColor: Color = Color.Black
 
     val animation = Animatable(0f)
     var isRunning by mutableStateOf(false)
     var action by mutableStateOf(SharedContainerAction.NONE)
 
+    companion object {
+        val CAN_USE_SHADER_FILL = Build.VERSION.SDK_INT >= 33
+    }
 }

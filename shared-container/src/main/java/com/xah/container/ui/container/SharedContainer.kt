@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.Dp
+import com.xah.container.logic.model.SharedContainerState
 import com.xah.container.ui.util.LocalSharedContainerRegistry
 
 private fun Modifier.sharedContainer(
@@ -65,7 +66,7 @@ fun SharedContent(
 
 /** 共享容器的内容
  * @param key 两个容器之间的Key
- * @param fillColor 两个容器任一方指定颜色即可，不指定直接传null
+ * @param fillColor sdk33以上优先使用底部1像素提取填充,无需传入颜色
  */
 @Composable
 fun SharedContainer(

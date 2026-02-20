@@ -1,30 +1,22 @@
 package com.xah.transition.ui.screen.test
 
+//import com.xah.container.container.BottomExtensionContainer
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -35,16 +27,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-//import com.xah.container.container.BottomExtensionContainer
 import com.xah.navigation.state.LocalAnimatedContentScope
 import com.xah.navigation.state.LocalSharedTransitionScope
-import com.xah.transition.R
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CARD_NORMAL_DP
 import com.xah.transition.ui.component.SmallCard
@@ -98,76 +85,7 @@ fun SecondScreenT(userId : Int,onBack : () -> Unit) {
             }
         }
     }
-
 }
-
-/*
-@Preview
-@Composable
-fun Extension() {
-    var expand by remember { mutableStateOf(false) }
-    val height by animateFloatAsState(
-        if(expand) 250f else 0f,
-        tween(400)
-    )
-
-    var expand2 by remember { mutableStateOf(false) }
-    val height2 by animateFloatAsState(
-        if(expand2) 250f else 0f,
-        tween(400)
-    )
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        Box(
-            modifier = Modifier.align(Alignment.Center)
-        ) {
-            Column {
-                BottomExtensionContainer(
-                    height,
-                    modifier = Modifier.clip(MaterialTheme.shapes.medium)
-                ) {
-                    Surface (
-                        modifier = Modifier
-                            .background(
-                                Brush.horizontalGradient(
-                                    listOf(
-                                        MaterialTheme.colorScheme.primaryContainer,
-                                        MaterialTheme.colorScheme.primary
-                                    )
-                                )
-                            )
-                            .fillMaxWidth(),
-                        shape = RoundedCornerShape(0),
-                        color = Color.Transparent
-                    ) {
-                        TransplantListItem(
-                            headlineContent = {
-                                Text("标题")
-                            },
-                            supportingContent = {
-                                Text("内容")
-                            },
-                            modifier = Modifier.clickable {
-                                expand = !expand
-                            }
-                        )
-                    }
-                }
-                Spacer(Modifier.height(APP_HORIZONTAL_DP))
-                BottomExtensionContainer(
-                    height2,
-                    modifier = Modifier.clip(MaterialTheme.shapes.extraLarge)
-                ) {
-                    Image(painterResource(R.drawable.ic_jd),null, modifier = Modifier.clickable {
-                        expand2 = !expand2
-                    })
-                }
-            }
-        }
-    }
-}
-
- */
 
 @Preview
 @Composable
