@@ -7,11 +7,9 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -19,13 +17,10 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -33,12 +28,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -49,13 +43,10 @@ import com.xah.container.ui.container.SharedContent
 import com.xah.container.ui.overlay.SharedContainerRoot
 import com.xah.container.ui.util.LocalSharedContainerRegistry
 import com.xah.navigation.component.TransitionNavHost
-import com.xah.navigation.model.NavCommand
-import com.xah.navigation.state.LocalNavStackState
-import com.xah.navigation.state.NavStackState
+import com.xah.navigation.util.LocalNavStackState
 import com.xah.transition.R
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CARD_NORMAL_DP
-import com.xah.transition.ui.component.CardListItem
 import com.xah.transition.ui.component.SmallCard
 import com.xah.transition.ui.component.TransplantListItem
 import com.xah.transition.ui.screen.destination.AppHomeDestination
@@ -64,10 +55,8 @@ import com.xah.transition.ui.screen.destination.SecondDestination
 
 @Composable
 fun App() {
-    val nav = remember { NavStackState(startDestination = HomeDestination) }
-
     SharedContainerRoot {
-        TransitionNavHost(state = nav)
+        TransitionNavHost(HomeDestination)
     }
 }
 
@@ -76,6 +65,7 @@ data class AppBean(
     val name : String,
     val icon : Int
 )
+
 private val appList = listOf<AppBean>(
     AppBean("jd","京东",R.drawable.ic_jd),
     AppBean("xhs","小红书",R.drawable.ic_xhs),
@@ -91,6 +81,7 @@ object UiHolder {
 
 @Composable
 fun HomeScreen() {
+    var input by rememberSaveable() { mutableStateOf(1) }
     val navStackState = LocalNavStackState.current
     val scrollState = rememberLazyGridState()
     val scope = rememberCoroutineScope()
@@ -131,16 +122,14 @@ fun HomeScreen() {
                 Column {
                     SharedContainer(
                         key,
-//                        modifier = Modifier.border(0.01.dp, Color.Gray, RoundedCornerShape(20.dp)),
                         corner = 20.dp,
                     ) {
                         Box(
                             modifier = Modifier
                                 .size(125.dp)
-                                .background(Color.Red)
                                 .clickable {
                                     registry.push(key) {
-                                        navStackState.navigate(NavCommand.Push(AppHomeDestination(item)))
+                                        navStackState.push(AppHomeDestination(item))
                                     }
                                 }
                         ) {
@@ -161,9 +150,10 @@ fun HomeScreen() {
                 ) {
                     TransplantListItem(
                         headlineContent = {
-                            Text("设置壁纸")
+                            Text("设置壁纸$input")
                         },
                         modifier = Modifier.clickable {
+                            input++
                             pickMediaLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                         }
                     )
@@ -185,7 +175,7 @@ fun HomeScreen() {
                                 headlineContent = { Text(route) },
                                 modifier = Modifier.clickable {
                                     registry.push(route) {
-                                        navStackState.navigate(NavCommand.Push(SecondDestination(userId = index)))
+                                        navStackState.push(SecondDestination(userId = index))
                                     }
                                 }
                             )
@@ -218,7 +208,7 @@ fun SecondScreen(userId : Int) {
             Button(
                 onClick = {
                     registry.pop(route) {
-                        navStackState.navigate(NavCommand.Pop)
+                        navStackState.pop()
                     }
                 },
                 modifier = Modifier.align(Alignment.Center)
@@ -244,14 +234,14 @@ fun AppHomeScreen(app: AppBean) {
                 .background(MaterialTheme.colorScheme.surface)
                 .clickable {
                     registry.pop(route) {
-                        navStackState.navigate(NavCommand.Pop)
+                        navStackState.pop()
                     }
                 }
         ) {
             Button(
                 onClick = {
                     registry.pop(route) {
-                        navStackState.navigate(NavCommand.Pop)
+                        navStackState.pop()
                     }
                 },
                 modifier = Modifier.align(Alignment.Center)
@@ -273,7 +263,7 @@ fun ThirdScreen() {
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.primaryContainer)) {
         Button(
             onClick = {
-                navStackState.navigate(NavCommand.Pop)
+                navStackState.pop()
             },
             modifier = Modifier.align(Alignment.Center)
         ) {

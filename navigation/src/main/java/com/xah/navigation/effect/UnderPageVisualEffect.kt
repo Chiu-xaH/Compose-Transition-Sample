@@ -1,4 +1,4 @@
-package com.xah.navigation.model
+package com.xah.navigation.effect
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.Dp

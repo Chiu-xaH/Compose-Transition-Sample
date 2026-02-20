@@ -23,6 +23,9 @@ private fun Modifier.sharedContainer(
     content : @Composable () -> Unit
 ): Modifier = composed {
     val registry = LocalSharedContainerRegistry.current
+    if(!registry.enabled) {
+        return@composed this
+    }
     val state = remember { registry.getOrCreate(key) }
 
     LaunchedEffect(fillColor,corner) {

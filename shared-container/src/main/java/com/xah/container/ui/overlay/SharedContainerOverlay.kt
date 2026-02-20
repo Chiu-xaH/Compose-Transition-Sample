@@ -59,11 +59,12 @@ fun SharedContainerOverlay() {
                         with(density) { height.toDp() }
                     )
                     .clip(RoundedCornerShape(corner))
+                    .background(state.containerColor)
             ) {
                 // 容器
                 Column (
                     // 颜色填充
-                    modifier = Modifier.background(state.containerColor)
+                    modifier = Modifier
                 ) {
                     // content.width * scale = lerp.width
                     Box(

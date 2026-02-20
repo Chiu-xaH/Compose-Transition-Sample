@@ -1,12 +1,13 @@
 package com.xah.container.logic
 
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.xah.container.logic.model.SharedContainerAction
 import com.xah.container.logic.model.SharedContainerState
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
 
@@ -18,15 +19,14 @@ class SharedContainerRegistry(
     val runningStates: List<SharedContainerState>
         get() = states.values.filter { it.isRunning }
 
-    private var runningJob: Job? = null
+    var enabled by mutableStateOf(true)
 
+    private val pushAnimation = tween<Float>(800)
+    private val popAnimation =pushAnimation
 //        spring<Float>(
 //        stiffness = 50f,
 //        dampingRatio = 0.8f
 //    )
-
-    private val pushAnimation = tween<Float>(800)
-    private val popAnimation = pushAnimation
 
     var rectInterpolator: RectInterpolator = LinearRectInterpolator
 
@@ -46,6 +46,9 @@ class SharedContainerRegistry(
         onSwapContent: suspend () -> Unit
     ) {
         scope.launch {
+            if(!enabled) {
+                onSwapContent()
+            }
             internalPush(key, onSwapContent)
         }
     }
@@ -55,6 +58,9 @@ class SharedContainerRegistry(
         onSwapContent: suspend () -> Unit
     ) {
         scope.launch {
+            if(!enabled) {
+                onSwapContent()
+            }
             internalPop(key, onSwapContent)
         }
     }
@@ -95,9 +101,7 @@ class SharedContainerRegistry(
         if(state.contentLayout == null) {
             state.contentLayout = state.layout
         }
-        if(state.contentRect == null) {
-            state.contentRect = state.layoutRect
-        }
+        state.contentRect = state.layoutRect
 
         // 开始标识位
         state.isRunning = true
@@ -110,9 +114,7 @@ class SharedContainerRegistry(
         if(state.containerLayout == null) {
             state.containerLayout = state.layout
         }
-        if(state.containerRect == null) {
-            state.containerRect = state.layoutRect
-        }
+        state.containerRect = state.layoutRect
 
         state.animation.animateTo(0f,popAnimation)
 
