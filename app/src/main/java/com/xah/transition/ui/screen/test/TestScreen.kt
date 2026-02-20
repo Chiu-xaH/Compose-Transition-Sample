@@ -1,17 +1,20 @@
 package com.xah.transition.ui.screen.test
 
-//import com.xah.container.container.BottomExtensionContainer
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -19,26 +22,37 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.xah.navigation.state.LocalAnimatedContentScope
-import com.xah.navigation.state.LocalSharedTransitionScope
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import com.xah.container.ui.container.SharedContainer
+import com.xah.container.ui.container.SharedContent
+import com.xah.container.ui.overlay.SharedContainerRoot
+import com.xah.container.ui.util.LocalSharedContainerRegistry
+import com.xah.transition.R
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CARD_NORMAL_DP
+import com.xah.transition.ui.component.CardListItem
 import com.xah.transition.ui.component.SmallCard
 import com.xah.transition.ui.component.TransplantListItem
+import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @Composable
 fun HomeScreenT(onPush : (Int) -> Unit) {
+    val registry = LocalSharedContainerRegistry.current
     val scrollState = rememberLazyGridState()
     Box(modifier = Modifier.fillMaxSize()) {
         LazyVerticalGrid(
@@ -46,19 +60,25 @@ fun HomeScreenT(onPush : (Int) -> Unit) {
             columns = GridCells.Fixed(2),
             modifier = Modifier.padding(horizontal = APP_HORIZONTAL_DP- CARD_NORMAL_DP*2)
         ) {
-            items(30) { index ->
+            items(30, key = { it }) { index ->
                 val route = "Item #$index"
                 Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
-                    SmallCard(
-                        modifier = Modifier.containerShare(route, null,null),
-                        color = MaterialTheme.colorScheme.primaryContainer
+                    SharedContainer(
+                        key = route,
+                        corner = 7.dp
                     ) {
-                        TransplantListItem(
-                            headlineContent = { Text(route) },
-                            modifier = Modifier.clickable {
-                                onPush(index)
-                            }
-                        )
+                        SmallCard(
+                            color = MaterialTheme.colorScheme.primaryContainer
+                        ) {
+                            TransplantListItem(
+                                headlineContent = { Text(route) },
+                                modifier = Modifier.clickable {
+                                    registry.push(route) {
+                                        onPush(index)
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -68,20 +88,27 @@ fun HomeScreenT(onPush : (Int) -> Unit) {
 
 @Composable
 fun SecondScreenT(userId : Int,onBack : () -> Unit) {
-    val density = LocalDensity.current
+    val registry = LocalSharedContainerRegistry.current
     val route = "Item #$userId"
-    Box(
-        modifier = Modifier
-            .containerShare(route, Color.Red,null)
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
+    SharedContent(
+        key = route
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Button(
-                onClick = onBack,
-                modifier = Modifier.align(Alignment.Center)
-            ) {
-                Text("${userId} Back")
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface)
+        ) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                Button(
+                    onClick = {
+                        registry.pop(route) {
+                            onBack()
+                        }
+                    },
+                    modifier = Modifier.align(Alignment.Center)
+                ) {
+                    Text("${userId} Back")
+                }
             }
         }
     }
@@ -95,26 +122,22 @@ fun ShareTest() {
     BackHandler(status == false) {
         status = true
     }
-    SharedTransitionLayout {
+
+    SharedContainerRoot {
         AnimatedContent(
             transitionSpec = {
                 scaleIn(initialScale = 1f) togetherWith scaleOut(targetScale = 1f)
             },
             targetState = status
         ) { s ->
-            CompositionLocalProvider(
-                LocalSharedTransitionScope provides this@SharedTransitionLayout,
-                LocalAnimatedContentScope provides this@AnimatedContent,
-            ) {
-                if(s) {
-                    HomeScreenT {
-                        index = it
-                        status = false
-                    }
-                } else {
-                    SecondScreenT(userId = index) {
-                        status = true
-                    }
+            if(s) {
+                HomeScreenT {
+                    index = it
+                    status = false
+                }
+            } else {
+                SecondScreenT(userId = index) {
+                    status = true
                 }
             }
         }

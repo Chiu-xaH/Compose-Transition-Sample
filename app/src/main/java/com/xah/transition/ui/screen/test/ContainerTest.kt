@@ -84,10 +84,8 @@ fun ContainerTest() {
                                 .size(125.dp)
                                 .background(Color.Red)
                                 .clickable {
-                                    scope.launch {
-                                        registry.push(key) {
-                                            currentState = ScreenState.B
-                                        }
+                                    registry.push(key) {
+                                        currentState = ScreenState.B
                                     }
                                 }
                         ) {
@@ -125,10 +123,8 @@ fun ContainerTest() {
                                     Text("内容")
                                 },
                                 modifier = Modifier.clickable {
-                                    scope.launch {
-                                        registry.push(key2) {
-                                            currentState = ScreenState.C
-                                        }
+                                    registry.push(key2) {
+                                        currentState = ScreenState.C
                                     }
                                 }
                             )

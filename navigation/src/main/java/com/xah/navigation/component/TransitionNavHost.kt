@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
+import com.xah.container.ui.util.LocalSharedContainerRegistry
 import com.xah.navigation.model.BackStackEntry
 import com.xah.navigation.model.NavActionState
 import com.xah.navigation.model.NavCommand
@@ -50,12 +51,14 @@ fun TransitionNavHost(
     state: NavStackState,
     modifier: Modifier = Modifier,
 ) {
+    val registry = LocalSharedContainerRegistry.current
     CompositionLocalProvider(
         LocalNavStackState provides state,
     ) {
         // 普通返回；展开过程中按返回时先打断共享容器动画再 pop
         BackHandler(enabled = state.stack.size > 1) {
             state.navigate(NavCommand.Pop)
+//            registry.popAll()
         }
         // 预测式返回 state.stack.size > 1
         PredictiveBackHandler(enabled = false) { progress ->

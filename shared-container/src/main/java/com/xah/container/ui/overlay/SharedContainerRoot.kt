@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -23,11 +24,12 @@ fun SharedContainerRoot(
     content: @Composable () -> Unit
 ) {
     val view = LocalView.current
+    val scope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
         ScreenCornerHelper(view)
     }
 
-    val registry = remember { SharedContainerRegistry() }
+    val registry = remember { SharedContainerRegistry(scope) }
 
     val screenHeightPx = with(LocalDensity.current) {
         LocalConfiguration.current.screenHeightDp.dp.toPx()
