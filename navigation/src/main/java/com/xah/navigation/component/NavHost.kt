@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -19,11 +20,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.util.lerp
 import com.xah.navigation.model.Destination
 import com.xah.navigation.model.NavActionType
-import com.xah.navigation.effect.UnderPageVisualEffect
+import com.xah.navigation.effect.PageEffect
 import com.xah.navigation.util.LocalNavStackState
 import com.xah.navigation.state.NavStackState
 import com.xah.navigation.util.scaleMirror
@@ -35,7 +37,7 @@ private fun <T> transition() :  SpringSpec<T> = spring(
 )
 
 @Composable
-fun TransitionNavHost(
+fun NavHost(
     startDestination: Destination,
     modifier: Modifier = Modifier,
     customBackHandler: (@Composable () -> Unit)? = null,
@@ -77,7 +79,8 @@ fun TransitionNavHost(
 
             progress.animateTo(
                 targetValue = target,
-                animationSpec = transition()
+                animationSpec = tween<Float>(800)
+//                    transition()
             )
 
             navState.onTransitionFinished()
@@ -113,8 +116,25 @@ fun TransitionNavHost(
                             Modifier
                                 .fillMaxSize()
                                 .graphicsLayer {
-                                    if (transition != null && transition.type == NavActionType.POP && isFrom) {
-                                        alpha = 0f
+                                    if (transition != null) {
+                                        when (transition.type) {
+                                            NavActionType.PUSH -> {
+                                                if (isFrom) { }
+                                                if(isTo) {
+                                                    // 简单变大动画
+//                                                    scaleX = animatedProgress
+//                                                    scaleY = animatedProgress
+//                                                    transformOrigin = TransformOrigin(0.5f,0.3f)
+                                                }
+                                            }
+                                            NavActionType.POP -> {
+                                                if(isFrom) {
+                                                    // 简单变小动画
+                                                    alpha = 0f
+                                                }
+                                                if (isTo) { }
+                                            }
+                                        }
                                     }
                                 }
                                 .let {
@@ -152,30 +172,30 @@ fun TransitionNavHost(
 
 private class BackgroundEffect(animatedProgress : Float) {
 
-    private val effect = UnderPageVisualEffect(
+    private val effect = PageEffect(
         scale = lerp(
-            UnderPageVisualEffect.Full.scale,
-            UnderPageVisualEffect.Background.scale,
+            PageEffect.Full.scale,
+            PageEffect.Background.scale,
             animatedProgress
         ),
         blur = lerp(
-            UnderPageVisualEffect.Full.blur,
-            UnderPageVisualEffect.Background.blur,
+            PageEffect.Full.blur,
+            PageEffect.Background.blur,
             animatedProgress
         ),
         mask = lerp(
-            UnderPageVisualEffect.Full.mask,
-            UnderPageVisualEffect.Background.mask,
+            PageEffect.Full.mask,
+            PageEffect.Background.mask,
             animatedProgress
         ),
         alpha = lerp(
-            UnderPageVisualEffect.Full.alpha,
-            UnderPageVisualEffect.Background.alpha,
+            PageEffect.Full.alpha,
+            PageEffect.Background.alpha,
             animatedProgress
         ),
         corner = lerp(
-            UnderPageVisualEffect.Full.corner,
-            UnderPageVisualEffect.Background.corner,
+            PageEffect.Full.corner,
+            PageEffect.Background.corner,
             animatedProgress
         )
     )

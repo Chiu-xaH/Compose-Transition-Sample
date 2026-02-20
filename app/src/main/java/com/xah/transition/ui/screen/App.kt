@@ -42,7 +42,7 @@ import com.xah.container.ui.container.SharedContainer
 import com.xah.container.ui.container.SharedContent
 import com.xah.container.ui.overlay.SharedContainerRoot
 import com.xah.container.ui.util.LocalSharedContainerRegistry
-import com.xah.navigation.component.TransitionNavHost
+import com.xah.navigation.component.NavHost
 import com.xah.navigation.util.LocalNavStackState
 import com.xah.transition.R
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
@@ -56,7 +56,7 @@ import com.xah.transition.ui.screen.destination.SecondDestination
 @Composable
 fun App() {
     SharedContainerRoot {
-        TransitionNavHost(HomeDestination)
+        NavHost(HomeDestination)
     }
 }
 

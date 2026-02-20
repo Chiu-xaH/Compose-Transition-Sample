@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
  * 主体从 None->Full 按transition()动画播放
  */
 @Immutable
-data class UnderPageVisualEffect(
+data class PageEffect(
     val scale: Float,
     val blur: Dp,
     val mask: Float,
@@ -27,7 +27,7 @@ data class UnderPageVisualEffect(
 ) {
     companion object {
         // 上层页面完全展开或背景完全清晰
-        val Full = UnderPageVisualEffect(
+        val Full = PageEffect(
             scale = 1f,
             blur = 0.dp,
             mask = 0f,
@@ -35,7 +35,7 @@ data class UnderPageVisualEffect(
             alpha = 1f,
         )
         // 上层页面回缩
-        val None = UnderPageVisualEffect(
+        val None = PageEffect(
             scale = 0f,
             blur = 0.dp,
             mask = 0f,
@@ -43,21 +43,21 @@ data class UnderPageVisualEffect(
             alpha = 1f
         )
         // 背景 下层页面
-        val Background = UnderPageVisualEffect(
+        val Background = PageEffect(
             scale = 0.875f,
             blur = 25.dp,
             mask = 0.2f,
             corner = 0.dp,
             alpha = 1f
         )
-        val BackgroundWithoutBlur = UnderPageVisualEffect(
+        val BackgroundWithoutBlur = PageEffect(
             scale = 0.875f,
             blur = 0.dp,
             mask = 0.25f,
             corner = 0.dp,
             alpha = 1f
         )
-        val BackgroundWithoutScale = UnderPageVisualEffect(
+        val BackgroundWithoutScale = PageEffect(
             scale = 1f,
             blur = 0.dp,
             mask = 0.25f,
@@ -65,7 +65,7 @@ data class UnderPageVisualEffect(
             alpha = 1f
         )
         // 预测式时的背景 不完全清晰 从 Background->PredictiveBackground scale、blur、dim略减小
-        val PredictiveBackground = UnderPageVisualEffect(
+        val PredictiveBackground = PageEffect(
             scale = 0.875f,
             blur = 12.5.dp,
             mask = 0.1f,
@@ -73,7 +73,7 @@ data class UnderPageVisualEffect(
             alpha = 1f
         )
         // 预测式时的前景 不完全变小，露出下层一些背景即可
-        val PredictiveSelf = UnderPageVisualEffect(
+        val PredictiveSelf = PageEffect(
             scale = 0.875f,
             blur = 0.dp,
             mask = 0f,
