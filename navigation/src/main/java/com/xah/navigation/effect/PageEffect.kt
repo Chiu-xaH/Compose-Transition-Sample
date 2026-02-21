@@ -3,6 +3,7 @@ package com.xah.navigation.effect
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.xah.common.util.ScreenCornerHelper
 
 /** lerp
  * 1. 预测式返回时：
@@ -31,16 +32,16 @@ data class PageEffect(
             scale = 1f,
             blur = 0.dp,
             mask = 0f,
-            corner = 0.dp,
+            corner = ScreenCornerHelper.corner,
             alpha = 1f,
         )
         // 上层页面回缩
         val None = PageEffect(
             scale = 0f,
-            blur = 0.dp,
+            blur = 20.dp,
             mask = 0f,
-            corner = 100.dp,
-            alpha = 1f
+            corner = ScreenCornerHelper.corner*2,
+            alpha = 0.75f
         )
         // 背景 下层页面
         val Background = PageEffect(

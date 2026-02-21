@@ -12,9 +12,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import com.xah.common.util.ScreenCornerHelper
-import com.xah.container.logic.AdaptiveRectInterpolator
+import com.xah.container.logic.AdaptiveBezierRectInterpolator
 import com.xah.container.logic.SharedContainerRegistry
 import com.xah.container.ui.util.LocalSharedContainerRegistry
 
@@ -34,7 +33,7 @@ fun SharedContainerRoot(
     val screenHeightPx = with(LocalDensity.current) {
         LocalConfiguration.current.screenHeightDp.dp.toPx()
     }
-    registry.rectInterpolator = AdaptiveRectInterpolator(screenHeightPx, 1250f)
+    registry.rectInterpolator = AdaptiveBezierRectInterpolator(screenHeightPx)
 
     CompositionLocalProvider(
         LocalSharedContainerRegistry provides registry
@@ -44,11 +43,8 @@ fun SharedContainerRoot(
         ) {
             // 界面
             content()
-
             // Overlay 永远在界面下面
-            Box(Modifier.zIndex(0f)) {
-                SharedContainerOverlay()
-            }
+            SharedContainerOverlay()
         }
     }
 }

@@ -68,7 +68,6 @@ private fun Modifier.sharedContent(
         return@composed this
     }
     val state = remember { registry.getOrCreate(key) }
-
     LaunchedEffect(Unit) {
         state.contentLayout = content
     }
@@ -93,8 +92,10 @@ private fun Modifier.sharedContent(
             )
         }
 }
+
 /**
  * 共享容器的内容
+ * @param key 两个容器之间的Key
  */
 @Composable
 fun SharedContent(
@@ -113,7 +114,8 @@ fun SharedContent(
 
 /** 共享容器的容器
  * @param key 两个容器之间的Key
- * @param fillColor sdk33以上优先使用底部1像素提取填充,无需传入颜色
+ * @param containerFilledStrategy 容器填充策略
+ * @param corner 容器圆角
  */
 @Composable
 fun SharedContainer(

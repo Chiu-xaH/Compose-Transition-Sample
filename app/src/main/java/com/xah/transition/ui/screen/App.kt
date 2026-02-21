@@ -28,24 +28,24 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.xah.container.logic.ContainerFilledStrategy
+import com.xah.container.logic.SharedContainerRegistry
 import com.xah.container.ui.container.SharedContainer
 import com.xah.container.ui.container.SharedContent
 import com.xah.container.ui.overlay.SharedContainerRoot
 import com.xah.container.ui.util.LocalSharedContainerRegistry
 import com.xah.navigation.component.NavHost
+import com.xah.navigation.model.Destination
+import com.xah.navigation.state.NavStackState
 import com.xah.navigation.util.LocalNavStackState
 import com.xah.transition.R
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
@@ -55,6 +55,7 @@ import com.xah.transition.ui.component.TransplantListItem
 import com.xah.transition.ui.screen.destination.AppHomeDestination
 import com.xah.transition.ui.screen.destination.HomeDestination
 import com.xah.transition.ui.screen.destination.SecondDestination
+import com.xah.transition.ui.screen.destination.ThirdDestination
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 
@@ -84,12 +85,36 @@ object UiHolder {
     var imageBitmap by mutableStateOf<Bitmap?>(null)
 }
 
+fun pop(route : String,navStackState : NavStackState,registry : SharedContainerRegistry) {
+    registry.pop(
+        route,
+        onAnimatedFinished = {
+            snapshotFlow { navStackState.isTransitioning }
+                .filter { !it }
+                .first()
+        }
+    ) {
+        navStackState.pop()
+    }
+}
+
+fun push(route: String,destination: Destination,navStackState : NavStackState,registry : SharedContainerRegistry) {
+    registry.push(
+        route,
+        onAnimatedFinished = {
+            snapshotFlow { navStackState.isTransitioning }
+                .filter { !it }
+                .first()
+        }
+    ) {
+        navStackState.push(destination)
+    }
+}
+
 @Composable
 fun HomeScreen() {
-    var input by rememberSaveable() { mutableStateOf(1) }
     val navStackState = LocalNavStackState.current
     val scrollState = rememberLazyGridState()
-    val scope = rememberCoroutineScope()
     val registry = LocalSharedContainerRegistry.current
     val context = LocalContext.current
     val pickMediaLauncher = rememberLauncherForActivityResult(
@@ -134,9 +159,7 @@ fun HomeScreen() {
                             modifier = Modifier
                                 .size(150.dp)
                                 .clickable {
-                                    registry.push(key) {
-                                        navStackState.push(AppHomeDestination(item))
-                                    }
+                                    push(key,AppHomeDestination(item),navStackState,registry)
                                 }
                         ) {
                             Image(painterResource(item.icon),null)
@@ -156,10 +179,9 @@ fun HomeScreen() {
                 ) {
                     TransplantListItem(
                         headlineContent = {
-                            Text("设置壁纸$input")
+                            Text("设置壁纸")
                         },
                         modifier = Modifier.clickable {
-                            input++
                             pickMediaLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                         }
                     )
@@ -174,15 +196,35 @@ fun HomeScreen() {
                         corner = 8.dp,
                     ) {
                         SmallCard(
+                            color = MaterialTheme.colorScheme.primaryContainer
+                        ) {
+                            TransplantListItem(
+                                headlineContent = { Text(route) },
+                                modifier = Modifier.clickable {
+                                    push(route,SecondDestination(userId = index),navStackState,registry)
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+            items(10) { index ->
+                val route = "ItemNo #$index"
+                Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                    SharedContainer (
+                        key = route,
+                        containerFilledStrategy = ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primaryContainer),
+                        corner = 8.dp,
+                    ) {
+                        SmallCard(
                             modifier = Modifier,
                             color = MaterialTheme.colorScheme.primaryContainer
                         ) {
                             TransplantListItem(
                                 headlineContent = { Text(route) },
                                 modifier = Modifier.clickable {
-                                    registry.push(route) {
-                                        navStackState.push(SecondDestination(userId = index))
-                                    }
+//                                    push(route,SecondDestination(userId = index),navStackState,registry)
+                                    navStackState.push(ThirdDestination)
                                 }
                             )
                         }
@@ -200,7 +242,6 @@ fun HomeScreen() {
 fun SecondScreen(userId : Int) {
     val navStackState = LocalNavStackState.current
     val route = "Item #$userId"
-    val scope = rememberCoroutineScope()
     val registry = LocalSharedContainerRegistry.current
 
     SharedContent (
@@ -211,33 +252,12 @@ fun SecondScreen(userId : Int) {
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
                 .clickable {
-                    registry.pop(
-                        route,
-                        onAnimatedFinished = {
-                            snapshotFlow { navStackState.isTransitioning }
-                                .filter { !it }
-                                .first()
-                        }
-                    ) {
-                        navStackState.pop()
-                    }
+                    pop(route,navStackState,registry)
                 }
         ) {
             Button(
                 onClick = {
-                    registry.pop(
-                        route,
-                        onAnimatedFinished = {
-                            snapshotFlow { navStackState.isTransitioning }
-                                .filter { !it }
-                                .first()
-                        }
-                    ) {
-                        navStackState.pop()
-                    }
-//                    registry.pop(route) {
-//                        navStackState.pop()
-//                    }
+                    pop(route,navStackState,registry)
                 },
                 modifier = Modifier.align(Alignment.Center)
             ) {
@@ -261,40 +281,16 @@ fun AppHomeScreen(app: AppBean) {
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
                 .clickable {
-                    registry.pop(
-                        route,
-                        onAnimatedFinished = {
-                            snapshotFlow { navStackState.isTransitioning }
-                                .filter { !it }
-                                .first()
-                        }
-                    ) {
-                        navStackState.pop()
-                    }
-//                    registry.pop(route) {
-//                        navStackState.pop()
-//                    }
+                    pop(route,navStackState,registry)
                 }
         ) {
             Button(
                 onClick = {
-                    registry.pop(
-                        route,
-                        onAnimatedFinished = {
-                            snapshotFlow { navStackState.isTransitioning }
-                                .filter { !it }
-                                .first()
-                        }
-                    ) {
-                        navStackState.pop()
-                    }
-//                    registry.pop(route) {
-//                        navStackState.pop()
-//                    }
+                    pop(route,navStackState,registry)
                 },
                 modifier = Modifier.align(Alignment.Center)
             ) {
-                Text("${app.name}")
+                Text(app.name)
             }
         }
     }
@@ -308,7 +304,14 @@ fun AppHomeScreen(app: AppBean) {
 @Composable
 fun ThirdScreen() {
     val navStackState = LocalNavStackState.current
-    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.primaryContainer)) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable {
+                navStackState.pop()
+            }
+    ) {
         Button(
             onClick = {
                 navStackState.pop()

@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
@@ -24,7 +23,6 @@ import androidx.compose.ui.util.lerp
 import androidx.compose.ui.zIndex
 import com.xah.common.util.ScreenCornerHelper
 import com.xah.container.logic.ContainerFilledStrategy
-import com.xah.container.logic.model.SharedContainerState
 import com.xah.container.ui.container.bottomExtension
 import com.xah.container.ui.util.LocalSharedContainerRegistry
 import kotlin.math.roundToInt
@@ -68,26 +66,23 @@ fun SharedContainerOverlay() {
             ) {
                 // 容器
                 Column {
-                    Box(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        // containerFilledStrategy is ContainerFilledStrategy.Clip
-                        if(containerFilledStrategy is ContainerFilledStrategy.Clip) {
-                            // 对state.containerLayout竖直裁切填满父容器
-                            Box(
-                                modifier = Modifier
-                                    .graphicsLayer {
-                                        val scale = height / container.height
-                                        scaleX = scale
-                                        scaleY = scale
-                                        transformOrigin = TransformOrigin(0.5f, 0f)
-                                    }
-                            ) {
-                                state.containerLayout?.let { it() }
-                            }
-                        } else {
-                            // 底部填充
-                            Box(modifier = Modifier.align(Alignment.TopCenter)) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Box(modifier = Modifier.align(Alignment.TopCenter)) {
+                            if(containerFilledStrategy is ContainerFilledStrategy.Clip) {
+                                // 对state.containerLayout竖直裁切填满父容器
+                                Box(
+                                    modifier = Modifier
+                                        .graphicsLayer {
+                                            val scale = height / container.height
+                                            scaleX = scale
+                                            scaleY = scale
+                                            transformOrigin = TransformOrigin(0.5f, 0f)
+                                        }
+                                ) {
+                                    state.containerLayout?.let { it() }
+                                }
+                            } else {
+                                // 底部填充
                                 Box(
                                     modifier = Modifier.graphicsLayer {
                                         val scale = width / container.width
@@ -114,7 +109,6 @@ fun SharedContainerOverlay() {
                     }
                     // 使用延展填充
                     if(containerFilledStrategy is ContainerFilledStrategy.Pixel) {
-                        // is ContainerFilledStrategy.Pixel
                         Box(
                             modifier = Modifier
                                 .zIndex(-1f)

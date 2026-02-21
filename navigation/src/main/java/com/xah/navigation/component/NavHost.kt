@@ -1,12 +1,10 @@
 package com.xah.navigation.component
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.SpringSpec
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -18,23 +16,25 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
+import com.xah.common.util.ScreenCornerHelper
+import com.xah.container.ui.util.LocalSharedContainerRegistry
+import com.xah.navigation.effect.PageEffect
 import com.xah.navigation.model.Destination
 import com.xah.navigation.model.NavActionType
-import com.xah.navigation.effect.PageEffect
-import com.xah.navigation.util.LocalNavStackState
 import com.xah.navigation.state.NavStackState
+import com.xah.navigation.util.LocalNavStackState
 import com.xah.navigation.util.scaleMirror
-import androidx.compose.ui.unit.lerp
 
-private fun <T> transition() :  SpringSpec<T> = spring(
-    dampingRatio = 1f,
-    stiffness = 50f,
-)
+private const val animationSpecSharedTween = 500
+private val animationSpec = tween<Float>(animationSpecSharedTween*8/5)
+private val animationSpecWithoutShared = tween<Float>(animationSpecSharedTween*13/10)
 
 @Composable
 fun NavHost(
@@ -43,6 +43,7 @@ fun NavHost(
     onAnimatedFinished : (() -> Unit)? = null,
     customBackHandler: (@Composable () -> Unit)? = null,
 ) {
+    val registry = LocalSharedContainerRegistry.current
     val saveableStateHolder = rememberSaveableStateHolder()
     val navState = remember { NavStackState(startDestination) }
 
@@ -80,7 +81,12 @@ fun NavHost(
 
             progress.animateTo(
                 targetValue = target,
-                animationSpec = tween<Float>(800)
+                animationSpec =
+                    if(registry.isRunning) {
+                        animationSpec
+                    } else {
+                        animationSpecWithoutShared
+                    }
             )
 
             onAnimatedFinished?.let { it() }
@@ -93,16 +99,15 @@ fun NavHost(
             })
         }
 
-        val visibleEntries =
-            transition?.let { listOf(it.from, it.to) }
-                ?: listOf(navState.stack.last())
+        val visibleEntries = remember(transition) {
+            when (transition?.type) {
+                NavActionType.POP -> listOf(transition.to, transition.from)
+                NavActionType.PUSH -> listOf(transition.from, transition.to)
+                else -> listOf(navState.stack.last())
+            }
+        }
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .then(modifier)
-        ) {
-
+        Box(modifier = modifier.fillMaxSize()) {
             visibleEntries.forEach { entry ->
                 key(entry.id) {
                     saveableStateHolder.SaveableStateProvider(entry.id) {
@@ -112,6 +117,7 @@ fun NavHost(
 
                         val animatedProgress = progress.value
                         val underEffect = remember(animatedProgress) { BackgroundEffect(animatedProgress) }
+                        val upEffect = remember(animatedProgress) { ForegroundEffect(animatedProgress) }
 
                         Box(
                             Modifier
@@ -121,17 +127,14 @@ fun NavHost(
                                         when (transition.type) {
                                             NavActionType.PUSH -> {
                                                 if (isFrom) { }
-                                                if(isTo) {
-                                                    // 简单变大动画
-//                                                    scaleX = animatedProgress
-//                                                    scaleY = animatedProgress
-//                                                    transformOrigin = TransformOrigin(0.5f,0.3f)
-                                                }
+                                                if(isTo) { }
                                             }
                                             NavActionType.POP -> {
                                                 if(isFrom) {
-                                                    // 简单变小动画
-                                                    alpha = 0f
+                                                    // 有共享元素
+                                                    if(registry.isRunning) {
+                                                        alpha = 0f
+                                                    }
                                                 }
                                                 if (isTo) { }
                                             }
@@ -143,17 +146,33 @@ fun NavHost(
                                         when (transition.type) {
                                             NavActionType.PUSH -> {
                                                 if (isFrom) {
-                                                    // 渐变缩放模糊
+                                                    // 背景
                                                     return@let with(underEffect) {
                                                         it.effect()
+                                                    }
+                                                }
+                                                if (isTo) {
+                                                    // 目标屏幕
+                                                    if(!registry.isRunning) {
+                                                        return@let with(upEffect) {
+                                                            it.effect()
+                                                        }
                                                     }
                                                 }
                                             }
                                             NavActionType.POP -> {
                                                 if (isTo) {
-                                                    // 渐变缩放模糊
+                                                    // 背景
                                                     return@let with(underEffect) {
                                                         it.effect()
+                                                    }
+                                                }
+                                                if (isFrom) {
+                                                    // 退出屏幕
+                                                    if(!registry.isRunning) {
+                                                        return@let with(upEffect) {
+                                                            it.effect()
+                                                        }
                                                     }
                                                 }
                                             }
@@ -220,7 +239,57 @@ private class BackgroundEffect(animatedProgress : Float) {
         return this.scaleMirror(effect.scale)
     }
 
-    fun Modifier.effect() : Modifier {
-        return this.mask().blur().scale()
+    fun Modifier.effect() : Modifier = this.mask().blur().scale()
+}
+
+private class ForegroundEffect(animatedProgress : Float) {
+
+    private val effect = PageEffect(
+        scale = lerp(
+            PageEffect.None.scale,
+            PageEffect.Full.scale,
+            animatedProgress
+        ),
+        blur = lerp(
+            PageEffect.None.blur,
+            PageEffect.Full.blur,
+            animatedProgress
+        ),
+        mask = lerp(
+            PageEffect.None.mask,
+            PageEffect.Full.mask,
+            animatedProgress
+        ),
+        alpha = lerp(
+            PageEffect.None.alpha,
+            PageEffect.Full.alpha,
+            animatedProgress
+        ),
+        corner = lerp(
+            ScreenCornerHelper.corner*2,
+//            PageEffect.None.corner,
+            ScreenCornerHelper.corner,
+//            PageEffect.Full.corner,
+            animatedProgress
+        )
+    )
+
+
+    private fun Modifier.blur() : Modifier {
+        return this.blur(effect.blur)
     }
+    private fun Modifier.corner() : Modifier {
+        return this.clip(RoundedCornerShape(effect.corner))
+    }
+
+    private fun Modifier.scale() : Modifier {
+        return this.graphicsLayer {
+            scaleX = effect.scale
+            scaleY = effect.scale
+            alpha = effect.alpha
+            transformOrigin = TransformOrigin(0.5f,0.3f)
+        }
+    }
+
+    fun Modifier.effect() : Modifier = this.blur().scale().corner()
 }

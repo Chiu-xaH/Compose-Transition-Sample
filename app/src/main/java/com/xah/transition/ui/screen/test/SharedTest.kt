@@ -5,16 +5,11 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -23,32 +18,22 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.xah.container.ui.container.SharedContainer
 import com.xah.container.ui.container.SharedContent
 import com.xah.container.ui.overlay.SharedContainerRoot
 import com.xah.container.ui.util.LocalSharedContainerRegistry
-import com.xah.transition.R
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CARD_NORMAL_DP
-import com.xah.transition.ui.component.CardListItem
 import com.xah.transition.ui.component.SmallCard
 import com.xah.transition.ui.component.TransplantListItem
-import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
 
 @Composable
 fun HomeScreenT(onPush : (Int) -> Unit) {
@@ -116,7 +101,7 @@ fun SecondScreenT(userId : Int,onBack : () -> Unit) {
 
 @Preview
 @Composable
-fun ShareTest() {
+fun SharedTest() {
     var index by remember { mutableIntStateOf(-1) }
     var status by remember { mutableStateOf(true) }
     BackHandler(status == false) {
@@ -143,5 +128,6 @@ fun ShareTest() {
         }
     }
 }
+
 
 
