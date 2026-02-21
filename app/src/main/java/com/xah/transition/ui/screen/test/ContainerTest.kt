@@ -31,10 +31,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.xah.container.ui.container.SharedContainer
-import com.xah.container.ui.container.SharedContent
-import com.xah.container.ui.overlay.SharedContainerRoot
-import com.xah.container.ui.util.LocalSharedContainerRegistry
+import com.xah.container.container.SharedContainer
+import com.xah.container.container.SharedContent
+import com.xah.container.overlay.SharedContainerRoot
+import com.xah.container.util.LocalSharedContainerRegistry
 import com.xah.transition.R
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CardListItem

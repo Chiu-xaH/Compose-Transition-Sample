@@ -1,7 +1,7 @@
-package com.xah.container.ui.util
+package com.xah.container.util
 
 import androidx.compose.runtime.staticCompositionLocalOf
-import com.xah.container.logic.SharedContainerRegistry
+import com.xah.container.controller.SharedContainerRegistry
 
 
 val LocalSharedContainerRegistry = staticCompositionLocalOf<SharedContainerRegistry> {

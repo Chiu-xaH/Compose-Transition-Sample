@@ -1,15 +1,14 @@
-package com.xah.navigation.state
+package com.xah.navigation.controller
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.xah.navigation.model.BackStackEntry
 import com.xah.navigation.model.Destination
 import com.xah.navigation.model.NavActionType
-import com.xah.navigation.effect.NavTransition
+import com.xah.navigation.transition.NavTransition
 import java.util.UUID
 
 

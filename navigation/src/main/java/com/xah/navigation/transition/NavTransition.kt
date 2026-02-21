@@ -1,4 +1,4 @@
-package com.xah.navigation.effect
+package com.xah.navigation.transition
 
 import com.xah.navigation.model.BackStackEntry
 import com.xah.navigation.model.NavActionType

@@ -1,7 +1,6 @@
-package com.xah.container.logic
+package com.xah.container.model
 
 import android.os.Build
-import com.xah.container.logic.model.SharedContainerState
 
 sealed interface ContainerFilledStrategy {
     /**

@@ -1,4 +1,4 @@
-package com.xah.container.ui.overlay
+package com.xah.container.overlay
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -23,9 +23,9 @@ import androidx.compose.ui.util.lerp
 import androidx.compose.ui.zIndex
 import com.xah.common.ScreenCornerHelper
 import com.xah.common.disableTouchEvent
-import com.xah.container.logic.ContainerFilledStrategy
-import com.xah.container.ui.container.bottomExtension
-import com.xah.container.ui.util.LocalSharedContainerRegistry
+import com.xah.container.model.ContainerFilledStrategy
+import com.xah.container.container.bottomExtension
+import com.xah.container.util.LocalSharedContainerRegistry
 import kotlin.math.roundToInt
 
 @Composable

@@ -25,11 +25,11 @@ import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
 import com.xah.common.ScreenCornerHelper
 import com.xah.common.touchEvent
-import com.xah.container.ui.util.LocalSharedContainerRegistry
-import com.xah.navigation.effect.PageEffect
+import com.xah.container.util.LocalSharedContainerRegistry
+import com.xah.navigation.transition.PageEffect
 import com.xah.navigation.model.Destination
 import com.xah.navigation.model.NavActionType
-import com.xah.navigation.state.NavStackState
+import com.xah.navigation.controller.NavStackState
 import com.xah.navigation.util.LocalNavStackState
 import com.xah.navigation.util.scaleMirror
 

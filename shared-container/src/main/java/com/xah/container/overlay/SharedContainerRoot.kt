@@ -1,4 +1,4 @@
-package com.xah.container.ui.overlay
+package com.xah.container.overlay
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,9 +13,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import com.xah.common.ScreenCornerHelper
-import com.xah.container.logic.AdaptiveBezierRectInterpolator
-import com.xah.container.logic.SharedContainerRegistry
-import com.xah.container.ui.util.LocalSharedContainerRegistry
+import com.xah.container.transition.AdaptiveBezierRectInterpolator
+import com.xah.container.controller.SharedContainerRegistry
+import com.xah.container.util.LocalSharedContainerRegistry
 
 
 @Composable
