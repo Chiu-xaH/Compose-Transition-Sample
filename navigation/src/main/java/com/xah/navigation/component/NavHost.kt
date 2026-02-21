@@ -23,7 +23,8 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
-import com.xah.common.util.ScreenCornerHelper
+import com.xah.common.ScreenCornerHelper
+import com.xah.common.touchEvent
 import com.xah.container.ui.util.LocalSharedContainerRegistry
 import com.xah.navigation.effect.PageEffect
 import com.xah.navigation.model.Destination
@@ -107,6 +108,9 @@ fun NavHost(
             }
         }
 
+
+
+
         Box(modifier = modifier.fillMaxSize()) {
             visibleEntries.forEach { entry ->
                 key(entry.id) {
@@ -118,6 +122,12 @@ fun NavHost(
                         val animatedProgress = progress.value
                         val underEffect = remember(animatedProgress) { BackgroundEffect(animatedProgress) }
                         val upEffect = remember(animatedProgress) { ForegroundEffect(animatedProgress) }
+                        val isBackground =  if(transition == null) {
+                            false
+                        } else {
+                            (transition.type == NavActionType.PUSH && isFrom) ||
+                                    (transition.type == NavActionType.POP && isTo)
+                        }
 
                         Box(
                             Modifier
@@ -180,6 +190,10 @@ fun NavHost(
                                     }
                                     return@let it
                                 }
+                                // 背景禁用触摸事件
+                                .touchEvent(
+                                    !isBackground
+                                )
                         ) {
                             entry.destination.Content()
                         }

@@ -21,7 +21,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.zIndex
-import com.xah.common.util.ScreenCornerHelper
+import com.xah.common.ScreenCornerHelper
+import com.xah.common.disableTouchEvent
 import com.xah.container.logic.ContainerFilledStrategy
 import com.xah.container.ui.container.bottomExtension
 import com.xah.container.ui.util.LocalSharedContainerRegistry
@@ -79,7 +80,10 @@ fun SharedContainerOverlay() {
                                             transformOrigin = TransformOrigin(0.5f, 0f)
                                         }
                                 ) {
-                                    state.containerLayout?.let { it() }
+                                    // 背景禁用触摸事件
+                                    Box(modifier = Modifier.disableTouchEvent()) {
+                                        state.containerLayout?.let { it() }
+                                    }
                                 }
                             } else {
                                 // 底部填充
@@ -101,7 +105,10 @@ fun SharedContainerOverlay() {
                                             }
                                         }
                                     ) {
-                                        state.containerLayout?.let { it() }
+                                        // 背景禁用触摸事件
+                                        Box(modifier = Modifier.disableTouchEvent()) {
+                                            state.containerLayout?.let { it() }
+                                        }
                                     }
                                 }
                             }

@@ -1,11 +1,10 @@
-package com.xah.common.util
+package com.xah.common
 
 import android.os.Build
 import android.view.RoundedCorner
 import android.view.View
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-
 
 class ScreenCornerHelper(
     private val view: View

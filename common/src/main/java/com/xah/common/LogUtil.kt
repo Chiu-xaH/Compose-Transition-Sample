@@ -1,4 +1,4 @@
-package com.xah.common.util
+package com.xah.common
 
 import android.util.Log
 

@@ -12,7 +12,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
-import com.xah.common.util.ScreenCornerHelper
+import com.xah.common.ScreenCornerHelper
 import com.xah.container.logic.AdaptiveBezierRectInterpolator
 import com.xah.container.logic.SharedContainerRegistry
 import com.xah.container.ui.util.LocalSharedContainerRegistry
