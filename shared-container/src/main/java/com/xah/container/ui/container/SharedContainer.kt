@@ -10,14 +10,11 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.xah.container.logic.ContainerFilledStrategy
-import com.xah.container.logic.model.SharedContainerState
 import com.xah.container.ui.util.LocalSharedContainerRegistry
 
 private fun Modifier.sharedContainer(

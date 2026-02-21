@@ -85,18 +85,16 @@ class SharedContainerRegistry(
     ) {
         val state = states[key] ?: return
 
-        // 开始标识位
-        state.isRunning = true
-
         onSwapContent()
         awaitFrame()
+
+        // 开始标识位
+        state.isRunning = true
 
         state.animation.animateTo(1f,pushAnimation)
         onAnimatedFinished?.let { it() }
         // 结束标志位
-        LogUtil.debug("state.isRunning=${state.isRunning}")
         state.isRunning = false
-        LogUtil.debug("state.isRunning=${state.isRunning}")
     }
 
     private suspend fun internalPop(
@@ -106,11 +104,10 @@ class SharedContainerRegistry(
     ) {
         val state = states[key] ?: return
 
-        // 开始标识位
-        state.isRunning = true
-
         onSwapContent()
         awaitFrame()
+        // 开始标识位
+        state.isRunning = true
 
         state.animation.animateTo(0f,popAnimation)
 
