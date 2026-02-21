@@ -43,35 +43,40 @@ class SharedContainerRegistry(
 
     fun push(
         key: Any,
+        onAnimatedFinished : (suspend () -> Unit)? = null,
         onSwapContent: suspend () -> Unit
     ) {
         scope.launch {
             if(!enabled) {
                 onSwapContent()
             }
-            internalPush(key, onSwapContent)
+            internalPush(key,onAnimatedFinished, onSwapContent)
         }
     }
 
     fun pop(
         key: Any,
+        onAnimatedFinished : (suspend () -> Unit)? = null,
         onSwapContent: suspend () -> Unit
     ) {
         scope.launch {
             if(!enabled) {
                 onSwapContent()
             }
-            internalPop(key, onSwapContent)
+            internalPop(key, onAnimatedFinished,onSwapContent)
         }
     }
 
     private suspend fun internalPush(
         key: Any,
+        onAnimatedFinished : (suspend () -> Unit)? = null,
         onSwapContent: suspend () -> Unit
     ) {
         val state = states[key] ?: return
         // 赋值
-        state.containerLayout = state.layout
+        if(state.containerLayout == null) {
+            state.containerLayout = state.layout
+        }
         state.containerRect = state.layoutRect
 
         // 开始标识位
@@ -82,11 +87,13 @@ class SharedContainerRegistry(
         awaitFrame()
 
         // 赋值
-        state.contentLayout = state.layout
+        if(state.contentLayout == null) {
+            state.contentLayout = state.layout
+        }
         state.contentRect = state.layoutRect
 
         state.animation.animateTo(1f,pushAnimation)
-
+        onAnimatedFinished?.let { it() }
         // 结束标志位
         state.isRunning = false
         state.action = SharedContainerAction.NONE
@@ -94,6 +101,7 @@ class SharedContainerRegistry(
 
     private suspend fun internalPop(
         key: Any,
+        onAnimatedFinished : (suspend () -> Unit)? = null,
         onSwapContent: suspend () -> Unit
     ) {
         val state = states[key] ?: return
@@ -117,7 +125,7 @@ class SharedContainerRegistry(
         state.containerRect = state.layoutRect
 
         state.animation.animateTo(0f,popAnimation)
-
+        onAnimatedFinished?.let { it() }
         // 结束标志位
         state.isRunning = false
         state.action = SharedContainerAction.NONE

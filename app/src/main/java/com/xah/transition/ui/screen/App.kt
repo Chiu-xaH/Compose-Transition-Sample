@@ -31,13 +31,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.xah.container.logic.ContainerFilledStrategy
 import com.xah.container.ui.container.SharedContainer
 import com.xah.container.ui.container.SharedContent
 import com.xah.container.ui.overlay.SharedContainerRoot
@@ -52,6 +55,8 @@ import com.xah.transition.ui.component.TransplantListItem
 import com.xah.transition.ui.screen.destination.AppHomeDestination
 import com.xah.transition.ui.screen.destination.HomeDestination
 import com.xah.transition.ui.screen.destination.SecondDestination
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 
 @Composable
 fun App() {
@@ -104,7 +109,13 @@ fun HomeScreen() {
             Image(
                 bitmap = UiHolder.imageBitmap!!.asImageBitmap(),
                 contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+//                    .graphicsLayer {
+//                        scaleX = 1f + 0.1f*navStackState.transitionProgress.value
+//                        scaleY = 1f + 0.1f*navStackState.transitionProgress.value
+//                    }
+                ,
                 contentScale = ContentScale.Crop
             )
         }
@@ -122,6 +133,7 @@ fun HomeScreen() {
                 Column {
                     SharedContainer(
                         key,
+                        containerFilledStrategy = ContainerFilledStrategy.Pixel(),
                         corner = 20.dp,
                     ) {
                         Box(
@@ -164,7 +176,7 @@ fun HomeScreen() {
                 Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
                     SharedContainer (
                         key = route,
-                        fillColor = MaterialTheme.colorScheme.primaryContainer,
+                        containerFilledStrategy = ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primaryContainer),
                         corner = 8.dp,
                     ) {
                         SmallCard(
@@ -205,16 +217,33 @@ fun SecondScreen(userId : Int) {
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
                 .clickable {
-                    registry.pop(route) {
+                    registry.pop(
+                        route,
+                        onAnimatedFinished = {
+                            snapshotFlow { navStackState.isTransitioning }
+                                .filter { !it }
+                                .first()
+                        }
+                    ) {
                         navStackState.pop()
                     }
                 }
         ) {
             Button(
                 onClick = {
-                    registry.pop(route) {
+                    registry.pop(
+                        route,
+                        onAnimatedFinished = {
+                            snapshotFlow { navStackState.isTransitioning }
+                                .filter { !it }
+                                .first()
+                        }
+                    ) {
                         navStackState.pop()
                     }
+//                    registry.pop(route) {
+//                        navStackState.pop()
+//                    }
                 },
                 modifier = Modifier.align(Alignment.Center)
             ) {
@@ -238,16 +267,36 @@ fun AppHomeScreen(app: AppBean) {
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
                 .clickable {
-                    registry.pop(route) {
+                    registry.pop(
+                        route,
+                        onAnimatedFinished = {
+                            snapshotFlow { navStackState.isTransitioning }
+                                .filter { !it }
+                                .first()
+                        }
+                    ) {
                         navStackState.pop()
                     }
+//                    registry.pop(route) {
+//                        navStackState.pop()
+//                    }
                 }
         ) {
             Button(
                 onClick = {
-                    registry.pop(route) {
+                    registry.pop(
+                        route,
+                        onAnimatedFinished = {
+                            snapshotFlow { navStackState.isTransitioning }
+                                .filter { !it }
+                                .first()
+                        }
+                    ) {
                         navStackState.pop()
                     }
+//                    registry.pop(route) {
+//                        navStackState.pop()
+//                    }
                 },
                 modifier = Modifier.align(Alignment.Center)
             ) {

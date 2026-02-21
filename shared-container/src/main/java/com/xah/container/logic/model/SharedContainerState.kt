@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.xah.container.logic.ContainerFilledStrategy
 
 class SharedContainerState() {
     // 记录Rect（位置、大小）
@@ -33,14 +34,9 @@ class SharedContainerState() {
     // 容器
     var containerCorner: Dp = 0.dp
 
-    // 记录背景色用于填充
-    var containerColor: Color = Color.Black
-
     val animation = Animatable(0f)
     var isRunning by mutableStateOf(false)
     var action by mutableStateOf(SharedContainerAction.NONE)
 
-    companion object {
-        val CAN_USE_SHADER_FILL = Build.VERSION.SDK_INT >= 33
-    }
+    var containerFilledStrategy : ContainerFilledStrategy = ContainerFilledStrategy.Pixel()
 }

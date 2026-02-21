@@ -13,13 +13,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import com.xah.container.logic.ContainerFilledStrategy
 import com.xah.container.logic.model.SharedContainerState
 import com.xah.container.ui.util.LocalSharedContainerRegistry
 
 private fun Modifier.sharedContainer(
     key : Any,
-    fillColor : Color? = null,
-    corner : Dp? = null,
+    containerFilledStrategy : ContainerFilledStrategy?,
+    corner : Dp?,
     content : @Composable () -> Unit
 ): Modifier = composed {
     val registry = LocalSharedContainerRegistry.current
@@ -28,10 +30,10 @@ private fun Modifier.sharedContainer(
     }
     val state = remember { registry.getOrCreate(key) }
 
-    LaunchedEffect(fillColor,corner) {
+    LaunchedEffect(containerFilledStrategy,corner) {
         state.layout = content
-        if (fillColor != null) {
-            state.containerColor = fillColor
+        if (containerFilledStrategy != null) {
+            state.containerFilledStrategy = containerFilledStrategy
         }
         if (corner != null) {
             state.containerCorner = corner
@@ -51,23 +53,25 @@ private fun Modifier.sharedContainer(
         }
 }
 
-/** 共享容器的容器
+/**
+ * 共享容器的内容
  */
 @Composable
 fun SharedContent(
     key : Any,
     modifier : Modifier = Modifier,
     content : @Composable () -> Unit
-)  = SharedContainer(
-    key,
-    modifier,
-    null,
-    null,
-    content
-)
+)  {
+    Box(modifier = modifier) {
+        Box(
+            modifier = Modifier.sharedContainer(key,null,null,content)
+        ) {
+            content()
+        }
+    }
+}
 
-
-/** 共享容器的内容
+/** 共享容器的容器
  * @param key 两个容器之间的Key
  * @param fillColor sdk33以上优先使用底部1像素提取填充,无需传入颜色
  */
@@ -75,19 +79,15 @@ fun SharedContent(
 fun SharedContainer(
     key : Any,
     modifier : Modifier = Modifier,
-    fillColor : Color? = null,
-    corner : Dp? = null,
+    containerFilledStrategy : ContainerFilledStrategy = ContainerFilledStrategy.Pixel(),
+    corner : Dp = 0.dp,
     content : @Composable () -> Unit
 ) {
     Box(modifier = modifier) {
         Box(
             modifier = Modifier
-                .sharedContainer(key,fillColor,corner,content)
-                .let {
-                    corner?.let { size ->
-                        it.clip(RoundedCornerShape(size))
-                    } ?: it
-                }
+                .sharedContainer(key,containerFilledStrategy,corner,content)
+                .clip(RoundedCornerShape(corner))
         ) {
             content()
         }

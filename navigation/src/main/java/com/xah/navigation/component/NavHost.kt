@@ -40,6 +40,7 @@ private fun <T> transition() :  SpringSpec<T> = spring(
 fun NavHost(
     startDestination: Destination,
     modifier: Modifier = Modifier,
+    onAnimatedFinished : (() -> Unit)? = null,
     customBackHandler: (@Composable () -> Unit)? = null,
 ) {
     val saveableStateHolder = rememberSaveableStateHolder()
@@ -58,7 +59,7 @@ fun NavHost(
         }
 
         val transition = navState.navTransition
-        val progress = remember { Animatable(1f) }
+        val progress = navState.transitionProgress
         var tag by remember { mutableStateOf(false) }
 
         // 当 transition 变化时启动动画
@@ -79,10 +80,10 @@ fun NavHost(
 
             progress.animateTo(
                 targetValue = target,
-                animationSpec = tween<Float>(500)
-//                    transition()
+                animationSpec = tween<Float>(800)
             )
 
+            onAnimatedFinished?.let { it() }
             navState.onTransitionFinished()
 
             // 结束后归位

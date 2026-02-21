@@ -1,5 +1,6 @@
 package com.xah.navigation.state
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -24,8 +25,7 @@ class NavStackState(
     var isTransitioning by mutableStateOf(false)
         private set
 
-    var predictiveProgress by mutableFloatStateOf(0f)
-        private set
+    val transitionProgress = Animatable(0f)
 
     fun push(destination: Destination) {
         val from = _stack.last()

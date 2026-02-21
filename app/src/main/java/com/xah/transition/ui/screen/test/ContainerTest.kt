@@ -96,7 +96,6 @@ fun ContainerTest() {
                     SharedContainer(
                         key2,
                         corner = 15.dp,
-                        fillColor = MaterialTheme.colorScheme.primaryContainer,
                         modifier = Modifier
                             .padding(horizontal = APP_HORIZONTAL_DP)
                             .align(Alignment.Center)
