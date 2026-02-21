@@ -21,5 +21,4 @@
 12. KMP适配
 13. README书写
 15. 容器带padding时的bug
-17. 动态滑动屏幕rect不更新的Bug
 18. 提取1像素回弹时的Bug

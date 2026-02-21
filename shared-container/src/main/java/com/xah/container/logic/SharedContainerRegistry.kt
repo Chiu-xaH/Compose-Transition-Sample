@@ -74,10 +74,10 @@ class SharedContainerRegistry(
     ) {
         val state = states[key] ?: return
         // 赋值
-        if(state.containerLayout == null) {
-            state.containerLayout = state.layout
-        }
-        state.containerRect = state.layoutRect
+//        if(state.containerLayout == null) {
+//            state.containerLayout = state.layout
+//        }
+//        state.containerRect = state.layoutRect
 
         // 开始标识位
         state.isRunning = true
@@ -87,10 +87,10 @@ class SharedContainerRegistry(
         awaitFrame()
 
         // 赋值
-        if(state.contentLayout == null) {
-            state.contentLayout = state.layout
-        }
-        state.contentRect = state.layoutRect
+//        if(state.contentLayout == null) {
+//            state.contentLayout = state.layout
+//        }
+//        state.contentRect = state.layoutRect
 
         state.animation.animateTo(1f,pushAnimation)
         onAnimatedFinished?.let { it() }
@@ -106,10 +106,10 @@ class SharedContainerRegistry(
     ) {
         val state = states[key] ?: return
         // 赋值 TODO 有个问题
-        if(state.contentLayout == null) {
-            state.contentLayout = state.layout
-        }
-        state.contentRect = state.layoutRect
+//        if(state.contentLayout == null) {
+//            state.contentLayout = state.layout
+//        }
+//        state.contentRect = state.layoutRect
 
         // 开始标识位
         state.isRunning = true
@@ -119,10 +119,10 @@ class SharedContainerRegistry(
         awaitFrame()
 
         // 赋值 TODO 有个问题
-        if(state.containerLayout == null) {
-            state.containerLayout = state.layout
-        }
-        state.containerRect = state.layoutRect
+//        if(state.containerLayout == null) {
+//            state.containerLayout = state.layout
+//        }
+//        state.containerRect = state.layoutRect
 
         state.animation.animateTo(0f,popAnimation)
         onAnimatedFinished?.let { it() }

@@ -22,8 +22,8 @@ import com.xah.container.ui.util.LocalSharedContainerRegistry
 
 private fun Modifier.sharedContainer(
     key : Any,
-    containerFilledStrategy : ContainerFilledStrategy?,
-    corner : Dp?,
+    containerFilledStrategy : ContainerFilledStrategy,
+    corner : Dp,
     content : @Composable () -> Unit
 ): Modifier = composed {
     val registry = LocalSharedContainerRegistry.current
@@ -33,13 +33,9 @@ private fun Modifier.sharedContainer(
     val state = remember { registry.getOrCreate(key) }
 
     LaunchedEffect(containerFilledStrategy,corner) {
-        state.layout = content
-        if (containerFilledStrategy != null) {
-            state.containerFilledStrategy = containerFilledStrategy
-        }
-        if (corner != null) {
-            state.containerCorner = corner
-        }
+        state.containerLayout = content
+        state.containerFilledStrategy = containerFilledStrategy
+        state.containerCorner = corner
     }
 
     this
@@ -54,7 +50,7 @@ private fun Modifier.sharedContainer(
             val position = coordinates.positionInRoot()
             val size = coordinates.size
 
-            state.layoutRect = Rect(
+            state.containerRect = Rect(
                 left = position.x,
                 top = position.y,
                 right = position.x + size.width,
@@ -63,6 +59,40 @@ private fun Modifier.sharedContainer(
         }
 }
 
+private fun Modifier.sharedContent(
+    key : Any,
+    content : @Composable () -> Unit
+): Modifier = composed {
+    val registry = LocalSharedContainerRegistry.current
+    if(!registry.enabled) {
+        return@composed this
+    }
+    val state = remember { registry.getOrCreate(key) }
+
+    LaunchedEffect(Unit) {
+        state.contentLayout = content
+    }
+
+    this
+        .drawWithContent {
+            // 隐藏原组件
+            if (!state.isRunning) {
+                drawContent()
+            }
+        }
+        // 记录组件的位置、大小
+        .onGloballyPositioned { coordinates ->
+            val position = coordinates.positionInRoot()
+            val size = coordinates.size
+
+            state.contentRect = Rect(
+                left = position.x,
+                top = position.y,
+                right = position.x + size.width,
+                bottom = position.y + size.height
+            )
+        }
+}
 /**
  * 共享容器的内容
  */
@@ -74,7 +104,7 @@ fun SharedContent(
 )  {
     Box(modifier = modifier) {
         Box(
-            modifier = Modifier.sharedContainer(key,null,null,content)
+            modifier = Modifier.sharedContent(key,content)
         ) {
             content()
         }

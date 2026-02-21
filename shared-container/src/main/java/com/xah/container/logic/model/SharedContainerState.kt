@@ -15,7 +15,7 @@ import com.xah.container.logic.ContainerFilledStrategy
 
 class SharedContainerState() {
     // 记录Rect（位置、大小）
-    var layoutRect: Rect? = null
+//    var layoutRect: Rect? = null
     // 容器
     var containerRect: Rect? = null
     // 内容
@@ -23,7 +23,7 @@ class SharedContainerState() {
 
 
     // 记录布局内容
-    var layout: (@Composable () -> Unit)? = null
+//    var layout: (@Composable () -> Unit)? = null
     // 容器
     var containerLayout: (@Composable () -> Unit)? = null
     // 内容

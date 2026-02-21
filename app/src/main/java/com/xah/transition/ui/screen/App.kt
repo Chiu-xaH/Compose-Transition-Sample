@@ -109,13 +109,7 @@ fun HomeScreen() {
             Image(
                 bitmap = UiHolder.imageBitmap!!.asImageBitmap(),
                 contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-//                    .graphicsLayer {
-//                        scaleX = 1f + 0.1f*navStackState.transitionProgress.value
-//                        scaleY = 1f + 0.1f*navStackState.transitionProgress.value
-//                    }
-                ,
+                modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
         }
