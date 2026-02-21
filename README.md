@@ -11,7 +11,6 @@
 5. 性能开销低，内容层不重复测量，一次渲染
 
 ## TODO
-2. 打断动画时content的一点Bug
 3. spring回弹时最后卡顿的Bug
 4. 对content的裁切一次测量布局
 6. navigation默认打开关闭效果
@@ -21,8 +20,6 @@
 11. 导航预测式返回的适配
 12. KMP适配
 13. README书写
-14. 代码整理
-15. 提取1像素带padding时的bug
-16. 溢出屏幕的Rect的Bug
+15. 容器带padding时的bug
 17. 动态滑动屏幕rect不更新的Bug
 18. 提取1像素回弹时的Bug

@@ -9,9 +9,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.xah.container.logic.ContainerFilledStrategy
@@ -48,8 +50,16 @@ private fun Modifier.sharedContainer(
             }
         }
         // 记录两个组件的位置、大小
-        .onGloballyPositioned {
-            state.layoutRect = it.boundsInRoot()
+        .onGloballyPositioned { coordinates ->
+            val position = coordinates.positionInRoot()
+            val size = coordinates.size
+
+            state.layoutRect = Rect(
+                left = position.x,
+                top = position.y,
+                right = position.x + size.width,
+                bottom = position.y + size.height
+            )
         }
 }
 
