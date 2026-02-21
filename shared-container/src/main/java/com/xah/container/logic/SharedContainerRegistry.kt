@@ -21,7 +21,7 @@ class SharedContainerRegistry(
 
     var enabled by mutableStateOf(true)
 
-    private val pushAnimation = tween<Float>(800)
+    private val pushAnimation = tween<Float>(500)
     private val popAnimation =pushAnimation
 //        spring<Float>(
 //        stiffness = 50f,

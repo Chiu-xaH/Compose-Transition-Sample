@@ -126,7 +126,7 @@ fun HomeScreen() {
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(125.dp)
+                                .size(150.dp)
                                 .clickable {
                                     registry.push(key) {
                                         navStackState.push(AppHomeDestination(item))
@@ -204,6 +204,11 @@ fun SecondScreen(userId : Int) {
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
+                .clickable {
+                    registry.pop(route) {
+                        navStackState.pop()
+                    }
+                }
         ) {
             Button(
                 onClick = {

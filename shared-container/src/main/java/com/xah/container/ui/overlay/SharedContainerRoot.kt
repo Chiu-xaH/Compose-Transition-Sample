@@ -34,7 +34,7 @@ fun SharedContainerRoot(
     val screenHeightPx = with(LocalDensity.current) {
         LocalConfiguration.current.screenHeightDp.dp.toPx()
     }
-    registry.rectInterpolator = AdaptiveRectInterpolator(screenHeightPx, 1000f)
+    registry.rectInterpolator = AdaptiveRectInterpolator(screenHeightPx, 1250f)
 
     CompositionLocalProvider(
         LocalSharedContainerRegistry provides registry

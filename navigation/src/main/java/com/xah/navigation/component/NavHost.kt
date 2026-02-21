@@ -79,7 +79,7 @@ fun NavHost(
 
             progress.animateTo(
                 targetValue = target,
-                animationSpec = tween<Float>(800)
+                animationSpec = tween<Float>(500)
 //                    transition()
             )
 
