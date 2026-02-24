@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -42,14 +43,15 @@ import com.xah.container.controller.SharedContainerRegistry
 import com.xah.container.container.SharedContainer
 import com.xah.container.container.SharedContent
 import com.xah.container.overlay.SharedContainerRoot
-import com.xah.container.util.LocalSharedContainerRegistry
+import com.xah.container.utils.LocalSharedContainerRegistry
 import com.xah.navigation.component.NavHost
 import com.xah.navigation.model.Destination
-import com.xah.navigation.controller.NavStackState
-import com.xah.navigation.util.LocalNavStackState
+import com.xah.navigation.controller.NavigationController
+import com.xah.navigation.utils.LocalNavigationController
 import com.xah.transition.R
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CARD_NORMAL_DP
+import com.xah.transition.ui.component.CardListItem
 import com.xah.transition.ui.component.SmallCard
 import com.xah.transition.ui.component.TransplantListItem
 import com.xah.transition.ui.screen.destination.AppHomeDestination
@@ -85,35 +87,35 @@ object UiHolder {
     var imageBitmap by mutableStateOf<Bitmap?>(null)
 }
 
-fun pop(route : String,navStackState : NavStackState,registry : SharedContainerRegistry) {
+fun pop(route : String, navigationController : NavigationController, registry : SharedContainerRegistry) {
     registry.pop(
         route,
         onAnimatedFinished = {
-            snapshotFlow { navStackState.isTransitioning }
+            snapshotFlow { navigationController.isTransitioning }
                 .filter { !it }
                 .first()
         }
     ) {
-        navStackState.pop()
+        navigationController.pop()
     }
 }
 
-fun push(route: String,destination: Destination,navStackState : NavStackState,registry : SharedContainerRegistry) {
+fun push(route: String, destination: Destination, navigationController : NavigationController, registry : SharedContainerRegistry) {
     registry.push(
         route,
         onAnimatedFinished = {
-            snapshotFlow { navStackState.isTransitioning }
+            snapshotFlow { navigationController.isTransitioning }
                 .filter { !it }
                 .first()
         }
     ) {
-        navStackState.push(destination)
+        navigationController.push(destination)
     }
 }
 
 @Composable
 fun HomeScreen() {
-    val navStackState = LocalNavStackState.current
+    val navStackState = LocalNavigationController.current
     val scrollState = rememberLazyGridState()
     val registry = LocalSharedContainerRegistry.current
     val context = LocalContext.current
@@ -240,7 +242,7 @@ fun HomeScreen() {
 
 @Composable
 fun SecondScreen(userId : Int) {
-    val navStackState = LocalNavStackState.current
+    val navStackState = LocalNavigationController.current
     val route = "Item #$userId"
     val registry = LocalSharedContainerRegistry.current
 
@@ -255,21 +257,30 @@ fun SecondScreen(userId : Int) {
                     pop(route,navStackState,registry)
                 }
         ) {
-            Button(
-                onClick = {
-                    pop(route,navStackState,registry)
-                },
-                modifier = Modifier.align(Alignment.Center)
-            ) {
-                Text("$userId to ThirdScreen")
+            LazyColumn {
+                items(30) {
+                    CardListItem(
+                        headlineContent = {
+                            Text("测试$it")
+                        }
+                    )
+                }
             }
+//            Button(
+//                onClick = {
+//                    pop(route,navStackState,registry)
+//                },
+//                modifier = Modifier.align(Alignment.Center)
+//            ) {
+//                Text("$userId to ThirdScreen")
+//            }
         }
     }
 }
 
 @Composable
 fun AppHomeScreen(app: AppBean) {
-    val navStackState = LocalNavStackState.current
+    val navStackState = LocalNavigationController.current
     val route = "AppHome #${app.key}"
     val registry = LocalSharedContainerRegistry.current
 
@@ -284,14 +295,23 @@ fun AppHomeScreen(app: AppBean) {
                     pop(route,navStackState,registry)
                 }
         ) {
-            Button(
-                onClick = {
-                    pop(route,navStackState,registry)
-                },
-                modifier = Modifier.align(Alignment.Center)
-            ) {
-                Text(app.name)
+            LazyColumn {
+                items(30) {
+                    CardListItem(
+                        headlineContent = {
+                            Text("测试$it")
+                        }
+                    )
+                }
             }
+//            Button(
+//                onClick = {
+//                    pop(route,navStackState,registry)
+//                },
+//                modifier = Modifier.align(Alignment.Center)
+//            ) {
+//                Text(app.name)
+//            }
         }
     }
 }
@@ -303,7 +323,7 @@ fun AppHomeScreen(app: AppBean) {
 
 @Composable
 fun ThirdScreen() {
-    val navStackState = LocalNavStackState.current
+    val navStackState = LocalNavigationController.current
     Box(
         modifier = Modifier
             .fillMaxSize()

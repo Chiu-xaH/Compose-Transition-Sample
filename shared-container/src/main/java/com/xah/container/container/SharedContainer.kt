@@ -10,12 +10,14 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.xah.common.LogUtil
 import com.xah.container.model.ContainerFilledStrategy
-import com.xah.container.util.LocalSharedContainerRegistry
+import com.xah.container.utils.LocalSharedContainerRegistry
 
 private fun Modifier.sharedContainer(
     key : Any,
@@ -58,15 +60,15 @@ private fun Modifier.sharedContainer(
 
 private fun Modifier.sharedContent(
     key : Any,
-    content : @Composable () -> Unit
 ): Modifier = composed {
     val registry = LocalSharedContainerRegistry.current
     if(!registry.enabled) {
         return@composed this
     }
     val state = remember { registry.getOrCreate(key) }
+    val graphicsLayer = rememberGraphicsLayer()
     LaunchedEffect(Unit) {
-        state.contentLayout = content
+        state.contentLayer = graphicsLayer
     }
 
     this
@@ -74,6 +76,12 @@ private fun Modifier.sharedContent(
             // 隐藏原组件
             if (!state.isRunning) {
                 drawContent()
+            }
+            if (state.isRunning) {
+//                LogUtil.debug("record content of $key")
+                graphicsLayer.record {
+                    this@drawWithContent.drawContent()
+                }
             }
         }
         // 记录组件的位置、大小
@@ -102,7 +110,7 @@ fun SharedContent(
 )  {
     Box(modifier = modifier) {
         Box(
-            modifier = Modifier.sharedContent(key,content)
+            modifier = Modifier.sharedContent(key)
         ) {
             content()
         }

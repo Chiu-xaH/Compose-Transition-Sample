@@ -8,11 +8,11 @@ import androidx.compose.runtime.setValue
 import com.xah.navigation.model.BackStackEntry
 import com.xah.navigation.model.Destination
 import com.xah.navigation.model.NavActionType
-import com.xah.navigation.transition.NavTransition
+import com.xah.navigation.anim.NavTransition
 import java.util.UUID
 
 
-class NavStackState(
+class NavigationController(
     startDestination: Destination
 ) {
     private val _stack = mutableStateListOf<BackStackEntry>()

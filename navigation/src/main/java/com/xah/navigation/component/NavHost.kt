@@ -25,13 +25,14 @@ import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
 import com.xah.common.ScreenCornerHelper
 import com.xah.common.touchEvent
-import com.xah.container.util.LocalSharedContainerRegistry
-import com.xah.navigation.transition.PageEffect
+import com.xah.container.utils.LocalSharedContainerRegistry
+import com.xah.navigation.anim.PageEffect
 import com.xah.navigation.model.Destination
 import com.xah.navigation.model.NavActionType
-import com.xah.navigation.controller.NavStackState
-import com.xah.navigation.util.LocalNavStackState
-import com.xah.navigation.util.scaleMirror
+import com.xah.navigation.controller.NavigationController
+import com.xah.navigation.utils.LocalNavigationController
+import com.xah.navigation.utils.scaleMirror
+import kotlin.let
 
 private const val animationSpecSharedTween = 500
 private val animationSpec = tween<Float>(animationSpecSharedTween*8/5)
@@ -40,16 +41,18 @@ private val animationSpecWithoutShared = tween<Float>(animationSpecSharedTween*1
 @Composable
 fun NavHost(
     startDestination: Destination,
+//    underPageEffect : PageEffect,
+//    upPageEffect: PageEffect,
     modifier: Modifier = Modifier,
     onAnimatedFinished : (() -> Unit)? = null,
     customBackHandler: (@Composable () -> Unit)? = null,
 ) {
     val registry = LocalSharedContainerRegistry.current
     val saveableStateHolder = rememberSaveableStateHolder()
-    val navState = remember { NavStackState(startDestination) }
+    val navState = remember { NavigationController(startDestination) }
 
     CompositionLocalProvider(
-        LocalNavStackState provides navState,
+        LocalNavigationController provides navState,
     ) {
 
         if (customBackHandler == null) {
@@ -203,7 +206,7 @@ fun NavHost(
         }
     }
 }
-
+// TODO 封装
 private class BackgroundEffect(animatedProgress : Float) {
 
     private val effect = PageEffect(
@@ -256,7 +259,7 @@ private class BackgroundEffect(animatedProgress : Float) {
     fun Modifier.effect() : Modifier = this.mask().blur().scale()
 }
 
-private class ForegroundEffect(animatedProgress : Float) {
+private class ForegroundEffect(animatedProgress : Float)  {
 
     private val effect = PageEffect(
         scale = lerp(
@@ -305,5 +308,15 @@ private class ForegroundEffect(animatedProgress : Float) {
         }
     }
 
-    fun Modifier.effect() : Modifier = this.blur().scale().corner()
+     fun Modifier.effect() : Modifier = this.blur().scale().corner()
 }
+
+
+//abstract class OnTransition(
+//    private val animatedProgress: Float
+//) {
+//    abstract fun Modifier.onPushFrom() : Modifier
+//    abstract fun Modifier.onPushTo() : Modifier
+//    abstract fun Modifier.onPopFrom() : Modifier
+//    abstract fun Modifier.onPopTo() : Modifier
+//}

@@ -13,9 +13,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import com.xah.common.ScreenCornerHelper
-import com.xah.container.transition.AdaptiveBezierRectInterpolator
+import com.xah.container.anim.AdaptiveBezierRectInterpolator
 import com.xah.container.controller.SharedContainerRegistry
-import com.xah.container.util.LocalSharedContainerRegistry
+import com.xah.container.utils.LocalSharedContainerRegistry
 
 
 @Composable

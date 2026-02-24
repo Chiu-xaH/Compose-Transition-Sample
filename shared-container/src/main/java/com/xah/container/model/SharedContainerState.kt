@@ -2,8 +2,11 @@ package com.xah.container.model
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -16,7 +19,7 @@ class SharedContainerState() {
     // 容器布局
     var containerLayout: (@Composable () -> Unit)? = null
     // 内容布局
-    var contentLayout: (@Composable () -> Unit)? = null
+    var contentLayer : GraphicsLayer? = null
 
     // 容器圆角
     var containerCorner: Dp = 0.dp

@@ -1,4 +1,4 @@
-package com.xah.navigation.util
+package com.xah.navigation.utils
 
 import android.graphics.RenderEffect
 import android.graphics.RuntimeShader

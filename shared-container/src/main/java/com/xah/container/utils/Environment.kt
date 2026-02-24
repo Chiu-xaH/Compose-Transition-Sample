@@ -1,4 +1,4 @@
-package com.xah.container.util
+package com.xah.container.utils
 
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.xah.container.controller.SharedContainerRegistry

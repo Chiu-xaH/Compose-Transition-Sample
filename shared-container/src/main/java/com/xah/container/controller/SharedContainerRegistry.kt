@@ -1,11 +1,13 @@
 package com.xah.container.controller
 
 import androidx.compose.animation.core.tween
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.xah.container.model.SharedContainerState
-import com.xah.container.transition.LinearRectInterpolator
-import com.xah.container.transition.RectInterpolator
+import com.xah.container.anim.LinearRectInterpolator
+import com.xah.container.anim.RectInterpolator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch

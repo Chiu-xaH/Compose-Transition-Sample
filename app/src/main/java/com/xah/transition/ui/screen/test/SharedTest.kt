@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.xah.container.container.SharedContainer
 import com.xah.container.container.SharedContent
 import com.xah.container.overlay.SharedContainerRoot
-import com.xah.container.util.LocalSharedContainerRegistry
+import com.xah.container.utils.LocalSharedContainerRegistry
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CARD_NORMAL_DP
 import com.xah.transition.ui.component.SmallCard
