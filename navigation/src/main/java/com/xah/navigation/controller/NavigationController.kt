@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.xah.common.LogUtil
 import com.xah.navigation.anim.EffectLevel
 import com.xah.navigation.anim.NavTransition
 import com.xah.navigation.model.ActionType
@@ -139,6 +140,7 @@ class NavigationController(
         }
     }
 
+
     private suspend fun internalAnimate(
         animationSpec: AnimationSpec<Float> = defaultSpec
     ) {
@@ -156,14 +158,11 @@ class NavigationController(
             ActionType.POP -> 0f
         }
 
+        // 设置标志位，开始动画
         isTransitioning = true
         transitionProgress.animateTo(targetValue = target, animationSpec = animationSpec)
 
-        onTransitionFinished()
-        isTransitioning = false
-    }
-
-    fun onTransitionFinished() {
+        // 移除栈，置状态
         when (navTransition?.type) {
             ActionType.PUSH -> Unit
             ActionType.POP -> {
@@ -174,6 +173,7 @@ class NavigationController(
             null -> Unit
         }
         navTransition = null
+        isTransitioning = false
     }
 
     private fun addHome() {

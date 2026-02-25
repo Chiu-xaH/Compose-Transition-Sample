@@ -175,14 +175,13 @@ private fun NavHost(
                                     return@let it
                                 }
                                 .touchEvent(
-                                    transition == null
-//                                    if(isBackground) {
-//                                        // 背景禁用触摸事件
-//                                        false
-//                                    } else {
-//                                        // 当返回时，禁用一切触摸事件
-//                                        transition?.type != ActionType.POP
-//                                    }
+                                    if(isBackground) {
+                                        // 背景禁用触摸事件
+                                        false
+                                    } else {
+                                        // 当返回时，禁用一切触摸事件
+                                        transition?.type != ActionType.POP
+                                    }
                                 )
                         ) {
                             entry.destination.Screen()
