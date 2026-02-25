@@ -1,7 +1,6 @@
 package com.xah.navigation.component
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,11 +8,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
@@ -23,11 +20,8 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
-import com.xah.common.LogUtil
 import com.xah.common.ScreenCornerHelper
 import com.xah.common.touchEvent
-import com.xah.container.controller.SharedContainerRegistry
-import com.xah.container.model.SharedContainerState
 import com.xah.container.overlay.SharedContainerRoot
 import com.xah.container.utils.LocalSharedContainerRegistry
 import com.xah.navigation.anim.EffectLevel
@@ -38,8 +32,6 @@ import com.xah.navigation.model.Destination
 import com.xah.navigation.shared.SharedNavHelper
 import com.xah.navigation.utils.LocalNavigationController
 import com.xah.navigation.utils.scaleMirror
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
 
 @Composable
 fun SharedNavHost(
@@ -183,13 +175,14 @@ private fun NavHost(
                                     return@let it
                                 }
                                 .touchEvent(
-                                    if(isBackground) {
-                                        // 背景禁用触摸事件
-                                        false
-                                    } else {
-                                        // 当返回时，禁用一切触摸事件
-                                        transition?.type != ActionType.POP
-                                    }
+                                    transition == null
+//                                    if(isBackground) {
+//                                        // 背景禁用触摸事件
+//                                        false
+//                                    } else {
+//                                        // 当返回时，禁用一切触摸事件
+//                                        transition?.type != ActionType.POP
+//                                    }
                                 )
                         ) {
                             entry.destination.Screen()
@@ -311,7 +304,7 @@ private class ForegroundEffect(animatedProgress : Float,val level: EffectLevel) 
             scaleX = effect.scale
             scaleY = effect.scale
             alpha = effect.alpha
-            transformOrigin = TransformOrigin(0.5f,0.3f)
+            transformOrigin = TransformOrigin(0.5f,0.25f)
         }
     }
 
