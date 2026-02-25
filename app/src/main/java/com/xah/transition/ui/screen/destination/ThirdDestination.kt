@@ -6,7 +6,7 @@ import com.xah.transition.ui.screen.ThirdScreen
 
 object ThirdDestination : Destination() {
 
-    override val title: String = "Third"
+    override val title: String = "三级界面"
     override val key = "third"
 
     @Composable

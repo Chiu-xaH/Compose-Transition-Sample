@@ -87,7 +87,6 @@ class NavigationController(
             from = from,
             to = _stack.last()
         )
-//        isTransitioning = true
     }
 
     fun pop() {
@@ -101,7 +100,6 @@ class NavigationController(
             from = from,
             to = to,
         )
-//        isTransitioning = true
     }
 
     /**
@@ -127,11 +125,10 @@ class NavigationController(
         }
         // 添加过渡动画
         navTransition = NavTransition(
-            type = ActionType.PUSH,
+            type = ActionType.POP,
             from = from,
             to = _stack.last()
         )
-//        isTransitioning = true
     }
 
     fun animate(
@@ -170,7 +167,9 @@ class NavigationController(
         when (navTransition?.type) {
             ActionType.PUSH -> Unit
             ActionType.POP -> {
-                _stack.removeAt(_stack.size-1)
+                if(_stack.size > 1) {
+                    _stack.removeAt(_stack.size-1)
+                }
             }
             null -> Unit
         }

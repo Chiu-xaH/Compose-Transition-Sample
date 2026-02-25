@@ -209,9 +209,9 @@ fun SecondScreen(userId : Int) {
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
-                .clickable {
-                    SharedNavHelper.pop(navController,registry)
-                }
+//                .clickable {
+//                    SharedNavHelper.pop(navController,registry)
+//                }
         ) {
             LazyColumn {
                 items(30) {
@@ -242,9 +242,9 @@ fun AppHomeScreen(app: AppBean) {
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
-                .clickable {
-                    SharedNavHelper.pop(navController,registry)
-                }
+//                .clickable {
+//                    SharedNavHelper.pop(navController,registry)
+//                }
         ) {
             LazyColumn {
                 items(30) {
