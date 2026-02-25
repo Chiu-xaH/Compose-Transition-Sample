@@ -9,9 +9,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
@@ -24,6 +26,8 @@ import androidx.compose.ui.util.lerp
 import com.xah.common.LogUtil
 import com.xah.common.ScreenCornerHelper
 import com.xah.common.touchEvent
+import com.xah.container.controller.SharedContainerRegistry
+import com.xah.container.model.SharedContainerState
 import com.xah.container.overlay.SharedContainerRoot
 import com.xah.container.utils.LocalSharedContainerRegistry
 import com.xah.navigation.anim.EffectLevel
@@ -31,8 +35,11 @@ import com.xah.navigation.anim.PageEffect
 import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.model.ActionType
 import com.xah.navigation.model.Destination
+import com.xah.navigation.shared.SharedNavHelper
 import com.xah.navigation.utils.LocalNavigationController
 import com.xah.navigation.utils.scaleMirror
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 
 @Composable
 fun SharedNavHost(
@@ -65,7 +72,7 @@ private fun NavHost(
     ) {
         if (customBackHandler == null) {
             BackHandler(enabled = navController.stack.size > 1) {
-                navController.pop()
+                SharedNavHelper.pop(navController,registry)
             }
             // TODO 预测式返回
         } else {
@@ -175,12 +182,17 @@ private fun NavHost(
                                     }
                                     return@let it
                                 }
-                                // 背景禁用触摸事件
                                 .touchEvent(
-                                    !isBackground
+                                    if(isBackground) {
+                                        // 背景禁用触摸事件
+                                        false
+                                    } else {
+                                        // 当返回时，禁用一切触摸事件
+                                        transition?.type != ActionType.POP
+                                    }
                                 )
                         ) {
-                            entry.destination.Content()
+                            entry.destination.Screen()
                         }
                     }
                 }

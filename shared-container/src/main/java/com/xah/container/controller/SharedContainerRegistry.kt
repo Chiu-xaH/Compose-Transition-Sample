@@ -39,6 +39,7 @@ class SharedContainerRegistry(
         }
     }
 
+    // val state = states[key] ?: return
     fun push(
         key: Any,
         onAnimatedFinished : (suspend () -> Unit)? = null,
@@ -67,13 +68,65 @@ class SharedContainerRegistry(
         }
     }
 
+    fun push(
+        state: SharedContainerState,
+        onAnimatedFinished : (suspend () -> Unit)? = null,
+        onSwapContent: suspend () -> Unit
+    ) {
+        scope.launch {
+            if(!enabled) {
+                onSwapContent()
+                return@launch
+            }
+            internalPush(state,onAnimatedFinished, onSwapContent)
+        }
+    }
+
+    fun pop(
+        state: SharedContainerState,
+        onAnimatedFinished : (suspend () -> Unit)? = null,
+        onSwapContent: suspend () -> Unit
+    ) {
+        scope.launch {
+            if(!enabled) {
+                onSwapContent()
+                return@launch
+            }
+            internalPop(state, onAnimatedFinished,onSwapContent)
+        }
+    }
+
     private suspend fun internalPush(
         key: Any,
         onAnimatedFinished : (suspend () -> Unit)? = null,
         onSwapContent: suspend () -> Unit
     ) {
-        val state = states[key] ?: return
+        val state = states[key]
+        if(state == null) {
+            onSwapContent()
+            return
+        }
+        internalPush(state,onAnimatedFinished,onSwapContent)
+    }
 
+    private suspend fun internalPop(
+        key: Any,
+        onAnimatedFinished : (suspend () -> Unit)? = null,
+        onSwapContent: suspend () -> Unit
+    ) {
+        val state = states[key]
+        if(state == null) {
+            onSwapContent()
+            return
+        }
+        internalPop(state,onAnimatedFinished,onSwapContent)
+    }
+
+    private suspend fun internalPush(
+        state: SharedContainerState,
+        onAnimatedFinished : (suspend () -> Unit)? = null,
+        onSwapContent: suspend () -> Unit
+    ) {
         onSwapContent()
         awaitFrame()
 
@@ -87,12 +140,10 @@ class SharedContainerRegistry(
     }
 
     private suspend fun internalPop(
-        key: Any,
+        state: SharedContainerState,
         onAnimatedFinished : (suspend () -> Unit)? = null,
         onSwapContent: suspend () -> Unit
     ) {
-        val state = states[key] ?: return
-
         onSwapContent()
         awaitFrame()
         // 开始标识位

@@ -37,8 +37,10 @@ import com.xah.container.container.SharedContainer
 import com.xah.container.container.SharedContent
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.utils.LocalSharedContainerRegistry
+import com.xah.navigation.shared.SharedNavHelper
 import com.xah.navigation.component.SharedNavHost
 import com.xah.navigation.utils.LocalNavigationController
+import com.xah.navigation.utils.LocalNavigationDestination
 import com.xah.transition.R
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CARD_NORMAL_DP
@@ -49,8 +51,6 @@ import com.xah.transition.ui.screen.destination.AppHomeDestination
 import com.xah.transition.ui.screen.destination.HomeDestination
 import com.xah.transition.ui.screen.destination.SecondDestination
 import com.xah.transition.ui.screen.destination.ThirdDestination
-import com.xah.transition.ui.theme.pop
-import com.xah.transition.ui.theme.push
 import com.xah.transition.ui.viewmodel.UiHolder
 
 @Composable
@@ -110,10 +110,11 @@ fun HomeScreen() {
             }
             items(appList.size,key = { appList[it].key }) { index ->
                 val item = appList[index]
-                val key = "AppHome #${item.key}"
+                val destination = AppHomeDestination(item)
+//                val key = "AppHome #${item.key}"
                 Column {
                     SharedContainer(
-                        key,
+                        destination.key,
                         containerFilledStrategy = ContainerFilledStrategy.Pixel(),
                         corner = 20.dp,
                     ) {
@@ -121,7 +122,7 @@ fun HomeScreen() {
                             modifier = Modifier
                                 .size(150.dp)
                                 .clickable {
-                                    push(key,AppHomeDestination(item),navController,registry)
+                                    SharedNavHelper.push(destination,navController,registry)
                                 }
                         ) {
                             Image(painterResource(item.icon),null)
@@ -150,10 +151,10 @@ fun HomeScreen() {
                 }
             }
             items(30) { index ->
-                val route = "Item #$index"
+                val destination = SecondDestination(userId = index)
                 Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
                     SharedContainer (
-                        key = route,
+                        key = destination.key,
                         containerFilledStrategy = ContainerFilledStrategy.Clip
 //                            ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primaryContainer)
                         ,
@@ -163,9 +164,9 @@ fun HomeScreen() {
                             color = MaterialTheme.colorScheme.primaryContainer
                         ) {
                             TransplantListItem(
-                                headlineContent = { Text(route) },
+                                headlineContent = { Text("Item #${index}") },
                                 modifier = Modifier.clickable {
-                                    push(route,SecondDestination(userId = index),navController,registry)
+                                    SharedNavHelper.push(SecondDestination(userId = index),navController,registry)
                                 }
                             )
                         }
@@ -175,22 +176,16 @@ fun HomeScreen() {
             items(10) { index ->
                 val route = "ItemNo #$index"
                 Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
-                    SharedContainer (
-                        key = route,
-                        containerFilledStrategy = ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primaryContainer),
-                        corner = 8.dp,
+                    SmallCard(
+                        modifier = Modifier,
+                        color = MaterialTheme.colorScheme.primaryContainer
                     ) {
-                        SmallCard(
-                            modifier = Modifier,
-                            color = MaterialTheme.colorScheme.primaryContainer
-                        ) {
-                            TransplantListItem(
-                                headlineContent = { Text(route) },
-                                modifier = Modifier.clickable {
-                                    navController.push(ThirdDestination)
-                                }
-                            )
-                        }
+                        TransplantListItem(
+                            headlineContent = { Text(route) },
+                            modifier = Modifier.clickable {
+                                navController.push(ThirdDestination)
+                            }
+                        )
                     }
                 }
             }
@@ -204,18 +199,18 @@ fun HomeScreen() {
 @Composable
 fun SecondScreen(userId : Int) {
     val navController = LocalNavigationController.current
-    val route = "Item #$userId"
+//    val route = "Item #$userId"
     val registry = LocalSharedContainerRegistry.current
-
+    val destination = LocalNavigationDestination.current
     SharedContent (
-        key = route,
+        key = destination.key,
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
                 .clickable {
-                    pop(route,navController,registry)
+                    SharedNavHelper.pop(navController,registry)
                 }
         ) {
             LazyColumn {
@@ -237,18 +232,18 @@ fun SecondScreen(userId : Int) {
 @Composable
 fun AppHomeScreen(app: AppBean) {
     val navController = LocalNavigationController.current
-    val route = "AppHome #${app.key}"
+//    val route = "AppHome #${app.key}"
     val registry = LocalSharedContainerRegistry.current
 
     SharedContent (
-        key = route,
+        key = AppHomeDestination(app).key,
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
                 .clickable {
-                    pop(route,navController,registry)
+                    SharedNavHelper.pop(navController,registry)
                 }
         ) {
             LazyColumn {
