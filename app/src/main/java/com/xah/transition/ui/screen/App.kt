@@ -25,7 +25,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -37,6 +39,7 @@ import com.xah.container.container.SharedContainer
 import com.xah.container.container.SharedContent
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.utils.LocalSharedContainerRegistry
+import com.xah.navigation.anim.EffectLevel
 import com.xah.navigation.shared.SharedNavHelper
 import com.xah.navigation.component.SharedNavHost
 import com.xah.navigation.utils.LocalNavigationController
@@ -88,6 +91,7 @@ fun HomeScreen() {
         }
     }
 
+    val levelList = remember { EffectLevel.entries }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -187,6 +191,27 @@ fun HomeScreen() {
                             }
                         )
                     }
+                }
+            }
+            items(levelList.size, key = { levelList[it].levelNum }) { index ->
+                val item = levelList[index]
+                val selected = navController.transitionLevel == item
+
+                val color = if(selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer
+
+                Surface(
+                    color = color,
+                    shape = MaterialTheme.shapes.small,
+                    modifier = Modifier.padding(horizontal = CARD_NORMAL_DP*2, vertical = CARD_NORMAL_DP)
+                ) {
+                    TransplantListItem(
+                        headlineContent = {
+                            Text("等级 ${item.name}", color = contentColorFor(color))
+                        },
+                        modifier = Modifier.clickable {
+                            navController.transitionLevel = item
+                        },
+                    )
                 }
             }
             item(span = { GridItemSpan(maxLineSpan) }) {
