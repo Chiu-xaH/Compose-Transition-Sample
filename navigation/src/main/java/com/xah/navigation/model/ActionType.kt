@@ -1,5 +1,5 @@
 package com.xah.navigation.model
 
-enum class NavActionType {
+enum class ActionType {
     PUSH,POP
 }

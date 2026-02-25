@@ -2,6 +2,12 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
+      <module name="AnimationSample.composeApp" target="17" />
+      <module name="AnimationSample.transition" target="17" />
+      <module name="AnimationSample.transition.commonMain" target="17" />
+      <module name="AnimationSample.transition.commonTest" target="17" />
+      <module name="AnimationSample.transition.jvmMain" target="17" />
+      <module name="AnimationSample.transition.jvmTest" target="17" />
       <module name="Transition.shared-elements" target="21" />
       <module name="Transition.shared-test" target="21" />
     </bytecodeTargetLevel>

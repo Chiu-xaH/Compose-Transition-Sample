@@ -8,12 +8,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
@@ -23,96 +21,80 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
+import com.xah.common.LogUtil
 import com.xah.common.ScreenCornerHelper
 import com.xah.common.touchEvent
+import com.xah.container.overlay.SharedContainerRoot
 import com.xah.container.utils.LocalSharedContainerRegistry
+import com.xah.navigation.anim.EffectLevel
 import com.xah.navigation.anim.PageEffect
-import com.xah.navigation.model.Destination
-import com.xah.navigation.model.NavActionType
 import com.xah.navigation.controller.NavigationController
+import com.xah.navigation.model.ActionType
+import com.xah.navigation.model.Destination
 import com.xah.navigation.utils.LocalNavigationController
 import com.xah.navigation.utils.scaleMirror
-import kotlin.let
-
-private const val animationSpecSharedTween = 500
-private val animationSpec = tween<Float>(animationSpecSharedTween*8/5)
-private val animationSpecWithoutShared = tween<Float>(animationSpecSharedTween*13/10)
 
 @Composable
-fun NavHost(
+fun SharedNavHost(
     startDestination: Destination,
-//    underPageEffect : PageEffect,
-//    upPageEffect: PageEffect,
     modifier: Modifier = Modifier,
-    onAnimatedFinished : (() -> Unit)? = null,
+    customBackHandler: (@Composable () -> Unit)? = null,
+) {
+    SharedContainerRoot {
+        NavHost(
+            startDestination,
+            modifier,
+            customBackHandler
+        )
+    }
+}
+
+@Composable
+private fun NavHost(
+    startDestination: Destination,
+    modifier: Modifier = Modifier,
     customBackHandler: (@Composable () -> Unit)? = null,
 ) {
     val registry = LocalSharedContainerRegistry.current
+    val scope = rememberCoroutineScope()
     val saveableStateHolder = rememberSaveableStateHolder()
-    val navState = remember { NavigationController(startDestination) }
+    val navController = remember { NavigationController(scope,startDestination) }
 
     CompositionLocalProvider(
-        LocalNavigationController provides navState,
+        LocalNavigationController provides navController,
     ) {
-
         if (customBackHandler == null) {
-            BackHandler(enabled = navState.stack.size > 1) {
-                navState.pop()
+            BackHandler(enabled = navController.stack.size > 1) {
+                navController.pop()
             }
+            // TODO 预测式返回
         } else {
             customBackHandler()
         }
 
-        val transition = navState.navTransition
-        val progress = navState.transitionProgress
-        var tag by remember { mutableStateOf(false) }
+        val transition = navController.navTransition
+        val progress = navController.transitionProgress
 
         // 当 transition 变化时启动动画
         LaunchedEffect(transition) {
-            // 首次初始化
-            if(!tag){
-                progress.snapTo(0f)
-                tag = true
-                return@LaunchedEffect
-            }
-
-            transition ?: return@LaunchedEffect
-
-            val target = when (transition.type) {
-                NavActionType.PUSH -> 1f
-                NavActionType.POP -> 0f
-            }
-
-            progress.animateTo(
-                targetValue = target,
-                animationSpec =
-                    if(registry.isRunning) {
-                        animationSpec
-                    } else {
-                        animationSpecWithoutShared
-                    }
+            navController.animate(
+                if (registry.isRunning) {
+                    navController.defaultSpecWithShared
+                } else {
+                    navController.defaultSpec
+                }
             )
-
-            onAnimatedFinished?.let { it() }
-            navState.onTransitionFinished()
-
-            // 结束后归位
-            progress.snapTo(when (transition.type) {
-                NavActionType.PUSH -> 1f
-                NavActionType.POP -> 0f
-            })
         }
 
         val visibleEntries = remember(transition) {
             when (transition?.type) {
-                NavActionType.POP -> listOf(transition.to, transition.from)
-                NavActionType.PUSH -> listOf(transition.from, transition.to)
-                else -> listOf(navState.stack.last())
+                ActionType.POP -> listOf(transition.to, transition.from)
+                ActionType.PUSH -> listOf(transition.from, transition.to)
+                else -> listOf(navController.stack.last())
             }
         }
 
-
-
+        val level = navController.transitionLevel
 
         Box(modifier = modifier.fillMaxSize()) {
             visibleEntries.forEach { entry ->
@@ -123,13 +105,13 @@ fun NavHost(
                         val isTo = transition?.to == entry
 
                         val animatedProgress = progress.value
-                        val underEffect = remember(animatedProgress) { BackgroundEffect(animatedProgress) }
-                        val upEffect = remember(animatedProgress) { ForegroundEffect(animatedProgress) }
+                        val underEffect = remember(animatedProgress,level) { BackgroundEffect(animatedProgress,level) }
+                        val upEffect = remember(animatedProgress,level) { ForegroundEffect(animatedProgress,level) }
                         val isBackground =  if(transition == null) {
                             false
                         } else {
-                            (transition.type == NavActionType.PUSH && isFrom) ||
-                                    (transition.type == NavActionType.POP && isTo)
+                            (transition.type == ActionType.PUSH && isFrom) ||
+                                    (transition.type == ActionType.POP && isTo)
                         }
 
                         Box(
@@ -138,11 +120,11 @@ fun NavHost(
                                 .graphicsLayer {
                                     if (transition != null) {
                                         when (transition.type) {
-                                            NavActionType.PUSH -> {
+                                            ActionType.PUSH -> {
                                                 if (isFrom) { }
                                                 if(isTo) { }
                                             }
-                                            NavActionType.POP -> {
+                                            ActionType.POP -> {
                                                 if(isFrom) {
                                                     // 有共享元素
                                                     if(registry.isRunning) {
@@ -157,7 +139,7 @@ fun NavHost(
                                 .let {
                                     if (transition != null) {
                                         when (transition.type) {
-                                            NavActionType.PUSH -> {
+                                            ActionType.PUSH -> {
                                                 if (isFrom) {
                                                     // 背景
                                                     return@let with(underEffect) {
@@ -173,7 +155,7 @@ fun NavHost(
                                                     }
                                                 }
                                             }
-                                            NavActionType.POP -> {
+                                            ActionType.POP -> {
                                                 if (isTo) {
                                                     // 背景
                                                     return@let with(underEffect) {
@@ -206,9 +188,9 @@ fun NavHost(
         }
     }
 }
-// TODO 封装
-private class BackgroundEffect(animatedProgress : Float) {
 
+// TODO 封装
+private class BackgroundEffect(animatedProgress : Float,val level: EffectLevel) {
     private val effect = PageEffect(
         scale = lerp(
             PageEffect.Full.scale,
@@ -256,14 +238,29 @@ private class BackgroundEffect(animatedProgress : Float) {
         return this.scaleMirror(effect.scale)
     }
 
-    fun Modifier.effect() : Modifier = this.mask().blur().scale()
+    fun Modifier.effect() : Modifier {
+        return when(level) {
+            EffectLevel.FULL -> {
+                this.mask().blur().scale()
+            }
+            EffectLevel.NO_BLUR -> {
+                this.mask().scale()
+            }
+            EffectLevel.NO_SCALE -> {
+                this.mask()
+            }
+            EffectLevel.NONE -> {
+                this
+            }
+        }
+    }
 }
 
-private class ForegroundEffect(animatedProgress : Float)  {
+private class ForegroundEffect(animatedProgress : Float,val level: EffectLevel)  {
 
     private val effect = PageEffect(
         scale = lerp(
-            PageEffect.None.scale,
+            if(level == EffectLevel.NONE) PageEffect.Background.scale else PageEffect.None.scale,
             PageEffect.Full.scale,
             animatedProgress
         ),
@@ -278,15 +275,13 @@ private class ForegroundEffect(animatedProgress : Float)  {
             animatedProgress
         ),
         alpha = lerp(
-            PageEffect.None.alpha,
+            if(level == EffectLevel.NONE) 0f else PageEffect.None.alpha,
             PageEffect.Full.alpha,
             animatedProgress
         ),
         corner = lerp(
             ScreenCornerHelper.corner*2,
-//            PageEffect.None.corner,
             ScreenCornerHelper.corner,
-//            PageEffect.Full.corner,
             animatedProgress
         )
     )
@@ -308,7 +303,34 @@ private class ForegroundEffect(animatedProgress : Float)  {
         }
     }
 
-     fun Modifier.effect() : Modifier = this.blur().scale().corner()
+    private fun Modifier.tinyScale() : Modifier {
+        return this.graphicsLayer {
+            scaleX = effect.scale
+            scaleY = effect.scale
+            alpha = effect.alpha
+        }
+    }
+
+    private fun Modifier.tinyCorner() : Modifier {
+        return this.clip(RoundedCornerShape(ScreenCornerHelper.corner))
+    }
+
+    fun Modifier.effect() : Modifier {
+         return when(level) {
+             EffectLevel.FULL -> {
+                 this.blur().scale().corner()
+             }
+             EffectLevel.NO_BLUR -> {
+                 this.scale().corner()
+             }
+             EffectLevel.NO_SCALE -> {
+                 this.scale().corner()
+             }
+             EffectLevel.NONE -> {
+                 this.tinyScale().tinyCorner()
+             }
+         }
+     }
 }
 
 

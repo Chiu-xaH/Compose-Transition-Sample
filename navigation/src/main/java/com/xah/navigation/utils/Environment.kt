@@ -5,5 +5,5 @@ import com.xah.navigation.controller.NavigationController
 
 // 根导航
 val LocalNavigationController = staticCompositionLocalOf<NavigationController> {
-    error("未提供根NavStackState")
+    error("未提供根NavController")
 }

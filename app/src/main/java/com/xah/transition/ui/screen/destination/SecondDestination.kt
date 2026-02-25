@@ -6,9 +6,9 @@ import com.xah.transition.ui.screen.SecondScreen
 
 data class SecondDestination(
     val userId: Int
-) : Destination {
+) : Destination() {
 
-    override val description: String = "Second"
+    override val title: String = "Second"
     override val key = "second_$userId"
 
     @Composable

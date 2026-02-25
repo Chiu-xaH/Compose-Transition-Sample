@@ -4,9 +4,9 @@ import androidx.compose.runtime.Composable
 import com.xah.navigation.model.Destination
 import com.xah.transition.ui.screen.ThirdScreen
 
-object ThirdDestination : Destination {
+object ThirdDestination : Destination() {
 
-    override val description: String = "Third"
+    override val title: String = "Third"
     override val key = "third"
 
     @Composable

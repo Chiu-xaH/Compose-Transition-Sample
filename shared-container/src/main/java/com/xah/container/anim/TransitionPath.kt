@@ -15,7 +15,7 @@ val LinearRectInterpolator: RectInterpolator = { t, from, to ->
     )
 }
 
-fun AdaptiveBezierRectInterpolator(
+fun QuadraticBezierRectInterpolator(
     screenHeight: Float,
     maxArc: Float = 1250f
 ): RectInterpolator = { t, from, to ->
@@ -30,16 +30,16 @@ fun AdaptiveBezierRectInterpolator(
         to.top + to.height / 2f
     )
 
-    // ===== 1️⃣ 计算整体位置 =====
+    // 计算整体位置
     val avgY = (startCenter.y + endCenter.y) / 2f
 
-    // 归一化到 [-1 , 1]
+    // 归一化
     val normalized = ((avgY / screenHeight) - 0.5f) * 2f
 
-    // 反向一下，使顶部为正（下沉）
+    // 反向 使顶部为正（下沉）
     val dynamicArc = -normalized * maxArc
 
-    // ===== 2️⃣ 控制点 =====
+    // 控制点
     val control = Offset(
         x = (startCenter.x + endCenter.x) / 2f,
         y = (startCenter.y + endCenter.y) / 2f + dynamicArc
@@ -66,3 +66,4 @@ fun AdaptiveBezierRectInterpolator(
         bottom = center.y + height / 2f
     )
 }
+

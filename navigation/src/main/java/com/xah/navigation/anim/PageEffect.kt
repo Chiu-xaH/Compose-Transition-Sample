@@ -41,7 +41,7 @@ data class PageEffect(
             blur = 20.dp,
             mask = 0f,
             corner = ScreenCornerHelper.corner*2,
-            alpha = 0.75f
+            alpha = 1f
         )
         // 背景 下层页面
         val Background = PageEffect(

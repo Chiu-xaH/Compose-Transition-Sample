@@ -7,9 +7,9 @@ import com.xah.transition.ui.screen.AppHomeScreen
 
 data class AppHomeDestination(
     val app: AppBean
-) : Destination {
+) : Destination() {
 
-    override val description: String = app.name
+    override val title: String = app.name
     override val key = "app_home_${app.key}"
 
     @Composable

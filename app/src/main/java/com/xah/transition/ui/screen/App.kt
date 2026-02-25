@@ -1,6 +1,5 @@
 package com.xah.transition.ui.screen
 
-import android.graphics.Bitmap
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -27,10 +26,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -38,15 +33,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.xah.container.model.ContainerFilledStrategy
-import com.xah.container.controller.SharedContainerRegistry
 import com.xah.container.container.SharedContainer
 import com.xah.container.container.SharedContent
-import com.xah.container.overlay.SharedContainerRoot
+import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.utils.LocalSharedContainerRegistry
-import com.xah.navigation.component.NavHost
-import com.xah.navigation.model.Destination
-import com.xah.navigation.controller.NavigationController
+import com.xah.navigation.component.SharedNavHost
 import com.xah.navigation.utils.LocalNavigationController
 import com.xah.transition.R
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
@@ -58,14 +49,13 @@ import com.xah.transition.ui.screen.destination.AppHomeDestination
 import com.xah.transition.ui.screen.destination.HomeDestination
 import com.xah.transition.ui.screen.destination.SecondDestination
 import com.xah.transition.ui.screen.destination.ThirdDestination
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
+import com.xah.transition.ui.theme.pop
+import com.xah.transition.ui.theme.push
+import com.xah.transition.ui.viewmodel.UiHolder
 
 @Composable
 fun App() {
-    SharedContainerRoot {
-        NavHost(HomeDestination)
-    }
+    SharedNavHost(HomeDestination)
 }
 
 data class AppBean(
@@ -83,39 +73,9 @@ private val appList = listOf<AppBean>(
     AppBean("candy","Candy Crush Saga",R.drawable.ic_candy),
 )
 
-object UiHolder {
-    var imageBitmap by mutableStateOf<Bitmap?>(null)
-}
-
-fun pop(route : String, navigationController : NavigationController, registry : SharedContainerRegistry) {
-    registry.pop(
-        route,
-        onAnimatedFinished = {
-            snapshotFlow { navigationController.isTransitioning }
-                .filter { !it }
-                .first()
-        }
-    ) {
-        navigationController.pop()
-    }
-}
-
-fun push(route: String, destination: Destination, navigationController : NavigationController, registry : SharedContainerRegistry) {
-    registry.push(
-        route,
-        onAnimatedFinished = {
-            snapshotFlow { navigationController.isTransitioning }
-                .filter { !it }
-                .first()
-        }
-    ) {
-        navigationController.push(destination)
-    }
-}
-
 @Composable
 fun HomeScreen() {
-    val navStackState = LocalNavigationController.current
+    val navController = LocalNavigationController.current
     val scrollState = rememberLazyGridState()
     val registry = LocalSharedContainerRegistry.current
     val context = LocalContext.current
@@ -161,7 +121,7 @@ fun HomeScreen() {
                             modifier = Modifier
                                 .size(150.dp)
                                 .clickable {
-                                    push(key,AppHomeDestination(item),navStackState,registry)
+                                    push(key,AppHomeDestination(item),navController,registry)
                                 }
                         ) {
                             Image(painterResource(item.icon),null)
@@ -194,7 +154,9 @@ fun HomeScreen() {
                 Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
                     SharedContainer (
                         key = route,
-                        containerFilledStrategy = ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primaryContainer),
+                        containerFilledStrategy = ContainerFilledStrategy.Clip
+//                            ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primaryContainer)
+                        ,
                         corner = 8.dp,
                     ) {
                         SmallCard(
@@ -203,7 +165,7 @@ fun HomeScreen() {
                             TransplantListItem(
                                 headlineContent = { Text(route) },
                                 modifier = Modifier.clickable {
-                                    push(route,SecondDestination(userId = index),navStackState,registry)
+                                    push(route,SecondDestination(userId = index),navController,registry)
                                 }
                             )
                         }
@@ -225,8 +187,7 @@ fun HomeScreen() {
                             TransplantListItem(
                                 headlineContent = { Text(route) },
                                 modifier = Modifier.clickable {
-//                                    push(route,SecondDestination(userId = index),navStackState,registry)
-                                    navStackState.push(ThirdDestination)
+                                    navController.push(ThirdDestination)
                                 }
                             )
                         }
@@ -242,7 +203,7 @@ fun HomeScreen() {
 
 @Composable
 fun SecondScreen(userId : Int) {
-    val navStackState = LocalNavigationController.current
+    val navController = LocalNavigationController.current
     val route = "Item #$userId"
     val registry = LocalSharedContainerRegistry.current
 
@@ -254,7 +215,7 @@ fun SecondScreen(userId : Int) {
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
                 .clickable {
-                    pop(route,navStackState,registry)
+                    pop(route,navController,registry)
                 }
         ) {
             LazyColumn {
@@ -262,25 +223,20 @@ fun SecondScreen(userId : Int) {
                     CardListItem(
                         headlineContent = {
                             Text("测试$it")
+                        },
+                        modifier = Modifier.clickable {
+                            navController.push(ThirdDestination)
                         }
                     )
                 }
             }
-//            Button(
-//                onClick = {
-//                    pop(route,navStackState,registry)
-//                },
-//                modifier = Modifier.align(Alignment.Center)
-//            ) {
-//                Text("$userId to ThirdScreen")
-//            }
         }
     }
 }
 
 @Composable
 fun AppHomeScreen(app: AppBean) {
-    val navStackState = LocalNavigationController.current
+    val navController = LocalNavigationController.current
     val route = "AppHome #${app.key}"
     val registry = LocalSharedContainerRegistry.current
 
@@ -292,7 +248,7 @@ fun AppHomeScreen(app: AppBean) {
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
                 .clickable {
-                    pop(route,navStackState,registry)
+                    pop(route,navController,registry)
                 }
         ) {
             LazyColumn {
@@ -304,41 +260,28 @@ fun AppHomeScreen(app: AppBean) {
                     )
                 }
             }
-//            Button(
-//                onClick = {
-//                    pop(route,navStackState,registry)
-//                },
-//                modifier = Modifier.align(Alignment.Center)
-//            ) {
-//                Text(app.name)
-//            }
         }
     }
 }
 
-
-
-
-
-
 @Composable
 fun ThirdScreen() {
-    val navStackState = LocalNavigationController.current
+    val navController = LocalNavigationController.current
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
             .clickable {
-                navStackState.pop()
+                navController.pop()
             }
     ) {
         Button(
             onClick = {
-                navStackState.pop()
+                navController.home()
             },
             modifier = Modifier.align(Alignment.Center)
         ) {
-            Text("Back to")
+            Text("To Home")
         }
     }
 }

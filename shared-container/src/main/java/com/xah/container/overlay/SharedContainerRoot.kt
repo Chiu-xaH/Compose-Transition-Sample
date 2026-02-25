@@ -13,7 +13,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import com.xah.common.ScreenCornerHelper
-import com.xah.container.anim.AdaptiveBezierRectInterpolator
+import com.xah.container.anim.QuadraticBezierRectInterpolator
 import com.xah.container.controller.SharedContainerRegistry
 import com.xah.container.utils.LocalSharedContainerRegistry
 
@@ -33,7 +33,7 @@ fun SharedContainerRoot(
     val screenHeightPx = with(LocalDensity.current) {
         LocalConfiguration.current.screenHeightDp.dp.toPx()
     }
-    registry.rectInterpolator = AdaptiveBezierRectInterpolator(screenHeightPx)
+    registry.rectInterpolator = QuadraticBezierRectInterpolator(screenHeightPx)
 
     CompositionLocalProvider(
         LocalSharedContainerRegistry provides registry

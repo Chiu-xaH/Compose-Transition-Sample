@@ -44,7 +44,7 @@ fun SharedContainerOverlay() {
             val container = state.containerRect!!
             val content = state.contentRect!!
 
-            val safelyProgress =  (progress*registry.speedUpRadio).coerceIn(0f,1f)
+            val safelyProgress =  (progress * registry.speedUpRadio).coerceIn(0f,1f)
 
             val rect = registry.rectInterpolator(progress, container, content)
             val left = rect.left

@@ -25,10 +25,6 @@ class SharedContainerRegistry(
 
     private val pushAnimation = tween<Float>(500)
     private val popAnimation = pushAnimation
-//        spring<Float>(
-//        stiffness = 50f,
-//        dampingRatio = 0.8f
-//    )
 
     var rectInterpolator: RectInterpolator = LinearRectInterpolator
 
