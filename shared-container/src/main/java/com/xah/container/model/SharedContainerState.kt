@@ -19,6 +19,7 @@ class SharedContainerState() {
     // 容器布局
     var containerLayout: (@Composable () -> Unit)? = null
     // 内容布局
+    var containerLayer : GraphicsLayer? = null
     var contentLayer : GraphicsLayer? = null
 
     // 容器圆角

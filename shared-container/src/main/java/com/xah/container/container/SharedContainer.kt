@@ -15,7 +15,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.xah.common.LogUtil
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.utils.LocalSharedContainerRegistry
 
@@ -36,6 +35,10 @@ private fun Modifier.sharedContainer(
         state.containerFilledStrategy = containerFilledStrategy
         state.containerCorner = corner
     }
+//    val graphicsLayer = rememberGraphicsLayer()
+//    LaunchedEffect(Unit) {
+//        state.containerLayer = graphicsLayer
+//    }
 
     this
         .drawWithContent {
@@ -43,6 +46,11 @@ private fun Modifier.sharedContainer(
             if (!state.isRunning) {
                 drawContent()
             }
+//            if (state.isRunning) {
+//                graphicsLayer.record {
+//                    this@drawWithContent.drawContent()
+//                }
+//            }
         }
         // 记录两个组件的位置、大小
         .onGloballyPositioned { coordinates ->
@@ -78,7 +86,6 @@ private fun Modifier.sharedContent(
                 drawContent()
             }
             if (state.isRunning) {
-//                LogUtil.debug("record content of $key")
                 graphicsLayer.record {
                     this@drawWithContent.drawContent()
                 }

@@ -32,6 +32,7 @@ import com.xah.navigation.model.Destination
 import com.xah.navigation.shared.SharedNavHelper
 import com.xah.navigation.utils.LocalNavigationController
 import com.xah.navigation.utils.scaleMirror
+import kotlin.math.pow
 
 @Composable
 fun SharedNavHost(
@@ -193,7 +194,7 @@ private fun NavHost(
     }
 }
 
-// TODO 封装
+// scaleRadio放慢scale的速度
 private class BackgroundEffect(animatedProgress : Float,val level: EffectLevel) {
     private val effect = PageEffect(
         scale = lerp(

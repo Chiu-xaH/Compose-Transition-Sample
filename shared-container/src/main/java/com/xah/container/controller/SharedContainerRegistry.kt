@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.xah.common.LogUtil
 import com.xah.container.model.SharedContainerState
 import com.xah.container.anim.LinearRectInterpolator
 import com.xah.container.anim.RectInterpolator
@@ -129,7 +130,7 @@ class SharedContainerRegistry(
     ) {
         onSwapContent()
         awaitFrame()
-
+        snap(state,true)
         // 开始标识位
         state.isRunning = true
 
@@ -146,6 +147,7 @@ class SharedContainerRegistry(
     ) {
         onSwapContent()
         awaitFrame()
+        snap(state,false)
         // 开始标识位
         state.isRunning = true
 
@@ -154,5 +156,21 @@ class SharedContainerRegistry(
         onAnimatedFinished?.let { it() }
         // 结束标志位
         state.isRunning = false
+    }
+
+
+    private suspend fun snap(
+        state: SharedContainerState,
+        isPush : Boolean
+    ) {
+        if(!state.isRunning) {
+            state.animation.snapTo(
+                if(isPush) {
+                    0f
+                } else {
+                    1f
+                }
+            )
+        }
     }
 }

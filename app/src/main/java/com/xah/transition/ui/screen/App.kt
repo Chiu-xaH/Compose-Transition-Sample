@@ -115,7 +115,6 @@ fun HomeScreen() {
             items(appList.size,key = { appList[it].key }) { index ->
                 val item = appList[index]
                 val destination = AppHomeDestination(item)
-//                val key = "AppHome #${item.key}"
                 Column {
                     SharedContainer(
                         destination.key,
@@ -222,10 +221,8 @@ fun HomeScreen() {
 }
 
 @Composable
-fun SecondScreen(userId : Int) {
+fun SecondScreen() {
     val navController = LocalNavigationController.current
-//    val route = "Item #$userId"
-    val registry = LocalSharedContainerRegistry.current
     val destination = LocalNavigationDestination.current
     SharedContent (
         key = destination.key,
@@ -234,9 +231,6 @@ fun SecondScreen(userId : Int) {
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
-//                .clickable {
-//                    SharedNavHelper.pop(navController,registry)
-//                }
         ) {
             LazyColumn {
                 items(30) {
@@ -256,10 +250,6 @@ fun SecondScreen(userId : Int) {
 
 @Composable
 fun AppHomeScreen(app: AppBean) {
-    val navController = LocalNavigationController.current
-//    val route = "AppHome #${app.key}"
-    val registry = LocalSharedContainerRegistry.current
-
     SharedContent (
         key = AppHomeDestination(app).key,
     ) {
@@ -267,9 +257,6 @@ fun AppHomeScreen(app: AppBean) {
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
-//                .clickable {
-//                    SharedNavHelper.pop(navController,registry)
-//                }
         ) {
             LazyColumn {
                 items(30) {

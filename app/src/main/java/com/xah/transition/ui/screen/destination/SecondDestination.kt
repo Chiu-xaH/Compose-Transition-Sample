@@ -13,6 +13,6 @@ data class SecondDestination(
 
     @Composable
     override fun Content() {
-        SecondScreen(userId)
+        SecondScreen()
     }
 }
