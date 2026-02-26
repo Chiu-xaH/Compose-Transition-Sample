@@ -12,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.clipRect
@@ -27,8 +26,8 @@ import androidx.compose.ui.util.lerp
 import androidx.compose.ui.zIndex
 import com.xah.common.ScreenCornerHelper
 import com.xah.common.disableTouchEvent
-import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.container.bottomExtension
+import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.utils.LocalSharedContainerRegistry
 import kotlin.math.roundToInt
 

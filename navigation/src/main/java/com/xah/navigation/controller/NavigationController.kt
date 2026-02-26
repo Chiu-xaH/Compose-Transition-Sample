@@ -2,6 +2,7 @@ package com.xah.navigation.controller
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -36,6 +37,7 @@ class NavigationController(
     val transitionProgress = Animatable(0f)
 
     private val animationSpecSharedTween = 500
+    val defaultSpecWithTinyScale = tween<Float>(250)
     val defaultSpecWithShared = tween<Float>(animationSpecSharedTween*8/5)
     val defaultSpec = tween<Float>(animationSpecSharedTween*13/10)
 

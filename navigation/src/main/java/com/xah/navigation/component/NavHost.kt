@@ -81,7 +81,11 @@ private fun NavHost(
                 if (registry.isRunning) {
                     navController.defaultSpecWithShared
                 } else {
-                    navController.defaultSpec
+                    if(navController.transitionLevel == EffectLevel.NONE) {
+                        navController.defaultSpecWithTinyScale
+                    } else {
+                        navController.defaultSpec
+                    }
                 }
             )
         }
@@ -255,7 +259,7 @@ private class BackgroundEffect(animatedProgress : Float,val level: EffectLevel) 
                 this.mask()
             }
             EffectLevel.NONE -> {
-                this
+                this.mask()
             }
         }
     }
