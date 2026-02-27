@@ -34,7 +34,7 @@ private fun Modifier.sharedContainer(
     }
     val state = remember { registry.getOrCreate(key) }
 
-    LaunchedEffect(containerFilledStrategy,corner) {
+    LaunchedEffect(containerFilledStrategy,corner,shadow) {
         state.containerLayout = content
         state.containerFilledStrategy = containerFilledStrategy
         state.containerCorner = corner
@@ -46,7 +46,7 @@ private fun Modifier.sharedContainer(
 
     this
         .shadow(
-            if(state.isRunning) 0.dp else shadow,
+            shadow,
             corner
         )
         .clip(corner)
@@ -77,7 +77,7 @@ private fun Modifier.sharedContainer(
 
 private fun Modifier.sharedContent(
     key : Any,
-    corner : CornerBasedShape
+    corner : CornerBasedShape,
 ): Modifier = composed {
     val registry = LocalSharedContainerRegistry.current
     if(!registry.enabled) {

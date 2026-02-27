@@ -2,7 +2,6 @@ package com.xah.container.overlay
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
@@ -15,7 +14,6 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
@@ -64,7 +62,6 @@ fun SharedContainerOverlay() {
                         with(density) { height.toDp() }
                     )
                     .clip(corner)
-                    // is ContainerFilledStrategy.Color
                     .background(
                         when(containerFilledStrategy) {
                             is ContainerFilledStrategy.Pixel ->  Color.Black
@@ -74,12 +71,26 @@ fun SharedContainerOverlay() {
                     )
             ) {
                 // 容器
-                Column {
+                Box(modifier = Modifier.disableTouchEvent()) {
                     Box(modifier = Modifier.fillMaxSize()) {
                         Box(modifier = Modifier.align(Alignment.TopCenter)) {
-                            if(containerFilledStrategy is ContainerFilledStrategy.Clip) {
-                                // 对state.containerLayout竖直裁切填满父容器
-                                Box(modifier = Modifier.disableTouchEvent()) {
+                            when(containerFilledStrategy) {
+                                is ContainerFilledStrategy.Clip -> {
+                                    // 对state.containerLayout竖直裁切填满父容器
+//                                Box(
+//                                    modifier = Modifier
+//                                        .graphicsLayer {
+//                                            val scale = height / container.height
+//                                            scaleX = scale
+//                                            scaleY = scale
+//                                            transformOrigin = TransformOrigin(0.5f, 0f)
+//                                        }
+//                                ) {
+//                                    // 背景禁用触摸事件
+//                                    Box(modifier = Modifier.disableTouchEvent()) {
+//                                        state.containerLayout?.let { it() }
+//                                    }
+//                                }
                                     Box(modifier = Modifier
                                         .drawWithCache {
                                             onDrawWithContent {
@@ -95,42 +106,40 @@ fun SharedContainerOverlay() {
                                         }
                                     )
                                 }
-//                                Box(
-//                                    modifier = Modifier
-//                                        .graphicsLayer {
-//                                            val scale = height / container.height
-//                                            scaleX = scale
-//                                            scaleY = scale
-//                                            transformOrigin = TransformOrigin(0.5f, 0f)
-//                                        }
-//                                ) {
-//                                    // 背景禁用触摸事件
-//                                    Box(modifier = Modifier.disableTouchEvent()) {
-//                                        state.containerLayout?.let { it() }
-//                                    }
-//                                }
-                            } else {
-                                // 底部填充
-                                Box(
-                                    modifier = Modifier.graphicsLayer {
-                                        val scale = width / container.width
-                                        scaleX = scale
-                                        scaleY = scale
-                                        transformOrigin = TransformOrigin(0.5f, 0f)
-                                    }
-                                ) {
+                                is ContainerFilledStrategy.Color -> {
                                     Box(modifier = Modifier
-                                        .drawWithContent {
-                                            drawContent()
-                                            if(containerFilledStrategy is ContainerFilledStrategy.Pixel) {
+                                        .drawWithCache {
+                                            onDrawWithContent {
+                                                val layer = state.containerLayer ?: return@onDrawWithContent
+                                                val scale = width / container.width
+                                                withTransform({
+                                                    scale(scale, scale)
+                                                    translate(left = -container.width/2f, top = 0f)
+                                                }) {
+                                                    drawLayer(layer)
+                                                }
+                                            }
+                                        }
+                                    )
+                                }
+                                is ContainerFilledStrategy.Pixel -> {
+                                    // 底部填充
+                                    Box(
+                                        modifier = Modifier.graphicsLayer {
+                                            val scale = width / container.width
+                                            scaleX = scale
+                                            scaleY = scale
+                                            transformOrigin = TransformOrigin(0.5f, 0f)
+                                        }
+                                    ) {
+                                        Box(modifier = Modifier
+                                            .drawWithContent {
+                                                drawContent()
                                                 graphicsLayer.record {
                                                     this@drawWithContent.drawContent()
                                                 }
                                             }
-                                        }
-                                    ) {
-                                        // 背景禁用触摸事件
-                                        Box(modifier = Modifier.disableTouchEvent()) {
+                                        ) {
                                             state.containerLayout?.let { it() }
                                         }
                                     }
@@ -159,14 +168,11 @@ fun SharedContainerOverlay() {
                         val layer = state.contentLayer ?: return@drawWithContent
                         val scale = width / content.width
 
-                        clipRect(left = 0f, top = 0f, right = width, bottom = height) {
-                            withTransform({
-                                translate(left = 0f, top = 0f)
-                                scale(scale, scale)
-                            }) {
-                                layer.alpha = contentAlpha
-                                drawLayer(layer)
-                            }
+                        withTransform({
+                            scale(scale, scale)
+                        }) {
+                            layer.alpha = contentAlpha
+                            drawLayer(layer)
                         }
                     }
                 )
