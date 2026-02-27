@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -24,6 +25,7 @@ private fun Modifier.sharedContainer(
     key : Any,
     containerFilledStrategy : ContainerFilledStrategy,
     corner : CornerBasedShape,
+    shadow : Dp = 0.dp,
     content : @Composable () -> Unit
 ): Modifier = composed {
     val registry = LocalSharedContainerRegistry.current
@@ -37,22 +39,27 @@ private fun Modifier.sharedContainer(
         state.containerFilledStrategy = containerFilledStrategy
         state.containerCorner = corner
     }
-//    val graphicsLayer = rememberGraphicsLayer()
-//    LaunchedEffect(Unit) {
-//        state.containerLayer = graphicsLayer
-//    }
+    val graphicsLayer = rememberGraphicsLayer()
+    LaunchedEffect(Unit) {
+        state.containerLayer = graphicsLayer
+    }
 
     this
+        .shadow(
+            if(state.isRunning) 0.dp else shadow,
+            corner
+        )
+        .clip(corner)
         .drawWithContent {
             // 隐藏原组件
             if (!state.isRunning) {
                 drawContent()
             }
-//            if (state.isRunning) {
-//                graphicsLayer.record {
-//                    this@drawWithContent.drawContent()
-//                }
-//            }
+            if (state.isRunning) {
+                graphicsLayer.record {
+                    this@drawWithContent.drawContent()
+                }
+            }
         }
         // 记录两个组件的位置、大小
         .onGloballyPositioned { coordinates ->
@@ -124,9 +131,7 @@ fun SharedContent(
     content : @Composable () -> Unit
 )  {
     Box(modifier = modifier) {
-        Box(
-            modifier = Modifier.sharedContent(key,corner)
-        ) {
+        Box(modifier = Modifier.sharedContent(key,corner)) {
             content()
         }
     }
@@ -142,15 +147,12 @@ fun SharedContainer(
     key : Any,
     corner : CornerBasedShape,
     modifier : Modifier = Modifier,
+    shadow : Dp = 0.dp,
     containerFilledStrategy : ContainerFilledStrategy = ContainerFilledStrategy.Pixel(),
     content : @Composable () -> Unit
 ) {
     Box(modifier = modifier) {
-        Box(
-            modifier = Modifier
-                .sharedContainer(key,containerFilledStrategy,corner,content)
-                .clip(corner)
-        ) {
+        Box(modifier = Modifier.sharedContainer(key,containerFilledStrategy,corner,shadow,content)) {
             content()
         }
     }

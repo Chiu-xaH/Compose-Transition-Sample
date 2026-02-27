@@ -28,6 +28,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
@@ -38,19 +39,35 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
+import com.xah.common.LogUtil
 import com.xah.container.container.SharedContainer
 import com.xah.container.container.SharedContent
+import com.xah.container.container.bottomExtension
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.utils.LocalSharedContainerRegistry
 import com.xah.navigation.anim.EffectLevel
@@ -136,26 +153,14 @@ fun HomeScreen() {
                             LocalMinimumInteractiveComponentSize provides 0.dp
                         ) {
                             SharedContainer(
-                                containerFilledStrategy = ContainerFilledStrategy.Clip,
+                                containerFilledStrategy = ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primaryContainer),
                                 modifier = Modifier.padding(horizontal = APP_HORIZONTAL_DP),
+                                shadow = CARD_NORMAL_DP*5,
                                 key = dest.key,
                                 corner = CircleShape
                             ) {
-//                                Surface(
-//                                    color = MaterialTheme.colorScheme.primaryContainer,
-//                                    shape = CircleShape,
-//                                    modifier = Modifier.clickable {
-//                                        SharedNavHelper.push(dest,navController,registry)
-//                                    }
-//                                ) {
-//                                    Icon(
-//                                        painterResource(R.drawable.settings),
-//                                        null,
-//                                        tint = MaterialTheme.colorScheme.primary,
-//                                        modifier = Modifier.padding(APP_HORIZONTAL_DP/2)
-//                                    )
-//                                }
                                 FilledTonalIconButton (
+                                    colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
                                     onClick = {
                                         SharedNavHelper.push(dest,navController,registry)
                                     }
@@ -222,8 +227,9 @@ fun HomeScreen() {
                     Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
                         SharedContainer (
                             key = destination.key,
-                            containerFilledStrategy = ContainerFilledStrategy.Clip
-//                            ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primaryContainer)
+                            containerFilledStrategy =
+//                                ContainerFilledStrategy.Clip
+                            ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primaryContainer)
                             ,
                             corner = MaterialTheme.shapes.small,
                         ) {
@@ -384,3 +390,82 @@ fun SettingsScreen() {
     }
 }
 
+
+@Composable
+@Preview
+fun Test() {
+    var rect by remember { mutableStateOf<Rect?>(null) }
+    var rect2 by remember { mutableStateOf<Rect?>(null) }
+    val graphicsLayer = rememberGraphicsLayer()
+    val graphicsLayer2 = rememberGraphicsLayer()
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .onGloballyPositioned { coordinates ->
+                    val position = coordinates.positionInRoot()
+                    val size = coordinates.size
+
+                    rect = Rect(
+                        left = position.x,
+                        top = position.y,
+                        right = position.x + size.width,
+                        bottom = position.y + size.height
+                    )
+                }
+                .drawWithContent {
+//                    drawContent()
+                    graphicsLayer.record {
+                        this@drawWithContent.drawContent()
+                    }
+                }
+        ) {
+            Image(painterResource(R.drawable.ic_candy),null)
+        }
+        Box(modifier = Modifier.align(Alignment.Center)) {
+            Box(
+                modifier = Modifier
+                    .onGloballyPositioned { coordinates ->
+                        val position = coordinates.positionInRoot()
+                        val size = coordinates.size
+
+                        rect2 = Rect(
+                            left = position.x,
+                            top = position.y,
+                            right = position.x + size.width,
+                            bottom = position.y + size.height
+                        )
+                    }
+                    .drawWithContent {
+//                        drawContent()
+                        graphicsLayer2.record {
+                            this@drawWithContent.drawContent()
+                        }
+                    }
+            ) {
+                if(rect2 != null && rect != null) {
+                    LogUtil.debug("rect=$rect rect2=$rect2")
+                    Box(
+                        modifier = Modifier.drawWithContent {
+                            withTransform({
+                                translate(
+                                    left = rect!!.left,
+                                    top = rect!!.top,
+//                                    left = (rect2!!.left-rect2!!.left)/2
+                                )
+                            }) {
+                                drawLayer(graphicsLayer)
+                            }
+                        }
+                    )
+                }
+//                Image(painterResource(R.drawable.ic_candy),null)
+            }
+            Box(
+                modifier = Modifier
+                    .zIndex(-1f)
+                    .bottomExtension(graphicsLayer2,rect2)
+            )
+        }
+    }
+}
