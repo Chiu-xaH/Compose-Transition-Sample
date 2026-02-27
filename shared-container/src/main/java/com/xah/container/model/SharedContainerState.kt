@@ -11,6 +11,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.xah.common.ScreenCornerHelper
 
 class SharedContainerState() {
     // 容器Rect
@@ -26,6 +27,7 @@ class SharedContainerState() {
 
     // 容器圆角
     var containerCorner: CornerBasedShape = RoundedCornerShape(0.dp)
+    var contentCorner: CornerBasedShape = RoundedCornerShape(ScreenCornerHelper.corner)
     // 容器填充策略
     var containerFilledStrategy : ContainerFilledStrategy = ContainerFilledStrategy.Pixel()
 

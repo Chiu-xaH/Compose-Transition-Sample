@@ -16,6 +16,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.xah.common.ScreenCornerHelper
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.utils.LocalSharedContainerRegistry
 
@@ -69,6 +70,7 @@ private fun Modifier.sharedContainer(
 
 private fun Modifier.sharedContent(
     key : Any,
+    corner : CornerBasedShape
 ): Modifier = composed {
     val registry = LocalSharedContainerRegistry.current
     if(!registry.enabled) {
@@ -78,6 +80,9 @@ private fun Modifier.sharedContent(
     val graphicsLayer = rememberGraphicsLayer()
     LaunchedEffect(Unit) {
         state.contentLayer = graphicsLayer
+    }
+    LaunchedEffect(corner) {
+        state.contentCorner = corner
     }
 
     this
@@ -109,16 +114,18 @@ private fun Modifier.sharedContent(
 /**
  * 共享容器的内容
  * @param key 两个容器之间的Key
+ * @param corner 屏幕圆角
  */
 @Composable
 fun SharedContent(
     key : Any,
     modifier : Modifier = Modifier,
+    corner : CornerBasedShape = RoundedCornerShape(ScreenCornerHelper.corner),
     content : @Composable () -> Unit
 )  {
     Box(modifier = modifier) {
         Box(
-            modifier = Modifier.sharedContent(key)
+            modifier = Modifier.sharedContent(key,corner)
         ) {
             content()
         }
@@ -133,9 +140,9 @@ fun SharedContent(
 @Composable
 fun SharedContainer(
     key : Any,
+    corner : CornerBasedShape,
     modifier : Modifier = Modifier,
     containerFilledStrategy : ContainerFilledStrategy = ContainerFilledStrategy.Pixel(),
-    corner : CornerBasedShape,
     content : @Composable () -> Unit
 ) {
     Box(modifier = modifier) {

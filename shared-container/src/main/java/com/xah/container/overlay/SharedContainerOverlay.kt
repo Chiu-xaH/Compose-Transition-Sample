@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -52,8 +53,7 @@ fun SharedContainerOverlay() {
             val height = rect.height
 
             val contentAlpha = lerp(0f,1f,safelyProgress)
-            val corner = state.containerCorner.lerp(RoundedCornerShape(ScreenCornerHelper.corner),safelyProgress) as RoundedCornerShape
-//                lerp(state.containerCorner, ScreenCornerHelper.corner, safelyProgress)
+            val corner = lerp(state.containerCorner,state.contentCorner,safelyProgress)
 
             val containerFilledStrategy = state.containerFilledStrategy.getFinalStrategy()
             val graphicsLayer = rememberGraphicsLayer()
@@ -154,6 +154,10 @@ fun SharedContainerOverlay() {
         }
     }
 }
+
+private fun lerp(start: CornerBasedShape, stop: CornerBasedShape, fraction: Float): CornerBasedShape = start.lerp(stop,fraction) as CornerBasedShape
+
+
 /**
  * package com.xah.container.overlay
  *

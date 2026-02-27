@@ -136,7 +136,7 @@ fun HomeScreen() {
                             LocalMinimumInteractiveComponentSize provides 0.dp
                         ) {
                             SharedContainer(
-                                containerFilledStrategy = ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primaryContainer),
+                                containerFilledStrategy = ContainerFilledStrategy.Clip,
                                 modifier = Modifier.padding(horizontal = APP_HORIZONTAL_DP),
                                 key = dest.key,
                                 corner = CircleShape
