@@ -22,10 +22,14 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -142,30 +146,48 @@ fun HomeScreen() {
         Scaffold(
             containerColor = Color.Transparent,
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+//            floatingActionButtonPosition = FabPosition.Start,
+            floatingActionButton = {
+                val dest = SettingsDestination("fab")
+                SharedContainer(
+                    containerFilledStrategy = ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primary),
+                    key = dest.key,
+                    corner = FloatingActionButtonDefaults.shape
+                ) {
+                    FloatingActionButton(
+                        elevation = FloatingActionButtonDefaults.elevation(0.dp,0.dp,0.dp,0.dp),
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        onClick = {
+                            SharedNavHelper.push(dest,navController,registry)
+                        }
+                    ) {
+                        Icon(painterResource(R.drawable.settings),null, tint = MaterialTheme.colorScheme.onPrimary)
+                    }
+                }
+            },
             topBar = {
                 MediumTopAppBar(
                     scrollBehavior = scrollBehavior,
                     colors = topBarTransplantColor(),
                     title = { Text("SharedNav") },
                     actions = {
-                        val dest = SettingsDestination
+                        val dest = SettingsDestination("ftib")
                         CompositionLocalProvider(
                             LocalMinimumInteractiveComponentSize provides 0.dp
                         ) {
                             SharedContainer(
-                                containerFilledStrategy = ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primaryContainer),
+                                containerFilledStrategy = ContainerFilledStrategy.Color(MaterialTheme.colorScheme.inversePrimary),
                                 modifier = Modifier.padding(horizontal = APP_HORIZONTAL_DP),
-                                shadow = CARD_NORMAL_DP*5,
                                 key = dest.key,
                                 corner = CircleShape
                             ) {
                                 FilledTonalIconButton (
-                                    colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                                    colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = MaterialTheme.colorScheme.inversePrimary),
                                     onClick = {
                                         SharedNavHelper.push(dest,navController,registry)
                                     }
                                 ) {
-                                    Icon(painterResource(R.drawable.settings),null, tint = MaterialTheme.colorScheme.primary)
+                                    Icon(painterResource(R.drawable.settings),null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
                                 }
                             }
                         }
@@ -284,7 +306,7 @@ fun HomeScreen() {
                     }
                 }
                 item(span = { GridItemSpan(maxLineSpan) }) {
-                    Spacer(Modifier.navigationBarsPadding().height(APP_HORIZONTAL_DP+innerPadding.calculateBottomPadding()))
+                    Spacer(Modifier.navigationBarsPadding().height((APP_HORIZONTAL_DP+innerPadding.calculateBottomPadding())*3))
                 }
             }
         }

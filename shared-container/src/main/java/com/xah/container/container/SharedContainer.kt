@@ -12,6 +12,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -127,11 +128,11 @@ private fun Modifier.sharedContent(
 fun SharedContent(
     key : Any,
     modifier : Modifier = Modifier,
-    corner : CornerBasedShape = RoundedCornerShape(ScreenCornerHelper.corner),
+    corner : Shape = RoundedCornerShape(ScreenCornerHelper.corner),
     content : @Composable () -> Unit
 )  {
     Box(modifier = modifier) {
-        Box(modifier = Modifier.sharedContent(key,corner)) {
+        Box(modifier = Modifier.sharedContent(key,corner as CornerBasedShape)) {
             content()
         }
     }
@@ -145,14 +146,14 @@ fun SharedContent(
 @Composable
 fun SharedContainer(
     key : Any,
-    corner : CornerBasedShape,
+    corner : Shape,
     modifier : Modifier = Modifier,
     shadow : Dp = 0.dp,
     containerFilledStrategy : ContainerFilledStrategy = ContainerFilledStrategy.Pixel(),
     content : @Composable () -> Unit
 ) {
     Box(modifier = modifier) {
-        Box(modifier = Modifier.sharedContainer(key,containerFilledStrategy,corner,shadow,content)) {
+        Box(modifier = Modifier.sharedContainer(key,containerFilledStrategy,corner as CornerBasedShape,shadow,content)) {
             content()
         }
     }
