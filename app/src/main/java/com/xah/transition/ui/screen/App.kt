@@ -21,19 +21,33 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MediumTopAppBar
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.xah.container.container.SharedContainer
 import com.xah.container.container.SharedContent
@@ -53,7 +67,9 @@ import com.xah.transition.ui.component.TransplantListItem
 import com.xah.transition.ui.screen.destination.AppHomeDestination
 import com.xah.transition.ui.screen.destination.HomeDestination
 import com.xah.transition.ui.screen.destination.SecondDestination
+import com.xah.transition.ui.screen.destination.SettingsDestination
 import com.xah.transition.ui.screen.destination.ThirdDestination
+import com.xah.transition.ui.style.topBarTransplantColor
 import com.xah.transition.ui.viewmodel.UiHolder
 
 @Composable
@@ -76,6 +92,7 @@ private val appList = listOf<AppBean>(
     AppBean("candy","Candy Crush Saga",R.drawable.ic_candy),
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen() {
     val navController = LocalNavigationController.current
@@ -104,117 +121,165 @@ fun HomeScreen() {
                 contentScale = ContentScale.Crop
             )
         }
-        LazyVerticalGrid(
-            state = scrollState,
-            columns = GridCells.Fixed(2),
-            modifier = Modifier.padding(horizontal = APP_HORIZONTAL_DP- CARD_NORMAL_DP*2)
-        ) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                Spacer(Modifier.statusBarsPadding().height(APP_HORIZONTAL_DP))
-            }
-            items(appList.size,key = { appList[it].key }) { index ->
-                val item = appList[index]
-                val destination = AppHomeDestination(item)
-                Column {
-                    SharedContainer(
-                        destination.key,
-                        containerFilledStrategy = ContainerFilledStrategy.Pixel(),
-                        corner = 20.dp,
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(150.dp)
-                                .clickable {
-                                    SharedNavHelper.push(destination,navController,registry)
-                                }
+        val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+        Scaffold(
+            containerColor = Color.Transparent,
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            topBar = {
+                MediumTopAppBar(
+                    scrollBehavior = scrollBehavior,
+                    colors = topBarTransplantColor(),
+                    title = { Text("SharedNav") },
+                    actions = {
+                        val dest = SettingsDestination
+                        CompositionLocalProvider(
+                            LocalMinimumInteractiveComponentSize provides 0.dp
                         ) {
-                            Image(painterResource(item.icon),null)
+                            SharedContainer(
+                                containerFilledStrategy = ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primaryContainer),
+                                modifier = Modifier.padding(horizontal = APP_HORIZONTAL_DP),
+                                key = dest.key,
+                                corner = CircleShape
+                            ) {
+//                                Surface(
+//                                    color = MaterialTheme.colorScheme.primaryContainer,
+//                                    shape = CircleShape,
+//                                    modifier = Modifier.clickable {
+//                                        SharedNavHelper.push(dest,navController,registry)
+//                                    }
+//                                ) {
+//                                    Icon(
+//                                        painterResource(R.drawable.settings),
+//                                        null,
+//                                        tint = MaterialTheme.colorScheme.primary,
+//                                        modifier = Modifier.padding(APP_HORIZONTAL_DP/2)
+//                                    )
+//                                }
+                                FilledTonalIconButton (
+                                    onClick = {
+                                        SharedNavHelper.push(dest,navController,registry)
+                                    }
+                                ) {
+                                    Icon(painterResource(R.drawable.settings),null, tint = MaterialTheme.colorScheme.primary)
+                                }
+                            }
                         }
                     }
-                    Spacer(Modifier.height(APP_HORIZONTAL_DP*2))
+                )
+            }
+        ) { innerPadding ->
+            LazyVerticalGrid(
+                state = scrollState,
+                columns = GridCells.Fixed(2),
+                modifier = Modifier.padding(horizontal = APP_HORIZONTAL_DP- CARD_NORMAL_DP*2)
+            ) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Spacer(Modifier.height(APP_HORIZONTAL_DP+innerPadding.calculateTopPadding()))
                 }
-            }
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                Spacer(Modifier.height(APP_HORIZONTAL_DP))
-            }
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                Surface(
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    shape = MaterialTheme.shapes.small,
-                    modifier = Modifier.padding(horizontal = CARD_NORMAL_DP*2, vertical = CARD_NORMAL_DP)
-                ) {
-                    TransplantListItem(
-                        headlineContent = {
-                            Text("设置壁纸")
-                        },
-                        modifier = Modifier.clickable {
-                            pickMediaLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                items(appList.size,key = { appList[it].key }) { index ->
+                    val item = appList[index]
+                    val destination = AppHomeDestination(item)
+                    Column {
+                        SharedContainer(
+                            destination.key,
+                            containerFilledStrategy = ContainerFilledStrategy.Pixel(),
+                            corner = RoundedCornerShape(20.dp),
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(150.dp)
+                                    .clickable {
+                                        SharedNavHelper.push(destination,navController,registry)
+                                    }
+                            ) {
+                                Image(painterResource(item.icon),null)
+                            }
                         }
-                    )
+                        Spacer(Modifier.height(APP_HORIZONTAL_DP*2))
+                    }
                 }
-            }
-            items(30) { index ->
-                val destination = SecondDestination(userId = index)
-                Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
-                    SharedContainer (
-                        key = destination.key,
-                        containerFilledStrategy = ContainerFilledStrategy.Clip
-//                            ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primaryContainer)
-                        ,
-                        corner = 8.dp,
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Spacer(Modifier.height(APP_HORIZONTAL_DP))
+                }
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Surface(
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        shape = MaterialTheme.shapes.small,
+                        modifier = Modifier.padding(horizontal = CARD_NORMAL_DP*2, vertical = CARD_NORMAL_DP)
                     ) {
+                        TransplantListItem(
+                            headlineContent = {
+                                Text("设置壁纸")
+                            },
+                            modifier = Modifier.clickable {
+                                pickMediaLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                            }
+                        )
+                    }
+                }
+                items(30) { index ->
+                    val destination = SecondDestination(userId = index)
+                    Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                        SharedContainer (
+                            key = destination.key,
+                            containerFilledStrategy = ContainerFilledStrategy.Clip
+//                            ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primaryContainer)
+                            ,
+                            corner = MaterialTheme.shapes.small,
+                        ) {
+                            SmallCard(
+                                color = MaterialTheme.colorScheme.primaryContainer
+                            ) {
+                                TransplantListItem(
+                                    headlineContent = { Text("Item #${index}") },
+                                    modifier = Modifier.clickable {
+                                        SharedNavHelper.push(SecondDestination(userId = index),navController,registry)
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+                items(10) { index ->
+                    val route = "ItemNo #$index"
+                    Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
                         SmallCard(
+                            modifier = Modifier,
                             color = MaterialTheme.colorScheme.primaryContainer
                         ) {
                             TransplantListItem(
-                                headlineContent = { Text("Item #${index}") },
+                                headlineContent = { Text(route) },
                                 modifier = Modifier.clickable {
-                                    SharedNavHelper.push(SecondDestination(userId = index),navController,registry)
+                                    navController.push(ThirdDestination)
                                 }
                             )
                         }
                     }
                 }
-            }
-            items(10) { index ->
-                val route = "ItemNo #$index"
-                Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
-                    SmallCard(
-                        modifier = Modifier,
-                        color = MaterialTheme.colorScheme.primaryContainer
+                items(levelList.size, key = { levelList[it].levelNum }) { index ->
+                    val item = levelList[index]
+                    val selected = navController.transitionLevel == item
+
+                    val color = if(selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer
+
+                    Surface(
+                        color = color,
+                        shape = MaterialTheme.shapes.small,
+                        modifier = Modifier.padding(horizontal = CARD_NORMAL_DP*2, vertical = CARD_NORMAL_DP)
                     ) {
                         TransplantListItem(
-                            headlineContent = { Text(route) },
+                            headlineContent = {
+                                Text("等级 ${item.name}", color = contentColorFor(color))
+                            },
                             modifier = Modifier.clickable {
-                                navController.push(ThirdDestination)
-                            }
+                                navController.transitionLevel = item
+                            },
                         )
                     }
                 }
-            }
-            items(levelList.size, key = { levelList[it].levelNum }) { index ->
-                val item = levelList[index]
-                val selected = navController.transitionLevel == item
-
-                val color = if(selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer
-
-                Surface(
-                    color = color,
-                    shape = MaterialTheme.shapes.small,
-                    modifier = Modifier.padding(horizontal = CARD_NORMAL_DP*2, vertical = CARD_NORMAL_DP)
-                ) {
-                    TransplantListItem(
-                        headlineContent = {
-                            Text("等级 ${item.name}", color = contentColorFor(color))
-                        },
-                        modifier = Modifier.clickable {
-                            navController.transitionLevel = item
-                        },
-                    )
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Spacer(Modifier.navigationBarsPadding().height(APP_HORIZONTAL_DP+innerPadding.calculateBottomPadding()))
                 }
-            }
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                Spacer(Modifier.navigationBarsPadding().height(APP_HORIZONTAL_DP))
             }
         }
     }
@@ -249,9 +314,10 @@ fun SecondScreen() {
 }
 
 @Composable
-fun AppHomeScreen(app: AppBean) {
+fun AppHomeScreen() {
+    val destination = LocalNavigationDestination.current
     SharedContent (
-        key = AppHomeDestination(app).key,
+        key = destination.key,
     ) {
         Box(
             modifier = Modifier
@@ -293,4 +359,28 @@ fun ThirdScreen() {
     }
 }
 
+@Composable
+fun SettingsScreen() {
+    val destination = LocalNavigationDestination.current
+
+    SharedContent (
+        key = destination.key,
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface)
+        ) {
+            LazyColumn {
+                items(30) {
+                    CardListItem(
+                        headlineContent = {
+                            Text("测试$it")
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
 

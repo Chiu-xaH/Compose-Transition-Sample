@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
 import com.xah.common.ScreenCornerHelper
@@ -341,6 +342,123 @@ private class ForegroundEffect(animatedProgress : Float,val level: EffectLevel) 
          }
      }
 }
+
+// TODO 共享元素过渡时，背景模糊
+private class BackgroundEffectWithSharedElement(animatedProgress : Float,val level: EffectLevel) {
+    private val effect = PageEffect(
+        scale = lerp(
+            PageEffect.Full.scale,
+            PageEffect.Full.scale,
+            animatedProgress
+        ),
+        blur = lerp(
+            PageEffect.Full.blur,
+            PageEffect.Background.blur,
+            animatedProgress
+        ),
+        mask = lerp(
+            PageEffect.Full.mask,
+            PageEffect.Full.mask,
+            animatedProgress
+        ),
+        alpha = lerp(
+            PageEffect.Full.alpha,
+            PageEffect.Background.alpha,
+            animatedProgress
+        ),
+        corner = lerp(
+            PageEffect.Full.corner,
+            PageEffect.Background.corner,
+            animatedProgress
+        )
+    )
+
+    private fun Modifier.blur() : Modifier {
+        return this.blur(effect.blur)
+    }
+
+
+    fun Modifier.effect() : Modifier {
+        return when(level) {
+            EffectLevel.FULL -> {
+                this.blur()
+            }
+            EffectLevel.NO_BLUR -> {
+                this
+            }
+            EffectLevel.NO_SCALE -> {
+                this
+            }
+            EffectLevel.NONE -> {
+                this
+            }
+        }
+    }
+}
+// TODO 共享元素过渡时，前景模糊、透明度淡入
+private class ForegroundEffectWithSharedElement(animatedProgress : Float,val level: EffectLevel)  {
+
+    private val effect = PageEffect(
+        scale = lerp(
+            PageEffect.Full.scale,
+            PageEffect.Full.scale,
+            animatedProgress
+        ),
+        blur = lerp(
+            PageEffect.None.blur,
+            PageEffect.Full.blur,
+            animatedProgress
+        ),
+        mask = lerp(
+            PageEffect.None.mask,
+            PageEffect.Full.mask,
+            animatedProgress
+        ),
+        alpha = lerp(
+            0f,
+            PageEffect.Full.alpha,
+            animatedProgress
+        ),
+        corner = lerp(
+            if(level != EffectLevel.NONE) ScreenCornerHelper.corner else 0.dp,
+            if(level != EffectLevel.NONE) ScreenCornerHelper.corner else 0.dp,
+            animatedProgress
+        )
+    )
+
+
+    private fun Modifier.blur() : Modifier {
+        return this.blur(effect.blur)
+    }
+
+    private fun Modifier.corner() : Modifier {
+        return this.clip(RoundedCornerShape(effect.corner))
+    }
+
+    private fun Modifier.alpha() : Modifier {
+        return this.graphicsLayer {
+            alpha = effect.alpha
+        }
+    }
+
+    fun Modifier.effect() : Modifier {
+        return when(level) {
+            EffectLevel.FULL -> {
+                this.blur().alpha().corner()
+            }
+            EffectLevel.NO_BLUR -> {
+                this.alpha().corner()
+            }
+            EffectLevel.NO_SCALE -> {
+                this
+            }
+            EffectLevel.NONE -> {
+                this
+            }
+        }
+    }
+}
+
 
 
 //abstract class OnTransition(

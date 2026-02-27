@@ -1,6 +1,7 @@
 package com.xah.container.container
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -21,7 +22,7 @@ import com.xah.container.utils.LocalSharedContainerRegistry
 private fun Modifier.sharedContainer(
     key : Any,
     containerFilledStrategy : ContainerFilledStrategy,
-    corner : Dp,
+    corner : CornerBasedShape,
     content : @Composable () -> Unit
 ): Modifier = composed {
     val registry = LocalSharedContainerRegistry.current
@@ -134,14 +135,14 @@ fun SharedContainer(
     key : Any,
     modifier : Modifier = Modifier,
     containerFilledStrategy : ContainerFilledStrategy = ContainerFilledStrategy.Pixel(),
-    corner : Dp = 0.dp,
+    corner : CornerBasedShape,
     content : @Composable () -> Unit
 ) {
     Box(modifier = modifier) {
         Box(
             modifier = Modifier
                 .sharedContainer(key,containerFilledStrategy,corner,content)
-                .clip(RoundedCornerShape(corner))
+                .clip(corner)
         ) {
             content()
         }

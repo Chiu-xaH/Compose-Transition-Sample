@@ -17,7 +17,7 @@ val LinearRectInterpolator: RectInterpolator = { t, from, to ->
 
 fun QuadraticBezierRectInterpolator(
     screenHeight: Float,
-    maxArc: Float = 1250f
+    maxArc: Float = screenHeight / 2
 ): RectInterpolator = { t, from, to ->
 
     val startCenter = Offset(

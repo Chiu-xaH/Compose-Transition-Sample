@@ -52,7 +52,8 @@ fun SharedContainerOverlay() {
             val height = rect.height
 
             val contentAlpha = lerp(0f,1f,safelyProgress)
-            val corner = lerp(state.containerCorner, ScreenCornerHelper.corner, safelyProgress)
+            val corner = state.containerCorner.lerp(RoundedCornerShape(ScreenCornerHelper.corner),safelyProgress) as RoundedCornerShape
+//                lerp(state.containerCorner, ScreenCornerHelper.corner, safelyProgress)
 
             val containerFilledStrategy = state.containerFilledStrategy.getFinalStrategy()
             val graphicsLayer = rememberGraphicsLayer()
@@ -64,7 +65,7 @@ fun SharedContainerOverlay() {
                         with(density) { width.toDp() },
                         with(density) { height.toDp() }
                     )
-                    .clip(RoundedCornerShape(corner))
+                    .clip(corner)
                     // is ContainerFilledStrategy.Color
                     .background((containerFilledStrategy as? ContainerFilledStrategy.Color)?.color ?: Color.Black)
             ) {

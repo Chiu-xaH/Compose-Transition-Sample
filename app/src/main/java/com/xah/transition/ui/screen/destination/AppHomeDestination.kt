@@ -14,6 +14,6 @@ data class AppHomeDestination(
 
     @Composable
     override fun Content() {
-        AppHomeScreen(app)
+        AppHomeScreen()
     }
 }

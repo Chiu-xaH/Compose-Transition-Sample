@@ -1,6 +1,8 @@
 package com.xah.container.model
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,7 +25,7 @@ class SharedContainerState() {
     var contentLayer : GraphicsLayer? = null
 
     // 容器圆角
-    var containerCorner: Dp = 0.dp
+    var containerCorner: CornerBasedShape = RoundedCornerShape(0.dp)
     // 容器填充策略
     var containerFilledStrategy : ContainerFilledStrategy = ContainerFilledStrategy.Pixel()
 
