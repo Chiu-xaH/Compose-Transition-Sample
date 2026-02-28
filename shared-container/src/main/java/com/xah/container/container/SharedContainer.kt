@@ -32,6 +32,11 @@ private fun Modifier.sharedContainer(
     val registry = LocalSharedContainerRegistry.current
     if(!registry.enabled) {
         return@composed this
+            .shadow(
+                shadow,
+                corner
+            )
+            .clip(corner)
     }
     val state = remember { registry.getOrCreate(key) }
 

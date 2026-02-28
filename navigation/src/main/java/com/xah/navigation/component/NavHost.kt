@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xah.common.ScreenCornerHelper
 import com.xah.common.touchEvent
 import com.xah.container.overlay.SharedContainerRoot
@@ -28,12 +29,12 @@ import com.xah.container.utils.LocalSharedContainerRegistry
 import com.xah.navigation.anim.EffectLevel
 import com.xah.navigation.anim.PageEffect
 import com.xah.navigation.controller.NavigationController
+import com.xah.navigation.controller.NavigationViewModel
 import com.xah.navigation.model.ActionType
 import com.xah.navigation.model.Destination
 import com.xah.navigation.shared.SharedNavHelper
 import com.xah.navigation.utils.LocalNavigationController
 import com.xah.navigation.utils.scaleMirror
-import kotlin.math.pow
 
 @Composable
 fun SharedNavHost(
@@ -59,7 +60,10 @@ private fun NavHost(
     val registry = LocalSharedContainerRegistry.current
     val scope = rememberCoroutineScope()
     val saveableStateHolder = rememberSaveableStateHolder()
-    val navController = remember { NavigationController(scope,startDestination) }
+    val navViewModel: NavigationViewModel = viewModel(factory = NavigationViewModel.Factory())
+    val navController = remember(navViewModel) {
+        NavigationController(scope, startDestination, navViewModel.stack)
+    }
 
     CompositionLocalProvider(
         LocalNavigationController provides navController,

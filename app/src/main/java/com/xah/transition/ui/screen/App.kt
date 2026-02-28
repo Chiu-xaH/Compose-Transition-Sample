@@ -25,6 +25,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FilledTonalIconButton
@@ -85,6 +87,7 @@ import com.xah.transition.ui.component.CARD_NORMAL_DP
 import com.xah.transition.ui.component.CardListItem
 import com.xah.transition.ui.component.SmallCard
 import com.xah.transition.ui.component.TransplantListItem
+import com.xah.transition.ui.component.cardNormalColor
 import com.xah.transition.ui.screen.destination.AppHomeDestination
 import com.xah.transition.ui.screen.destination.HomeDestination
 import com.xah.transition.ui.screen.destination.SecondDestination
@@ -150,18 +153,19 @@ fun HomeScreen() {
             floatingActionButton = {
                 val dest = SettingsDestination("fab")
                 SharedContainer(
-                    containerFilledStrategy = ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primary),
+                    containerFilledStrategy = ContainerFilledStrategy.Pixel(ContainerFilledStrategy.Color(MaterialTheme.colorScheme.inversePrimary)),
                     key = dest.key,
                     corner = FloatingActionButtonDefaults.shape
                 ) {
                     FloatingActionButton(
                         elevation = FloatingActionButtonDefaults.elevation(0.dp,0.dp,0.dp,0.dp),
-                        containerColor = MaterialTheme.colorScheme.primary,
+                        containerColor = MaterialTheme.colorScheme.inversePrimary,
+                        shape = RoundedCornerShape(0.dp),
                         onClick = {
                             SharedNavHelper.push(dest,navController,registry)
                         }
                     ) {
-                        Icon(painterResource(R.drawable.settings),null, tint = MaterialTheme.colorScheme.onPrimary)
+                        Icon(painterResource(R.drawable.settings),null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
                     }
                 }
             },
@@ -176,12 +180,14 @@ fun HomeScreen() {
                             LocalMinimumInteractiveComponentSize provides 0.dp
                         ) {
                             SharedContainer(
+//                                containerFilledStrategy = ContainerFilledStrategy.Clip,
                                 containerFilledStrategy = ContainerFilledStrategy.Color(MaterialTheme.colorScheme.inversePrimary),
                                 modifier = Modifier.padding(horizontal = APP_HORIZONTAL_DP),
                                 key = dest.key,
                                 corner = CircleShape
                             ) {
                                 FilledTonalIconButton (
+                                    shape = RoundedCornerShape(0.dp),
                                     colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = MaterialTheme.colorScheme.inversePrimary),
                                     onClick = {
                                         SharedNavHelper.push(dest,navController,registry)
@@ -249,14 +255,12 @@ fun HomeScreen() {
                     Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
                         SharedContainer (
                             key = destination.key,
-                            containerFilledStrategy =
-//                                ContainerFilledStrategy.Clip
-                            ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primaryContainer)
-                            ,
+                            containerFilledStrategy = ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primaryContainer),
                             corner = MaterialTheme.shapes.small,
                         ) {
-                            SmallCard(
-                                color = MaterialTheme.colorScheme.primaryContainer
+                            Card(
+                                shape = RoundedCornerShape(0.dp),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                             ) {
                                 TransplantListItem(
                                     headlineContent = { Text("Item #${index}") },

@@ -8,6 +8,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import com.xah.common.LogUtil
 import com.xah.navigation.anim.EffectLevel
 import com.xah.navigation.anim.NavTransition
 import com.xah.navigation.model.ActionType
@@ -22,8 +24,9 @@ import java.util.UUID
 class NavigationController(
     private val scope: CoroutineScope,
     val startDestination: Destination,
+    private val _stack: SnapshotStateList<StackEntry>
 ) {
-    private val _stack = mutableStateListOf<StackEntry>()
+//    private val _stack = mutableStateListOf<StackEntry>()
     val stack: List<StackEntry> get() = _stack
 
     var navTransition by mutableStateOf<NavTransition?>(null)
@@ -190,6 +193,8 @@ class NavigationController(
     }
 
     init {
-        createAndPush(startDestination)
+        if(_stack.isEmpty()) {
+            createAndPush(startDestination)
+        }
     }
 }

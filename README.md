@@ -13,7 +13,10 @@
 ## TODO
 
 背景模糊、缩放speedRadio
-ContainerGraphLayer
+ContainerGraphLayer（屏幕旋转动画异常）
+大屏适配
+deeplink
+
 
 15. 容器带padding时的bug   [P1]
 18. 提取1像素回弹时的Bug     [P2]

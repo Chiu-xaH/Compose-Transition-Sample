@@ -64,8 +64,9 @@ fun SharedContainerOverlay() {
                     .clip(corner)
                     .background(
                         when(containerFilledStrategy) {
-                            is ContainerFilledStrategy.Pixel ->  Color.Black
-                            is ContainerFilledStrategy.Clip -> Color.Transparent
+                            // 如果出现了黑色边界，说明SharedContainer里面的Content可能不是0圆角的矩形，导致取像素、裁切出现空缺，请把圆角裁剪挪到SharedContainer的corner参数中，里面的内容不要裁切任何圆角！
+                            is ContainerFilledStrategy.Pixel -> Color.Black
+                            is ContainerFilledStrategy.Clip -> Color.Black
                             is ContainerFilledStrategy.Color -> containerFilledStrategy.color
                         }
                     )
