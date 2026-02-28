@@ -2,14 +2,11 @@ package com.xah.navigation.controller
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import com.xah.common.LogUtil
 import com.xah.navigation.anim.EffectLevel
 import com.xah.navigation.anim.NavTransition
 import com.xah.navigation.model.ActionType
@@ -23,10 +20,9 @@ import java.util.UUID
 
 class NavigationController(
     private val scope: CoroutineScope,
-    val startDestination: Destination,
+    private val startDestination: Destination,
     private val _stack: SnapshotStateList<StackEntry>
 ) {
-//    private val _stack = mutableStateListOf<StackEntry>()
     val stack: List<StackEntry> get() = _stack
 
     var navTransition by mutableStateOf<NavTransition?>(null)

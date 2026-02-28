@@ -137,7 +137,9 @@ fun SharedContent(
     content : @Composable () -> Unit
 )  {
     Box(modifier = modifier) {
-        Box(modifier = Modifier.sharedContent(key,corner as CornerBasedShape)) {
+        Box(
+            modifier = Modifier.sharedContent(key,corner as CornerBasedShape)
+        ) {
             content()
         }
     }
@@ -158,7 +160,9 @@ fun SharedContainer(
     content : @Composable () -> Unit
 ) {
     Box(modifier = modifier) {
-        Box(modifier = Modifier.sharedContainer(key,containerFilledStrategy,corner as CornerBasedShape,shadow,content)) {
+        Box(
+            modifier = Modifier.sharedContainer(key, containerFilledStrategy, corner as CornerBasedShape, shadow,content)
+        ) {
             content()
         }
     }

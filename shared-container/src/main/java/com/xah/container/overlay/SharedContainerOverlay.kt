@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.util.lerp
@@ -32,6 +33,9 @@ import kotlin.math.roundToInt
 fun SharedContainerOverlay() {
     val registry = LocalSharedContainerRegistry.current
     val density = LocalDensity.current
+    val configuration = LocalConfiguration.current
+
+    val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
 
     registry.runningStates.forEach { state ->
         val progress = state.animation.value
@@ -78,25 +82,15 @@ fun SharedContainerOverlay() {
                             when(containerFilledStrategy) {
                                 is ContainerFilledStrategy.Clip -> {
                                     // 对state.containerLayout竖直裁切填满父容器
-//                                Box(
-//                                    modifier = Modifier
-//                                        .graphicsLayer {
-//                                            val scale = height / container.height
-//                                            scaleX = scale
-//                                            scaleY = scale
-//                                            transformOrigin = TransformOrigin(0.5f, 0f)
-//                                        }
-//                                ) {
-//                                    // 背景禁用触摸事件
-//                                    Box(modifier = Modifier.disableTouchEvent()) {
-//                                        state.containerLayout?.let { it() }
-//                                    }
-//                                }
                                     Box(modifier = Modifier
                                         .drawWithCache {
                                             onDrawWithContent {
                                                 val layer = state.containerLayer ?: return@onDrawWithContent
-                                                val scale = height / container.height
+                                                val scale = if(isLandscape) {
+                                                    width / container.width
+                                                } else {
+                                                    height / container.height
+                                                }
                                                 withTransform({
                                                     scale(scale, scale)
                                                     translate(left = -container.width/2f , top = 0f)
@@ -125,25 +119,30 @@ fun SharedContainerOverlay() {
                                 }
                                 is ContainerFilledStrategy.Pixel -> {
                                     // 底部填充
-                                    Box(
-                                        modifier = Modifier.graphicsLayer {
-                                            val scale = width / container.width
-                                            scaleX = scale
-                                            scaleY = scale
-                                            transformOrigin = TransformOrigin(0.5f, 0f)
-                                        }
-                                    ) {
-                                        Box(modifier = Modifier
-                                            .drawWithContent {
-                                                drawContent()
-                                                graphicsLayer.record {
-                                                    this@drawWithContent.drawContent()
+                                    Box(modifier = Modifier
+                                        .drawWithCache {
+                                            onDrawWithContent {
+                                                val layer = state.containerLayer ?: return@onDrawWithContent
+                                                val scale = if(!isLandscape) {
+                                                    width / container.width
+                                                } else {
+                                                    height / container.height
+                                                }
+                                                // (parent.width-container.width)/2
+                                                // (parent.height-container.height)/2
+                                                withTransform({
+                                                    scale(scale, scale)
+                                                    if(isLandscape) {
+                                                        translate(left = -container.width/2f , top = 0f)
+                                                    } else {
+                                                        translate(left = -container.width/2f , top = 0f)
+                                                    }
+                                                }) {
+                                                    drawLayer(layer)
                                                 }
                                             }
-                                        ) {
-                                            state.containerLayout?.let { it() }
                                         }
-                                    }
+                                    )
                                 }
                             }
                         }
@@ -159,8 +158,17 @@ fun SharedContainerOverlay() {
                                     scaleY = scale
                                     transformOrigin = TransformOrigin(0.5f, 0f)
                                 }
-                                .bottomExtension(graphicsLayer,container)
+                                .bottomExtension(graphicsLayer,container,containerFilledStrategy.useSinglePoint)
                         )
+                        Box(modifier = Modifier
+                            .drawWithContent {
+                                graphicsLayer.record {
+                                    this@drawWithContent.drawContent()
+                                }
+                            }
+                        ) {
+                            state.containerLayout?.let { it() }
+                        }
                     }
                 }
                 // 内容始终透明度淡入淡出

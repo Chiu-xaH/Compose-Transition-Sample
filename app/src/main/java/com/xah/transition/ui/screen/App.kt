@@ -15,25 +15,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
@@ -52,7 +48,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
@@ -61,12 +56,10 @@ import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -77,8 +70,8 @@ import com.xah.container.container.bottomExtension
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.utils.LocalSharedContainerRegistry
 import com.xah.navigation.anim.EffectLevel
-import com.xah.navigation.shared.SharedNavHelper
 import com.xah.navigation.component.SharedNavHost
+import com.xah.navigation.shared.SharedNavHelper
 import com.xah.navigation.utils.LocalNavigationController
 import com.xah.navigation.utils.LocalNavigationDestination
 import com.xah.transition.R
@@ -87,7 +80,6 @@ import com.xah.transition.ui.component.CARD_NORMAL_DP
 import com.xah.transition.ui.component.CardListItem
 import com.xah.transition.ui.component.SmallCard
 import com.xah.transition.ui.component.TransplantListItem
-import com.xah.transition.ui.component.cardNormalColor
 import com.xah.transition.ui.screen.destination.AppHomeDestination
 import com.xah.transition.ui.screen.destination.HomeDestination
 import com.xah.transition.ui.screen.destination.SecondDestination
@@ -149,7 +141,6 @@ fun HomeScreen() {
         Scaffold(
             containerColor = Color.Transparent,
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-//            floatingActionButtonPosition = FabPosition.Start,
             floatingActionButton = {
                 val dest = SettingsDestination("fab")
                 SharedContainer(
@@ -180,7 +171,6 @@ fun HomeScreen() {
                             LocalMinimumInteractiveComponentSize provides 0.dp
                         ) {
                             SharedContainer(
-//                                containerFilledStrategy = ContainerFilledStrategy.Clip,
                                 containerFilledStrategy = ContainerFilledStrategy.Color(MaterialTheme.colorScheme.inversePrimary),
                                 modifier = Modifier.padding(horizontal = APP_HORIZONTAL_DP),
                                 key = dest.key,
@@ -255,7 +245,7 @@ fun HomeScreen() {
                     Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
                         SharedContainer (
                             key = destination.key,
-                            containerFilledStrategy = ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primaryContainer),
+//                            containerFilledStrategy = ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primaryContainer),
                             corner = MaterialTheme.shapes.small,
                         ) {
                             Card(
