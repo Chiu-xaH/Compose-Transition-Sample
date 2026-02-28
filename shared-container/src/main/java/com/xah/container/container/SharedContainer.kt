@@ -22,46 +22,41 @@ import com.xah.common.ScreenCornerHelper
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.utils.LocalSharedContainerRegistry
 
+
 private fun Modifier.sharedContainer(
     key : Any,
     containerFilledStrategy : ContainerFilledStrategy,
     corner : CornerBasedShape,
-    shadow : Dp = 0.dp,
-    content : @Composable () -> Unit
 ): Modifier = composed {
     val registry = LocalSharedContainerRegistry.current
     if(!registry.enabled) {
         return@composed this
-            .shadow(
-                shadow,
-                corner
-            )
-            .clip(corner)
     }
     val state = remember { registry.getOrCreate(key) }
+    val graphicsLayer = rememberGraphicsLayer()
+    val graphicsLayerForPixel = if(containerFilledStrategy.getFinalStrategy() is ContainerFilledStrategy.Pixel) {
+        rememberGraphicsLayer()
+    } else {
+        null
+    }
 
-    LaunchedEffect(containerFilledStrategy,corner,shadow) {
-        state.containerLayout = content
+    LaunchedEffect(Unit) {
         state.containerFilledStrategy = containerFilledStrategy
         state.containerCorner = corner
-    }
-    val graphicsLayer = rememberGraphicsLayer()
-    LaunchedEffect(Unit) {
+        state.containerLayerForPixel = graphicsLayerForPixel
         state.containerLayer = graphicsLayer
     }
 
-    this
-        .shadow(
-            shadow,
-            corner
-        )
-        .clip(corner)
+    return@composed this
         .drawWithContent {
             // 隐藏原组件
             if (!state.isRunning) {
                 drawContent()
             }
             if (state.isRunning) {
+                graphicsLayerForPixel?.record {
+                    this@drawWithContent.drawContent()
+                }
                 graphicsLayer.record {
                     this@drawWithContent.drawContent()
                 }
@@ -89,13 +84,13 @@ private fun Modifier.sharedContent(
     if(!registry.enabled) {
         return@composed this
     }
+
     val state = remember { registry.getOrCreate(key) }
     val graphicsLayer = rememberGraphicsLayer()
+
     LaunchedEffect(Unit) {
-        state.contentLayer = graphicsLayer
-    }
-    LaunchedEffect(corner) {
         state.contentCorner = corner
+        state.contentLayer = graphicsLayer
     }
 
     this
@@ -159,9 +154,13 @@ fun SharedContainer(
     containerFilledStrategy : ContainerFilledStrategy = ContainerFilledStrategy.Pixel(),
     content : @Composable () -> Unit
 ) {
-    Box(modifier = modifier) {
+    Box(
+        modifier = modifier
+            .shadow(shadow,corner)
+            .clip(corner)
+    ) {
         Box(
-            modifier = Modifier.sharedContainer(key, containerFilledStrategy, corner as CornerBasedShape, shadow,content)
+            modifier = Modifier.sharedContainer(key, containerFilledStrategy, corner as CornerBasedShape)
         ) {
             content()
         }

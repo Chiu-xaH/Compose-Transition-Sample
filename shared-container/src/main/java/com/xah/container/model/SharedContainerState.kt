@@ -9,7 +9,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.layer.GraphicsLayer
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.xah.common.ScreenCornerHelper
 
@@ -19,10 +18,9 @@ class SharedContainerState() {
     // 内容Rect
     var contentRect: Rect? = null
 
-    // 容器布局
-    var containerLayout: (@Composable () -> Unit)? = null
     // 内容布局
     var containerLayer : GraphicsLayer? = null
+    var containerLayerForPixel : GraphicsLayer? = null
     var contentLayer : GraphicsLayer? = null
 
     // 容器圆角

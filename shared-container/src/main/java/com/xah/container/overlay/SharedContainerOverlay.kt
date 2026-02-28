@@ -17,7 +17,6 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
-import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
@@ -56,7 +55,6 @@ fun SharedContainerOverlay() {
             val corner = lerp(state.containerCorner,state.contentCorner,safelyProgress)
 
             val containerFilledStrategy = state.containerFilledStrategy.getFinalStrategy()
-            val graphicsLayer = rememberGraphicsLayer()
 
             Box(
                 modifier = Modifier
@@ -149,25 +147,19 @@ fun SharedContainerOverlay() {
                     }
                     // 使用延展填充
                     if(containerFilledStrategy is ContainerFilledStrategy.Pixel) {
-                        Box(
-                            modifier = Modifier
-                                .zIndex(-1f)
-                                .graphicsLayer {
-                                    val scale = width / container.width
-                                    scaleX = scale
-                                    scaleY = scale
-                                    transformOrigin = TransformOrigin(0.5f, 0f)
-                                }
-                                .bottomExtension(graphicsLayer,container,containerFilledStrategy.useSinglePoint)
-                        )
-                        Box(modifier = Modifier
-                            .drawWithContent {
-                                graphicsLayer.record {
-                                    this@drawWithContent.drawContent()
-                                }
-                            }
-                        ) {
-                            state.containerLayout?.let { it() }
+                        val layer = state.containerLayerForPixel
+                        layer?.let {
+                            Box(
+                                modifier = Modifier
+                                    .zIndex(-1f)
+                                    .graphicsLayer {
+                                        val scale = width / container.width
+                                        scaleX = scale
+                                        scaleY = scale
+                                        transformOrigin = TransformOrigin(0.5f, 0f)
+                                    }
+                                    .bottomExtension(it,container,containerFilledStrategy.useSinglePoint)
+                            )
                         }
                     }
                 }
