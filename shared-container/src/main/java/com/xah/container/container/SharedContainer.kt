@@ -12,6 +12,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -166,3 +167,29 @@ fun SharedContainer(
         }
     }
 }
+
+/** 共享容器的容器
+ * @param key 两个容器之间的Key
+ * @param containerColor 优先使用底部1像素填充，SDK低于33时若containerColor为null则使用填充方案，否则使用containerColor填充
+ * @param corner 容器圆角
+ */
+@Composable
+fun SharedContainer(
+    key : Any,
+    corner : Shape,
+    modifier : Modifier = Modifier,
+    shadow : Dp = 0.dp,
+    containerColor : Color?,
+    content : @Composable () -> Unit
+) = SharedContainer(
+    key,
+    corner,
+    modifier,
+    shadow,
+    if(containerColor == null) {
+        ContainerFilledStrategy.Pixel(ContainerFilledStrategy.Clip)
+    } else {
+        ContainerFilledStrategy.Pixel(ContainerFilledStrategy.Color(containerColor))
+    },
+    content
+)

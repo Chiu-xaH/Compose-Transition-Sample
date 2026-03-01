@@ -11,7 +11,6 @@ class ScreenCornerHelper(
 ) {
     companion object {
         var corner : Dp = 0.dp
-            private set
     }
 
     init {

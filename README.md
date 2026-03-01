@@ -29,3 +29,7 @@
 25. deeplink         [P3]
 13. README书写      [P3]
 12. KMP适配         [P4]
+
+## 注意事项
+1. 打开时因为点击水波纹，会与填充形成差异，使用1像素提取或将clickable挪到SharedContainer的modifier中即可解决
+2. 使用1像素提取时，一定要保证SharedContainer包裹的组件形状不带圆角，将圆角挪到挪到SharedContainer的corner中

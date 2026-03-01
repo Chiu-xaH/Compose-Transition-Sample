@@ -1,6 +1,7 @@
 package com.xah.transition.ui.screen
 
 import android.provider.MediaStore
+import android.transition.Slide
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -9,8 +10,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -26,6 +29,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -41,12 +45,15 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
@@ -59,15 +66,16 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.xah.common.LogUtil
+import com.xah.common.ScreenCornerHelper
 import com.xah.container.container.SharedContainer
 import com.xah.container.container.SharedContent
 import com.xah.container.container.bottomExtension
-import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.utils.LocalSharedContainerRegistry
 import com.xah.navigation.anim.EffectLevel
 import com.xah.navigation.component.SharedNavHost
@@ -78,6 +86,7 @@ import com.xah.transition.R
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CARD_NORMAL_DP
 import com.xah.transition.ui.component.CardListItem
+import com.xah.transition.ui.component.CustomSlider
 import com.xah.transition.ui.component.SmallCard
 import com.xah.transition.ui.component.TransplantListItem
 import com.xah.transition.ui.screen.destination.AppHomeDestination
@@ -144,7 +153,7 @@ fun HomeScreen() {
             floatingActionButton = {
                 val dest = SettingsDestination("fab")
                 SharedContainer(
-                    containerFilledStrategy = ContainerFilledStrategy.Pixel(ContainerFilledStrategy.Color(MaterialTheme.colorScheme.inversePrimary)),
+                    containerColor = MaterialTheme.colorScheme.inversePrimary,
                     key = dest.key,
                     corner = FloatingActionButtonDefaults.shape
                 ) {
@@ -171,7 +180,7 @@ fun HomeScreen() {
                             LocalMinimumInteractiveComponentSize provides 0.dp
                         ) {
                             SharedContainer(
-                                containerFilledStrategy = ContainerFilledStrategy.Color(MaterialTheme.colorScheme.inversePrimary),
+                                containerColor = MaterialTheme.colorScheme.inversePrimary,
                                 modifier = Modifier.padding(horizontal = APP_HORIZONTAL_DP),
                                 key = dest.key,
                                 corner = CircleShape
@@ -205,7 +214,7 @@ fun HomeScreen() {
                     Column {
                         SharedContainer(
                             destination.key,
-                            containerFilledStrategy = ContainerFilledStrategy.Pixel(),
+                            containerColor = null,
                             corner = RoundedCornerShape(20.dp),
                         ) {
                             Box(
@@ -245,7 +254,7 @@ fun HomeScreen() {
                     Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
                         SharedContainer (
                             key = destination.key,
-//                            containerFilledStrategy = ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primaryContainer),
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
                             corner = MaterialTheme.shapes.small,
                         ) {
                             Card(
@@ -381,31 +390,93 @@ fun ThirdScreen() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen() {
     val destination = LocalNavigationDestination.current
+    val navController = LocalNavigationController.current
+    val registry = LocalSharedContainerRegistry.current
+    val view = LocalView.current
+
+    var corner by remember { mutableFloatStateOf(0f) }
+
+    LaunchedEffect(Unit) {
+        corner = ScreenCornerHelper.corner.value
+    }
 
     SharedContent (
         key = destination.key,
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
-        ) {
-            LazyColumn {
-                items(30) {
-                    CardListItem(
-                        headlineContent = {
-                            Text("测试$it")
-                        }
+        Scaffold(
+            containerColor = MaterialTheme.colorScheme.inversePrimary,
+            topBar = {
+                MediumTopAppBar(
+                    colors = topBarTransplantColor(),
+                    title = { Text("屏幕圆角校正") },
+                )
+            },
+            bottomBar = {
+                Button(
+                    onClick = {
+                        ScreenCornerHelper.corner = corner.dp
+                        SharedNavHelper.pop(navController,registry)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(APP_HORIZONTAL_DP)
+                        .navigationBarsPadding()
+                ) {
+                    Text("保存")
+                }
+            }
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.surface,RoundedCornerShape(corner.dp))
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                Column (modifier = Modifier.align(Alignment.Center),horizontalAlignment = Alignment.CenterHorizontally) {
+                    CustomSlider(
+                        value = corner,
+                        onValueChange = {
+                            corner = it
+                        },
+                        valueRange = 0f..100f
                     )
+                    Box(modifier = Modifier.fillMaxWidth().padding(horizontal = APP_HORIZONTAL_DP)) {
+                        FilledTonalButton(
+                            onClick = {
+                                corner -= 0.5f
+                            },
+                            enabled = corner > 0f,
+                            modifier = Modifier.align(Alignment.CenterStart)
+                        ) {
+                            Text("-0.5")
+                        }
+                        FilledTonalButton(
+                            onClick = {
+                                corner = ScreenCornerHelper(view).getCornerDp().value
+                            },
+                            modifier = Modifier.align(Alignment.Center)
+                        ) {
+                            Text("$corner")
+                        }
+                        FilledTonalButton(
+                            onClick = {
+                                corner += 0.5f
+                            },
+                            enabled = corner < 100f,
+                            modifier = Modifier.align(Alignment.CenterEnd)
+                        ) {
+                            Text("+0.5")
+                        }
+                    }
                 }
             }
         }
     }
 }
-
 
 @Composable
 @Preview
