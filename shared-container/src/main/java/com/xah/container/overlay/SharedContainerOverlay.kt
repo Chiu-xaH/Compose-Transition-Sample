@@ -188,8 +188,11 @@ fun SharedContainerOverlay() {
                 Box(
                     modifier = Modifier.drawWithContent {
                         val layer = state.contentLayer ?: return@drawWithContent
-                        val scale = width / content.width
-
+                        val scale = if(!isLandscape) {
+                            width / content.width
+                        } else {
+                            height / content.height
+                        }
                         withTransform({
                             scale(scale, scale)
                         }) {
