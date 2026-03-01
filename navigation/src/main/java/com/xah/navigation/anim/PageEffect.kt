@@ -47,7 +47,7 @@ data class PageEffect(
         val Background = PageEffect(
             scale = 0.875f,
             blur = 25.dp,
-            mask = 0.2f,
+            mask = 0.25f,
             corner = 0.dp,
             alpha = 1f
         )

@@ -59,12 +59,14 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
@@ -76,6 +78,7 @@ import com.xah.common.ScreenCornerHelper
 import com.xah.container.container.SharedContainer
 import com.xah.container.container.SharedContent
 import com.xah.container.container.bottomExtension
+import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.utils.LocalSharedContainerRegistry
 import com.xah.navigation.anim.EffectLevel
 import com.xah.navigation.component.SharedNavHost
@@ -99,7 +102,7 @@ import com.xah.transition.ui.viewmodel.UiHolder
 
 @Composable
 fun App() {
-    SharedNavHost(HomeDestination)
+    SharedNavHost(HomeDestination, modifier = Modifier.background(MaterialTheme.colorScheme.surface))
 }
 
 data class AppBean(
@@ -214,6 +217,7 @@ fun HomeScreen() {
                     Column {
                         SharedContainer(
                             destination.key,
+//                            containerFilledStrategy = ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primaryContainer),
                             containerColor = null,
                             corner = RoundedCornerShape(20.dp),
                         ) {
@@ -482,33 +486,11 @@ fun SettingsScreen() {
 @Preview
 fun Test() {
     var rect by remember { mutableStateOf<Rect?>(null) }
-    var rect2 by remember { mutableStateOf<Rect?>(null) }
     val graphicsLayer = rememberGraphicsLayer()
-    val graphicsLayer2 = rememberGraphicsLayer()
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Box(
-            modifier = Modifier
-                .onGloballyPositioned { coordinates ->
-                    val position = coordinates.positionInRoot()
-                    val size = coordinates.size
-
-                    rect = Rect(
-                        left = position.x,
-                        top = position.y,
-                        right = position.x + size.width,
-                        bottom = position.y + size.height
-                    )
-                }
-                .drawWithContent {
-//                    drawContent()
-                    graphicsLayer.record {
-                        this@drawWithContent.drawContent()
-                    }
-                }
-        ) {
-            Image(painterResource(R.drawable.ic_candy),null)
-        }
         Box(modifier = Modifier.align(Alignment.Center)) {
             Box(
                 modifier = Modifier
@@ -516,7 +498,7 @@ fun Test() {
                         val position = coordinates.positionInRoot()
                         val size = coordinates.size
 
-                        rect2 = Rect(
+                        rect = Rect(
                             left = position.x,
                             top = position.y,
                             right = position.x + size.width,
@@ -524,34 +506,18 @@ fun Test() {
                         )
                     }
                     .drawWithContent {
-//                        drawContent()
-                        graphicsLayer2.record {
+                        drawContent()
+                        graphicsLayer.record {
                             this@drawWithContent.drawContent()
                         }
                     }
             ) {
-                if(rect2 != null && rect != null) {
-                    LogUtil.debug("rect=$rect rect2=$rect2")
-                    Box(
-                        modifier = Modifier.drawWithContent {
-                            withTransform({
-                                translate(
-                                    left = rect!!.left,
-                                    top = rect!!.top,
-//                                    left = (rect2!!.left-rect2!!.left)/2
-                                )
-                            }) {
-                                drawLayer(graphicsLayer)
-                            }
-                        }
-                    )
-                }
-//                Image(painterResource(R.drawable.ic_candy),null)
+                Image(painterResource(R.drawable.ic_jd),null)
             }
             Box(
                 modifier = Modifier
                     .zIndex(-1f)
-                    .bottomExtension(graphicsLayer2,rect2)
+                    .bottomExtension(graphicsLayer,rect,isLandscape)
             )
         }
     }

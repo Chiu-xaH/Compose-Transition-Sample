@@ -33,7 +33,6 @@ fun SharedContainerOverlay() {
     val registry = LocalSharedContainerRegistry.current
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current
-
     val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
 
     registry.runningStates.forEach { state ->
@@ -76,7 +75,17 @@ fun SharedContainerOverlay() {
                 // 容器
                 Box(modifier = Modifier.disableTouchEvent()) {
                     Box(modifier = Modifier.fillMaxSize()) {
-                        Box(modifier = Modifier.align(Alignment.TopCenter)) {
+                        Box(modifier = Modifier.align(
+                            if(isLandscape) {
+                                if(containerFilledStrategy is ContainerFilledStrategy.Clip) {
+                                    Alignment.CenterStart
+                                } else {
+                                    Alignment.TopStart
+                                }
+                            } else {
+                                Alignment.TopCenter
+                            }
+                        )) {
                             when(containerFilledStrategy) {
                                 is ContainerFilledStrategy.Clip -> {
                                     // 对state.containerLayout竖直裁切填满父容器
@@ -91,7 +100,11 @@ fun SharedContainerOverlay() {
                                                 }
                                                 withTransform({
                                                     scale(scale, scale)
-                                                    translate(left = -container.width/2f , top = 0f)
+                                                    if(isLandscape) {
+                                                        translate(left = 0f , top = -container.height/2f)
+                                                    } else {
+                                                        translate(left = -container.width/2f , top = 0f)
+                                                    }
                                                 }) {
                                                     drawLayer(layer)
                                                 }
@@ -104,10 +117,18 @@ fun SharedContainerOverlay() {
                                         .drawWithCache {
                                             onDrawWithContent {
                                                 val layer = state.containerLayer ?: return@onDrawWithContent
-                                                val scale = width / container.width
+                                                val scale = if(!isLandscape) {
+                                                    width / container.width
+                                                } else {
+                                                    height / container.height
+                                                }
                                                 withTransform({
                                                     scale(scale, scale)
-                                                    translate(left = -container.width/2f, top = 0f)
+                                                    if(isLandscape) {
+                                                        translate(left = 0f , top = 0f)
+                                                    } else {
+                                                        translate(left = -container.width/2f , top = 0f)
+                                                    }
                                                 }) {
                                                     drawLayer(layer)
                                                 }
@@ -126,12 +147,10 @@ fun SharedContainerOverlay() {
                                                 } else {
                                                     height / container.height
                                                 }
-                                                // (parent.width-container.width)/2
-                                                // (parent.height-container.height)/2
                                                 withTransform({
                                                     scale(scale, scale)
                                                     if(isLandscape) {
-                                                        translate(left = -container.width/2f , top = 0f)
+                                                        translate(left = 0f , top = 0f)
                                                     } else {
                                                         translate(left = -container.width/2f , top = 0f)
                                                     }
@@ -153,12 +172,15 @@ fun SharedContainerOverlay() {
                                 modifier = Modifier
                                     .zIndex(-1f)
                                     .graphicsLayer {
-                                        val scale = width / container.width
+                                        val scale = if(!isLandscape) {
+                                            width / container.width
+                                        } else {
+                                            height / container.height
+                                        }
                                         scaleX = scale
                                         scaleY = scale
-                                        transformOrigin = TransformOrigin(0.5f, 0f)
                                     }
-                                    .bottomExtension(it,container,containerFilledStrategy.useSinglePoint)
+                                    .bottomExtension(it,container,isLandscape)
                             )
                         }
                     }

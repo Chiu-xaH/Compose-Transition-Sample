@@ -11,9 +11,8 @@ sealed interface ContainerFilledStrategy {
     /**
      * 自动取底部1像素做填充（类似OriginOS 6.0）
      * Require SDK33+ 若低版本使用此效果则降级为spareStrategy
-     * @param useSinglePoint 使用单点取色，取水平居中底部1像素，否则则取完整的底部1像素
      */
-    data class Pixel(val spareStrategy : ContainerFilledStrategy = Clip,val useSinglePoint : Boolean = false) : ContainerFilledStrategy
+    data class Pixel(val spareStrategy : ContainerFilledStrategy = Clip) : ContainerFilledStrategy
 
     /**
      * 裁切放大（类似OriginOS 1.0）

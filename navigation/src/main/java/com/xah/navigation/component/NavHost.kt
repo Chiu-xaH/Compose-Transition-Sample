@@ -1,9 +1,12 @@
 package com.xah.navigation.component
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -40,12 +43,14 @@ import com.xah.navigation.utils.scaleMirror
 fun SharedNavHost(
     startDestination: Destination,
     modifier: Modifier = Modifier,
+    isDarkMode : Boolean = isSystemInDarkTheme(),
     customBackHandler: (@Composable () -> Unit)? = null,
 ) {
     SharedContainerRoot {
         NavHost(
             startDestination,
             modifier,
+            isDarkMode,
             customBackHandler
         )
     }
@@ -55,6 +60,7 @@ fun SharedNavHost(
 private fun NavHost(
     startDestination: Destination,
     modifier: Modifier = Modifier,
+    isDarkMode : Boolean = isSystemInDarkTheme(),
     customBackHandler: (@Composable () -> Unit)? = null,
 ) {
     val registry = LocalSharedContainerRegistry.current
@@ -114,7 +120,7 @@ private fun NavHost(
                         val isTo = transition?.to == entry
 
                         val animatedProgress = progress.value
-                        val underEffect = remember(animatedProgress,level) { BackgroundEffect(animatedProgress,level) }
+                        val underEffect = remember(animatedProgress,level) { BackgroundEffect(animatedProgress,level,isDarkMode) }
                         val upEffect = remember(animatedProgress,level) { ForegroundEffect(animatedProgress,level) }
                         val isBackground =  if(transition == null) {
                             false
@@ -204,7 +210,7 @@ private fun NavHost(
 }
 
 // scaleRadio放慢scale的速度
-private class BackgroundEffect(animatedProgress : Float,val level: EffectLevel) {
+private class BackgroundEffect(animatedProgress : Float,val level: EffectLevel,val isDarkMode : Boolean) {
     private val effect = PageEffect(
         scale = lerp(
             PageEffect.Full.scale,
@@ -238,7 +244,13 @@ private class BackgroundEffect(animatedProgress : Float,val level: EffectLevel) 
             onDrawWithContent {
                 drawContent()
                 if (effect.mask > 0f) {
-                    drawRect(Color.Black.copy(alpha = effect.mask))
+                    drawRect(
+                        if(isDarkMode) {
+                            Color.White
+                        } else {
+                            Color.Black
+                        }.copy(alpha = effect.mask)
+                    )
                 }
             }
         }
