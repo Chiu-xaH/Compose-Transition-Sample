@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -149,10 +150,10 @@ fun HomeScreen() {
                 contentScale = ContentScale.Crop
             )
         }
-        val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+//        val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
         Scaffold(
             containerColor = Color.Transparent,
-            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+//            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             floatingActionButton = {
                 val dest = SettingsDestination("fab")
                 SharedContainer(
@@ -172,148 +173,176 @@ fun HomeScreen() {
                     }
                 }
             },
-            topBar = {
-                MediumTopAppBar(
-                    scrollBehavior = scrollBehavior,
-                    colors = topBarTransplantColor(),
-                    title = { Text("SharedNav") },
-                    actions = {
-                        val dest = SettingsDestination("ftib")
-                        CompositionLocalProvider(
-                            LocalMinimumInteractiveComponentSize provides 0.dp
-                        ) {
+//            topBar = {
+
+//                MediumTopAppBar(
+//                    scrollBehavior = scrollBehavior,
+//                    colors = topBarTransplantColor(),
+//                    title = { Text("SharedNav") },
+//                    actions = {
+//                        val dest = SettingsDestination("ftib")
+//                        CompositionLocalProvider(
+//                            LocalMinimumInteractiveComponentSize provides 0.dp
+//                        ) {
+//                            SharedContainer(
+//                                containerColor = MaterialTheme.colorScheme.inversePrimary,
+//                                modifier = Modifier.padding(horizontal = APP_HORIZONTAL_DP),
+//                                key = dest.key,
+//                                corner = CircleShape
+//                            ) {
+//                                FilledTonalIconButton (
+//                                    shape = RoundedCornerShape(0.dp),
+//                                    colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = MaterialTheme.colorScheme.inversePrimary),
+//                                    onClick = {
+//                                        SharedNavHelper.push(dest,navController,registry)
+//                                    }
+//                                ) {
+//                                    Icon(painterResource(R.drawable.settings),null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
+//                                }
+//                            }
+//                        }
+//                    }
+//                )
+//            }
+        ) { innerPadding ->
+            Box(modifier = Modifier.fillMaxSize()) {
+                LazyVerticalGrid(
+                    state = scrollState,
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier.padding(horizontal = APP_HORIZONTAL_DP- CARD_NORMAL_DP*2)
+                ) {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Spacer(Modifier.height(APP_HORIZONTAL_DP+innerPadding.calculateTopPadding()))
+                    }
+                    items(appList.size,key = { appList[it].key }) { index ->
+                        val item = appList[index]
+                        val destination = AppHomeDestination(item)
+                        Column {
                             SharedContainer(
-                                containerColor = MaterialTheme.colorScheme.inversePrimary,
-                                modifier = Modifier.padding(horizontal = APP_HORIZONTAL_DP),
-                                key = dest.key,
-                                corner = CircleShape
+                                destination.key,
+//                            containerFilledStrategy = ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primaryContainer),
+                                containerColor = null,
+                                corner = RoundedCornerShape(20.dp),
                             ) {
-                                FilledTonalIconButton (
-                                    shape = RoundedCornerShape(0.dp),
-                                    colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = MaterialTheme.colorScheme.inversePrimary),
-                                    onClick = {
-                                        SharedNavHelper.push(dest,navController,registry)
-                                    }
+                                Box(
+                                    modifier = Modifier
+                                        .size(150.dp)
+                                        .clickable {
+                                            SharedNavHelper.push(destination,navController,registry)
+                                        }
                                 ) {
-                                    Icon(painterResource(R.drawable.settings),null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
+                                    Image(painterResource(item.icon),null)
+                                }
+                            }
+                            Spacer(Modifier.height(APP_HORIZONTAL_DP*2))
+                        }
+                    }
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Spacer(Modifier.height(APP_HORIZONTAL_DP))
+                    }
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Surface(
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            shape = MaterialTheme.shapes.small,
+                            modifier = Modifier.padding(horizontal = CARD_NORMAL_DP*2, vertical = CARD_NORMAL_DP)
+                        ) {
+                            TransplantListItem(
+                                headlineContent = {
+                                    Text("设置壁纸")
+                                },
+                                modifier = Modifier.clickable {
+                                    pickMediaLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                                }
+                            )
+                        }
+                    }
+                    items(30) { index ->
+                        val destination = SecondDestination(userId = index)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            SharedContainer (
+                                key = destination.key,
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                corner = MaterialTheme.shapes.small,
+                            ) {
+                                Card(
+                                    shape = RoundedCornerShape(0.dp),
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                                ) {
+                                    TransplantListItem(
+                                        headlineContent = { Text("Item #${index}") },
+                                        modifier = Modifier.clickable {
+                                            SharedNavHelper.push(SecondDestination(userId = index),navController,registry)
+                                        }
+                                    )
                                 }
                             }
                         }
                     }
-                )
-            }
-        ) { innerPadding ->
-            LazyVerticalGrid(
-                state = scrollState,
-                columns = GridCells.Fixed(2),
-                modifier = Modifier.padding(horizontal = APP_HORIZONTAL_DP- CARD_NORMAL_DP*2)
-            ) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    Spacer(Modifier.height(APP_HORIZONTAL_DP+innerPadding.calculateTopPadding()))
-                }
-                items(appList.size,key = { appList[it].key }) { index ->
-                    val item = appList[index]
-                    val destination = AppHomeDestination(item)
-                    Column {
-                        SharedContainer(
-                            destination.key,
-//                            containerFilledStrategy = ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primaryContainer),
-                            containerColor = null,
-                            corner = RoundedCornerShape(20.dp),
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(150.dp)
-                                    .clickable {
-                                        SharedNavHelper.push(destination,navController,registry)
-                                    }
-                            ) {
-                                Image(painterResource(item.icon),null)
-                            }
-                        }
-                        Spacer(Modifier.height(APP_HORIZONTAL_DP*2))
-                    }
-                }
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    Spacer(Modifier.height(APP_HORIZONTAL_DP))
-                }
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    Surface(
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = MaterialTheme.shapes.small,
-                        modifier = Modifier.padding(horizontal = CARD_NORMAL_DP*2, vertical = CARD_NORMAL_DP)
-                    ) {
-                        TransplantListItem(
-                            headlineContent = {
-                                Text("设置壁纸")
-                            },
-                            modifier = Modifier.clickable {
-                                pickMediaLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                            }
-                        )
-                    }
-                }
-                items(30) { index ->
-                    val destination = SecondDestination(userId = index)
-                    Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
-                        SharedContainer (
-                            key = destination.key,
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            corner = MaterialTheme.shapes.small,
-                        ) {
-                            Card(
-                                shape = RoundedCornerShape(0.dp),
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                    items(10) { index ->
+                        val route = "ItemNo #$index"
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            SmallCard(
+                                modifier = Modifier,
+                                color = MaterialTheme.colorScheme.primaryContainer
                             ) {
                                 TransplantListItem(
-                                    headlineContent = { Text("Item #${index}") },
+                                    headlineContent = { Text(route) },
                                     modifier = Modifier.clickable {
-                                        SharedNavHelper.push(SecondDestination(userId = index),navController,registry)
+                                        navController.push(ThirdDestination)
                                     }
                                 )
                             }
                         }
                     }
-                }
-                items(10) { index ->
-                    val route = "ItemNo #$index"
-                    Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
-                        SmallCard(
-                            modifier = Modifier,
-                            color = MaterialTheme.colorScheme.primaryContainer
+                    items(levelList.size, key = { levelList[it].levelNum }) { index ->
+                        val item = levelList[index]
+                        val selected = navController.transitionLevel == item
+
+                        val color = if(selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer
+
+                        Surface(
+                            color = color,
+                            shape = MaterialTheme.shapes.small,
+                            modifier = Modifier.padding(horizontal = CARD_NORMAL_DP*2, vertical = CARD_NORMAL_DP)
                         ) {
                             TransplantListItem(
-                                headlineContent = { Text(route) },
+                                headlineContent = {
+                                    Text("等级 ${item.name}", color = contentColorFor(color))
+                                },
                                 modifier = Modifier.clickable {
-                                    navController.push(ThirdDestination)
-                                }
+                                    navController.transitionLevel = item
+                                },
                             )
                         }
                     }
-                }
-                items(levelList.size, key = { levelList[it].levelNum }) { index ->
-                    val item = levelList[index]
-                    val selected = navController.transitionLevel == item
-
-                    val color = if(selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer
-
-                    Surface(
-                        color = color,
-                        shape = MaterialTheme.shapes.small,
-                        modifier = Modifier.padding(horizontal = CARD_NORMAL_DP*2, vertical = CARD_NORMAL_DP)
-                    ) {
-                        TransplantListItem(
-                            headlineContent = {
-                                Text("等级 ${item.name}", color = contentColorFor(color))
-                            },
-                            modifier = Modifier.clickable {
-                                navController.transitionLevel = item
-                            },
-                        )
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Spacer(Modifier.navigationBarsPadding().height((APP_HORIZONTAL_DP+innerPadding.calculateBottomPadding())*3))
                     }
                 }
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    Spacer(Modifier.navigationBarsPadding().height((APP_HORIZONTAL_DP+innerPadding.calculateBottomPadding())*3))
+                CompositionLocalProvider(
+                    LocalMinimumInteractiveComponentSize provides 0.dp
+                ) {
+                    val dest = SettingsDestination("ftib")
+                    SharedContainer(
+                        containerColor = MaterialTheme.colorScheme.inversePrimary,
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .statusBarsPadding()
+                            .padding(horizontal = APP_HORIZONTAL_DP)
+                        ,
+                        key = dest.key,
+                        corner = CircleShape
+                    ) {
+                        FilledTonalIconButton (
+                            shape = RoundedCornerShape(0.dp),
+                            colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = MaterialTheme.colorScheme.inversePrimary),
+                            onClick = {
+                                SharedNavHelper.push(dest,navController,registry)
+                            }
+                        ) {
+                            Icon(painterResource(R.drawable.settings),null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
+                        }
+                    }
                 }
             }
         }
