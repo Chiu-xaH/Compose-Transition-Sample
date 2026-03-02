@@ -9,8 +9,8 @@ sealed interface ContainerFilledStrategy {
     data class Color(val color : androidx.compose.ui.graphics.Color) : ContainerFilledStrategy
 
     /**
-     * 自动取底部1像素做填充（类似OriginOS 6.0）
-     * Require SDK33+ 若低版本使用此效果则降级为spareStrategy
+     * 竖屏取底部1像素做填充，横屏取右侧1像素做填充（类似OriginOS 6.0）
+     * @param spareStrategy Require SDK33+ 若低版本使用此效果则降级为spareStrategy，推荐使用Color方案作为备用
      */
     data class Pixel(val spareStrategy : ContainerFilledStrategy = Clip) : ContainerFilledStrategy
 

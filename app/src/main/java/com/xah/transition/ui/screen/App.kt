@@ -1,7 +1,6 @@
 package com.xah.transition.ui.screen
 
 import android.provider.MediaStore
-import android.transition.Slide
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -10,7 +9,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,7 +40,6 @@ import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -54,16 +51,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.drawscope.withTransform
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -74,12 +66,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.xah.common.LogUtil
 import com.xah.common.ScreenCornerHelper
 import com.xah.container.container.SharedContainer
 import com.xah.container.container.SharedContent
-import com.xah.container.container.bottomExtension
+import com.xah.container.container.pixelExtension
 import com.xah.container.model.ContainerFilledStrategy
+import com.xah.container.model.ExtensionDirection
 import com.xah.container.utils.LocalSharedContainerRegistry
 import com.xah.navigation.anim.EffectLevel
 import com.xah.navigation.component.SharedNavHost
@@ -220,7 +212,7 @@ fun HomeScreen() {
                         Column {
                             SharedContainer(
                                 destination.key,
-//                            containerFilledStrategy = ContainerFilledStrategy.Color(MaterialTheme.colorScheme.primaryContainer),
+//                            containerFilledStrategy = ContainerFilledStrategy.Clip,
                                 containerColor = null,
                                 corner = RoundedCornerShape(20.dp),
                             ) {
@@ -541,12 +533,12 @@ fun Test() {
                         }
                     }
             ) {
-                Image(painterResource(R.drawable.ic_jd),null)
+                Image(painterResource(R.drawable.ic_iqiyi),null)
             }
             Box(
                 modifier = Modifier
                     .zIndex(-1f)
-                    .bottomExtension(graphicsLayer,rect,isLandscape)
+                    .pixelExtension(graphicsLayer,rect,ExtensionDirection.VERTICAL)
             )
         }
     }

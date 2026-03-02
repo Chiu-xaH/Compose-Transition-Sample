@@ -1,12 +1,10 @@
 package com.xah.navigation.component
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -26,7 +24,7 @@ import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xah.common.ScreenCornerHelper
-import com.xah.common.touchEvent
+import com.xah.navigation.utils.touchEvent
 import com.xah.container.overlay.SharedContainerRoot
 import com.xah.container.utils.LocalSharedContainerRegistry
 import com.xah.navigation.anim.EffectLevel
@@ -37,20 +35,19 @@ import com.xah.navigation.model.ActionType
 import com.xah.navigation.model.Destination
 import com.xah.navigation.shared.SharedNavHelper
 import com.xah.navigation.utils.LocalNavigationController
+import com.xah.navigation.utils.disableTouchEvent
 import com.xah.navigation.utils.scaleMirror
 
 @Composable
 fun SharedNavHost(
     startDestination: Destination,
     modifier: Modifier = Modifier,
-    isDarkMode : Boolean = isSystemInDarkTheme(),
     customBackHandler: (@Composable () -> Unit)? = null,
 ) {
     SharedContainerRoot {
         NavHost(
             startDestination,
             modifier,
-            isDarkMode,
             customBackHandler
         )
     }
@@ -60,7 +57,6 @@ fun SharedNavHost(
 private fun NavHost(
     startDestination: Destination,
     modifier: Modifier = Modifier,
-    isDarkMode : Boolean = isSystemInDarkTheme(),
     customBackHandler: (@Composable () -> Unit)? = null,
 ) {
     val registry = LocalSharedContainerRegistry.current
@@ -115,19 +111,12 @@ private fun NavHost(
             visibleEntries.forEach { entry ->
                 key(entry.id) {
                     saveableStateHolder.SaveableStateProvider(entry.id) {
-
                         val isFrom = transition?.from == entry
                         val isTo = transition?.to == entry
 
                         val animatedProgress = progress.value
-                        val underEffect = remember(animatedProgress,level) { BackgroundEffect(animatedProgress,level,isDarkMode) }
+                        val underEffect = remember(animatedProgress,level) { BackgroundEffect(animatedProgress,level) }
                         val upEffect = remember(animatedProgress,level) { ForegroundEffect(animatedProgress,level) }
-                        val isBackground =  if(transition == null) {
-                            false
-                        } else {
-                            (transition.type == ActionType.PUSH && isFrom) ||
-                                    (transition.type == ActionType.POP && isTo)
-                        }
 
                         Box(
                             Modifier
@@ -191,13 +180,17 @@ private fun NavHost(
                                     return@let it
                                 }
                                 .touchEvent(
-                                    if(isBackground) {
-                                        // 背景禁用触摸事件
-                                        false
-                                    } else {
-                                        // 当返回时，禁用一切触摸事件
-                                        transition?.type != ActionType.POP
-                                    }
+                                    transition == null
+                                    // 当返回时，禁用前景；当前进时，禁用背景；当非动画态，启用
+                                    // TODO 暂时一刀切，未适配并行动画
+//                                    when {
+//                                        transition == null -> true
+//                                        transition.type == ActionType.POP && isTo -> true
+//                                        transition.type == ActionType.POP && isFrom -> false
+//                                        transition.type == ActionType.PUSH && isTo -> true
+//                                        transition.type == ActionType.PUSH && isFrom -> false
+//                                        else -> false
+//                                    }
                                 )
                         ) {
                             entry.destination.Screen()
@@ -210,7 +203,7 @@ private fun NavHost(
 }
 
 // scaleRadio放慢scale的速度
-private class BackgroundEffect(animatedProgress : Float,val level: EffectLevel,val isDarkMode : Boolean) {
+private class BackgroundEffect(animatedProgress : Float,val level: EffectLevel) {
     private val effect = PageEffect(
         scale = lerp(
             PageEffect.Full.scale,
@@ -245,11 +238,7 @@ private class BackgroundEffect(animatedProgress : Float,val level: EffectLevel,v
                 drawContent()
                 if (effect.mask > 0f) {
                     drawRect(
-                        if(isDarkMode) {
-                            Color.White
-                        } else {
-                            Color.Black
-                        }.copy(alpha = effect.mask)
+                        Color.Black.copy(alpha = effect.mask)
                     )
                 }
             }

@@ -31,6 +31,9 @@ class SharedContainerRegistry(
     // 渐隐、圆角变化比容器变化时长
     val speedUpRadio = 1.5f
 
+    // 单边填充or双边填充
+    var extensionDouble by mutableStateOf(true)
+
     fun getOrCreate(
         key: Any,
     ): SharedContainerState {

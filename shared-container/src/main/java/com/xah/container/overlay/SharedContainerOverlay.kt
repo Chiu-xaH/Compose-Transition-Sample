@@ -21,8 +21,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.zIndex
-import com.xah.common.disableTouchEvent
-import com.xah.container.container.bottomExtension
+import com.xah.container.container.pixelExtension
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.utils.LocalSharedContainerRegistry
 import kotlin.math.roundToInt
@@ -54,6 +53,8 @@ fun SharedContainerOverlay() {
 
             val containerFilledStrategy = state.containerFilledStrategy.getFinalStrategy()
 
+            val extensionDouble = registry.extensionDouble
+
             Box(
                 modifier = Modifier
                     .offset { IntOffset(left.roundToInt(), top.roundToInt()) }
@@ -72,17 +73,29 @@ fun SharedContainerOverlay() {
                     )
             ) {
                 // 容器
-                Box(modifier = Modifier.disableTouchEvent()) {
+                Box {
                     Box(modifier = Modifier.fillMaxSize()) {
                         Box(modifier = Modifier.align(
                             if(isLandscape) {
                                 if(containerFilledStrategy is ContainerFilledStrategy.Clip) {
                                     Alignment.CenterStart
                                 } else {
-                                    Alignment.TopStart
+                                    if(!extensionDouble) {
+                                        Alignment.TopStart
+                                    } else {
+                                        Alignment.TopCenter
+                                    }
                                 }
                             } else {
-                                Alignment.TopCenter
+                                if(containerFilledStrategy is ContainerFilledStrategy.Clip) {
+                                    Alignment.TopCenter
+                                } else {
+                                    if(!extensionDouble) {
+                                        Alignment.TopCenter
+                                    } else {
+                                        Alignment.CenterStart
+                                    }
+                                }
                             }
                         )) {
                             when(containerFilledStrategy) {
@@ -111,7 +124,8 @@ fun SharedContainerOverlay() {
                                         }
                                     )
                                 }
-                                is ContainerFilledStrategy.Color -> {
+                                else -> {
+                                    // 填充
                                     Box(modifier = Modifier
                                         .drawWithCache {
                                             onDrawWithContent {
@@ -123,35 +137,18 @@ fun SharedContainerOverlay() {
                                                 }
                                                 withTransform({
                                                     scale(scale, scale)
-                                                    if(isLandscape) {
-                                                        translate(left = 0f , top = 0f)
+                                                    if(!extensionDouble) {
+                                                        if(isLandscape) {
+                                                            translate(left = 0f , top = 0f)
+                                                        } else {
+                                                            translate(left = -container.width/2f , top = 0f)
+                                                        }
                                                     } else {
-                                                        translate(left = -container.width/2f , top = 0f)
-                                                    }
-                                                }) {
-                                                    drawLayer(layer)
-                                                }
-                                            }
-                                        }
-                                    )
-                                }
-                                is ContainerFilledStrategy.Pixel -> {
-                                    // 底部填充
-                                    Box(modifier = Modifier
-                                        .drawWithCache {
-                                            onDrawWithContent {
-                                                val layer = state.containerLayer ?: return@onDrawWithContent
-                                                val scale = if(!isLandscape) {
-                                                    width / container.width
-                                                } else {
-                                                    height / container.height
-                                                }
-                                                withTransform({
-                                                    scale(scale, scale)
-                                                    if(isLandscape) {
-                                                        translate(left = 0f , top = 0f)
-                                                    } else {
-                                                        translate(left = -container.width/2f , top = 0f)
+                                                        if(isLandscape) {
+                                                            translate(left = -container.width/2 , top = 0f)
+                                                        } else {
+                                                            translate(left = 0f , top = -container.height/2f)
+                                                        }
                                                     }
                                                 }) {
                                                     drawLayer(layer)
@@ -179,28 +176,43 @@ fun SharedContainerOverlay() {
                                         scaleX = scale
                                         scaleY = scale
                                     }
-                                    .bottomExtension(it,container,isLandscape)
+                                    .pixelExtension(it,container,isLandscape,extensionDouble)
                             )
                         }
                     }
                 }
                 // 内容始终透明度淡入淡出
-                Box(
-                    modifier = Modifier.drawWithContent {
-                        val layer = state.contentLayer ?: return@drawWithContent
-                        val scale = if(!isLandscape) {
-                            width / content.width
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Box(modifier = Modifier.align(
+                        if(extensionDouble) {
+                            Alignment.Center
                         } else {
-                            height / content.height
+                            Alignment.TopStart
                         }
-                        withTransform({
-                            scale(scale, scale)
-                        }) {
-                            layer.alpha = contentAlpha
-                            drawLayer(layer)
-                        }
+                    )) {
+                        Box(
+                            modifier = Modifier.drawWithContent {
+                                val layer = state.contentLayer ?: return@drawWithContent
+                                val scale = if(!isLandscape) {
+                                    width / content.width
+                                } else {
+                                    height / content.height
+                                }
+                                withTransform({
+                                    scale(scale, scale)
+                                    if(extensionDouble) {
+                                        translate(left = -content.width/2f , top = -content.height/2f)
+                                    } else {
+                                        translate(left = 0f, top = 0f)
+                                    }
+                                }) {
+                                    layer.alpha = contentAlpha
+                                    drawLayer(layer)
+                                }
+                            }
+                        )
                     }
-                )
+                }
             }
         }
     }
