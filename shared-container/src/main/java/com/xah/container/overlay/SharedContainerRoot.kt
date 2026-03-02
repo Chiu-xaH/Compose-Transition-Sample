@@ -24,17 +24,24 @@ fun SharedContainerRoot(
     content: @Composable () -> Unit
 ) {
     val view = LocalView.current
+    val density = LocalDensity.current
+    val configuration = LocalConfiguration.current
     val scope = rememberCoroutineScope()
+
     LaunchedEffect(Unit) {
         ScreenCornerHelper(view)
     }
 
     val registry = remember { SharedContainerRegistry(scope) }
 
-    val screenHeightPx = with(LocalDensity.current) {
-        LocalConfiguration.current.screenHeightDp.dp.toPx()
+    val screenHeightPx = with(density) {
+        configuration.screenHeightDp.dp.toPx()
     }
-    registry.rectInterpolator = QuadraticBezierRectInterpolator(screenHeightPx)
+    val screenWidthPx = with(density) {
+        configuration.screenWidthDp.dp.toPx()
+    }
+
+    registry.rectInterpolator = QuadraticBezierRectInterpolator(screenHeightPx,screenWidthPx)
 
     CompositionLocalProvider(
         LocalSharedContainerRegistry provides registry

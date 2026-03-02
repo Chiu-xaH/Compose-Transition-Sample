@@ -32,7 +32,7 @@ class SharedContainerRegistry(
     val speedUpRadio = 1.5f
 
     // 单边填充or双边填充
-    var extensionDouble by mutableStateOf(true)
+    var extensionDouble by mutableStateOf(false)
 
     fun getOrCreate(
         key: Any,
