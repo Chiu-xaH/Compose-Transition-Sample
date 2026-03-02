@@ -32,8 +32,9 @@ class SharedContainerRegistry(
     var y2 by mutableFloatStateOf(1f)
 
     fun getTween() = tween<Float>(500, easing = CubicBezierEasing(x1,y1,x2,y2))
-    private val pushAnimation = tween<Float>(500, easing = CubicBezierEasing(0.4f, 0.0f, 0.2f, 1.0f))
-    private val popAnimation = pushAnimation
+    private val pushAnimation = tween<Float>(500, easing = CubicBezierEasing(0.5f, 0.0f, 0.1f, 1.0f))
+    private val popAnimation = tween<Float>(500, easing = CubicBezierEasing(0.5f, 0.65f, 0.1f, 1.0f))
+//        pushAnimation
 
     var rectInterpolator: RectInterpolator = LinearRectInterpolator
 
@@ -144,7 +145,7 @@ class SharedContainerRegistry(
         // 开始标识位
         state.isRunning = true
 
-        state.animation.animateTo(1f,getTween())
+        state.animation.animateTo(1f,pushAnimation)
         onAnimatedFinished?.let { it() }
         // 结束标志位
         state.isRunning = false
@@ -161,7 +162,7 @@ class SharedContainerRegistry(
         // 开始标识位
         state.isRunning = true
 
-        state.animation.animateTo(0f,getTween())
+        state.animation.animateTo(0f,popAnimation)
 
         onAnimatedFinished?.let { it() }
         // 结束标志位
