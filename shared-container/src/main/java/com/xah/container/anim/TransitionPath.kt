@@ -15,59 +15,6 @@ val LinearRectInterpolator: RectInterpolator = { t, from, to ->
     )
 }
 
-//fun QuadraticBezierRectInterpolator(
-//    screenHeight: Float,
-//    maxArc: Float = screenHeight / 2
-//): RectInterpolator = { t, from, to ->
-//
-//    val startCenter = Offset(
-//        from.left + from.width / 2f,
-//        from.top + from.height / 2f
-//    )
-//
-//    val endCenter = Offset(
-//        to.left + to.width / 2f,
-//        to.top + to.height / 2f
-//    )
-//
-//    // 计算整体位置
-//    val avgY = (startCenter.y + endCenter.y) / 2f
-//
-//    // 归一化
-//    val normalized = ((avgY / screenHeight) - 0.5f) * 2f
-//
-//    // 反向 使顶部为正（下沉）
-//    val dynamicArc = -normalized * maxArc
-//
-//    // 控制点
-//    val control = Offset(
-//        x = (startCenter.x + endCenter.x) / 2f,
-//        y = (startCenter.y + endCenter.y) / 2f + dynamicArc
-//    )
-//
-//    val oneMinusT = 1f - t
-//
-//    val center = Offset(
-//        x = oneMinusT * oneMinusT * startCenter.x +
-//                2 * oneMinusT * t * control.x +
-//                t * t * endCenter.x,
-//        y = oneMinusT * oneMinusT * startCenter.y +
-//                2 * oneMinusT * t * control.y +
-//                t * t * endCenter.y
-//    )
-//
-//    val width = lerp(from.width, to.width, t)
-//    val height = lerp(from.height, to.height, t)
-//
-//    Rect(
-//        left = center.x - width / 2f,
-//        top = center.y - height / 2f,
-//        right = center.x + width / 2f,
-//        bottom = center.y + height / 2f
-//    )
-//}
-
-
 fun QuadraticBezierRectInterpolator(
     screenHeight: Float,
     screenWidth: Float,

@@ -11,8 +11,8 @@ abstract class Destination {
      */
     abstract val key: String
     abstract val title : String
-    val description : String? = null
-    val icon : Int? = null
+    open val description : String? = null
+    open val icon : Int? = null
     // ...可扩展
 
     @Composable

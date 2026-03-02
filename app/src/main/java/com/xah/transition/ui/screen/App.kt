@@ -4,6 +4,8 @@ import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -46,32 +48,20 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import com.xah.common.ScreenCornerHelper
 import com.xah.container.container.SharedContainer
 import com.xah.container.container.SharedContent
-import com.xah.container.container.pixelExtension
-import com.xah.container.model.ContainerFilledStrategy
-import com.xah.container.model.ExtensionDirection
 import com.xah.container.utils.LocalSharedContainerRegistry
 import com.xah.navigation.anim.EffectLevel
 import com.xah.navigation.component.SharedNavHost
@@ -86,10 +76,13 @@ import com.xah.transition.ui.component.CustomSlider
 import com.xah.transition.ui.component.SmallCard
 import com.xah.transition.ui.component.TransplantListItem
 import com.xah.transition.ui.screen.destination.AppHomeDestination
+import com.xah.transition.ui.screen.destination.BezierSettingsDestination
+import com.xah.transition.ui.screen.destination.CornerSettingsDestination
 import com.xah.transition.ui.screen.destination.HomeDestination
 import com.xah.transition.ui.screen.destination.SecondDestination
-import com.xah.transition.ui.screen.destination.SettingsDestination
 import com.xah.transition.ui.screen.destination.ThirdDestination
+import com.xah.transition.ui.screen.test.CubicBezierEditor
+import com.xah.transition.ui.screen.test.CubicBezierEditorDemo
 import com.xah.transition.ui.style.topBarTransplantColor
 import com.xah.transition.ui.viewmodel.UiHolder
 
@@ -147,10 +140,9 @@ fun HomeScreen() {
             containerColor = Color.Transparent,
 //            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             floatingActionButton = {
-                val dest = SettingsDestination("fab")
                 SharedContainer(
                     containerColor = MaterialTheme.colorScheme.inversePrimary,
-                    key = dest.key,
+                    key = BezierSettingsDestination.key,
                     corner = FloatingActionButtonDefaults.shape
                 ) {
                     FloatingActionButton(
@@ -158,44 +150,13 @@ fun HomeScreen() {
                         containerColor = MaterialTheme.colorScheme.inversePrimary,
                         shape = RoundedCornerShape(0.dp),
                         onClick = {
-                            SharedNavHelper.push(dest,navController,registry)
+                            SharedNavHelper.push(BezierSettingsDestination,navController,registry)
                         }
                     ) {
-                        Icon(painterResource(R.drawable.settings),null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
+                        Icon(painterResource(BezierSettingsDestination.icon),null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
                     }
                 }
             },
-//            topBar = {
-
-//                MediumTopAppBar(
-//                    scrollBehavior = scrollBehavior,
-//                    colors = topBarTransplantColor(),
-//                    title = { Text("SharedNav") },
-//                    actions = {
-//                        val dest = SettingsDestination("ftib")
-//                        CompositionLocalProvider(
-//                            LocalMinimumInteractiveComponentSize provides 0.dp
-//                        ) {
-//                            SharedContainer(
-//                                containerColor = MaterialTheme.colorScheme.inversePrimary,
-//                                modifier = Modifier.padding(horizontal = APP_HORIZONTAL_DP),
-//                                key = dest.key,
-//                                corner = CircleShape
-//                            ) {
-//                                FilledTonalIconButton (
-//                                    shape = RoundedCornerShape(0.dp),
-//                                    colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = MaterialTheme.colorScheme.inversePrimary),
-//                                    onClick = {
-//                                        SharedNavHelper.push(dest,navController,registry)
-//                                    }
-//                                ) {
-//                                    Icon(painterResource(R.drawable.settings),null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
-//                                }
-//                            }
-//                        }
-//                    }
-//                )
-//            }
         ) { innerPadding ->
             Box(modifier = Modifier.fillMaxSize()) {
                 LazyVerticalGrid(
@@ -314,7 +275,6 @@ fun HomeScreen() {
                 CompositionLocalProvider(
                     LocalMinimumInteractiveComponentSize provides 0.dp
                 ) {
-                    val dest = SettingsDestination("ftib")
                     SharedContainer(
                         containerColor = MaterialTheme.colorScheme.inversePrimary,
                         modifier = Modifier
@@ -322,17 +282,17 @@ fun HomeScreen() {
                             .statusBarsPadding()
                             .padding(horizontal = APP_HORIZONTAL_DP)
                         ,
-                        key = dest.key,
+                        key = CornerSettingsDestination.key,
                         corner = CircleShape
                     ) {
                         FilledTonalIconButton (
                             shape = RoundedCornerShape(0.dp),
                             colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = MaterialTheme.colorScheme.inversePrimary),
                             onClick = {
-                                SharedNavHelper.push(dest,navController,registry)
+                                SharedNavHelper.push(CornerSettingsDestination,navController,registry)
                             }
                         ) {
-                            Icon(painterResource(R.drawable.settings),null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
+                            Icon(painterResource(CornerSettingsDestination.icon),null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
                         }
                     }
                 }
@@ -417,10 +377,11 @@ fun ThirdScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen() {
+fun CornerSettingsScreen() {
     val destination = LocalNavigationDestination.current
     val navController = LocalNavigationController.current
     val registry = LocalSharedContainerRegistry.current
+    val dest = LocalNavigationDestination.current
     val view = LocalView.current
 
     var corner by remember { mutableFloatStateOf(0f) }
@@ -437,7 +398,7 @@ fun SettingsScreen() {
             topBar = {
                 MediumTopAppBar(
                     colors = topBarTransplantColor(),
-                    title = { Text("屏幕圆角校正") },
+                    title = { Text(dest.title) },
                 )
             },
             bottomBar = {
@@ -503,43 +464,60 @@ fun SettingsScreen() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Preview
-fun Test() {
-    var rect by remember { mutableStateOf<Rect?>(null) }
-    val graphicsLayer = rememberGraphicsLayer()
-    val configuration = LocalConfiguration.current
-    val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
+fun BezierSettingsScreen() {
+    val destination = LocalNavigationDestination.current
+    val navController = LocalNavigationController.current
+    val registry = LocalSharedContainerRegistry.current
+    val dest = LocalNavigationDestination.current
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Box(modifier = Modifier.align(Alignment.Center)) {
-            Box(
-                modifier = Modifier
-                    .onGloballyPositioned { coordinates ->
-                        val position = coordinates.positionInRoot()
-                        val size = coordinates.size
 
-                        rect = Rect(
-                            left = position.x,
-                            top = position.y,
-                            right = position.x + size.width,
-                            bottom = position.y + size.height
-                        )
-                    }
-                    .drawWithContent {
-                        drawContent()
-                        graphicsLayer.record {
-                            this@drawWithContent.drawContent()
-                        }
-                    }
-            ) {
-                Image(painterResource(R.drawable.ic_iqiyi),null)
+    SharedContent (
+        key = destination.key,
+    ) {
+        Scaffold(
+            topBar = {
+                MediumTopAppBar(
+                    colors = topBarTransplantColor(),
+                    title = { Text(dest.title) },
+                )
+            },
+            bottomBar = {
+                Button(
+                    onClick = {
+                        registry.x1 = 0.4f
+                        registry.y1 = 0.0f
+                        registry.x2 = 0.2f
+                        registry.y2 = 1f
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(APP_HORIZONTAL_DP)
+                        .navigationBarsPadding()
+                ) {
+                    Text("恢复默认")
+                }
             }
+        ) { innerPadding ->
             Box(
                 modifier = Modifier
-                    .zIndex(-1f)
-                    .pixelExtension(graphicsLayer,rect,ExtensionDirection.VERTICAL)
-            )
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                CubicBezierEditor(
+                    registry.x1,
+                    registry.y1,
+                    registry.x2,
+                    registry.y2,
+                    { registry.x1 = it },
+                    { registry.y1 = it },
+                    { registry.x2 = it },
+                    { registry.y2 = it },
+                )
+            }
         }
     }
 }
+
+
