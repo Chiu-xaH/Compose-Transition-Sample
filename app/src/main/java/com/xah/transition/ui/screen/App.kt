@@ -41,6 +41,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
@@ -75,6 +76,7 @@ import com.xah.transition.ui.component.CardListItem
 import com.xah.transition.ui.component.CustomSlider
 import com.xah.transition.ui.component.SmallCard
 import com.xah.transition.ui.component.TransplantListItem
+import com.xah.transition.ui.component.cardNormalColor
 import com.xah.transition.ui.screen.destination.AppHomeDestination
 import com.xah.transition.ui.screen.destination.BezierSettingsDestination
 import com.xah.transition.ui.screen.destination.CornerSettingsDestination
@@ -256,7 +258,7 @@ fun HomeScreen() {
                         Surface(
                             color = color,
                             shape = MaterialTheme.shapes.small,
-                            modifier = Modifier.padding(horizontal = CARD_NORMAL_DP*2, vertical = CARD_NORMAL_DP)
+                            modifier = Modifier.padding(CARD_NORMAL_DP*2)
                         ) {
                             TransplantListItem(
                                 headlineContent = {
@@ -264,6 +266,28 @@ fun HomeScreen() {
                                 },
                                 modifier = Modifier.clickable {
                                     navController.transitionLevel = item
+                                },
+                            )
+                        }
+                    }
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Surface(
+                            color = cardNormalColor(),
+                            shape = MaterialTheme.shapes.small,
+                            modifier = Modifier.padding(CARD_NORMAL_DP*2)
+                        ) {
+                            TransplantListItem(
+                                headlineContent = {
+                                    Text("双向填充")
+                                },
+                                leadingContent = {
+                                    Icon(painterResource(R.drawable.texture),null)
+                                },
+                                trailingContent = {
+                                    Switch(registry.extensionDouble, onCheckedChange = { registry.extensionDouble = it })
+                                },
+                                modifier = Modifier.clickable {
+                                    registry.extensionDouble = !registry.extensionDouble
                                 },
                             )
                         }
