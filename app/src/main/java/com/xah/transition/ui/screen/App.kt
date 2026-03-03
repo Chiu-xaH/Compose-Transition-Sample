@@ -17,14 +17,11 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -66,7 +63,6 @@ import androidx.compose.ui.unit.dp
 import com.xah.common.ScreenCornerHelper
 import com.xah.container.container.SharedContainer
 import com.xah.container.container.SharedContent
-import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.utils.LocalSharedContainerRegistry
 import com.xah.navigation.anim.EffectLevel
 import com.xah.navigation.component.SharedNavHost
@@ -89,6 +85,7 @@ import com.xah.transition.ui.screen.destination.SecondDestination
 import com.xah.transition.ui.screen.destination.ThirdDestination
 import com.xah.transition.ui.screen.test.CubicBezierEditor
 import com.xah.transition.ui.style.topBarTransplantColor
+import com.xah.transition.ui.uitls.NavDestination
 import com.xah.transition.ui.viewmodel.UiHolder
 
 @Composable
@@ -409,7 +406,7 @@ fun CornerSettingsScreen() {
     val destination = LocalNavigationDestination.current
     val navController = LocalNavigationController.current
     val registry = LocalSharedContainerRegistry.current
-    val dest = LocalNavigationDestination.current
+    val dest = LocalNavigationDestination.current as NavDestination
     val view = LocalView.current
 
     var corner by remember { mutableFloatStateOf(0f) }
@@ -497,7 +494,7 @@ fun CornerSettingsScreen() {
 fun BezierSettingsScreen() {
     val destination = LocalNavigationDestination.current
     val registry = LocalSharedContainerRegistry.current
-    val dest = LocalNavigationDestination.current
+    val dest = LocalNavigationDestination.current as NavDestination
 
     var isPush by rememberSaveable { mutableStateOf(true) }
 

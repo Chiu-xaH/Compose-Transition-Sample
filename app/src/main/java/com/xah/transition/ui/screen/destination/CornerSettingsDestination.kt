@@ -1,11 +1,11 @@
 package com.xah.transition.ui.screen.destination
 
 import androidx.compose.runtime.Composable
-import com.xah.navigation.model.Destination
 import com.xah.transition.R
 import com.xah.transition.ui.screen.CornerSettingsScreen
+import com.xah.transition.ui.uitls.NavDestination
 
-data object CornerSettingsDestination : Destination() {
+data object CornerSettingsDestination : NavDestination() {
 
     override val title: String = "屏幕圆角校正"
     override val key = "settings_corner"

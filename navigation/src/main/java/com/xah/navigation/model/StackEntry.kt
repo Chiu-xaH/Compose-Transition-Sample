@@ -5,6 +5,6 @@ class StackEntry(
     val destination: Destination
 ) {
     override fun toString(): String {
-        return "Destination(key=${destination.key},title=${destination.title})"
+        return "Destination(key=${destination.key})"
     }
 }
