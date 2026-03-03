@@ -4,13 +4,13 @@ import kotlin.reflect.KClass
 
 
 class NavDependencies {
-    val map = mutableMapOf<Pair<KClass<*>, String?>, Any>()
+    val map = mutableMapOf<Pair<KClass<*>, String?>, Any?>()
 
-    inline fun <reified T : Any> put(value: T, tag: String? = null) {
-        map[T::class to tag] = value
+    inline fun <reified T> put(value: T, tag: String? = null) {
+        map[T::class to tag] = value  // value 可以是 null
     }
 
-    inline fun <reified T : Any> get(tag: String? = null): T {
-        return map[T::class to tag] as T
+    inline fun <reified T> get(tag: String? = null): T {
+        return map[T::class to tag] as T  // T 可以是 String?，as T 就能转
     }
 }
