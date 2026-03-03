@@ -33,7 +33,9 @@ import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.controller.NavigationViewModel
 import com.xah.navigation.model.ActionType
 import com.xah.navigation.model.Destination
+import com.xah.navigation.model.NavDependencies
 import com.xah.navigation.shared.SharedNavHelper
+import com.xah.navigation.utils.LocalNavDependencies
 import com.xah.navigation.utils.LocalNavigationController
 import com.xah.navigation.utils.disableTouchEvent
 import com.xah.navigation.utils.scaleMirror
@@ -42,12 +44,14 @@ import com.xah.navigation.utils.scaleMirror
 fun SharedNavHost(
     startDestination: Destination,
     modifier: Modifier = Modifier,
+    dependencies: NavDependencies = NavDependencies(),
     customBackHandler: (@Composable () -> Unit)? = null,
 ) {
     SharedContainerRoot {
         NavHost(
             startDestination,
             modifier,
+            dependencies,
             customBackHandler
         )
     }
@@ -57,6 +61,7 @@ fun SharedNavHost(
 private fun NavHost(
     startDestination: Destination,
     modifier: Modifier = Modifier,
+    dependencies: NavDependencies = NavDependencies(),
     customBackHandler: (@Composable () -> Unit)? = null,
 ) {
     val registry = LocalSharedContainerRegistry.current
@@ -69,6 +74,7 @@ private fun NavHost(
 
     CompositionLocalProvider(
         LocalNavigationController provides navController,
+        LocalNavDependencies provides dependencies
     ) {
         if (customBackHandler == null) {
             BackHandler(enabled = navController.stack.size > 1) {

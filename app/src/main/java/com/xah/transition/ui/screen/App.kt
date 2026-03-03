@@ -60,15 +60,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.xah.common.LogUtil
 import com.xah.common.ScreenCornerHelper
 import com.xah.container.container.SharedContainer
 import com.xah.container.container.SharedContent
 import com.xah.container.utils.LocalSharedContainerRegistry
 import com.xah.navigation.anim.EffectLevel
 import com.xah.navigation.component.SharedNavHost
+import com.xah.navigation.model.NavDependencies
 import com.xah.navigation.shared.SharedNavHelper
+import com.xah.navigation.utils.LocalNavDependencies
 import com.xah.navigation.utils.LocalNavigationController
 import com.xah.navigation.utils.LocalNavigationDestination
+import com.xah.navigation.utils.rememberNavDependencies
 import com.xah.transition.R
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CARD_NORMAL_DP
@@ -87,10 +91,17 @@ import com.xah.transition.ui.screen.test.CubicBezierEditor
 import com.xah.transition.ui.style.topBarTransplantColor
 import com.xah.transition.ui.uitls.NavDestination
 import com.xah.transition.ui.viewmodel.UiHolder
+import kotlinx.coroutines.delay
 
 @Composable
 fun App() {
-    SharedNavHost(HomeDestination, modifier = Modifier.background(MaterialTheme.colorScheme.surface))
+    var arg1 by remember { mutableStateOf(1) }
+    val deps = rememberNavDependencies(arg1) {
+        put(arg1, tag = "args1")
+        put("1", tag = "args2")
+    }
+
+    SharedNavHost(HomeDestination, modifier = Modifier.background(MaterialTheme.colorScheme.surface), dependencies = deps)
 }
 
 data class AppBean(
@@ -111,6 +122,9 @@ private val appList = listOf<AppBean>(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen() {
+    val q = LocalNavDependencies.current.get<Int>("args1")
+    val q2 = LocalNavDependencies.current.get<String>("args2")
+
     val navController = LocalNavigationController.current
     val scrollState = rememberLazyGridState()
     val registry = LocalSharedContainerRegistry.current
