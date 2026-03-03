@@ -33,6 +33,8 @@ fun SharedContainerOverlay() {
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
 
+    val extensionDouble = registry.extensionDouble
+
     registry.runningStates.forEach { state ->
         val progress = state.animation.value
 
@@ -42,25 +44,34 @@ fun SharedContainerOverlay() {
 
             val safelyProgress =  (progress * registry.speedUpRadio).coerceIn(0f,1f)
 
-            val rect = registry.rectInterpolator(progress, container, content)
-            val left = rect.left
-            val top = rect.top
-            val width = rect.width
-            val height = rect.height
-
+            val parent = registry.rectInterpolator(progress, container, content)
             val contentAlpha = lerp(0f,1f,safelyProgress)
             val corner = lerp(state.containerCorner,state.contentCorner,safelyProgress)
 
             val containerFilledStrategy = state.containerFilledStrategy.getFinalStrategy()
 
-            val extensionDouble = registry.extensionDouble
+            /**150,90 2340,1080
+             * container.width/content.width 12
+             * container.height/content.height 15.6
+             */
+            val heightW = container.height/content.height
+            val widthW = container.width/content.width
+            val isHorizontal = if(heightW > widthW) {
+                // 左右填充
+                true
+            } else if(heightW < widthW) {
+                // 上下填充
+                false
+            } else {
+                isLandscape
+            }
 
             Box(
                 modifier = Modifier
-                    .offset { IntOffset(left.roundToInt(), top.roundToInt()) }
+                    .offset { IntOffset(parent.left.roundToInt(), parent.top.roundToInt()) }
                     .size(
-                        with(density) { width.toDp() },
-                        with(density) { height.toDp() }
+                        with(density) { parent.width.toDp() },
+                        with(density) { parent.height.toDp() }
                     )
                     .clip(corner)
                     .background(
@@ -76,7 +87,7 @@ fun SharedContainerOverlay() {
                 Box {
                     Box(modifier = Modifier.fillMaxSize()) {
                         Box(modifier = Modifier.align(
-                            if(isLandscape) {
+                            if(isHorizontal) {
                                 if(containerFilledStrategy is ContainerFilledStrategy.Clip) {
                                     Alignment.CenterStart
                                 } else {
@@ -105,14 +116,14 @@ fun SharedContainerOverlay() {
                                         .drawWithCache {
                                             onDrawWithContent {
                                                 val layer = state.containerLayer ?: return@onDrawWithContent
-                                                val scale = if(isLandscape) {
-                                                    width / container.width
+                                                val scale = if(isHorizontal) {
+                                                    parent.width / container.width
                                                 } else {
-                                                    height / container.height
+                                                    parent.height / container.height
                                                 }
                                                 withTransform({
                                                     scale(scale, scale)
-                                                    if(isLandscape) {
+                                                    if(isHorizontal) {
                                                         translate(left = 0f , top = -container.height/2f)
                                                     } else {
                                                         translate(left = -container.width/2f , top = 0f)
@@ -130,21 +141,21 @@ fun SharedContainerOverlay() {
                                         .drawWithCache {
                                             onDrawWithContent {
                                                 val layer = state.containerLayer ?: return@onDrawWithContent
-                                                val scale = if(!isLandscape) {
-                                                    width / container.width
+                                                val scale = if(!isHorizontal) {
+                                                    parent.width / container.width
                                                 } else {
-                                                    height / container.height
+                                                    parent.height / container.height
                                                 }
                                                 withTransform({
                                                     scale(scale, scale)
                                                     if(!extensionDouble) {
-                                                        if(isLandscape) {
+                                                        if(isHorizontal) {
                                                             translate(left = 0f , top = 0f)
                                                         } else {
                                                             translate(left = -container.width/2f , top = 0f)
                                                         }
                                                     } else {
-                                                        if(isLandscape) {
+                                                        if(isHorizontal) {
                                                             translate(left = -container.width/2 , top = 0f)
                                                         } else {
                                                             translate(left = 0f , top = -container.height/2f)
@@ -168,15 +179,15 @@ fun SharedContainerOverlay() {
                                 modifier = Modifier
                                     .zIndex(-1f)
                                     .graphicsLayer {
-                                        val scale = if(!isLandscape) {
-                                            width / container.width
+                                        val scale = if(!isHorizontal) {
+                                            parent.width / container.width
                                         } else {
-                                            height / container.height
+                                            parent.height / container.height
                                         }
                                         scaleX = scale
                                         scaleY = scale
                                     }
-                                    .pixelExtension(it,container,isLandscape,extensionDouble)
+                                    .pixelExtension(it,container,isHorizontal,extensionDouble)
                             )
                         }
                     }
@@ -193,11 +204,12 @@ fun SharedContainerOverlay() {
                         Box(
                             modifier = Modifier.drawWithContent {
                                 val layer = state.contentLayer ?: return@drawWithContent
-                                val scale = if(!isLandscape) {
-                                    width / content.width
+                                val scale = if(isHorizontal) {
+                                    parent.height / content.height
                                 } else {
-                                    height / content.height
+                                    parent.width / content.width
                                 }
+
                                 withTransform({
                                     scale(scale, scale)
                                     if(extensionDouble) {

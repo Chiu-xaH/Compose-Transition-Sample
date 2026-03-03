@@ -4,8 +4,6 @@ import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,11 +17,14 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -49,7 +50,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,6 +66,7 @@ import androidx.compose.ui.unit.dp
 import com.xah.common.ScreenCornerHelper
 import com.xah.container.container.SharedContainer
 import com.xah.container.container.SharedContent
+import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.utils.LocalSharedContainerRegistry
 import com.xah.navigation.anim.EffectLevel
 import com.xah.navigation.component.SharedNavHost
@@ -84,7 +88,6 @@ import com.xah.transition.ui.screen.destination.HomeDestination
 import com.xah.transition.ui.screen.destination.SecondDestination
 import com.xah.transition.ui.screen.destination.ThirdDestination
 import com.xah.transition.ui.screen.test.CubicBezierEditor
-import com.xah.transition.ui.screen.test.CubicBezierEditorDemo
 import com.xah.transition.ui.style.topBarTransplantColor
 import com.xah.transition.ui.viewmodel.UiHolder
 
@@ -175,7 +178,6 @@ fun HomeScreen() {
                         Column {
                             SharedContainer(
                                 destination.key,
-//                            containerFilledStrategy = ContainerFilledStrategy.Clip,
                                 containerColor = null,
                                 corner = RoundedCornerShape(20.dp),
                             ) {
@@ -216,11 +218,13 @@ fun HomeScreen() {
                         Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
                             SharedContainer (
                                 key = destination.key,
+//                                containerFilledStrategy = ContainerFilledStrategy.Clip,
                                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                                 corner = MaterialTheme.shapes.small,
                             ) {
                                 Card(
                                     shape = RoundedCornerShape(0.dp),
+//                                    modifier = Modifier.height(150.dp).width(46.dp),
                                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                                 ) {
                                     TransplantListItem(
@@ -492,10 +496,10 @@ fun CornerSettingsScreen() {
 @Composable
 fun BezierSettingsScreen() {
     val destination = LocalNavigationDestination.current
-    val navController = LocalNavigationController.current
     val registry = LocalSharedContainerRegistry.current
     val dest = LocalNavigationDestination.current
 
+    var isPush by rememberSaveable { mutableStateOf(true) }
 
     SharedContent (
         key = destination.key,
@@ -510,17 +514,20 @@ fun BezierSettingsScreen() {
             bottomBar = {
                 Button(
                     onClick = {
-                        registry.x1 = 0.4f
-                        registry.y1 = 0.0f
-                        registry.x2 = 0.2f
-                        registry.y2 = 1f
+                        isPush = !isPush
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(APP_HORIZONTAL_DP)
                         .navigationBarsPadding()
                 ) {
-                    Text("恢复默认")
+                    Text("当前调节${
+                        if(isPush) {
+                            "PUSH"
+                        } else {
+                            "POP"
+                        }
+                    }")
                 }
             }
         ) { innerPadding ->
@@ -529,16 +536,29 @@ fun BezierSettingsScreen() {
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                CubicBezierEditor(
-                    registry.x1,
-                    registry.y1,
-                    registry.x2,
-                    registry.y2,
-                    { registry.x1 = it },
-                    { registry.y1 = it },
-                    { registry.x2 = it },
-                    { registry.y2 = it },
-                )
+                if(isPush) {
+                    CubicBezierEditor(
+                        registry.pushX1,
+                        registry.pushY1,
+                        registry.pushX2,
+                        registry.pushY2,
+                        { registry.pushX1 = it },
+                        { registry.pushY1 = it },
+                        { registry.pushX2 = it },
+                        { registry.pushY2 = it },
+                    )
+                } else {
+                    CubicBezierEditor(
+                        registry.popX1,
+                        registry.popY1,
+                        registry.popX2,
+                        registry.popY2,
+                        { registry.popX1 = it },
+                        { registry.popY1 = it },
+                        { registry.popX2 = it },
+                        { registry.popY2 = it },
+                    )
+                }
             }
         }
     }
