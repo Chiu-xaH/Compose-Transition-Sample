@@ -3,7 +3,7 @@ package com.xah.navigation.model
 import kotlin.reflect.KClass
 
 
-class NavDependencies {
+class Dependencies {
     val map = mutableMapOf<Pair<KClass<*>, String?>, Any?>()
 
     inline fun <reified T> put(value: T, tag: String? = null) {

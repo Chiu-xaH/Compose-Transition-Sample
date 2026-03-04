@@ -60,18 +60,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.xah.common.LogUtil
 import com.xah.common.ScreenCornerHelper
 import com.xah.container.container.SharedContainer
 import com.xah.container.container.SharedContent
 import com.xah.container.utils.LocalSharedContainerRegistry
 import com.xah.navigation.anim.EffectLevel
 import com.xah.navigation.component.SharedNavHost
-import com.xah.navigation.model.NavDependencies
 import com.xah.navigation.shared.SharedNavHelper
 import com.xah.navigation.utils.LocalNavDependencies
-import com.xah.navigation.utils.LocalNavigationController
-import com.xah.navigation.utils.LocalNavigationDestination
+import com.xah.navigation.utils.LocalNavController
+import com.xah.navigation.utils.LocalNavDestination
 import com.xah.navigation.utils.rememberNavDependencies
 import com.xah.transition.R
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
@@ -91,7 +89,6 @@ import com.xah.transition.ui.screen.test.CubicBezierEditor
 import com.xah.transition.ui.style.topBarTransplantColor
 import com.xah.transition.ui.uitls.NavDestination
 import com.xah.transition.ui.viewmodel.UiHolder
-import kotlinx.coroutines.delay
 
 @Composable
 fun App() {
@@ -125,7 +122,7 @@ fun HomeScreen() {
     val q = LocalNavDependencies.current.get<Int>("args1")
     val q2 = LocalNavDependencies.current.get<String>("args2")
 
-    val navController = LocalNavigationController.current
+    val navController = LocalNavController.current
     val scrollState = rememberLazyGridState()
     val registry = LocalSharedContainerRegistry.current
     val context = LocalContext.current
@@ -342,8 +339,8 @@ fun HomeScreen() {
 
 @Composable
 fun SecondScreen() {
-    val navController = LocalNavigationController.current
-    val destination = LocalNavigationDestination.current
+    val navController = LocalNavController.current
+    val destination = LocalNavDestination.current
     SharedContent (
         key = destination.key,
     ) {
@@ -370,7 +367,7 @@ fun SecondScreen() {
 
 @Composable
 fun AppHomeScreen() {
-    val destination = LocalNavigationDestination.current
+    val destination = LocalNavDestination.current
     SharedContent (
         key = destination.key,
     ) {
@@ -394,7 +391,7 @@ fun AppHomeScreen() {
 
 @Composable
 fun ThirdScreen() {
-    val navController = LocalNavigationController.current
+    val navController = LocalNavController.current
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -417,10 +414,10 @@ fun ThirdScreen() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CornerSettingsScreen() {
-    val destination = LocalNavigationDestination.current
-    val navController = LocalNavigationController.current
+    val destination = LocalNavDestination.current
+    val navController = LocalNavController.current
     val registry = LocalSharedContainerRegistry.current
-    val dest = LocalNavigationDestination.current as NavDestination
+    val dest = LocalNavDestination.current as NavDestination
     val view = LocalView.current
 
     var corner by remember { mutableFloatStateOf(0f) }
@@ -506,9 +503,9 @@ fun CornerSettingsScreen() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BezierSettingsScreen() {
-    val destination = LocalNavigationDestination.current
+    val destination = LocalNavDestination.current
     val registry = LocalSharedContainerRegistry.current
-    val dest = LocalNavigationDestination.current as NavDestination
+    val dest = LocalNavDestination.current as NavDestination
 
     var isPush by rememberSaveable { mutableStateOf(true) }
 

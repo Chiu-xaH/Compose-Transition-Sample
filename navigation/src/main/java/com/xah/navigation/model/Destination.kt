@@ -2,7 +2,7 @@ package com.xah.navigation.model
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import com.xah.navigation.utils.LocalNavigationDestination
+import com.xah.navigation.utils.LocalNavDestination
 
 abstract class Destination {
     /**
@@ -14,7 +14,7 @@ abstract class Destination {
     @Composable
     fun Screen() {
         CompositionLocalProvider(
-            LocalNavigationDestination provides this
+            LocalNavDestination provides this
         ) {
             Content()
         }

@@ -1,7 +1,6 @@
 package com.xah.navigation.component
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,18 +32,17 @@ import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.controller.NavigationViewModel
 import com.xah.navigation.model.ActionType
 import com.xah.navigation.model.Destination
-import com.xah.navigation.model.NavDependencies
+import com.xah.navigation.model.Dependencies
 import com.xah.navigation.shared.SharedNavHelper
 import com.xah.navigation.utils.LocalNavDependencies
-import com.xah.navigation.utils.LocalNavigationController
-import com.xah.navigation.utils.disableTouchEvent
+import com.xah.navigation.utils.LocalNavController
 import com.xah.navigation.utils.scaleMirror
 
 @Composable
 fun SharedNavHost(
     startDestination: Destination,
     modifier: Modifier = Modifier,
-    dependencies: NavDependencies = NavDependencies(),
+    dependencies: Dependencies = Dependencies(),
     customBackHandler: (@Composable () -> Unit)? = null,
 ) {
     SharedContainerRoot {
@@ -61,7 +59,7 @@ fun SharedNavHost(
 private fun NavHost(
     startDestination: Destination,
     modifier: Modifier = Modifier,
-    dependencies: NavDependencies = NavDependencies(),
+    dependencies: Dependencies = Dependencies(),
     customBackHandler: (@Composable () -> Unit)? = null,
 ) {
     val registry = LocalSharedContainerRegistry.current
@@ -73,7 +71,7 @@ private fun NavHost(
     }
 
     CompositionLocalProvider(
-        LocalNavigationController provides navController,
+        LocalNavController provides navController,
         LocalNavDependencies provides dependencies
     ) {
         if (customBackHandler == null) {
