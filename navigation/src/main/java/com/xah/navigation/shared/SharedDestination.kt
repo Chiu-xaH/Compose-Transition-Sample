@@ -1,25 +1,20 @@
-package com.xah.navigation.model
+package com.xah.navigation.shared
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import com.xah.container.container.SharedContent
+import com.xah.navigation.model.Destination
 import com.xah.navigation.utils.LocalNavDestination
 
-abstract class Destination {
-    /**
-     * 也作为共享容器Key
-     */
-    abstract val key: String
-    // ...可扩展
-
+abstract class SharedDestination : Destination() {
     @Composable
-    open fun Screen() {
+    override fun Screen() {
         CompositionLocalProvider(
             LocalNavDestination provides this
         ) {
-            Content()
+            SharedContent(key) {
+                Content()
+            }
         }
     }
-
-    @Composable
-    abstract fun Content()
 }
