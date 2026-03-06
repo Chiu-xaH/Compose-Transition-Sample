@@ -56,6 +56,12 @@ class SharedContainerRegistry(
         }
     }
 
+    fun get(
+        key: Any,
+    ): SharedContainerState? {
+        return states[key]
+    }
+
     fun push(
         key: Any,
         onAnimatedFinished : (suspend () -> Unit)? = null,

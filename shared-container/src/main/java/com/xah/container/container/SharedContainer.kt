@@ -86,7 +86,10 @@ private fun Modifier.sharedContent(
         return@composed this
     }
 
-    val state = remember { registry.getOrCreate(key) }
+    val state = remember { registry.get(key) }
+    if(state == null) {
+        return@composed this
+    }
     val graphicsLayer = rememberGraphicsLayer()
 
     LaunchedEffect(Unit) {
