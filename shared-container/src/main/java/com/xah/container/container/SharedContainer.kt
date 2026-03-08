@@ -27,6 +27,27 @@ fun Modifier.sharedContainer(
     key : Any,
     corner : Shape,
     shadow : Dp = 0.dp,
+    containerColor : Color?,
+): Modifier {
+    return this
+        .shadow(shadow,corner)
+        .clip(corner)
+        .sharedContainer(
+            key,
+            if(containerColor == null) {
+                ContainerFilledStrategy.Pixel(ContainerFilledStrategy.Clip)
+            } else {
+                ContainerFilledStrategy.Pixel(ContainerFilledStrategy.Color(containerColor))
+            },
+            corner as CornerBasedShape
+        )
+}
+
+
+fun Modifier.sharedContainer(
+    key : Any,
+    corner : Shape,
+    shadow : Dp = 0.dp,
     containerFilledStrategy : ContainerFilledStrategy = ContainerFilledStrategy.Pixel(),
 ): Modifier {
     return this
