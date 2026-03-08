@@ -143,7 +143,7 @@ fun Modifier.sharedContent(
 fun SharedContent(
     key : Any,
     modifier : Modifier = Modifier,
-    corner : Shape = RoundedCornerShape(ScreenCornerHelper.corner),
+    corner : Shape = ScreenCornerHelper.shape,
     content : @Composable () -> Unit
 )  {
     Box(modifier = modifier) {

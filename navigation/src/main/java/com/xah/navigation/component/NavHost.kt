@@ -37,6 +37,8 @@ import com.xah.navigation.utils.LocalNavDependencies
 import com.xah.navigation.utils.LocalNavController
 import com.xah.navigation.utils.LocalNavControllerSafely
 import com.xah.navigation.utils.scaleMirror
+import com.xah.common.lerp
+
 
 @Composable
 fun SharedNavHost(
@@ -302,9 +304,9 @@ private class ForegroundEffect(animatedProgress : Float,val level: EffectLevel) 
             animatedProgress
         ),
         corner = lerp(
-            ScreenCornerHelper.corner*2,
-            ScreenCornerHelper.corner,
-            animatedProgress
+            ScreenCornerHelper.shape,
+            ScreenCornerHelper.shape,
+            0f
         )
     )
 
@@ -313,7 +315,7 @@ private class ForegroundEffect(animatedProgress : Float,val level: EffectLevel) 
         return this.blur(effect.blur)
     }
     private fun Modifier.corner() : Modifier {
-        return this.clip(RoundedCornerShape(effect.corner))
+        return this.clip(effect.corner)
     }
 
     private fun Modifier.scale() : Modifier {
@@ -334,7 +336,7 @@ private class ForegroundEffect(animatedProgress : Float,val level: EffectLevel) 
     }
 
     private fun Modifier.tinyCorner() : Modifier {
-        return this.clip(RoundedCornerShape(ScreenCornerHelper.corner))
+        return this.clip(ScreenCornerHelper.shape)
     }
 
     fun Modifier.effect() : Modifier {
@@ -432,8 +434,8 @@ private class ForegroundEffectWithSharedElement(animatedProgress : Float,val lev
             animatedProgress
         ),
         corner = lerp(
-            if(level != EffectLevel.NONE) ScreenCornerHelper.corner else 0.dp,
-            if(level != EffectLevel.NONE) ScreenCornerHelper.corner else 0.dp,
+            if(level != EffectLevel.NONE) ScreenCornerHelper.shape else RoundedCornerShape(0.dp),
+            if(level != EffectLevel.NONE) ScreenCornerHelper.shape else RoundedCornerShape(0.dp),
             animatedProgress
         )
     )
@@ -444,7 +446,7 @@ private class ForegroundEffectWithSharedElement(animatedProgress : Float,val lev
     }
 
     private fun Modifier.corner() : Modifier {
-        return this.clip(RoundedCornerShape(effect.corner))
+        return this.clip(effect.corner)
     }
 
     private fun Modifier.alpha() : Modifier {

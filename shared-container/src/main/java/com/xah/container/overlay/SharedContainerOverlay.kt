@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.util.lerp
+import com.xah.common.lerp
 import androidx.compose.ui.zIndex
 import com.xah.container.container.pixelExtension
 import com.xah.container.model.ContainerFilledStrategy
@@ -230,4 +231,3 @@ fun SharedContainerOverlay() {
     }
 }
 
-private fun lerp(start: CornerBasedShape, stop: CornerBasedShape, fraction: Float): CornerBasedShape = start.lerp(stop,fraction) as CornerBasedShape

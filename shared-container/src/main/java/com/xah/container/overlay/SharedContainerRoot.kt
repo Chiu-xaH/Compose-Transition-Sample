@@ -2,6 +2,7 @@ package com.xah.container.overlay
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -26,10 +27,11 @@ fun SharedContainerRoot(
     val view = LocalView.current
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current
+    val defaultCorner = MaterialTheme.shapes.medium
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        ScreenCornerHelper(view)
+    LaunchedEffect(view) {
+        ScreenCornerHelper(view,defaultCorner)
     }
 
     val registry = remember { SharedRegistry(scope) }

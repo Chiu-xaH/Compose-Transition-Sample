@@ -28,10 +28,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
@@ -44,9 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -57,34 +52,30 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.xah.common.ScreenCornerHelper
 import com.xah.container.container.SharedContainer
 import com.xah.container.utils.LocalSharedRegistry
 import com.xah.navigation.anim.EffectLevel
 import com.xah.navigation.component.SharedNavHost
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.action.LaunchMode
-import com.xah.navigation.utils.LocalNavDependencies
 import com.xah.navigation.utils.LocalNavController
+import com.xah.navigation.utils.LocalNavDependencies
 import com.xah.navigation.utils.rememberNavDependencies
 import com.xah.transition.R
 import com.xah.transition.model.AppIconBean
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CARD_NORMAL_DP
 import com.xah.transition.ui.component.CardListItem
-import com.xah.transition.ui.component.CustomSlider
 import com.xah.transition.ui.component.SmallCard
 import com.xah.transition.ui.component.TransplantListItem
 import com.xah.transition.ui.component.cardNormalColor
-import com.xah.transition.ui.screen.destination.detail.AppIconDestination
-import com.xah.transition.ui.screen.destination.settings.BezierSettingsDestination
-import com.xah.transition.ui.screen.destination.settings.CornerSettingsDestination
 import com.xah.transition.ui.screen.destination.HomeDestination
+import com.xah.transition.ui.screen.destination.detail.AppIconDestination
 import com.xah.transition.ui.screen.destination.detail.SecondDestination
 import com.xah.transition.ui.screen.destination.detail.ThirdDestination
+import com.xah.transition.ui.screen.destination.settings.BezierSettingsDestination
 import com.xah.transition.ui.screen.test.CubicBezierEditor
 import com.xah.transition.ui.style.topBarTransplantColor
 import com.xah.transition.ui.viewmodel.UiHolder
@@ -143,24 +134,24 @@ fun HomeScreen() {
         }
         Scaffold(
             containerColor = Color.Transparent,
-            floatingActionButton = {
-                SharedContainer(
-                    containerColor = MaterialTheme.colorScheme.inversePrimary,
-                    key = BezierSettingsDestination.key,
-                    corner = FloatingActionButtonDefaults.shape
-                ) {
-                    FloatingActionButton(
-                        elevation = FloatingActionButtonDefaults.elevation(0.dp,0.dp,0.dp,0.dp),
-                        containerColor = MaterialTheme.colorScheme.inversePrimary,
-                        shape = RoundedCornerShape(0.dp),
-                        onClick = {
-                            navController.push(BezierSettingsDestination)
-                        }
-                    ) {
-                        Icon(painterResource(BezierSettingsDestination.icon),null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
-                    }
-                }
-            },
+//            floatingActionButton = {
+//                SharedContainer(
+//                    containerColor = MaterialTheme.colorScheme.inversePrimary,
+//                    key = BezierSettingsDestination.key,
+//                    corner = FloatingActionButtonDefaults.shape
+//                ) {
+//                    FloatingActionButton(
+//                        elevation = FloatingActionButtonDefaults.elevation(0.dp,0.dp,0.dp,0.dp),
+//                        containerColor = MaterialTheme.colorScheme.inversePrimary,
+//                        shape = RoundedCornerShape(0.dp),
+//                        onClick = {
+//                            navController.push(BezierSettingsDestination)
+//                        }
+//                    ) {
+//                        Icon(painterResource(BezierSettingsDestination.icon),null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
+//                    }
+//                }
+//            },
         ) { innerPadding ->
             Box(modifier = Modifier.fillMaxSize()) {
                 LazyVerticalGrid(
@@ -309,17 +300,17 @@ fun HomeScreen() {
                             .statusBarsPadding()
                             .padding(horizontal = APP_HORIZONTAL_DP)
                         ,
-                        key = CornerSettingsDestination.key,
+                        key = BezierSettingsDestination.key,
                         corner = CircleShape
                     ) {
                         FilledTonalIconButton (
                             shape = RoundedCornerShape(0.dp),
                             colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = MaterialTheme.colorScheme.inversePrimary),
                             onClick = {
-                                navController.push(CornerSettingsDestination)
+                                navController.push(BezierSettingsDestination)
                             }
                         ) {
-                            Icon(painterResource(CornerSettingsDestination.icon),null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
+                            Icon(painterResource(BezierSettingsDestination.icon),null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
                         }
                     }
                 }
@@ -392,88 +383,88 @@ fun ThirdScreen() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CornerSettingsScreen(title : String) {
-    val navController = LocalNavController.current
-    val registry = LocalSharedRegistry.current
-    val view = LocalView.current
-
-    var corner by remember { mutableFloatStateOf(0f) }
-
-    LaunchedEffect(Unit) {
-        corner = ScreenCornerHelper.corner.value
-    }
-
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.inversePrimary,
-        topBar = {
-            MediumTopAppBar(
-                colors = topBarTransplantColor(),
-                title = { Text(title) },
-            )
-        },
-        bottomBar = {
-            Button(
-                onClick = {
-                    ScreenCornerHelper.corner = corner.dp
-                    navController.pop()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(APP_HORIZONTAL_DP)
-                    .navigationBarsPadding()
-            ) {
-                Text("保存")
-            }
-        }
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.surface,RoundedCornerShape(corner.dp))
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            Column (modifier = Modifier.align(Alignment.Center),horizontalAlignment = Alignment.CenterHorizontally) {
-                CustomSlider(
-                    value = corner,
-                    onValueChange = {
-                        corner = it
-                    },
-                    valueRange = 0f..100f
-                )
-                Box(modifier = Modifier.fillMaxWidth().padding(horizontal = APP_HORIZONTAL_DP)) {
-                    FilledTonalButton(
-                        onClick = {
-                            corner -= 0.5f
-                        },
-                        enabled = corner > 0f,
-                        modifier = Modifier.align(Alignment.CenterStart)
-                    ) {
-                        Text("-0.5")
-                    }
-                    FilledTonalButton(
-                        onClick = {
-                            corner = ScreenCornerHelper(view).getCornerDp().value
-                        },
-                        modifier = Modifier.align(Alignment.Center)
-                    ) {
-                        Text("$corner")
-                    }
-                    FilledTonalButton(
-                        onClick = {
-                            corner += 0.5f
-                        },
-                        enabled = corner < 100f,
-                        modifier = Modifier.align(Alignment.CenterEnd)
-                    ) {
-                        Text("+0.5")
-                    }
-                }
-            }
-        }
-    }
-}
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun CornerSettingsScreen(title : String) {
+//    val navController = LocalNavController.current
+//    val registry = LocalSharedRegistry.current
+//    val view = LocalView.current
+//
+//    var corner by remember { mutableFloatStateOf(0f) }
+//
+//    LaunchedEffect(Unit) {
+//        corner = ScreenCornerHelper.corner.value
+//    }
+//
+//    Scaffold(
+//        containerColor = MaterialTheme.colorScheme.inversePrimary,
+//        topBar = {
+//            MediumTopAppBar(
+//                colors = topBarTransplantColor(),
+//                title = { Text(title) },
+//            )
+//        },
+//        bottomBar = {
+//            Button(
+//                onClick = {
+//                    ScreenCornerHelper.corner = corner.dp
+//                    navController.pop()
+//                },
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(APP_HORIZONTAL_DP)
+//                    .navigationBarsPadding()
+//            ) {
+//                Text("保存")
+//            }
+//        }
+//    ) { innerPadding ->
+//        Box(
+//            modifier = Modifier
+//                .background(MaterialTheme.colorScheme.surface,RoundedCornerShape(corner.dp))
+//                .fillMaxSize()
+//                .padding(innerPadding)
+//        ) {
+//            Column (modifier = Modifier.align(Alignment.Center),horizontalAlignment = Alignment.CenterHorizontally) {
+//                CustomSlider(
+//                    value = corner,
+//                    onValueChange = {
+//                        corner = it
+//                    },
+//                    valueRange = 0f..100f
+//                )
+//                Box(modifier = Modifier.fillMaxWidth().padding(horizontal = APP_HORIZONTAL_DP)) {
+//                    FilledTonalButton(
+//                        onClick = {
+//                            corner -= 0.5f
+//                        },
+//                        enabled = corner > 0f,
+//                        modifier = Modifier.align(Alignment.CenterStart)
+//                    ) {
+//                        Text("-0.5")
+//                    }
+//                    FilledTonalButton(
+//                        onClick = {
+//                            corner = ScreenCornerHelper(view).getCornerDp().value
+//                        },
+//                        modifier = Modifier.align(Alignment.Center)
+//                    ) {
+//                        Text("$corner")
+//                    }
+//                    FilledTonalButton(
+//                        onClick = {
+//                            corner += 0.5f
+//                        },
+//                        enabled = corner < 100f,
+//                        modifier = Modifier.align(Alignment.CenterEnd)
+//                    ) {
+//                        Text("+0.5")
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
