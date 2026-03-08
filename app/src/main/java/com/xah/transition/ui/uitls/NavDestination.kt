@@ -1,8 +1,8 @@
 package com.xah.transition.ui.uitls
 
-import com.xah.navigation.model.Destination
+import com.xah.navigation.model.dest.SharedDestination
 
-abstract class NavDestination : Destination() {
+abstract class NavDestination : SharedDestination() {
     abstract val title : String
     open val icon : Int? = null
 }

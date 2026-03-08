@@ -1,12 +1,12 @@
-package com.xah.transition.ui.screen.destination
+package com.xah.transition.ui.screen.destination.detail
 
 import androidx.compose.runtime.Composable
-import com.xah.transition.ui.screen.AppBean
-import com.xah.transition.ui.screen.AppHomeScreen
+import com.xah.transition.model.AppIconBean
+import com.xah.transition.ui.screen.AppIconScreen
 import com.xah.transition.ui.uitls.NavDestination
 
-data class AppHomeDestination(
-    val app: AppBean
+data class AppIconDestination(
+    val app: AppIconBean
 ) : NavDestination() {
 
     override val title: String = app.name
@@ -14,6 +14,6 @@ data class AppHomeDestination(
 
     @Composable
     override fun Content() {
-        AppHomeScreen()
+        AppIconScreen()
     }
 }

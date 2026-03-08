@@ -25,11 +25,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.xah.container.container.SharedContainer
 import com.xah.container.container.SharedContent
 import com.xah.container.overlay.SharedContainerRoot
-import com.xah.container.utils.LocalSharedContainerRegistry
+import com.xah.container.utils.LocalSharedRegistry
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CARD_NORMAL_DP
 import com.xah.transition.ui.component.SmallCard
@@ -37,7 +36,7 @@ import com.xah.transition.ui.component.TransplantListItem
 
 @Composable
 fun HomeScreenT(onPush : (Int) -> Unit) {
-    val registry = LocalSharedContainerRegistry.current
+    val registry = LocalSharedRegistry.current
     val scrollState = rememberLazyGridState()
     Box(modifier = Modifier.fillMaxSize()) {
         LazyVerticalGrid(
@@ -73,7 +72,7 @@ fun HomeScreenT(onPush : (Int) -> Unit) {
 
 @Composable
 fun SecondScreenT(userId : Int,onBack : () -> Unit) {
-    val registry = LocalSharedContainerRegistry.current
+    val registry = LocalSharedRegistry.current
     val route = "Item #$userId"
     SharedContent(
         key = route

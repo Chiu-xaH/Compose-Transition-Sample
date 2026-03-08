@@ -1,4 +1,4 @@
-package com.xah.transition.ui.screen.destination
+package com.xah.transition.ui.screen.destination.detail
 
 import androidx.compose.runtime.Composable
 import com.xah.transition.ui.screen.ThirdScreen

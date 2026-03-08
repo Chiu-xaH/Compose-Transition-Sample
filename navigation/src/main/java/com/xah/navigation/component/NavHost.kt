@@ -25,15 +25,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xah.common.ScreenCornerHelper
 import com.xah.navigation.utils.touchEvent
 import com.xah.container.overlay.SharedContainerRoot
-import com.xah.container.utils.LocalSharedContainerRegistry
+import com.xah.container.utils.LocalSharedRegistry
 import com.xah.navigation.anim.EffectLevel
 import com.xah.navigation.anim.PageEffect
 import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.controller.NavigationViewModel
-import com.xah.navigation.model.ActionType
-import com.xah.navigation.model.Destination
+import com.xah.navigation.model.action.ActionType
+import com.xah.navigation.model.dest.Destination
 import com.xah.navigation.model.Dependencies
-import com.xah.navigation.shared.SharedNavHelper
 import com.xah.navigation.utils.LocalNavDependencies
 import com.xah.navigation.utils.LocalNavController
 import com.xah.navigation.utils.LocalNavControllerSafely
@@ -57,18 +56,18 @@ fun SharedNavHost(
 }
 
 @Composable
-private fun NavHost(
+fun NavHost(
     startDestination: Destination,
     modifier: Modifier = Modifier,
     dependencies: Dependencies = Dependencies(),
     customBackHandler: (@Composable () -> Unit)? = null,
 ) {
-    val registry = LocalSharedContainerRegistry.current
+    val registry = LocalSharedRegistry.current
     val scope = rememberCoroutineScope()
     val saveableStateHolder = rememberSaveableStateHolder()
     val navViewModel: NavigationViewModel = viewModel(factory = NavigationViewModel.Factory())
     val navController = remember(navViewModel) {
-        NavigationController(scope, startDestination, navViewModel.stack)
+        NavigationController(scope, startDestination, navViewModel.stack,registry)
     }
 
     CompositionLocalProvider(
@@ -78,7 +77,7 @@ private fun NavHost(
     ) {
         if (customBackHandler == null) {
             BackHandler(enabled = navController.stack.size > 1) {
-                SharedNavHelper.pop(navController,registry)
+                navController.pop()
             }
             // TODO 预测式返回
         } else {

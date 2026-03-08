@@ -62,16 +62,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.xah.common.ScreenCornerHelper
 import com.xah.container.container.SharedContainer
-import com.xah.container.container.SharedContent
-import com.xah.container.utils.LocalSharedContainerRegistry
+import com.xah.container.utils.LocalSharedRegistry
 import com.xah.navigation.anim.EffectLevel
 import com.xah.navigation.component.SharedNavHost
-import com.xah.navigation.shared.SharedNavHelper
+import com.xah.navigation.model.action.ActionType
+import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.utils.LocalNavDependencies
 import com.xah.navigation.utils.LocalNavController
-import com.xah.navigation.utils.LocalNavDestination
 import com.xah.navigation.utils.rememberNavDependencies
 import com.xah.transition.R
+import com.xah.transition.model.AppIconBean
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CARD_NORMAL_DP
 import com.xah.transition.ui.component.CardListItem
@@ -79,15 +79,14 @@ import com.xah.transition.ui.component.CustomSlider
 import com.xah.transition.ui.component.SmallCard
 import com.xah.transition.ui.component.TransplantListItem
 import com.xah.transition.ui.component.cardNormalColor
-import com.xah.transition.ui.screen.destination.AppHomeDestination
-import com.xah.transition.ui.screen.destination.BezierSettingsDestination
-import com.xah.transition.ui.screen.destination.CornerSettingsDestination
+import com.xah.transition.ui.screen.destination.detail.AppIconDestination
+import com.xah.transition.ui.screen.destination.settings.BezierSettingsDestination
+import com.xah.transition.ui.screen.destination.settings.CornerSettingsDestination
 import com.xah.transition.ui.screen.destination.HomeDestination
-import com.xah.transition.ui.screen.destination.SecondDestination
-import com.xah.transition.ui.screen.destination.ThirdDestination
+import com.xah.transition.ui.screen.destination.detail.SecondDestination
+import com.xah.transition.ui.screen.destination.detail.ThirdDestination
 import com.xah.transition.ui.screen.test.CubicBezierEditor
 import com.xah.transition.ui.style.topBarTransplantColor
-import com.xah.transition.ui.uitls.NavDestination
 import com.xah.transition.ui.viewmodel.UiHolder
 
 @Composable
@@ -101,19 +100,13 @@ fun App() {
     SharedNavHost(HomeDestination, modifier = Modifier.background(MaterialTheme.colorScheme.surface), dependencies = deps)
 }
 
-data class AppBean(
-    val key : String,
-    val name : String,
-    val icon : Int
-)
-
-private val appList = listOf<AppBean>(
-    AppBean("jd","京东",R.drawable.ic_jd),
-    AppBean("xhs","小红书",R.drawable.ic_xhs),
-    AppBean("amap","高德地图",R.drawable.ic_amap),
-    AppBean("qweather","和风天气",R.drawable.ic_qweather),
-    AppBean("iqiyi","爱奇艺",R.drawable.ic_iqiyi),
-    AppBean("candy","Candy Crush Saga",R.drawable.ic_candy),
+private val appList = listOf<AppIconBean>(
+    AppIconBean("jd","京东",R.drawable.ic_jd),
+    AppIconBean("xhs","小红书",R.drawable.ic_xhs),
+    AppIconBean("amap","高德地图",R.drawable.ic_amap),
+    AppIconBean("qweather","和风天气",R.drawable.ic_qweather),
+    AppIconBean("iqiyi","爱奇艺",R.drawable.ic_iqiyi),
+    AppIconBean("candy","Candy Crush Saga",R.drawable.ic_candy),
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -124,7 +117,7 @@ fun HomeScreen() {
 
     val navController = LocalNavController.current
     val scrollState = rememberLazyGridState()
-    val registry = LocalSharedContainerRegistry.current
+    val registry = LocalSharedRegistry.current
     val context = LocalContext.current
     val pickMediaLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia()
@@ -148,10 +141,8 @@ fun HomeScreen() {
                 contentScale = ContentScale.Crop
             )
         }
-//        val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
         Scaffold(
             containerColor = Color.Transparent,
-//            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             floatingActionButton = {
                 SharedContainer(
                     containerColor = MaterialTheme.colorScheme.inversePrimary,
@@ -163,7 +154,7 @@ fun HomeScreen() {
                         containerColor = MaterialTheme.colorScheme.inversePrimary,
                         shape = RoundedCornerShape(0.dp),
                         onClick = {
-                            SharedNavHelper.push(BezierSettingsDestination,navController,registry)
+                            navController.push(BezierSettingsDestination)
                         }
                     ) {
                         Icon(painterResource(BezierSettingsDestination.icon),null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
@@ -182,7 +173,7 @@ fun HomeScreen() {
                     }
                     items(appList.size,key = { appList[it].key }) { index ->
                         val item = appList[index]
-                        val destination = AppHomeDestination(item)
+                        val destination = AppIconDestination(item)
                         Column {
                             SharedContainer(
                                 destination.key,
@@ -193,7 +184,7 @@ fun HomeScreen() {
                                     modifier = Modifier
                                         .size(150.dp)
                                         .clickable {
-                                            SharedNavHelper.push(destination,navController,registry)
+                                            navController.push(destination)
                                         }
                                 ) {
                                     Image(painterResource(item.icon),null)
@@ -238,7 +229,7 @@ fun HomeScreen() {
                                     TransplantListItem(
                                         headlineContent = { Text("Item #${index}") },
                                         modifier = Modifier.clickable {
-                                            SharedNavHelper.push(SecondDestination(userId = index),navController,registry)
+                                            navController.push(SecondDestination(userId = index))
                                         }
                                     )
                                 }
@@ -325,7 +316,7 @@ fun HomeScreen() {
                             shape = RoundedCornerShape(0.dp),
                             colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = MaterialTheme.colorScheme.inversePrimary),
                             onClick = {
-                                SharedNavHelper.push(CornerSettingsDestination,navController,registry)
+                                navController.push(CornerSettingsDestination)
                             }
                         ) {
                             Icon(painterResource(CornerSettingsDestination.icon),null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
@@ -340,50 +331,40 @@ fun HomeScreen() {
 @Composable
 fun SecondScreen() {
     val navController = LocalNavController.current
-    val destination = LocalNavDestination.current
-    SharedContent (
-        key = destination.key,
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
-        ) {
-            LazyColumn {
-                items(30) {
-                    CardListItem(
-                        headlineContent = {
-                            Text("测试$it")
-                        },
-                        modifier = Modifier.clickable {
-                            navController.push(ThirdDestination)
-                        }
-                    )
-                }
+        LazyColumn {
+            items(30) {
+                CardListItem(
+                    headlineContent = {
+                        Text("测试$it")
+                    },
+                    modifier = Modifier.clickable {
+                        navController.push(ThirdDestination)
+                    }
+                )
             }
         }
     }
 }
 
 @Composable
-fun AppHomeScreen() {
-    val destination = LocalNavDestination.current
-    SharedContent (
-        key = destination.key,
+fun AppIconScreen() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
-        ) {
-            LazyColumn {
-                items(30) {
-                    CardListItem(
-                        headlineContent = {
-                            Text("测试$it")
-                        }
-                    )
-                }
+        LazyColumn {
+            items(30) {
+                CardListItem(
+                    headlineContent = {
+                        Text("测试$it")
+                    }
+                )
             }
         }
     }
@@ -402,7 +383,7 @@ fun ThirdScreen() {
     ) {
         Button(
             onClick = {
-                navController.home()
+                navController.push(HomeDestination, LaunchMode.Single(reuse = true, actionType = ActionType.POP))
             },
             modifier = Modifier.align(Alignment.Center)
         ) {
@@ -413,11 +394,9 @@ fun ThirdScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CornerSettingsScreen() {
-    val destination = LocalNavDestination.current
+fun CornerSettingsScreen(title : String) {
     val navController = LocalNavController.current
-    val registry = LocalSharedContainerRegistry.current
-    val dest = LocalNavDestination.current as NavDestination
+    val registry = LocalSharedRegistry.current
     val view = LocalView.current
 
     var corner by remember { mutableFloatStateOf(0f) }
@@ -426,73 +405,69 @@ fun CornerSettingsScreen() {
         corner = ScreenCornerHelper.corner.value
     }
 
-    SharedContent (
-        key = destination.key,
-    ) {
-        Scaffold(
-            containerColor = MaterialTheme.colorScheme.inversePrimary,
-            topBar = {
-                MediumTopAppBar(
-                    colors = topBarTransplantColor(),
-                    title = { Text(dest.title) },
-                )
-            },
-            bottomBar = {
-                Button(
-                    onClick = {
-                        ScreenCornerHelper.corner = corner.dp
-                        SharedNavHelper.pop(navController,registry)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(APP_HORIZONTAL_DP)
-                        .navigationBarsPadding()
-                ) {
-                    Text("保存")
-                }
-            }
-        ) { innerPadding ->
-            Box(
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.inversePrimary,
+        topBar = {
+            MediumTopAppBar(
+                colors = topBarTransplantColor(),
+                title = { Text(title) },
+            )
+        },
+        bottomBar = {
+            Button(
+                onClick = {
+                    ScreenCornerHelper.corner = corner.dp
+                    navController.pop()
+                },
                 modifier = Modifier
-                    .background(MaterialTheme.colorScheme.surface,RoundedCornerShape(corner.dp))
-                    .fillMaxSize()
-                    .padding(innerPadding)
+                    .fillMaxWidth()
+                    .padding(APP_HORIZONTAL_DP)
+                    .navigationBarsPadding()
             ) {
-                Column (modifier = Modifier.align(Alignment.Center),horizontalAlignment = Alignment.CenterHorizontally) {
-                    CustomSlider(
-                        value = corner,
-                        onValueChange = {
-                            corner = it
+                Text("保存")
+            }
+        }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.surface,RoundedCornerShape(corner.dp))
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            Column (modifier = Modifier.align(Alignment.Center),horizontalAlignment = Alignment.CenterHorizontally) {
+                CustomSlider(
+                    value = corner,
+                    onValueChange = {
+                        corner = it
+                    },
+                    valueRange = 0f..100f
+                )
+                Box(modifier = Modifier.fillMaxWidth().padding(horizontal = APP_HORIZONTAL_DP)) {
+                    FilledTonalButton(
+                        onClick = {
+                            corner -= 0.5f
                         },
-                        valueRange = 0f..100f
-                    )
-                    Box(modifier = Modifier.fillMaxWidth().padding(horizontal = APP_HORIZONTAL_DP)) {
-                        FilledTonalButton(
-                            onClick = {
-                                corner -= 0.5f
-                            },
-                            enabled = corner > 0f,
-                            modifier = Modifier.align(Alignment.CenterStart)
-                        ) {
-                            Text("-0.5")
-                        }
-                        FilledTonalButton(
-                            onClick = {
-                                corner = ScreenCornerHelper(view).getCornerDp().value
-                            },
-                            modifier = Modifier.align(Alignment.Center)
-                        ) {
-                            Text("$corner")
-                        }
-                        FilledTonalButton(
-                            onClick = {
-                                corner += 0.5f
-                            },
-                            enabled = corner < 100f,
-                            modifier = Modifier.align(Alignment.CenterEnd)
-                        ) {
-                            Text("+0.5")
-                        }
+                        enabled = corner > 0f,
+                        modifier = Modifier.align(Alignment.CenterStart)
+                    ) {
+                        Text("-0.5")
+                    }
+                    FilledTonalButton(
+                        onClick = {
+                            corner = ScreenCornerHelper(view).getCornerDp().value
+                        },
+                        modifier = Modifier.align(Alignment.Center)
+                    ) {
+                        Text("$corner")
+                    }
+                    FilledTonalButton(
+                        onClick = {
+                            corner += 0.5f
+                        },
+                        enabled = corner < 100f,
+                        modifier = Modifier.align(Alignment.CenterEnd)
+                    ) {
+                        Text("+0.5")
                     }
                 }
             }
@@ -502,71 +477,64 @@ fun CornerSettingsScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BezierSettingsScreen() {
-    val destination = LocalNavDestination.current
-    val registry = LocalSharedContainerRegistry.current
-    val dest = LocalNavDestination.current as NavDestination
-
+fun BezierSettingsScreen(title: String) {
+    val registry = LocalSharedRegistry.current
     var isPush by rememberSaveable { mutableStateOf(true) }
 
-    SharedContent (
-        key = destination.key,
-    ) {
-        Scaffold(
-            topBar = {
-                MediumTopAppBar(
-                    colors = topBarTransplantColor(),
-                    title = { Text(dest.title) },
-                )
-            },
-            bottomBar = {
-                Button(
-                    onClick = {
-                        isPush = !isPush
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(APP_HORIZONTAL_DP)
-                        .navigationBarsPadding()
-                ) {
-                    Text("当前调节${
-                        if(isPush) {
-                            "PUSH"
-                        } else {
-                            "POP"
-                        }
-                    }")
-                }
-            }
-        ) { innerPadding ->
-            Box(
+    Scaffold(
+        topBar = {
+            MediumTopAppBar(
+                colors = topBarTransplantColor(),
+                title = { Text(title) },
+            )
+        },
+        bottomBar = {
+            Button(
+                onClick = {
+                    isPush = !isPush
+                },
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
+                    .fillMaxWidth()
+                    .padding(APP_HORIZONTAL_DP)
+                    .navigationBarsPadding()
             ) {
-                if(isPush) {
-                    CubicBezierEditor(
-                        registry.pushX1,
-                        registry.pushY1,
-                        registry.pushX2,
-                        registry.pushY2,
-                        { registry.pushX1 = it },
-                        { registry.pushY1 = it },
-                        { registry.pushX2 = it },
-                        { registry.pushY2 = it },
-                    )
-                } else {
-                    CubicBezierEditor(
-                        registry.popX1,
-                        registry.popY1,
-                        registry.popX2,
-                        registry.popY2,
-                        { registry.popX1 = it },
-                        { registry.popY1 = it },
-                        { registry.popX2 = it },
-                        { registry.popY2 = it },
-                    )
-                }
+                Text("当前调节${
+                    if(isPush) {
+                        "PUSH"
+                    } else {
+                        "POP"
+                    }
+                }")
+            }
+        }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            if(isPush) {
+                CubicBezierEditor(
+                    registry.pushX1,
+                    registry.pushY1,
+                    registry.pushX2,
+                    registry.pushY2,
+                    { registry.pushX1 = it },
+                    { registry.pushY1 = it },
+                    { registry.pushX2 = it },
+                    { registry.pushY2 = it },
+                )
+            } else {
+                CubicBezierEditor(
+                    registry.popX1,
+                    registry.popY1,
+                    registry.popX2,
+                    registry.popY2,
+                    { registry.popX1 = it },
+                    { registry.popY1 = it },
+                    { registry.popX2 = it },
+                    { registry.popY2 = it },
+                )
             }
         }
     }

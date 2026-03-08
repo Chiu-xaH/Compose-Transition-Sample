@@ -23,12 +23,12 @@ import androidx.compose.ui.util.lerp
 import androidx.compose.ui.zIndex
 import com.xah.container.container.pixelExtension
 import com.xah.container.model.ContainerFilledStrategy
-import com.xah.container.utils.LocalSharedContainerRegistry
+import com.xah.container.utils.LocalSharedRegistry
 import kotlin.math.roundToInt
 
 @Composable
 fun SharedContainerOverlay() {
-    val registry = LocalSharedContainerRegistry.current
+    val registry = LocalSharedRegistry.current
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp

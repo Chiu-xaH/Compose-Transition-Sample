@@ -1,4 +1,4 @@
-package com.xah.transition.ui.screen.destination
+package com.xah.transition.ui.screen.destination.settings
 
 import androidx.compose.runtime.Composable
 import com.xah.transition.R
@@ -13,6 +13,6 @@ data object CornerSettingsDestination : NavDestination() {
 
     @Composable
     override fun Content() {
-        CornerSettingsScreen()
+        CornerSettingsScreen(title)
     }
 }

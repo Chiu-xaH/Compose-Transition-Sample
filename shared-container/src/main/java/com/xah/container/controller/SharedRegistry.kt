@@ -14,7 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
 
-class SharedContainerRegistry(
+class SharedRegistry(
     private val scope: CoroutineScope
 ) {
     val states = mutableStateMapOf<Any, SharedContainerState>()
