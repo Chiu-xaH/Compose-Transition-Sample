@@ -43,7 +43,7 @@ fun SharedNavHost(
     startDestination: Destination,
     modifier: Modifier = Modifier,
     dependencies: Dependencies = Dependencies(),
-    customBackHandler: (@Composable () -> Unit)? = null,
+    customBackHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
     SharedContainerRoot {
         NavHost(
@@ -60,7 +60,7 @@ fun NavHost(
     startDestination: Destination,
     modifier: Modifier = Modifier,
     dependencies: Dependencies = Dependencies(),
-    customBackHandler: (@Composable () -> Unit)? = null,
+    customBackHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
     val registry = LocalSharedRegistry.current
     val scope = rememberCoroutineScope()
@@ -75,14 +75,7 @@ fun NavHost(
         LocalNavController provides navController,
         LocalNavDependencies provides dependencies
     ) {
-        if (customBackHandler == null) {
-            BackHandler(enabled = navController.stack.size > 1) {
-                navController.pop()
-            }
-            // TODO 预测式返回
-        } else {
-            customBackHandler()
-        }
+        customBackHandler()
 
         val transition = navController.navTransition
         val progress = navController.transitionProgress
@@ -204,6 +197,15 @@ fun NavHost(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun DefaultBackHandler() {
+    // TODO 预测式返回
+    val navController = LocalNavController.current
+    BackHandler(enabled = navController.stack.size > 1) {
+        navController.pop()
     }
 }
 
