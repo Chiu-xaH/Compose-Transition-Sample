@@ -26,8 +26,8 @@ import com.xah.container.utils.LocalSharedRegistry
 fun Modifier.sharedContainer(
     key : Any,
     corner : Shape,
-    shadow : Dp = 0.dp,
     containerColor : Color?,
+    shadow : Dp = 0.dp,
 ): Modifier {
     return this
         .shadow(shadow,corner)
