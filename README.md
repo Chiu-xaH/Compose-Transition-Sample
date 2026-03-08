@@ -13,6 +13,59 @@
 7. 并行打断动画
 8. 更符合直觉的预测式手势
 
+## 快速开始
+### 新增全屏界面
+1. 新增一个新界面
+
+继承NavDestination
+```Kotlin
+object NewPageDestination : SharedDestination() {
+    override val key = "new_page"
+
+    @Composable
+    override fun Content() {
+        val vm = LocalNavDependencies.current.get<NetWorkViewModel>()
+        NewPageScreen(vm)
+    }
+}
+```
+在需要进入本界面的地方调用
+```Kotlin
+@Composable
+fun FromScreen() {
+    val navController = LocalNavController.current
+    
+    ListItem(
+        onClick = {
+            navController.push(NewPageDestination)
+        }
+    )
+}
+```
+
+### 引入容器共享动效
+用SharedContainer包裹，以Destination的key作为key传入，传入容器的Shape、ContainerColor，并将内容器形状置为Rectangle
+```Kotlin
+@Composable
+fun FromScreen() {
+    val navController = LocalNavController.current
+    val dest = NewPageDestination
+    
+    SharedContainer(
+        key = dest.key,
+        shape = Material.shapes.medium,
+        containerColor = Material.colorScheme.primaryContainer
+    ) {
+        ListItem(
+            onClick = {
+                navController.push(dest)
+            }
+        )
+    }
+}
+```
+写完后务必测试无问题
+
 ## TODO
 打开关闭的模糊度不同优化     [P0]
 **************************************

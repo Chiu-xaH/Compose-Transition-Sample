@@ -49,7 +49,7 @@ fun HomeScreenT(onPush : (Int) -> Unit) {
                 Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
                     SharedContainer(
                         key = route,
-                        corner = MaterialTheme.shapes.small
+                        shape = MaterialTheme.shapes.small
                     ) {
                         SmallCard(
                             color = MaterialTheme.colorScheme.primaryContainer

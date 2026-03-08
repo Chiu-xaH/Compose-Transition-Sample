@@ -66,7 +66,7 @@ fun ContainerTest() {
                 ScreenState.A -> {
                     SharedContainer(
                         key,
-                        corner = RoundedCornerShape(20.dp),
+                        shape = RoundedCornerShape(20.dp),
                         modifier = Modifier
                             .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
                             .pointerInput(Unit) {
@@ -95,7 +95,7 @@ fun ContainerTest() {
 
                     SharedContainer(
                         key2,
-                        corner = RoundedCornerShape(15.dp),
+                        shape = RoundedCornerShape(15.dp),
                         modifier = Modifier
                             .padding(horizontal = APP_HORIZONTAL_DP)
                             .align(Alignment.Center)

@@ -2,7 +2,6 @@ package com.xah.container.container
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.CornerBasedShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -25,13 +24,13 @@ import com.xah.container.utils.LocalSharedRegistry
 
 fun Modifier.sharedContainer(
     key : Any,
-    corner : Shape,
+    shape : Shape,
     containerColor : Color?,
     shadow : Dp = 0.dp,
 ): Modifier {
     return this
-        .shadow(shadow,corner)
-        .clip(corner)
+        .shadow(shadow,shape)
+        .clip(shape)
         .sharedContainer(
             key,
             if(containerColor == null) {
@@ -39,27 +38,27 @@ fun Modifier.sharedContainer(
             } else {
                 ContainerFilledStrategy.Pixel(ContainerFilledStrategy.Color(containerColor))
             },
-            corner as CornerBasedShape
+            shape as CornerBasedShape
         )
 }
 
 
 fun Modifier.sharedContainer(
     key : Any,
-    corner : Shape,
+    shape : Shape,
     shadow : Dp = 0.dp,
     containerFilledStrategy : ContainerFilledStrategy = ContainerFilledStrategy.Pixel(),
 ): Modifier {
     return this
-        .shadow(shadow,corner)
-        .clip(corner)
-        .sharedContainer(key,containerFilledStrategy,corner as CornerBasedShape)
+        .shadow(shadow,shape)
+        .clip(shape)
+        .sharedContainer(key,containerFilledStrategy,shape as CornerBasedShape)
 }
 
 private fun Modifier.sharedContainer(
     key : Any,
     containerFilledStrategy : ContainerFilledStrategy,
-    corner : CornerBasedShape,
+    shape : CornerBasedShape,
 ): Modifier = composed {
     val registry = LocalSharedRegistry.current
     if(!registry.enabled) {
@@ -75,7 +74,7 @@ private fun Modifier.sharedContainer(
 
     LaunchedEffect(Unit) {
         state.containerFilledStrategy = containerFilledStrategy
-        state.containerCorner = corner
+        state.containerCorner = shape
         state.containerLayerForPixel = graphicsLayerForPixel
         state.containerLayer = graphicsLayer
     }
@@ -111,7 +110,7 @@ private fun Modifier.sharedContainer(
 
 fun Modifier.sharedContent(
     key : Any,
-    corner : CornerBasedShape,
+    shape: CornerBasedShape,
 ): Modifier = composed {
     val registry = LocalSharedRegistry.current
     if(!registry.enabled) {
@@ -125,7 +124,7 @@ fun Modifier.sharedContent(
     val graphicsLayer = rememberGraphicsLayer()
 
     LaunchedEffect(Unit) {
-        state.contentCorner = corner
+        state.contentCorner = shape
         state.contentLayer = graphicsLayer
     }
 
@@ -158,18 +157,18 @@ fun Modifier.sharedContent(
 /**
  * 共享容器的内容
  * @param key 两个容器之间的Key
- * @param corner 屏幕圆角
+ * @param shape 屏幕圆角
  */
 @Composable
 fun SharedContent(
     key : Any,
     modifier : Modifier = Modifier,
-    corner : Shape = ScreenCornerHelper.shape,
+    shape : Shape = ScreenCornerHelper.shape,
     content : @Composable () -> Unit
 )  {
     Box(modifier = modifier) {
         Box(
-            modifier = Modifier.sharedContent(key,corner as CornerBasedShape)
+            modifier = Modifier.sharedContent(key,shape as CornerBasedShape)
         ) {
             content()
         }
@@ -179,12 +178,12 @@ fun SharedContent(
 /** 共享容器的容器
  * @param key 两个容器之间的Key
  * @param containerFilledStrategy 容器填充策略
- * @param corner 容器圆角
+ * @param shape 容器圆角
  */
 @Composable
 fun SharedContainer(
     key : Any,
-    corner : Shape,
+    shape: Shape,
     modifier : Modifier = Modifier,
     shadow : Dp = 0.dp,
     containerFilledStrategy : ContainerFilledStrategy = ContainerFilledStrategy.Pixel(),
@@ -192,11 +191,11 @@ fun SharedContainer(
 ) {
     Box(
         modifier = modifier
-            .shadow(shadow,corner)
-            .clip(corner)
+            .shadow(shadow,shape)
+            .clip(shape)
     ) {
         Box(
-            modifier = Modifier.sharedContainer(key, containerFilledStrategy, corner as CornerBasedShape)
+            modifier = Modifier.sharedContainer(key, containerFilledStrategy, shape as CornerBasedShape)
         ) {
             content()
         }
@@ -206,19 +205,19 @@ fun SharedContainer(
 /** 共享容器的容器
  * @param key 两个容器之间的Key
  * @param containerColor 优先使用底部1像素填充，SDK低于33时若containerColor为null则使用填充方案，否则使用containerColor填充
- * @param corner 容器圆角
+ * @param shape 容器圆角
  */
 @Composable
 fun SharedContainer(
     key : Any,
-    corner : Shape,
+    shape : Shape,
     modifier : Modifier = Modifier,
     shadow : Dp = 0.dp,
     containerColor : Color?,
     content : @Composable () -> Unit
 ) = SharedContainer(
     key,
-    corner,
+    shape,
     modifier,
     shadow,
     if(containerColor == null) {

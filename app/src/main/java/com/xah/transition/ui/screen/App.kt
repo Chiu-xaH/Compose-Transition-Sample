@@ -169,7 +169,7 @@ fun HomeScreen() {
                             SharedContainer(
                                 destination.key,
                                 containerColor = null,
-                                corner = RoundedCornerShape(20.dp),
+                                shape = RoundedCornerShape(20.dp),
                             ) {
                                 Box(
                                     modifier = Modifier
@@ -210,7 +210,7 @@ fun HomeScreen() {
                                 key = destination.key,
 //                                containerFilledStrategy = ContainerFilledStrategy.Clip,
                                 containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                corner = MaterialTheme.shapes.small,
+                                shape = MaterialTheme.shapes.small,
                             ) {
                                 Card(
                                     shape = RoundedCornerShape(0.dp),
@@ -301,7 +301,7 @@ fun HomeScreen() {
                             .padding(horizontal = APP_HORIZONTAL_DP)
                         ,
                         key = BezierSettingsDestination.key,
-                        corner = CircleShape
+                        shape = CircleShape
                     ) {
                         FilledTonalIconButton (
                             shape = RoundedCornerShape(0.dp),
