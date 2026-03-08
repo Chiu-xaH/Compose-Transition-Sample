@@ -66,7 +66,7 @@ private fun Modifier.sharedContainer(
     }
     val state = remember { registry.getOrCreate(key) }
     val graphicsLayer = rememberGraphicsLayer()
-    val graphicsLayerForPixel = if(containerFilledStrategy.getFinalStrategy() is ContainerFilledStrategy.Pixel) {
+    val graphicsLayerForPixel = if(containerFilledStrategy.getFinalStrategy(registry.enableShader) is ContainerFilledStrategy.Pixel) {
         rememberGraphicsLayer()
     } else {
         null
