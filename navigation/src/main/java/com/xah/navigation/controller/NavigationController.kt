@@ -26,9 +26,9 @@ import java.util.UUID
 
 class NavigationController(
     private val scope: CoroutineScope,
-    private val startDestination: Destination,
+    val startDestination: Destination,
     private val _stack: SnapshotStateList<StackEntry>,
-    val sharedRegistry : SharedRegistry? = null,
+    var sharedRegistry : SharedRegistry? = null,
 ) {
     val stack: List<StackEntry> get() = _stack
 
@@ -54,7 +54,7 @@ class NavigationController(
     private val pushAnimation = tween<Float>(animationSpecSharedTween*6/5, easing = CubicBezierEasing(0.4f, 0.65f, 0.25f, 1.0f))
 
     fun getAnimation() =
-        if (sharedRegistry != null && sharedRegistry.isRunning) {
+        if (sharedRegistry?.isRunning == true) {
             when(navTransition?.type) {
                 ActionType.POP -> popAnimationWithShared
                 ActionType.PUSH -> pushAnimationWithShared

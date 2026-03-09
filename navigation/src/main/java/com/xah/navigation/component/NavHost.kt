@@ -22,9 +22,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
+import com.xah.common.lerp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xah.common.ScreenCornerHelper
-import com.xah.common.lerp
 import com.xah.container.overlay.SharedContainerRoot
 import com.xah.container.utils.LocalSharedRegistry
 import com.xah.navigation.anim.EffectLevel
@@ -40,18 +40,29 @@ import com.xah.navigation.utils.LocalNavDependencies
 import com.xah.navigation.utils.scaleMirror
 import com.xah.navigation.utils.touchEvent
 
+@Composable
+fun rememberNavController(
+    startDestination : Destination,
+): NavigationController {
+    val scope = rememberCoroutineScope()
+    val navViewModel: NavigationViewModel = viewModel(factory = NavigationViewModel.Factory())
+    val navController = remember(navViewModel) {
+        NavigationController(scope, startDestination, navViewModel.stack,null)
+    }
+    return navController
+}
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun SharedNavHost(
-    startDestination: Destination,
+    navController: NavigationController,
     modifier: Modifier = Modifier,
     dependencies: Dependencies = Dependencies(),
     customBackHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
     SharedContainerRoot {
         NavHost(
-            startDestination,
+            navController,
             modifier,
             dependencies,
             customBackHandler
@@ -61,18 +72,28 @@ fun SharedNavHost(
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun NavHost(
+fun SharedNavHost(
     startDestination: Destination,
     modifier: Modifier = Modifier,
     dependencies: Dependencies = Dependencies(),
     customBackHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
+    val navController = rememberNavController(startDestination)
+    SharedNavHost(navController, modifier, dependencies, customBackHandler)
+}
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@Composable
+fun NavHost(
+    navController: NavigationController,
+    modifier: Modifier = Modifier,
+    dependencies: Dependencies = Dependencies(),
+    customBackHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
+) {
     val registry = LocalSharedRegistry.current
-    val scope = rememberCoroutineScope()
     val saveableStateHolder = rememberSaveableStateHolder()
-    val navViewModel: NavigationViewModel = viewModel(factory = NavigationViewModel.Factory())
-    val navController = remember(navViewModel) {
-        NavigationController(scope, startDestination, navViewModel.stack,registry)
+    LaunchedEffect(registry) {
+        navController.sharedRegistry = registry
     }
 
     CompositionLocalProvider(
@@ -197,6 +218,24 @@ fun NavHost(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@Composable
+fun NavHost(
+    startDestination: Destination,
+    modifier: Modifier = Modifier,
+    dependencies: Dependencies = Dependencies(),
+    customBackHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
+) {
+    val navController = rememberNavController(startDestination)
+
+    NavHost(
+        navController,
+        modifier,
+        dependencies,
+        customBackHandler
+    )
+}
+
 
 // scaleRadio放慢scale的速度
 private class BackgroundEffect(animatedProgress : Float,val level: EffectLevel,val enableBlur : Boolean,val enableShader : Boolean) {
@@ -304,7 +343,7 @@ private class ForegroundEffect(animatedProgress : Float,val level: EffectLevel,v
             animatedProgress
         ),
         corner = lerp(
-            RoundedCornerShape(ScreenCornerHelper.corner*2),
+            if(level == EffectLevel.NONE) RoundedCornerShape(ScreenCornerHelper.corner) else RoundedCornerShape(ScreenCornerHelper.corner*2),
             RoundedCornerShape(ScreenCornerHelper.corner),
             animatedProgress
         )
@@ -327,7 +366,7 @@ private class ForegroundEffect(animatedProgress : Float,val level: EffectLevel,v
             scaleX = effect.scale
             scaleY = effect.scale
             alpha = effect.alpha
-            transformOrigin = TransformOrigin(0.5f,0.25f)
+            transformOrigin = TransformOrigin(0.5f,0.275f)
         }
     }
 
