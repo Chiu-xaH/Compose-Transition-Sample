@@ -1,8 +1,5 @@
 package com.xah.navigation.model.dest
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -17,7 +14,7 @@ abstract class Destination {
     abstract val key: String
 
     /**
-     * 是否等动画完成后再加载，如果是则需要传一个PlaceHolder（预览界面），比如跳转相机时如果不delay延迟加载动效就会卡顿
+     * 是否等动画完成后再加载，如果是则需要传一个PlaceHolder(Splash Screen)先显示，比如初始化相机时如果不延迟加载动效就会卡顿
      */
     open val PlaceHolder: (@Composable () -> Unit)? = null
     // ...可扩展

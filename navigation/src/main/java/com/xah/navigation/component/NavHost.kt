@@ -304,8 +304,8 @@ private class ForegroundEffect(animatedProgress : Float,val level: EffectLevel,v
             animatedProgress
         ),
         corner = lerp(
-            ScreenCornerHelper.shapeDouble,
-            ScreenCornerHelper.shape,
+            RoundedCornerShape(ScreenCornerHelper.corner*2),
+            RoundedCornerShape(ScreenCornerHelper.corner),
             animatedProgress
         )
     )
@@ -340,7 +340,7 @@ private class ForegroundEffect(animatedProgress : Float,val level: EffectLevel,v
     }
 
     private fun Modifier.tinyCorner() : Modifier {
-        return this.clip(ScreenCornerHelper.shape)
+        return this.clip(RoundedCornerShape(ScreenCornerHelper.corner))
     }
 
     fun Modifier.effect() : Modifier {
@@ -438,8 +438,8 @@ private class ForegroundEffectWithSharedElement(animatedProgress : Float,val lev
             animatedProgress
         ),
         corner = lerp(
-            if(level != EffectLevel.NONE) ScreenCornerHelper.shape else RoundedCornerShape(0.dp),
-            if(level != EffectLevel.NONE) ScreenCornerHelper.shape else RoundedCornerShape(0.dp),
+            if(level != EffectLevel.NONE) RoundedCornerShape(ScreenCornerHelper.corner) else RoundedCornerShape(0.dp),
+            if(level != EffectLevel.NONE) RoundedCornerShape(ScreenCornerHelper.corner) else RoundedCornerShape(0.dp),
             animatedProgress
         )
     )
