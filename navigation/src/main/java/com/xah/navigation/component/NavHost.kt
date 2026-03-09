@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.xah.common.LogUtil
 import com.xah.common.ScreenCornerHelper
 import com.xah.common.lerp
 import com.xah.container.overlay.SharedContainerRoot

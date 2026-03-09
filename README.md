@@ -17,11 +17,11 @@
 
 继承NavDestination
 ```Kotlin
-object NewPageDestination : SharedDestination() {
+object NewPageDestination : Destination() {
     override val key = "new_page"
 
     @Composable
-    override fun Content() {
+    override fun Screen() {
         val vm = LocalNavDependencies.current.get<NetWorkViewModel>()
         NewPageScreen(vm)
     }

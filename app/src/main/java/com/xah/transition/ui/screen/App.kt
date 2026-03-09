@@ -1,9 +1,11 @@
 package com.xah.transition.ui.screen
 
+import android.os.Build
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -80,6 +82,7 @@ import com.xah.transition.ui.screen.test.CubicBezierEditor
 import com.xah.transition.ui.style.topBarTransplantColor
 import com.xah.transition.ui.viewmodel.UiHolder
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun App() {
     var arg1 by remember { mutableStateOf(1) }
