@@ -82,6 +82,12 @@ class NavigationController(
         _stack += newEntry
     }
 
+    private fun removeAndPop() {
+        if(canPop()) {
+            _stack.removeAt(_stack.size-1)
+        }
+    }
+
 
     private fun pushInternal(
         destination: Destination,
@@ -211,14 +217,8 @@ class NavigationController(
         transitionProgress.animateTo(targetValue = target, animationSpec = animationSpec)
 
         // 移除栈，置状态
-        when (navTransition?.type) {
-            ActionType.PUSH -> Unit
-            ActionType.POP -> {
-                if(_stack.size > 1) {
-                    _stack.removeAt(_stack.size-1)
-                }
-            }
-            null -> Unit
+        if (navTransition?.type == ActionType.POP) {
+            removeAndPop()
         }
         navTransition = null
         isTransitioning = false
@@ -261,6 +261,14 @@ class NavigationController(
                 this.popInternal()
             }
         }
+    }
+
+    fun current() : StackEntry? {
+        return _stack.lastOrNull()
+    }
+
+    fun canPop() : Boolean {
+        return _stack.size > 1
     }
 
     init {

@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.unit.dp
 import com.xah.common.ScreenCornerHelper
@@ -22,6 +23,10 @@ class SharedContainerState() {
     var containerLayer : GraphicsLayer? = null
     var containerLayerForPixel : GraphicsLayer? = null
     var contentLayer : GraphicsLayer? = null
+
+    // 内容Bitmap 尚未启用
+    var containerSnapshot : ImageBitmap? = null
+    var contentSnapshot : ImageBitmap? = null
 
     // 容器圆角
     var containerCorner: CornerBasedShape = RoundedCornerShape(0.dp)
