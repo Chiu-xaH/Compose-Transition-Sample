@@ -18,11 +18,13 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.unit.dp
+import com.xah.common.LogUtil
 import com.xah.container.model.ContainerFilledStrategy
+import org.intellij.lang.annotations.Language
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-fun Modifier.scaleMirror(scale: Float): Modifier =
-    if(!ContainerFilledStrategy.CAN_USE_SHADER) {
+fun Modifier.scaleMirror(scale: Float,enabled : Boolean = ContainerFilledStrategy.CAN_USE_SHADER): Modifier =
+    if(!enabled) {
         this.graphicsLayer {
             scaleX = scale
             scaleY = scale
@@ -60,7 +62,7 @@ fun Modifier.scaleMirror(scale: Float): Modifier =
     }
 
 
-
+@Language("agsl")
 private const val SHADER_CODE = """
     uniform shader content;
     uniform float2 size;   // 原始画面宽高

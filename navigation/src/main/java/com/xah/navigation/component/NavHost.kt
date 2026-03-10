@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
 import com.xah.common.lerp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.xah.common.LogUtil
 import com.xah.common.ScreenCornerHelper
 import com.xah.container.overlay.SharedContainerRoot
 import com.xah.container.utils.LocalSharedRegistry
@@ -122,6 +123,8 @@ fun NavHost(
         val level = navController.transitionLevel
         val enableBlur = navController.enableBlur
         val enableShader = navController.enableShader
+        val registryRunning = registry.isRunning
+
 
         Box(modifier = modifier.fillMaxSize()) {
             visibleEntries.forEach { entry ->
@@ -131,7 +134,7 @@ fun NavHost(
                         val isTo = transition?.to == entry
 
                         val animatedProgress = progress.value
-                        val underEffect = remember(animatedProgress,level,enableBlur,enableShader) { BackgroundEffect(animatedProgress,level,enableBlur,enableShader) }
+                        val underEffect = remember(animatedProgress,level,enableBlur,enableShader,registryRunning) { BackgroundEffect(animatedProgress,level,enableBlur,enableShader,registryRunning) }
                         val upEffect = remember(animatedProgress,level,enableBlur) { ForegroundEffect(animatedProgress,level,enableBlur) }
 
                         Box(
@@ -238,7 +241,7 @@ fun NavHost(
 
 
 // scaleRadio放慢scale的速度
-private class BackgroundEffect(animatedProgress : Float,val level: EffectLevel,val enableBlur : Boolean,val enableShader : Boolean) {
+private class BackgroundEffect(animatedProgress : Float,val level: EffectLevel,val enableBlur : Boolean,val enableShader : Boolean,val isRegistryRunning : Boolean) {
     private val effect = PageEffect(
         scale = lerp(
             PageEffect.Full.scale,
@@ -290,13 +293,11 @@ private class BackgroundEffect(animatedProgress : Float,val level: EffectLevel,v
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun Modifier.scale() : Modifier {
-        return if(enableShader) {
-            this.scaleMirror(effect.scale)
+        // fixme:这里用graphicsLayer最后会抽搐一下，太奇怪了，暂时禁用
+        if(!enableShader && isRegistryRunning) {
+            return this
         } else {
-            this.graphicsLayer {
-                scaleX = effect.scale
-                scaleY = effect.scale
-            }
+            return this.scaleMirror(effect.scale,enableShader)
         }
     }
 

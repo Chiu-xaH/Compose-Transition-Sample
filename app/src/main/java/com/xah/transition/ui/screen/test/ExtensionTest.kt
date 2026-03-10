@@ -28,8 +28,6 @@ import com.xah.transition.R
 fun Test() {
     var rect by remember { mutableStateOf<Rect?>(null) }
     val graphicsLayer = rememberGraphicsLayer()
-    val configuration = LocalConfiguration.current
-    val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
 
     Box(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.align(Alignment.Center)) {

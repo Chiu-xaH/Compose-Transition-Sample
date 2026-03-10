@@ -64,8 +64,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.xah.common.ScreenCornerHelper
 import com.xah.container.container.SharedContainer
+import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.utils.LocalSharedRegistry
 import com.xah.navigation.anim.EffectLevel
+import com.xah.navigation.component.DefaultBackHandler
 import com.xah.navigation.component.SharedNavHost
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.action.LaunchMode
@@ -100,7 +102,10 @@ fun App() {
         put("1", tag = "args2")
     }
 
-    SharedNavHost(HomeDestination, modifier = Modifier.background(MaterialTheme.colorScheme.surface), dependencies = deps)
+    SharedNavHost(HomeDestination, modifier = Modifier.background(MaterialTheme.colorScheme.surface), dependencies = deps) {
+        LocalNavController.current.enableShader = false
+        DefaultBackHandler()
+    }
 }
 
 private val appList = listOf<AppIconBean>(

@@ -18,6 +18,8 @@ import com.xah.navigation.model.dest.Destination
 import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.model.dest.StackEntry
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.android.awaitFrame
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
