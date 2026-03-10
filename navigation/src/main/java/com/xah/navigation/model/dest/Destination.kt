@@ -1,11 +1,6 @@
 package com.xah.navigation.model.dest
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import com.xah.container.container.SharedContent
-import com.xah.navigation.utils.LocalNavControllerSafely
 
 abstract class Destination {
     /**
@@ -21,27 +16,4 @@ abstract class Destination {
 
     @Composable
     abstract fun Content()
-
-    @Composable
-    fun Screen() {
-        SharedContent(key) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                if(PlaceHolder == null) {
-                    Content()
-                } else {
-                    // 先加载占位符布局
-                    val navController = LocalNavControllerSafely.current
-                    if(navController == null) {
-                        Content()
-                    } else {
-                        if(navController.isTransitioning) {
-                            PlaceHolder!!()
-                        } else {
-                            Content()
-                        }
-                    }
-                }
-            }
-        }
-    }
 }

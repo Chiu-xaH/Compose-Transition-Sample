@@ -102,10 +102,7 @@ fun App() {
         put("1", tag = "args2")
     }
 
-    SharedNavHost(HomeDestination, modifier = Modifier.background(MaterialTheme.colorScheme.surface), dependencies = deps) {
-        LocalNavController.current.enableShader = false
-        DefaultBackHandler()
-    }
+    SharedNavHost(HomeDestination, modifier = Modifier.background(MaterialTheme.colorScheme.surface), dependencies = deps)
 }
 
 private val appList = listOf<AppIconBean>(

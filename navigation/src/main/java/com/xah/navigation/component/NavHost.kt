@@ -26,6 +26,7 @@ import com.xah.common.lerp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xah.common.LogUtil
 import com.xah.common.ScreenCornerHelper
+import com.xah.container.container.SharedContent
 import com.xah.container.overlay.SharedContainerRoot
 import com.xah.container.utils.LocalSharedRegistry
 import com.xah.navigation.anim.EffectLevel
@@ -212,7 +213,14 @@ fun NavHost(
 //                                    }
                                 )
                         ) {
-                            entry.destination.Screen()
+                            SharedContent(entry.destination.key) {
+                                val inSplash = (transition?.type == ActionType.POP && isFrom && navController.isTransitioning) || (transition?.type == ActionType.PUSH && isTo)
+                                if(inSplash && entry.destination.PlaceHolder != null) {
+                                    entry.destination.PlaceHolder!!.invoke()
+                                } else {
+                                    entry.destination.Content()
+                                }
+                            }
                         }
                     }
                 }
