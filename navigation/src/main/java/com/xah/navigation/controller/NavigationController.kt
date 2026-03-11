@@ -44,6 +44,7 @@ class NavigationController(
 
     var enableBlur by mutableStateOf(Build.VERSION.SDK_INT >= 31)
     var enableShader by mutableStateOf(Build.VERSION.SDK_INT >= 33)
+    var enableSplashScreen by mutableStateOf(false)
 
     val transitionProgress = Animatable(0f)
 

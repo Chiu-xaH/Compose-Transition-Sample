@@ -215,7 +215,7 @@ fun NavHost(
                         ) {
                             SharedContent(entry.destination.key) {
                                 val inSplash = (transition?.type == ActionType.POP && isFrom && navController.isTransitioning) || (transition?.type == ActionType.PUSH && isTo)
-                                if(inSplash && entry.destination.PlaceHolder != null) {
+                                if(navController.enableSplashScreen && inSplash && entry.destination.PlaceHolder != null) {
                                     entry.destination.PlaceHolder!!.invoke()
                                 } else {
                                     entry.destination.Content()
