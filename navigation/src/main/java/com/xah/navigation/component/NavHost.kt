@@ -214,8 +214,10 @@ fun NavHost(
                                 )
                         ) {
                             SharedContent(entry.destination.key) {
+                                // NONE没必要用遮罩了
+                                val enableSplashScreen = navController.transitionLevel != EffectLevel.NONE && navController.enableSplashScreen && entry.destination.PlaceHolder != null
                                 val inSplash = (transition?.type == ActionType.POP && isFrom && navController.isTransitioning) || (transition?.type == ActionType.PUSH && isTo)
-                                if(navController.enableSplashScreen && inSplash && entry.destination.PlaceHolder != null) {
+                                if(enableSplashScreen && inSplash) {
                                     entry.destination.PlaceHolder!!.invoke()
                                 } else {
                                     entry.destination.Content()
