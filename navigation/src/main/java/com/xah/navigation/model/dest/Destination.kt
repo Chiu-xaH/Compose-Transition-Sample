@@ -8,6 +8,7 @@ abstract class Destination {
      */
     abstract val key: String
 
+    open val enforcePlaceHolder : Boolean = false
     /**
      * 是否等动画完成后再加载，如果是则需要传一个PlaceHolder(Splash Screen)先显示，比如初始化相机时如果不延迟加载动效就会卡顿
      */

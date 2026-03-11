@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
 import com.xah.common.lerp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.xah.common.LogUtil
 import com.xah.common.ScreenCornerHelper
 import com.xah.container.container.SharedContent
 import com.xah.container.overlay.SharedContainerRoot
@@ -214,10 +213,12 @@ fun NavHost(
                                 )
                         ) {
                             SharedContent(entry.destination.key) {
-                                // NONE没必要用遮罩了
-                                val enableSplashScreen = navController.transitionLevel != EffectLevel.NONE && navController.enableSplashScreen && entry.destination.PlaceHolder != null
-                                val inSplash = (transition?.type == ActionType.POP && isFrom && navController.isTransitioning) || (transition?.type == ActionType.PUSH && isTo)
-                                if(enableSplashScreen && inSplash) {
+                                val needDisplaySplashScreen = entry.destination.enforcePlaceHolder || (navController.enableSplashScreen && navController.transitionLevel != EffectLevel.NONE)
+                                // NONE等级动效不需要遮罩
+                                val enableSplashScreen = needDisplaySplashScreen && entry.destination.PlaceHolder != null
+                                // 动画过程中且为前景
+                                val inTransiting = (transition?.type == ActionType.POP && isFrom && navController.isTransitioning) || (transition?.type == ActionType.PUSH && isTo)
+                                if(enableSplashScreen && inTransiting) {
                                     entry.destination.PlaceHolder!!.invoke()
                                 } else {
                                     entry.destination.Content()
