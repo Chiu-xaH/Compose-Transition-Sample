@@ -4,7 +4,6 @@ import android.graphics.RenderEffect
 import android.graphics.RuntimeShader
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -17,8 +16,6 @@ import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
-import androidx.compose.ui.unit.dp
-import com.xah.common.LogUtil
 import com.xah.container.model.ContainerFilledStrategy
 import org.intellij.lang.annotations.Language
 

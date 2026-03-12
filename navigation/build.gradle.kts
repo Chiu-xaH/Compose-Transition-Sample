@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("maven-publish")
 }
 
 android {
@@ -41,6 +42,19 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.material3)
-    implementation(project(":shared-container"))
-    implementation(project(":common"))
+    api(project(":shared-container"))
+    api(project(":common"))
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                groupId = libs.versions.libraryPackageName.get()
+                version = libs.versions.libraryVersionName.get()
+                artifactId = "navigation"
+                from(components["release"])
+            }
+        }
+    }
 }

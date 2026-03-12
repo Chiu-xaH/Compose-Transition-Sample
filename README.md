@@ -1,4 +1,4 @@
-# SharedNav
+# SharedNav  [![](https://jitpack.io/v/Chiu-xaH/DiffUpdater.svg)](https://jitpack.io/#Chiu-xaH/DiffUpdater)
 容器共享&导航库，类似 Launcher 的打开关闭动画，支持背景压暗、镜面缩放、模糊，容器1像素填充、自适应贝赛尔曲线、屏幕圆角插值、内容层一次渲染等特性；旨在减少开发流程、提高可定制性
 
 ![cover](src/cover.jpg)
@@ -9,7 +9,23 @@
 
 ### 引入依赖
 
-暂未上架 Jitpack，需以 aar 引入。
+在settings.gradle添加
+Groovy使用
+```Groovy
+maven { 
+    url 'https://jitpack.io'
+}
+```
+Kotlin使用
+```Kotlin
+maven {
+    url = uri("https://jitpack.io")
+}
+```
+添加依赖，版本以 Release 的 Tag 为准
+```Groovy
+implementation("com.github.Chiu-xaH:SharedNav:<version>")
+```
 
 ---
 

@@ -8,7 +8,23 @@
 
 ### 1.1 引入依赖
 
-暂未上架 Jitpack，需以 aar 引入。
+在settings.gradle添加
+Groovy使用
+```Groovy
+maven { 
+    url 'https://jitpack.io'
+}
+```
+Kotlin使用
+```Kotlin
+maven {
+    url = uri("https://jitpack.io")
+}
+```
+添加依赖，版本以 Release 的 Tag 为准
+```Groovy
+implementation("com.github.Chiu-xaH:SharedNav:<version>")
+```
 
 ---
 
