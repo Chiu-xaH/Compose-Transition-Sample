@@ -1,74 +1,137 @@
 # SharedNav
 容器共享&导航库，类似 Launcher 的打开关闭动画，支持背景压暗、镜面缩放、模糊，容器1像素填充、自适应贝赛尔曲线、屏幕圆角插值、内容层一次渲染等特性；旨在减少开发流程、提高可定制性
 
-## 快速开始
-### 新增全屏界面
-1. 新增一个新界面
+![cover](src/cover.jpg)
 
-继承NavDestination
-```Kotlin
-object NewPageDestination : Destination() {
-    override val key = "new_page"
+## [开发文档](docs/Developer.md)
+
+## 快速开始
+
+### 引入依赖
+
+暂未上架 Jitpack，需以 aar 引入。
+
+---
+
+### 创建第一个 Destination
+
+每个页面对应一个 `Destination` 对象，继承抽象类并实现 `key` 与 `Content()`：
+
+```kotlin
+object HomeDestination : Destination() {
+    override val key = "home"   // 全局唯一，同时用作容器共享的匹配 Key
 
     @Composable
-    override fun Screen() {
-        val vm = LocalNavDependencies.current.get<NetWorkViewModel>()
-        NewPageScreen(vm)
+    override fun Content() {
+        HomeScreen()
     }
 }
 ```
-在需要进入本界面的地方调用
-```Kotlin
+
+---
+
+### 初始化导航宿主
+
+在 Activity 或顶层 Composable 中启动导航：
+
+**写法 1：**
+
+```kotlin
 @Composable
-fun FromScreen() {
-    val navController = LocalNavController.current
-    
-    ListItem(
-        onClick = {
-            navController.push(NewPageDestination)
-        }
+fun App() {
+    SharedNavHost(
+        startDestination = HomeDestination
     )
 }
 ```
 
-### 引入容器共享动效
-用SharedContainer包裹，以Destination的key作为key传入，传入容器的Shape、ContainerColor，并将内容器形状置为Rectangle
-```Kotlin
+**写法 2：手动控制 NavController**
+
+```kotlin
+val navController = rememberNavController(startDestination = HomeDestination)
+
+SharedNavHost(
+    navController = navController,
+)
+```
+
+---
+
+### 页面跳转与返回
+
+在任意 Composable 中通过 `LocalNavController` 或 `LocalNavControllerSafely` 获取控制器：
+
+> **提示**：如果无法保证 Composable 函数一定在 `SharedNav` 下调用，请使用 `LocalNavControllerSafely`，它返回可空对象；`LocalNavController` 获取不到控制器时会直接抛出异常导致 Crash。
+
+```kotlin
 @Composable
-fun FromScreen() {
+fun HomeScreen() {
     val navController = LocalNavController.current
-    val dest = NewPageDestination
-    
-    SharedContainer(
-        key = dest.key,
-        shape = Material.shapes.medium,
-        containerColor = Material.colorScheme.primaryContainer
-    ) {
-        ListItem(
-            onClick = {
-                navController.push(dest)
-            }
-        )
+
+    Button(onClick = { navController.push(DetailDestination) }) {
+        Text("进入详情")
+    }
+
+    Button(onClick = { navController.pop() }) {
+        Text("返回")
     }
 }
 ```
-写完后务必测试无问题
 
-## TODO
+---
+
+### 添加容器共享动效
+
+用 `SharedContainer` 包裹触发跳转的组件，`key` 与目标 `Destination.key` 保持一致，即可获得类 Launcher 的展开/收起动画。
+
+**写法 1：**
+
+```kotlin
+@Composable
+fun HomeScreen() {
+    val navController = LocalNavController.current
+    val dest = DetailDestination
+
+    SharedContainer(
+        key = dest.key,
+        shape = MaterialTheme.shapes.medium,
+    ) {
+        Card(
+            shape = RectangleShape,
+            onClick = { navController.push(dest) }
+        ) { /* 内容 */ }
+    }
+}
+```
+
+**写法 2：Modifier 扩展**
+
+```kotlin
+@Composable
+fun HomeScreen() {
+    val navController = LocalNavController.current
+    val dest = DetailDestination
+
+    Card(
+        modifier = Modifier.sharedContainer(
+            key = dest.key,
+            shape = MaterialTheme.shapes.medium
+        ),
+        shape = RectangleShape,
+        onClick = { navController.push(dest) }
+    ) { /* 内容 */ }
+}
+```
+
+> **注意**：`SharedContainer` 内层组件的 `shape` 必须设置为无圆角，圆角统一由外层 `SharedContainer` 管理，否则在提取 1 像素时会缺失边角。
+
+
+## 后续计划
 1. SDK32及其以下背景缩放启用时，动画结束瞬间容器稍微位移抽搐的Bug      [P0]
-**************************************
-13. README书写      [P1]
-19. 导航并行动画     [P1]
-24. 大屏适配（平行视界）         [P1]
-3. spring回弹时最后卡顿的Bug    [P1]
-**************************************
-10. 容器共享预测式返回的适配     [P2]
-11. 导航预测式返回的适配     [P2]
-**************************************
-22. 背景模糊、缩放speedRadio         [P3]
-25. deeplink         [P4]
-20. 元素共享及其导航适配     [P4]
-12. KMP适配         [P4]
-
-## 注意事项
-1. 一定要保证SharedContainer包裹的组件形状不带圆角，将圆角挪到挪到SharedContainer的corner中
+2. 并行动画     [P1]
+3. 大屏适配（平行视界）         [P1]
+4. spring回弹时最后顿挫的问题    [P1]
+5. 预测式返回     [P2]
+6. deeplink         [P4]
+7. 元素共享及导航适配     [P4]
+8. Kotlin Multiplatform         [P4]
