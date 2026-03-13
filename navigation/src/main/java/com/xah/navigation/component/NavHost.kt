@@ -59,14 +59,14 @@ fun SharedNavHost(
     navController: NavigationController,
     modifier: Modifier = Modifier,
     dependencies: Dependencies = Dependencies(),
-    customBackHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
+    backHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
     SharedContainerRoot {
         NavHost(
             navController,
             modifier,
             dependencies,
-            customBackHandler
+            backHandler
         )
     }
 }
@@ -77,10 +77,10 @@ fun SharedNavHost(
     startDestination: Destination,
     modifier: Modifier = Modifier,
     dependencies: Dependencies = Dependencies(),
-    customBackHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
+    backHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
     val navController = rememberNavController(startDestination)
-    SharedNavHost(navController, modifier, dependencies, customBackHandler)
+    SharedNavHost(navController, modifier, dependencies, backHandler)
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -89,7 +89,7 @@ fun NavHost(
     navController: NavigationController,
     modifier: Modifier = Modifier,
     dependencies: Dependencies = Dependencies(),
-    customBackHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
+    backHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
     val registry = LocalSharedRegistry.current
     val saveableStateHolder = rememberSaveableStateHolder()
@@ -102,7 +102,7 @@ fun NavHost(
         LocalNavController provides navController,
         LocalNavDependencies provides dependencies
     ) {
-        customBackHandler()
+        backHandler()
 
         val transition = navController.navTransition
         val progress = navController.transitionProgress

@@ -143,11 +143,11 @@ fun HomeScreen() {
 
 `SharedContainer` 除必填的 `key` 和 `shape` 外，还有以下可选参数：
 
-| 参数 | 类型 | 默认值 | 说明 |
-|---|---|---|---|
-| `shadow` | `Dp` | `0.dp` | 阴影 |
-| `containerColor` | `Color?` | `null` | `null` 时：SDK 33+ 使用像素提取填充，低版本使用裁切填充；指定颜色时：SDK 33+ 使用像素提取填充，低版本使用颜色填充 |
-| `containerFilledStrategy` | `ContainerFilledStrategy` | `Pixel()` | 更精细地指定填充方式，与 `containerColor` 二选一，不同时使用 |
+| 参数                        | 类型                        | 默认值       | 说明                                                                   |
+|---------------------------|---------------------------|-----------|----------------------------------------------------------------------|
+| `shadow`                  | `Dp`                      | `0.dp`    | 阴影                                                                   |
+| `containerColor`          | `Color?`                  | `null`    | `null` 时：SDK 33+ 使用像素提取填充，低版本使用裁切填充；指定颜色时：SDK 33+ 使用像素提取填充，低版本使用颜色填充 |
+| `containerFilledStrategy` | `ContainerFilledStrategy` | `Pixel()` | 更精细地指定填充方式，与 `containerColor` 二选一，不同时使用                              |
 
 ---
 
@@ -155,29 +155,13 @@ fun HomeScreen() {
 
 ### 2.1 模块结构
 
-| 模块 | 职责 |
-|---|---|
-| `navigation` | 页面路由、返回栈管理、导航过渡动画（背景压暗 / 缩放 / 模糊） |
-| `shared-container` | 容器共享动效核心：记录源/目标矩形，驱动跨页过渡动画 |
-| `common` | `ScreenCornerHelper`（读取屏幕圆角）、线性插值工具等 |
-| `app` | 示例应用，演示基础功能 |
+| 模块                 | 职责                                          |
+|--------------------|---------------------------------------------|
+| `navigation`       | 页面路由、返回栈管理、导航时的前景、背景过渡动画                    |
+| `shared-container` | 容器共享动效核心：记录源与目标的Rect与GraphicsLayer，驱动容器共享动画 |
+| `common`           | 两个模块共用的代码                                   |
+| `app`              | 示例应用，                                       |
 
-### 2.2 数据流概览
-
-```
-用户调用 navController.push(destination)
-  → NavigationController 操作返回栈
-  → 触发 NavTransition 状态变更
-  → NavHost 响应变更，播放页面过渡动画
-      ├── BackgroundEffect（背景页：压暗 / 缩放 / 模糊）
-      └── ForegroundEffect（前景页：缩放 / 圆角插值 / 模糊）
-
-若存在 SharedContainer：
-  SharedRegistry 驱动容器动画
-  → 动画完成后通知 NavHost 同步结束
-```
-
----
 
 ## 3. 导航 API — `navigation` 模块
 
@@ -185,12 +169,12 @@ fun HomeScreen() {
 
 所有页面的基类，开发者继承后实现以下成员：
 
-| 成员 | 类型 | 默认值 | 说明 |
-|---|---|---|---|
-| `key` | `String` | 必填 | 全局唯一，同时作为容器共享的匹配 Key |
-| `Content()` | `@Composable` | 必填 | 页面 UI 内容 |
-| `PlaceHolder` | `(@Composable () -> Unit)?` | `null` | 启动屏内容，动画期间先显示，结束后切换为真实内容 |
-| `enforcePlaceHolder` | `Boolean` | `false` | 强制在动画期间显示 PlaceHolder，不依赖全局 `enableSplashScreen` 开关 |
+| 成员                   | 类型                          | 默认值     | 说明                                                  |
+|----------------------|-----------------------------|---------|-----------------------------------------------------|
+| `key`                | `String`                    | 必填      | 全局唯一，同时作为容器共享的匹配 Key                                |
+| `Content()`          | `@Composable`               | 必填      | 页面 UI 内容                                            |
+| `PlaceHolder`        | `(@Composable () -> Unit)?` | `null`  | 启动屏内容，动画期间先显示，结束后切换为真实内容                            |
+| `enforcePlaceHolder` | `Boolean`                   | `false` | 强制在动画期间显示 PlaceHolder，不依赖全局 `enableSplashScreen` 开关 |
 
 **带参数的 Destination（推荐用 `data class`）：**
 
@@ -220,12 +204,12 @@ val navController = rememberNavController(startDestination = HomeDestination)
 
 ### 3.3 `SharedNavHost` / `NavHost`
 
-| 参数 | 类型 | 默认值 | 说明 |
-|---|---|---|---|
-| `startDestination` | `Destination` | 必填 | 初始页面 |
-| `navController` | `NavigationController` | 内部自动创建 | 传入已有实例以手动控制 |
-| `modifier` | `Modifier` | `Modifier` | 应用到宿主容器 |
-| `dependencies` | `Dependencies` | `Dependencies()` | 跨页面注入的依赖数据 |
+| 参数                  | 类型                       | 默认值                    | 说明           |
+|---------------------|--------------------------|------------------------|--------------|
+| `startDestination`  | `Destination`            | 必填                     | 初始页面         |
+| `navController`     | `NavigationController`   | 内部自动创建                 | 传入已有实例以手动控制  |
+| `modifier`          | `Modifier`               | `Modifier`             | 应用到宿主容器      |
+| `dependencies`      | `Dependencies`           | `Dependencies()`       | 跨页面注入的依赖数据   |
 | `customBackHandler` | `@Composable () -> Unit` | `DefaultBackHandler()` | 自定义返回手势/按键处理 |
 
 `SharedNavHost` 在内部自动包裹 `SharedContainerRoot`，启用容器共享功能。不需要容器共享时可直接使用 `NavHost`。
@@ -252,12 +236,12 @@ fun canPop(): Boolean
 
 #### 常用属性
 
-| 属性 | 类型 | 默认值 | 说明 |
-|---|---|---|---|
-| `transitionLevel` | `EffectLevel` | `FULL` | 全局动效等级，可运行时动态切换 |
-| `enableSplashScreen` | `Boolean` | `false` | 动画期间是否对前景页显示 PlaceHolder |
-| `isTransitioning` | `Boolean` | `false`（只读） | 当前是否正在播放过渡动画 |
-| `stack` | `List<StackEntry>` | 只读 | 当前导航返回栈 |
+| 属性                   | 类型                 | 默认值         | 说明                       |
+|----------------------|--------------------|-------------|--------------------------|
+| `transitionLevel`    | `EffectLevel`      | `FULL`      | 全局动效等级，可运行时动态切换          |
+| `enableSplashScreen` | `Boolean`          | `false`     | 动画期间是否对前景页显示 PlaceHolder |
+| `isTransitioning`    | `Boolean`          | `false`（只读） | 当前是否正在播放过渡动画             |
+| `stack`              | `List<StackEntry>` | 只读          | 当前导航返回栈                  |
 
 ---
 
@@ -267,14 +251,14 @@ fun canPop(): Boolean
 
 包裹触发跳转的卡片/按钮，作为容器共享的「源端」。
 
-| 参数 | 类型 | 默认值 | 说明 |
-|---|---|---|---|
-| `key` | `Any` | 必填 | 与目标 `Destination.key` 完全一致 |
-| `shape` | `Shape` | 必填 | 容器圆角形状，过渡时会对此圆角做插值 |
-| `containerColor` | `Color?` | `null` | 容器背景色；`null` 时自动使用 1 像素填充策略 |
-| `containerFilledStrategy` | `ContainerFilledStrategy` | `Pixel()` | 容器填充策略，详见 4.3 节，与 `containerColor` 二选一 |
-| `shadow` | `Dp` | `0.dp` | 容器阴影 |
-| `modifier` | `Modifier` | `Modifier` | 外层修饰符 |
+| 参数                        | 类型                        | 默认值        | 说明                                     |
+|---------------------------|---------------------------|------------|----------------------------------------|
+| `key`                     | `Any`                     | 必填         | 与目标 `Destination.key` 完全一致             |
+| `shape`                   | `Shape`                   | 必填         | 容器圆角形状，过渡时会对此圆角做插值                     |
+| `containerColor`          | `Color?`                  | `null`     | 容器背景色；`null` 时自动使用 1 像素填充策略            |
+| `containerFilledStrategy` | `ContainerFilledStrategy` | `Pixel()`  | 容器填充策略，详见 4.3 节，与 `containerColor` 二选一 |
+| `shadow`                  | `Dp`                      | `0.dp`     | 容器阴影                                   |
+| `modifier`                | `Modifier`                | `Modifier` | 外层修饰符                                  |
 
 ```kotlin
 SharedContainer(
@@ -308,24 +292,36 @@ Card(
 
 控制容器展开过渡时「未填充区域」的视觉处理方式：
 
-| 策略 | 说明 |
-|---|---|
-| `Pixel(spareStrategy)` | 取容器底部（竖屏）或右侧（横屏）1 像素拉伸填充，需 SDK 33+；低版本自动降级到 `spareStrategy` |
-| `Color(color)` | 用指定纯色填充，兼容所有版本，适合有明确主色的卡片 |
-| `Clip` | 裁切放大（类似 OriginOS 1.0 风格），无需额外颜色信息 |
+| 策略                     | 效果                        | 优缺点                                           |
+|------------------------|---------------------------|-----------------------------------------------|
+| `Pixel(spareStrategy)` | 取容器底部或右侧 1 像素拉伸填充，        | 效果好，但适配度不广，需 SDK 33+，低版本自动降级到 `spareStrategy` |
+| `Color(color)`         | 用指定纯色填充，兼容所有版本，适合有明确主色的卡片 | 适配度广，对于纯色卡片与像素填充的效果完全一致，但需手动为每个容器指定颜色，开发成本高   |
+| `Clip`                 | 裁切放大，开发成本低，无需手动指定颜色       | 适配度高，开发成本低，但无法营造出上面两者方案的分层效果                  |
 
 ![effect_level](../src/filled.jpg)
 
-
+为达到开发效率和效果的平衡，`SharedContainer`有`containerColor`字段，SDK33+时使用`Pixel`方案，否则读取`containerColor`，为`null`则使用`Clip`方案，不为`null`则使用`Color`方案。
 ```kotlin
-// SDK 33+ 使用 1 像素填充，低版本降级为指定颜色
-SharedContainer(
-    key = dest.key,
-    shape = MaterialTheme.shapes.medium,
-    containerFilledStrategy = ContainerFilledStrategy.Pixel(
-        spareStrategy = ContainerFilledStrategy.Color(Color.White)
-    )
-) { ... }
+@Composable
+fun SharedContainer(
+    key : Any,
+    shape : Shape,
+    modifier : Modifier = Modifier,
+    shadow : Dp = 0.dp,
+    containerColor : Color?,
+    content : @Composable () -> Unit
+) = SharedContainer(
+    key,
+    shape,
+    modifier,
+    shadow,
+    if(containerColor == null) {
+        ContainerFilledStrategy.Pixel(ContainerFilledStrategy.Clip)
+    } else {
+        ContainerFilledStrategy.Pixel(ContainerFilledStrategy.Color(containerColor))
+    },
+    content
+)
 ```
 
 ---
@@ -334,10 +330,10 @@ SharedContainer(
 
 容器共享的核心注册表，通过 `LocalSharedRegistry.current` 访问，可在运行时动态调整动画参数：
 
-| 属性 | 类型 | 默认值 | 说明 |
-|---|---|---|---|
-| `enabled` | `Boolean` | `true` | 全局开关，`false` 时所有容器共享动画跳过 |
-| `extensionDouble` | `Boolean` | `false` | 双向填充，同时从容器顶/底扩展 |
+| 属性                | 类型        | 默认值     | 说明                             |
+|-------------------|-----------|---------|--------------------------------|
+| `enabled`         | `Boolean` | `true`  | `false` 时关闭容器共享动画              |
+| `extensionDouble` | `Boolean` | `false` | `false` 时底部或右侧填充，否则双向（上下或左右）填充 |
 ---
 
 ![effect_level](../src/extension.jpg)
@@ -349,12 +345,12 @@ SharedContainer(
 
 控制背景页与前景页在过渡时所应用的视觉效果层级，可运行时通过 `navController.transitionLevel` 切换：
 
-| 等级 | 背景页效果 | 前景页效果 |
-|---|---|---|
-| `FULL (3)` | 模糊 + 压暗 + 缩放 | 模糊 + 缩放 + 圆角插值 |
-| `NO_BLUR (2)` | 压暗 + 缩放 | 缩放 + 圆角插值 |
-| `NO_SCALE (1)` | 仅压暗 | 缩放 + 圆角插值 |
-| `NONE (0)` | 无效果 | 轻缩放 + 透明度淡入 |
+| 等级             | 背景页效果        | 前景页效果          |
+|----------------|--------------|----------------|
+| `FULL (3)`     | 模糊 + 压暗 + 缩放 | 模糊 + 缩放 + 圆角插值 |
+| `NO_BLUR (2)`  | 压暗 + 缩放      | 缩放 + 圆角插值      |
+| `NO_SCALE (1)` | 仅压暗          | 缩放 + 圆角插值      |
+| `NONE (0)`     | 无效果          | 轻缩放 + 透明度淡入    |
 
 ![effect_level](../src/effect_level.jpg)
 
@@ -363,12 +359,12 @@ SharedContainer(
 
 描述某一帧页面的视觉状态，由 `NavHost` 根据 `transitionProgress`（0f → 1f）自动插值计算。
 
-| 字段 | Full（展开态） | Background（背景态） | None（收起态） |
-|---|---|---|---|
-| `scale` | `1.0f` | `0.875f` | `0.0f` |
-| `blur` | `0.dp` | `25.dp` | `20.dp` |
-| `mask` | `0.0f` | `0.25f` | `0.0f` |
-| `corner` | 屏幕圆角 | `0.dp` | 屏幕圆角 × 2 |
+| 字段       | Full（展开态） | Background（背景态） | None（收起态） |
+|----------|-----------|-----------------|-----------|
+| `scale`  | `1.0f`    | `0.875f`        | `0.0f`    |
+| `blur`   | `0.dp`    | `25.dp`         | `20.dp`   |
+| `mask`   | `0.0f`    | `0.25f`         | `0.0f`    |
+| `corner` | 屏幕圆角      | `0.dp`          | 屏幕圆角 × 2  |
 
 ---
 
@@ -376,10 +372,10 @@ SharedContainer(
 
 `LaunchMode` 决定 `push()` 时如何操作导航返回栈：
 
-| 模式 | 行为 |
-|---|---|
-| `Push(reuse)` | 压入栈顶。`reuse = true` 时若栈顶已是目标则复用，不重复入栈 |
-| `PopToExisting` | 若栈中已有目标实例，清除其上所有页面并执行 pop 回到它；否则正常 push |
+| 模式                          | 行为                                                                                 |
+|-----------------------------|------------------------------------------------------------------------------------|
+| `Push(reuse)`               | 压入栈顶。`reuse = true` 时若栈顶已是目标则复用，不重复入栈                                              |
+| `PopToExisting`             | 若栈中已有目标实例，清除其上所有页面并执行 pop 回到它；否则正常 push                                            |
 | `Single(reuse, actionType)` | 保证栈中只有一个目标实例。`reuse = true` 时复用并清除其余所有项；`actionType = ActionType.POP` 可使过渡动画呈现返回效果 |
 
 **示例：从深层页面一键回到首页，并使用返回动画**
@@ -474,11 +470,7 @@ object CameraDestination : Destination() {
 ```kotlin
 SharedNavHost(
     startDestination = HomeDestination,
-    customBackHandler = {
-        // 示例：在特定条件下拦截系统返回
-        BackHandler(enabled = isDialogOpen) {
-            closeDialog()
-        }
+    backHandler = {
         // 默认返回逻辑
         DefaultBackHandler()
     }
