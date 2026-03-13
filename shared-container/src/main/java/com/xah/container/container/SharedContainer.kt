@@ -13,7 +13,6 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -25,7 +24,7 @@ import com.xah.container.utils.LocalSharedRegistry
 
 fun Modifier.sharedContainer(
     key : Any,
-    shape : Shape,
+    shape : CornerBasedShape,
     containerColor : Color?,
     shadow : Dp = 0.dp,
 ): Modifier {
@@ -39,21 +38,21 @@ fun Modifier.sharedContainer(
             } else {
                 ContainerFilledStrategy.Pixel(ContainerFilledStrategy.Color(containerColor))
             },
-            shape as CornerBasedShape
+            shape
         )
 }
 
 
 fun Modifier.sharedContainer(
     key : Any,
-    shape : Shape,
+    shape : CornerBasedShape,
     shadow : Dp = 0.dp,
     containerFilledStrategy : ContainerFilledStrategy = ContainerFilledStrategy.Pixel(),
 ): Modifier {
     return this
         .shadow(shadow,shape)
         .clip(shape)
-        .sharedContainer(key,containerFilledStrategy,shape as CornerBasedShape)
+        .sharedContainer(key,containerFilledStrategy,shape)
 }
 
 private fun Modifier.sharedContainer(
@@ -164,12 +163,12 @@ fun Modifier.sharedContent(
 fun SharedContent(
     key : Any,
     modifier : Modifier = Modifier,
-    shape : Shape = RoundedCornerShape(ScreenCornerHelper.corner),
+    shape : CornerBasedShape = RoundedCornerShape(ScreenCornerHelper.corner),
     content : @Composable () -> Unit
 )  {
     Box(modifier = modifier) {
         Box(
-            modifier = Modifier.sharedContent(key,shape as CornerBasedShape)
+            modifier = Modifier.sharedContent(key,shape)
         ) {
             content()
         }
@@ -184,7 +183,7 @@ fun SharedContent(
 @Composable
 fun SharedContainer(
     key : Any,
-    shape: Shape,
+    shape: CornerBasedShape,
     modifier : Modifier = Modifier,
     shadow : Dp = 0.dp,
     containerFilledStrategy : ContainerFilledStrategy = ContainerFilledStrategy.Pixel(),
@@ -196,7 +195,7 @@ fun SharedContainer(
             .clip(shape)
     ) {
         Box(
-            modifier = Modifier.sharedContainer(key, containerFilledStrategy, shape as CornerBasedShape)
+            modifier = Modifier.sharedContainer(key, containerFilledStrategy, shape)
         ) {
             content()
         }
@@ -211,7 +210,7 @@ fun SharedContainer(
 @Composable
 fun SharedContainer(
     key : Any,
-    shape : Shape,
+    shape : CornerBasedShape,
     modifier : Modifier = Modifier,
     shadow : Dp = 0.dp,
     containerColor : Color?,

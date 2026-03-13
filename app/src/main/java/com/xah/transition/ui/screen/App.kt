@@ -25,6 +25,7 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -64,10 +65,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.xah.common.ScreenCornerHelper
 import com.xah.container.container.SharedContainer
-import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.utils.LocalSharedRegistry
 import com.xah.navigation.anim.EffectLevel
-import com.xah.navigation.component.DefaultBackHandler
 import com.xah.navigation.component.SharedNavHost
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.action.LaunchMode
@@ -152,7 +151,7 @@ fun HomeScreen() {
                 SharedContainer (
                     containerColor = MaterialTheme.colorScheme.inversePrimary,
                     key = CornerSettingsDestination.key,
-                    shape = FloatingActionButtonDefaults.shape
+                    shape = FloatingActionButtonDefaults.shape as CornerBasedShape
                 ) {
                     FloatingActionButton(
                         elevation = FloatingActionButtonDefaults.elevation(0.dp,0.dp,0.dp,0.dp),

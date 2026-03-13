@@ -5,7 +5,6 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.xah.navigation.controller.NavigationController
-import com.xah.navigation.model.dest.Destination
 import com.xah.navigation.model.Dependencies
 
 // 根导航
