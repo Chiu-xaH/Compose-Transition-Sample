@@ -1,9 +1,9 @@
-package com.xah.transition.ui.screen.destination.detail
+package com.xah.transition.ui.screen.destination
 
 import androidx.compose.runtime.Composable
 import com.xah.transition.model.AppIconBean
 import com.xah.transition.ui.screen.AppIconScreen
-import com.xah.transition.ui.uitls.NavDestination
+import com.xah.transition.ui.util.NavDestination
 
 data class AppIconDestination(
     val app: AppIconBean

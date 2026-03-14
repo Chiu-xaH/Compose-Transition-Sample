@@ -1,9 +1,9 @@
-package com.xah.transition.ui.screen.destination.settings
+package com.xah.transition.ui.screen.destination
 
 import androidx.compose.runtime.Composable
 import com.xah.transition.R
 import com.xah.transition.ui.screen.BezierSettingsScreen
-import com.xah.transition.ui.uitls.NavDestination
+import com.xah.transition.ui.util.NavDestination
 
 data object BezierSettingsDestination : NavDestination() {
 

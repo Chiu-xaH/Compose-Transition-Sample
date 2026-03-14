@@ -1,4 +1,4 @@
-package com.xah.common
+package com.sharednav.common
 
 import android.os.Build
 import android.view.RoundedCorner

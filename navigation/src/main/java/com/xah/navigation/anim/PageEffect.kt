@@ -5,7 +5,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.xah.common.ScreenCornerHelper
+import com.sharednav.common.ScreenCornerHelper
 
 /** lerp
  * 1. 预测式返回时：

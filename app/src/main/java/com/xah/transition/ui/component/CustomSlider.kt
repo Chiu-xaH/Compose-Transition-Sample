@@ -24,7 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import com.xah.transition.ui.uitls.safeDiv
+import com.xah.transition.ui.util.safeDiv
 import kotlin.math.abs
 
 private val SLIDER_SIZE = 23.dp

@@ -1,4 +1,4 @@
-package com.xah.transition.ui.uitls
+package com.xah.transition.ui.util
 
 
 infix fun Float.safeDiv(denominator: Float): Float {

@@ -1,4 +1,4 @@
-package com.xah.common
+package com.sharednav.common
 
 import androidx.compose.foundation.shape.CornerBasedShape
 

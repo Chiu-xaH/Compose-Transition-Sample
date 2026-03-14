@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.xah.common"
-    compileSdk = 36
+    namespace = "com.xah.sharednav.common"
+    compileSdk = Integer.parseInt(libs.versions.maxAndroidVersion.get())
 
     defaultConfig {
-        minSdk = 24
+        minSdk = Integer.parseInt(libs.versions.minAndroidVersion.get())
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -49,7 +49,7 @@ afterEvaluate {
             create<MavenPublication>("release") {
                 groupId = libs.versions.libraryPackageName.get()
                 version = libs.versions.libraryVersionName.get()
-                artifactId = "common"
+                artifactId = "shared"
                 from(components["release"])
             }
         }

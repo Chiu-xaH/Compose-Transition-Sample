@@ -10,7 +10,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.unit.dp
-import com.xah.common.ScreenCornerHelper
+import com.sharednav.common.ScreenCornerHelper
 
 class SharedContainerState() {
     // 容器Rect

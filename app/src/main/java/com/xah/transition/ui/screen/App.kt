@@ -63,7 +63,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.xah.common.ScreenCornerHelper
+import com.sharednav.common.ScreenCornerHelper
 import com.xah.container.container.SharedContainer
 import com.xah.container.utils.LocalSharedRegistry
 import com.xah.navigation.anim.EffectLevel
@@ -83,14 +83,14 @@ import com.xah.transition.ui.component.SmallCard
 import com.xah.transition.ui.component.TransplantListItem
 import com.xah.transition.ui.component.cardNormalColor
 import com.xah.transition.ui.screen.destination.HomeDestination
-import com.xah.transition.ui.screen.destination.detail.AppIconDestination
-import com.xah.transition.ui.screen.destination.detail.SecondDestination
-import com.xah.transition.ui.screen.destination.detail.ThirdDestination
-import com.xah.transition.ui.screen.destination.settings.BezierSettingsDestination
-import com.xah.transition.ui.screen.destination.settings.CornerSettingsDestination
+import com.xah.transition.ui.screen.destination.AppIconDestination
+import com.xah.transition.ui.screen.destination.SecondDestination
+import com.xah.transition.ui.screen.destination.ThirdDestination
+import com.xah.transition.ui.screen.destination.BezierSettingsDestination
+import com.xah.transition.ui.screen.destination.CornerSettingsDestination
 import com.xah.transition.ui.screen.test.CubicBezierEditor
 import com.xah.transition.ui.style.topBarTransplantColor
-import com.xah.transition.ui.viewmodel.UiHolder
+import com.xah.transition.ui.util.UiHolder
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable

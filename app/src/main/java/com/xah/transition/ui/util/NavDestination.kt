@@ -1,4 +1,4 @@
-package com.xah.transition.ui.uitls
+package com.xah.transition.ui.util
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
