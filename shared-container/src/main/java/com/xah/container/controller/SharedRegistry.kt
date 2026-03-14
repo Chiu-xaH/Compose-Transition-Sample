@@ -2,6 +2,7 @@ package com.xah.container.controller
 
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -19,10 +20,12 @@ class SharedRegistry(
     private val scope: CoroutineScope
 ) {
     val states = mutableStateMapOf<Any, SharedContainerState>()
-    val runningStates: List<SharedContainerState>
-        get() = states.values.filter { it.isRunning }
-    val isRunning: Boolean
-        get() = states.values.any { it.isRunning }
+    val runningStates: List<SharedContainerState> by derivedStateOf {
+        states.values.filter { it.isRunning }
+    }
+    val isRunning: Boolean by derivedStateOf {
+        states.values.any { it.isRunning }
+    }
 
     var enabled by mutableStateOf(true)
 

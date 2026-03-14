@@ -30,19 +30,23 @@ fun Modifier.scaleMirror(scale: Float,enabled : Boolean = ContainerFilledStrateg
         composed {
             // 绘制面
             var rect by remember { mutableStateOf<Rect?>(null) }
+            // shader 只在尺寸变化时重建，不随每帧 scale 变化重建
+            val shader = remember(rect) {
+                rect?.let { r ->
+                    RuntimeShader(SHADER_CODE.trimIndent()).also {
+                        it.setFloatUniform("size", r.width, r.height)
+                    }
+                }
+            }
 
             this
                 .graphicsLayer {
                     clip = true
                     shape = RectangleShape
-                    rect?.let { r ->
-                        val runtimeShader = RuntimeShader(SHADER_CODE.trimIndent())
-                        runtimeShader.setFloatUniform("size", r.width, r.height)
-                        runtimeShader.setFloatUniform("scale", scale)
-
-                        renderEffect = RenderEffect
-                            .createRuntimeShaderEffect(runtimeShader, "content")
-                            .asComposeRenderEffect()
+                    shader?.let { s ->
+                        // 每帧只更新 scale uniform，不重建 shader/RenderEffect
+                        s.setFloatUniform("scale", scale)
+                        renderEffect = RenderEffect.createRuntimeShaderEffect(s, "content").asComposeRenderEffect()
                     }
                 }
                 .onGloballyPositioned { layoutCoordinates ->
