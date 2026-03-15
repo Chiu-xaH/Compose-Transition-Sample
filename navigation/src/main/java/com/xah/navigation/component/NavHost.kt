@@ -4,7 +4,6 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -13,23 +12,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.lerp
-import androidx.compose.ui.util.lerp
-import com.sharednav.common.lerp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.sharednav.common.ScreenCornerHelper
 import com.xah.container.container.SharedContent
 import com.xah.container.overlay.SharedContainerRoot
 import com.xah.container.utils.LocalSharedRegistry
 import com.xah.navigation.anim.EffectLevel
-import com.xah.navigation.anim.PageEffect
+import com.xah.navigation.anim.PageEffects
+import com.xah.navigation.anim.backgroundEffect
+import com.xah.navigation.anim.foregroundEffect
+import com.xah.navigation.anim.rememberDefaultPageEffects
 import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.controller.NavigationViewModel
 import com.xah.navigation.model.Dependencies
@@ -38,7 +30,6 @@ import com.xah.navigation.model.dest.Destination
 import com.xah.navigation.utils.LocalNavController
 import com.xah.navigation.utils.LocalNavControllerSafely
 import com.xah.navigation.utils.LocalNavDependencies
-import com.xah.navigation.utils.scaleMirror
 import com.xah.navigation.utils.touchEvent
 
 @Composable
@@ -58,6 +49,7 @@ fun rememberNavController(
 fun SharedNavHost(
     navController: NavigationController,
     modifier: Modifier = Modifier,
+    effect: PageEffects = rememberDefaultPageEffects(),
     dependencies: Dependencies = Dependencies(),
     backHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
@@ -65,6 +57,7 @@ fun SharedNavHost(
         NavHost(
             navController,
             modifier,
+            effect,
             dependencies,
             backHandler
         )
@@ -76,11 +69,32 @@ fun SharedNavHost(
 fun SharedNavHost(
     startDestination: Destination,
     modifier: Modifier = Modifier,
+    effect: PageEffects = rememberDefaultPageEffects(),
     dependencies: Dependencies = Dependencies(),
     backHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
     val navController = rememberNavController(startDestination)
-    SharedNavHost(navController, modifier, dependencies, backHandler)
+    SharedNavHost(navController, modifier, effect, dependencies, backHandler)
+}
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@Composable
+fun NavHost(
+    startDestination: Destination,
+    modifier: Modifier = Modifier,
+    effect: PageEffects = rememberDefaultPageEffects(),
+    dependencies: Dependencies = Dependencies(),
+    customBackHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
+) {
+    val navController = rememberNavController(startDestination)
+
+    NavHost(
+        navController,
+        modifier,
+        effect,
+        dependencies,
+        customBackHandler
+    )
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -88,6 +102,7 @@ fun SharedNavHost(
 fun NavHost(
     navController: NavigationController,
     modifier: Modifier = Modifier,
+    effect: PageEffects = rememberDefaultPageEffects(),
     dependencies: Dependencies = Dependencies(),
     backHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
@@ -125,7 +140,6 @@ fun NavHost(
         val enableShader = navController.enableShader
         val registryRunning = registry.isRunning
 
-
         Box(modifier = modifier.fillMaxSize()) {
             visibleEntries.forEach { entry ->
                 key(entry.id) {
@@ -134,8 +148,10 @@ fun NavHost(
                         val isTo = transition?.to == entry
 
                         val animatedProgress = progress.value
-                        val underEffect = remember(animatedProgress,level,enableBlur,enableShader,registryRunning) { BackgroundEffect(animatedProgress,level,enableBlur,enableShader,registryRunning) }
-                        val upEffect = remember(animatedProgress,level,enableBlur) { ForegroundEffect(animatedProgress,level,enableBlur) }
+
+                        val backgroundEffect = remember(animatedProgress,level) { effect.background(animatedProgress,level) }
+                        val foregroundEffect = remember(animatedProgress,level) { effect.foreground(animatedProgress, level) }
+                        val foregroundOrigin = remember(level) { effect.foregroundOrigin(level) }
 
                         Box(
                             Modifier
@@ -165,32 +181,42 @@ fun NavHost(
                                             ActionType.PUSH -> {
                                                 if (isFrom) {
                                                     // 背景
-                                                    return@let with(underEffect) {
-                                                        it.effect()
-                                                    }
+                                                    return@let it.backgroundEffect(
+                                                        enableShader,
+                                                        enableBlur,
+                                                        registryRunning,
+                                                        backgroundEffect
+                                                    )
                                                 }
                                                 if (isTo) {
                                                     // 目标屏幕
                                                     if(!registry.isRunning) {
-                                                        return@let with(upEffect) {
-                                                            it.effect()
-                                                        }
+                                                        return@let it.foregroundEffect(
+                                                            enableBlur,
+                                                            foregroundEffect,
+                                                            foregroundOrigin
+                                                        )
                                                     }
                                                 }
                                             }
                                             ActionType.POP -> {
                                                 if (isTo) {
                                                     // 背景
-                                                    return@let with(underEffect) {
-                                                        it.effect()
-                                                    }
+                                                    return@let it.backgroundEffect(
+                                                        enableShader,
+                                                        enableBlur,
+                                                        registryRunning,
+                                                        backgroundEffect
+                                                    )
                                                 }
                                                 if (isFrom) {
                                                     // 退出屏幕
                                                     if(!registry.isRunning) {
-                                                        return@let with(upEffect) {
-                                                            it.effect()
-                                                        }
+                                                        return@let it.foregroundEffect(
+                                                            enableBlur,
+                                                            foregroundEffect,
+                                                            foregroundOrigin
+                                                        )
                                                     }
                                                 }
                                             }
@@ -231,309 +257,3 @@ fun NavHost(
         }
     }
 }
-
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
-@Composable
-fun NavHost(
-    startDestination: Destination,
-    modifier: Modifier = Modifier,
-    dependencies: Dependencies = Dependencies(),
-    customBackHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
-) {
-    val navController = rememberNavController(startDestination)
-
-    NavHost(
-        navController,
-        modifier,
-        dependencies,
-        customBackHandler
-    )
-}
-
-
-// scaleRadio放慢scale的速度
-private class BackgroundEffect(animatedProgress : Float,val level: EffectLevel,val enableBlur : Boolean,val enableShader : Boolean,val isRegistryRunning : Boolean) {
-    private val effect = PageEffect(
-        scale = lerp(
-            PageEffect.Full.scale,
-            PageEffect.Background.scale,
-            animatedProgress
-        ),
-        blur = lerp(
-            PageEffect.Full.blur,
-            PageEffect.Background.blur,
-            animatedProgress
-        ),
-        mask = lerp(
-            PageEffect.Full.mask,
-            PageEffect.Background.mask,
-            animatedProgress
-        ),
-        alpha = lerp(
-            PageEffect.Full.alpha,
-            PageEffect.Background.alpha,
-            animatedProgress
-        ),
-        corner = lerp(
-            PageEffect.Full.corner,
-            PageEffect.Background.corner,
-            animatedProgress
-        )
-    )
-
-    private fun Modifier.mask() : Modifier {
-        return this.drawWithCache {
-            onDrawWithContent {
-                drawContent()
-                if (effect.mask > 0f) {
-                    drawRect(
-                        Color.Black.copy(alpha = effect.mask)
-                    )
-                }
-            }
-        }
-    }
-
-    private fun Modifier.blur() : Modifier {
-        return if(enableBlur) {
-            this.blur(effect.blur)
-        } else {
-            this
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    private fun Modifier.scale() : Modifier {
-        // fixme:这里用graphicsLayer最后会抽搐一下，太奇怪了，暂时禁用
-        if(!enableShader && isRegistryRunning) {
-            return this
-        } else {
-            return this.scaleMirror(effect.scale,enableShader)
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    fun Modifier.effect() : Modifier {
-        return when(level) {
-            EffectLevel.FULL -> {
-                this.mask().blur().scale()
-            }
-            EffectLevel.NO_BLUR -> {
-                this.mask().scale()
-            }
-            EffectLevel.NO_SCALE -> {
-                this.mask()
-            }
-            EffectLevel.NONE -> {
-                this.mask()
-            }
-        }
-    }
-}
-
-private class ForegroundEffect(animatedProgress : Float,val level: EffectLevel,val enableBlur : Boolean)  {
-
-    private val effect = PageEffect(
-        scale = lerp(
-            if(level == EffectLevel.NONE) PageEffect.Background.scale else PageEffect.None.scale,
-            PageEffect.Full.scale,
-            animatedProgress
-        ),
-        blur = lerp(
-            PageEffect.None.blur,
-            PageEffect.Full.blur,
-            animatedProgress
-        ),
-        mask = lerp(
-            PageEffect.None.mask,
-            PageEffect.Full.mask,
-            animatedProgress
-        ),
-        alpha = lerp(
-            if(level == EffectLevel.NONE) 0f else PageEffect.None.alpha,
-            PageEffect.Full.alpha,
-            animatedProgress
-        ),
-        corner = lerp(
-            if(level == EffectLevel.NONE) RoundedCornerShape(ScreenCornerHelper.corner) else RoundedCornerShape(ScreenCornerHelper.corner*2),
-            RoundedCornerShape(ScreenCornerHelper.corner),
-            animatedProgress
-        )
-    )
-
-
-    private fun Modifier.blur() : Modifier {
-        return if(enableBlur) {
-            this.blur(effect.blur)
-        } else {
-            this
-        }
-    }
-    private fun Modifier.corner() : Modifier {
-        return this.clip(effect.corner)
-    }
-
-    private fun Modifier.scale() : Modifier {
-        return this.graphicsLayer {
-            scaleX = effect.scale
-            scaleY = effect.scale
-            alpha = effect.alpha
-            transformOrigin = TransformOrigin(0.5f,0.275f)
-        }
-    }
-
-    private fun Modifier.tinyScale() : Modifier {
-        return this.graphicsLayer {
-            scaleX = effect.scale
-            scaleY = effect.scale
-            alpha = effect.alpha
-        }
-    }
-
-    private fun Modifier.tinyCorner() : Modifier {
-        return this.clip(RoundedCornerShape(ScreenCornerHelper.corner))
-    }
-
-    fun Modifier.effect() : Modifier {
-        return when(level) {
-            EffectLevel.FULL -> {
-                this.blur().scale().corner()
-            }
-            EffectLevel.NO_BLUR -> {
-                this.scale().corner()
-            }
-            EffectLevel.NO_SCALE -> {
-                this.scale().corner()
-            }
-            EffectLevel.NONE -> {
-                this.tinyScale().tinyCorner()
-            }
-        }
-    }
-}
-
-// TODO 共享元素过渡时，背景模糊
-private class BackgroundEffectWithSharedElement(animatedProgress : Float,val level: EffectLevel) {
-    private val effect = PageEffect(
-        scale = lerp(
-            PageEffect.Full.scale,
-            PageEffect.Full.scale,
-            animatedProgress
-        ),
-        blur = lerp(
-            PageEffect.Full.blur,
-            PageEffect.Background.blur,
-            animatedProgress
-        ),
-        mask = lerp(
-            PageEffect.Full.mask,
-            PageEffect.Full.mask,
-            animatedProgress
-        ),
-        alpha = lerp(
-            PageEffect.Full.alpha,
-            PageEffect.Background.alpha,
-            animatedProgress
-        ),
-        corner = lerp(
-            PageEffect.Full.corner,
-            PageEffect.Background.corner,
-            animatedProgress
-        )
-    )
-
-    private fun Modifier.blur() : Modifier {
-        return this.blur(effect.blur)
-    }
-
-
-    fun Modifier.effect() : Modifier {
-        return when(level) {
-            EffectLevel.FULL -> {
-                this.blur()
-            }
-            EffectLevel.NO_BLUR -> {
-                this
-            }
-            EffectLevel.NO_SCALE -> {
-                this
-            }
-            EffectLevel.NONE -> {
-                this
-            }
-        }
-    }
-}
-// TODO 共享元素过渡时，前景模糊、透明度淡入
-private class ForegroundEffectWithSharedElement(animatedProgress : Float,val level: EffectLevel)  {
-
-    private val effect = PageEffect(
-        scale = lerp(
-            PageEffect.Full.scale,
-            PageEffect.Full.scale,
-            animatedProgress
-        ),
-        blur = lerp(
-            PageEffect.None.blur,
-            PageEffect.Full.blur,
-            animatedProgress
-        ),
-        mask = lerp(
-            PageEffect.None.mask,
-            PageEffect.Full.mask,
-            animatedProgress
-        ),
-        alpha = lerp(
-            0f,
-            PageEffect.Full.alpha,
-            animatedProgress
-        ),
-        corner = lerp(
-            if(level != EffectLevel.NONE) RoundedCornerShape(ScreenCornerHelper.corner) else RoundedCornerShape(0.dp),
-            if(level != EffectLevel.NONE) RoundedCornerShape(ScreenCornerHelper.corner) else RoundedCornerShape(0.dp),
-            animatedProgress
-        )
-    )
-
-
-    private fun Modifier.blur() : Modifier {
-        return this.blur(effect.blur)
-    }
-
-    private fun Modifier.corner() : Modifier {
-        return this.clip(effect.corner)
-    }
-
-    private fun Modifier.alpha() : Modifier {
-        return this.graphicsLayer {
-            alpha = effect.alpha
-        }
-    }
-
-    fun Modifier.effect() : Modifier {
-        return when(level) {
-            EffectLevel.FULL -> {
-                this.blur().alpha().corner()
-            }
-            EffectLevel.NO_BLUR -> {
-                this.alpha().corner()
-            }
-            EffectLevel.NO_SCALE -> {
-                this
-            }
-            EffectLevel.NONE -> {
-                this
-            }
-        }
-    }
-}
-
-
-//abstract class OnTransition(
-//    private val animatedProgress: Float
-//) {
-//    abstract fun Modifier.onPushFrom() : Modifier
-//    abstract fun Modifier.onPushTo() : Modifier
-//    abstract fun Modifier.onPopFrom() : Modifier
-//    abstract fun Modifier.onPopTo() : Modifier
-//}

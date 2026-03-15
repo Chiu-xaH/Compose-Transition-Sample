@@ -4,6 +4,9 @@ import android.os.Build
 import android.view.RoundedCorner
 import android.view.View
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -11,7 +14,7 @@ class ScreenCornerHelper(
     private val view: View
 ) {
     companion object {
-        var corner : Dp = 0.dp
+        var corner by mutableStateOf(0.dp)
         val CAN_GET = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     }
 

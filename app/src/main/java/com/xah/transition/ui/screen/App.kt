@@ -67,6 +67,7 @@ import com.sharednav.common.ScreenCornerHelper
 import com.xah.container.container.SharedContainer
 import com.xah.container.utils.LocalSharedRegistry
 import com.xah.navigation.anim.EffectLevel
+import com.xah.navigation.anim.rememberDefaultPageEffectsEnhance
 import com.xah.navigation.component.SharedNavHost
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.action.LaunchMode
@@ -96,12 +97,17 @@ import com.xah.transition.ui.util.UiHolder
 @Composable
 fun App() {
     var arg1 by remember { mutableStateOf(1) }
-    val deps = rememberNavDependencies(arg1) {
+    val dependencies = rememberNavDependencies(arg1) {
         put(arg1, tag = "args1")
         put("1", tag = "args2")
     }
 
-    SharedNavHost(HomeDestination, modifier = Modifier.background(MaterialTheme.colorScheme.surface), dependencies = deps)
+    SharedNavHost(
+        startDestination = HomeDestination,
+        modifier = Modifier.background(MaterialTheme.colorScheme.surface),
+        dependencies = dependencies,
+//        effect = rememberDefaultPageEffectsEnhance()
+    )
 }
 
 private val appList = listOf<AppIconBean>(
