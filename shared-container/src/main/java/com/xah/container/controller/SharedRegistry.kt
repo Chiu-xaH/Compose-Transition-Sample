@@ -44,7 +44,7 @@ class SharedRegistry(
     /**
      * 最大等帧时长，为什么需要等，本质上取决于导航栈的设计，如果导航栈只能保持一个页面，其余页面都被销毁，当POP时需要等下面的初始化完成，才能记录容器位置，如果栈中内容都不销毁，那么就只需要等1帧（16ms）
      * 如果waitFrameMaxValue=0或者enableWaitFrameMaxValue=false，则等1帧
-     * 界面越复杂，性能越差，需要等的帧越大，但是一般在
+     * 界面越复杂，性能越差，需要等的帧越大，但是一般在10帧以内
      */
     var waitFrameMaxValue by mutableIntStateOf(10)
 
@@ -193,7 +193,7 @@ class SharedRegistry(
 
         state.animation.animateTo(1f,getPushAnimation())
         onAnimatedFinished?.let { it() }
-        if(needWaitMultiFrame(state)) {
+        if(needWaitMultiFrame) {
             state.containerRect = null
         }
         // 结束标志位
@@ -217,7 +217,7 @@ class SharedRegistry(
         state.animation.animateTo(0f,getPopAnimation())
 
         onAnimatedFinished?.let { it() }
-        if(needWaitMultiFrame(state)) {
+        if(needWaitMultiFrame) {
             state.contentRect = null
         }
         // 结束标志位
@@ -266,7 +266,7 @@ class SharedRegistry(
         isContainer : Boolean,
         onSwap: suspend () -> Unit,
     ): Boolean {
-        if(waitFrameMaxValue <= 0 || !needWaitMultiFrame(state)) {
+        if(waitFrameMaxValue <= 0 || !needWaitMultiFrame) {
             // 等一帧即可
             onSwap()
             // state.isTransiting = true 用于稳住导航不要动，开始测量rect
