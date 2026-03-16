@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 class SharedRegistry(
     private val scope: CoroutineScope
 ) {
-    val states = mutableStateMapOf<Any, SharedContainerState>()
+    val states = mutableStateMapOf<String, SharedContainerState>()
     val runningStates: List<SharedContainerState> by derivedStateOf {
         states.values.filter { it.isRunning }
     }
@@ -54,7 +54,7 @@ class SharedRegistry(
     var enableShader by mutableStateOf(ContainerFilledStrategy.CAN_USE_SHADER)
 
     fun getOrCreate(
-        key: Any,
+        key: String,
     ): SharedContainerState {
         return states.getOrPut(key) {
             SharedContainerState()
@@ -62,13 +62,13 @@ class SharedRegistry(
     }
 
     fun get(
-        key: Any,
+        key: String,
     ): SharedContainerState? {
         return states[key]
     }
 
     fun push(
-        key: Any,
+        key: String,
         onAnimatedFinished : (suspend () -> Unit)? = null,
         onSwapContent: suspend () -> Unit
     ) {
@@ -82,7 +82,7 @@ class SharedRegistry(
     }
 
     fun pop(
-        key: Any,
+        key: String,
         onAnimatedFinished : (suspend () -> Unit)? = null,
         onSwapContent: suspend () -> Unit
     ) {
@@ -124,7 +124,7 @@ class SharedRegistry(
     }
 
     private suspend fun internalPush(
-        key: Any,
+        key: String,
         onAnimatedFinished : (suspend () -> Unit)? = null,
         onSwapContent: suspend () -> Unit
     ) {
@@ -137,7 +137,7 @@ class SharedRegistry(
     }
 
     private suspend fun internalPop(
-        key: Any,
+        key: String,
         onAnimatedFinished : (suspend () -> Unit)? = null,
         onSwapContent: suspend () -> Unit
     ) {

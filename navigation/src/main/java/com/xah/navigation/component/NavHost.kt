@@ -228,14 +228,6 @@ fun NavHost(
                                     transition == null
                                     // 当返回时，禁用前景；当前进时，禁用背景；当非动画态，启用
                                     // TODO 暂时一刀切，未适配并行动画
-//                                    when {
-//                                        transition == null -> true
-//                                        transition.type == ActionType.POP && isTo -> true
-//                                        transition.type == ActionType.POP && isFrom -> false
-//                                        transition.type == ActionType.PUSH && isTo -> true
-//                                        transition.type == ActionType.PUSH && isFrom -> false
-//                                        else -> false
-//                                    }
                                 )
                         ) {
                             SharedContent(entry.destination.key) {

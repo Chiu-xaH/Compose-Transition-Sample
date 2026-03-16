@@ -42,6 +42,11 @@ class NavigationController(
 
     var transitionLevel by mutableStateOf(EffectLevel.FULL)
 
+    /**
+     * TODO 是否保留上一个栈不被销毁
+     */
+    var keepPrevious by mutableStateOf(false)
+
     var enableBlur by mutableStateOf(Build.VERSION.SDK_INT >= 31)
     var enableShader by mutableStateOf(Build.VERSION.SDK_INT >= 33)
     var enableSplashScreen by mutableStateOf(false)

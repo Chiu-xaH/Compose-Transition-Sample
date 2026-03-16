@@ -23,7 +23,7 @@ import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.utils.LocalSharedRegistry
 
 fun Modifier.sharedContainer(
-    key : Any,
+    key : String,
     shape : CornerBasedShape,
     containerColor : Color?,
     shadow : Dp = 0.dp,
@@ -44,7 +44,7 @@ fun Modifier.sharedContainer(
 
 
 fun Modifier.sharedContainer(
-    key : Any,
+    key : String,
     shape : CornerBasedShape,
     shadow : Dp = 0.dp,
     containerFilledStrategy : ContainerFilledStrategy = ContainerFilledStrategy.Pixel(),
@@ -56,7 +56,7 @@ fun Modifier.sharedContainer(
 }
 
 private fun Modifier.sharedContainer(
-    key : Any,
+    key : String,
     containerFilledStrategy : ContainerFilledStrategy,
     shape : CornerBasedShape,
 ): Modifier = composed {
@@ -109,7 +109,7 @@ private fun Modifier.sharedContainer(
 }
 
 fun Modifier.sharedContent(
-    key : Any,
+    key : String,
     shape: CornerBasedShape,
 ): Modifier = composed {
     val registry = LocalSharedRegistry.current
@@ -161,7 +161,7 @@ fun Modifier.sharedContent(
  */
 @Composable
 fun SharedContent(
-    key : Any,
+    key : String,
     modifier : Modifier = Modifier,
     shape : CornerBasedShape = RoundedCornerShape(ScreenCornerHelper.corner),
     content : @Composable () -> Unit
@@ -182,7 +182,7 @@ fun SharedContent(
  */
 @Composable
 fun SharedContainer(
-    key : Any,
+    key : String,
     shape: CornerBasedShape,
     modifier : Modifier = Modifier,
     shadow : Dp = 0.dp,
@@ -209,7 +209,7 @@ fun SharedContainer(
  */
 @Composable
 fun SharedContainer(
-    key : Any,
+    key : String,
     shape : CornerBasedShape,
     modifier : Modifier = Modifier,
     shadow : Dp = 0.dp,
