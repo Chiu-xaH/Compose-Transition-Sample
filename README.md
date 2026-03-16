@@ -144,6 +144,11 @@ fun HomeScreen() {
 
 > **注意**：`SharedContainer` 内层组件的 `shape` 必须设置为无圆角，圆角统一由外层 `SharedContainer` 管理，否则在提取 1 像素时会缺失边角。
 
+## 编译为 Release aar
+```bash
+./gradlew assembleRelease
+```
+
 ## 后续计划
 1. SDK32及其以下背景缩放启用时，动画结束瞬间容器稍微位移抽搐的Bug      [P0]
 2. 并行动画     [P1]

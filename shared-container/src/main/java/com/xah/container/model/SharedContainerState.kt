@@ -36,5 +36,5 @@ class SharedContainerState() {
     // 动画
     val animation = Animatable(0f)
     // 结束开始标志位
-    var isRunning by mutableStateOf(false)
+    var isTransiting by mutableStateOf(false)
 }

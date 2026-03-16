@@ -33,8 +33,8 @@ fun SharedContainerOverlay() {
 
     registry.runningStates.forEach { state ->
         key(state) {
-            val container = state.containerRect ?: return@forEach
-            val content = state.contentRect ?: return@forEach
+            val container = state.containerRect!!
+            val content = state.contentRect!!
 
             val progress = state.animation.value
             val safelyProgress = (progress * registry.speedUpRadio).coerceIn(0f,1f)

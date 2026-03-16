@@ -21,11 +21,13 @@ class SharedRegistry(
 ) {
     val states = mutableStateMapOf<String, SharedContainerState>()
     val runningStates: List<SharedContainerState> by derivedStateOf {
-        states.values.filter { it.isRunning }
+        states.values.filter { it.isRunning() }
     }
     val isRunning: Boolean by derivedStateOf {
-        states.values.any { it.isRunning }
+        states.values.any { it.isRunning() }
     }
+
+    private fun SharedContainerState.isRunning() = isTransiting && containerRect != null && contentRect != null
 
     var enabled by mutableStateOf(true)
 
@@ -156,14 +158,18 @@ class SharedRegistry(
     ) {
         onSwapContent()
         awaitFrame()
+        if(state.contentRect == null) {
+            return
+        }
         snap(state,true)
         // 开始标识位
-        state.isRunning = true
+        state.isTransiting = true
 
         state.animation.animateTo(1f,getPushAnimation())
         onAnimatedFinished?.let { it() }
+        state.containerRect = null
         // 结束标志位
-        state.isRunning = false
+        state.isTransiting = false
     }
 
     private suspend fun internalPop(
@@ -173,15 +179,18 @@ class SharedRegistry(
     ) {
         onSwapContent()
         awaitFrame()
+        if(state.containerRect == null) {
+            return
+        }
         snap(state,false)
         // 开始标识位
-        state.isRunning = true
+        state.isTransiting = true
 
         state.animation.animateTo(0f,getPopAnimation())
 
         onAnimatedFinished?.let { it() }
         // 结束标志位
-        state.isRunning = false
+        state.isTransiting = false
     }
 
 
@@ -189,7 +198,7 @@ class SharedRegistry(
         state: SharedContainerState,
         isPush : Boolean
     ) {
-        if(!state.isRunning) {
+        if(!state.isTransiting) {
             state.animation.snapTo(
                 if(isPush) {
                     0f

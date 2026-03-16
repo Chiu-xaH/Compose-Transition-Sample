@@ -82,10 +82,10 @@ private fun Modifier.sharedContainer(
     return@composed this
         .drawWithContent {
             // 隐藏原组件
-            if (!state.isRunning) {
+            if (!state.isTransiting) {
                 drawContent()
             }
-            if (state.isRunning) {
+            if (state.isTransiting) {
                 graphicsLayerForPixel?.record {
                     this@drawWithContent.drawContent()
                 }
@@ -131,10 +131,10 @@ fun Modifier.sharedContent(
     this
         .drawWithContent {
             // 隐藏原组件
-            if (!state.isRunning) {
+            if (!state.isTransiting) {
                 drawContent()
             }
-            if (state.isRunning) {
+            if (state.isTransiting) {
                 graphicsLayer.record {
                     this@drawWithContent.drawContent()
                 }
