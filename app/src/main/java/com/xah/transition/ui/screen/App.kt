@@ -111,7 +111,7 @@ fun App() {
         backHandler = {
             val registry = LocalSharedRegistry.current
             LaunchedEffect(Unit) {
-                registry.needWaitMultiFrame = false
+                registry.needWaitMultiFrame = true
             }
 
             DefaultBackHandler()

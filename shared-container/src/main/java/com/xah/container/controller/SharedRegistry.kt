@@ -1,5 +1,6 @@
 package com.xah.container.controller
 
+import android.os.SystemClock
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.derivedStateOf
@@ -43,8 +44,9 @@ class SharedRegistry(
     /**
      * 最大等帧时长，为什么需要等，本质上取决于导航栈的设计，如果导航栈只能保持一个页面，其余页面都被销毁，当POP时需要等下面的初始化完成，才能记录容器位置，如果栈中内容都不销毁，那么就只需要等1帧（16ms）
      * 如果waitFrameMaxValue=0或者enableWaitFrameMaxValue=false，则等1帧
+     * 界面越复杂，性能越差，需要等的帧越大，但是一般在
      */
-    var waitFrameMaxValue by mutableIntStateOf(3)
+    var waitFrameMaxValue by mutableIntStateOf(10)
 
     var pushX1 by mutableFloatStateOf(0.4f)
     var pushY1 by mutableFloatStateOf(0.65f)
@@ -238,6 +240,14 @@ class SharedRegistry(
         }
     }
 
+    private fun needWaitMultiFrame(state: SharedContainerState): Boolean {
+        return if(needWaitMultiFrame) {
+            state.containerFilledStrategy.getFinalStrategy(enableShader) is ContainerFilledStrategy.Color
+        } else {
+            false
+        }
+    }
+
     private suspend fun waitContainerFrame(
         state: SharedContainerState,
         onSwap: suspend () -> Unit,
@@ -248,16 +258,6 @@ class SharedRegistry(
         onSwap: suspend () -> Unit,
     ): Boolean = waitFrame(state,false,onSwap)
 
-
-    private fun needWaitMultiFrame(state : SharedContainerState) : Boolean {
-        return if(needWaitMultiFrame) {
-            // 实体背景，必须等帧，否则过渡不自然；其余填充方案不是实体背景，就算不等帧过渡也比较自然
-            state.containerFilledStrategy.getFinalStrategy(enableShader) is ContainerFilledStrategy.Color
-        } else {
-            false
-        }
-    }
-
     /**
      * 返回时，有些容器是动态加载的，等一个动画时长，如果超时了按导航默认动画走（超时请优化写法）
      */
@@ -266,7 +266,7 @@ class SharedRegistry(
         isContainer : Boolean,
         onSwap: suspend () -> Unit,
     ): Boolean {
-        if(waitFrameMaxValue < 1 || !needWaitMultiFrame(state)) {
+        if(waitFrameMaxValue <= 0 || !needWaitMultiFrame(state)) {
             // 等一帧即可
             onSwap()
             // state.isTransiting = true 用于稳住导航不要动，开始测量rect
@@ -311,13 +311,13 @@ class SharedRegistry(
                 state.contentRect
             }
             if (rect != null) {
-                LogUtil.debug("start transition, waited $frameCount frame")
+                LogUtil.debug("start transition, waited  $frameCount frame")
                 state.isWaitingFrame = false
                 return true
             }
-            if (frameCount > waitFrameMaxValue) {
+            if (frameCount >= waitFrameMaxValue) {
                 unregister(state)
-                LogUtil.warn("rendering timeout within $frameCount frame")
+                LogUtil.warn("rendering timeout after $frameCount frame")
                 state.isWaitingFrame = false
                 return false
             }
