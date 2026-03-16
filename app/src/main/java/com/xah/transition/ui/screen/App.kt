@@ -68,6 +68,7 @@ import com.xah.container.container.SharedContainer
 import com.xah.container.utils.LocalSharedRegistry
 import com.xah.navigation.anim.EffectLevel
 import com.xah.navigation.anim.rememberDefaultPageEffectsEnhance
+import com.xah.navigation.component.DefaultBackHandler
 import com.xah.navigation.component.SharedNavHost
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.action.LaunchMode
@@ -106,7 +107,15 @@ fun App() {
         startDestination = HomeDestination,
         modifier = Modifier.background(MaterialTheme.colorScheme.surface),
         dependencies = dependencies,
-//        effect = rememberDefaultPageEffectsEnhance()
+        effect = rememberDefaultPageEffectsEnhance(),
+        backHandler = {
+            val registry = LocalSharedRegistry.current
+            LaunchedEffect(Unit) {
+                registry.needWaitMultiFrame = false
+            }
+
+            DefaultBackHandler()
+        }
     )
 }
 

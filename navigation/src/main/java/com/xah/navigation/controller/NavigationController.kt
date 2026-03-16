@@ -29,6 +29,7 @@ import java.util.UUID
 class NavigationController(
     private val scope: CoroutineScope,
     val startDestination: Destination,
+    private val keepPreviousPage : Boolean = false,
     private val _stack: SnapshotStateList<StackEntry>,
     var sharedRegistry : SharedRegistry? = null,
 ) {
@@ -43,9 +44,9 @@ class NavigationController(
     var transitionLevel by mutableStateOf(EffectLevel.FULL)
 
     /**
-     * TODO 是否保留上一个栈不被销毁
+     * TODO 是否保留以前的栈不被销毁,如果为true则不需要等帧了，所有页面都在，只不过被盖住了
      */
-    var keepPrevious by mutableStateOf(false)
+    var keepPrevious by mutableStateOf(keepPreviousPage)
 
     var enableBlur by mutableStateOf(Build.VERSION.SDK_INT >= 31)
     var enableShader by mutableStateOf(Build.VERSION.SDK_INT >= 33)
@@ -213,6 +214,9 @@ class NavigationController(
     private suspend fun internalAnimate(
         animationSpec: AnimationSpec<Float> = defaultSpec
     ) {
+        if(sharedRegistry?.isWaitingFrame == true) {
+            return
+        }
         navTransition ?: return
 
         val target = when (navTransition!!.type) {

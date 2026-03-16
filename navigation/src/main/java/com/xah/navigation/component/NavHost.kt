@@ -35,11 +35,12 @@ import com.xah.navigation.utils.touchEvent
 @Composable
 fun rememberNavController(
     startDestination : Destination,
+    keepPreviousPage : Boolean = false
 ): NavigationController {
     val scope = rememberCoroutineScope()
     val navViewModel: NavigationViewModel = viewModel(factory = NavigationViewModel.Factory())
     val navController = remember(navViewModel) {
-        NavigationController(scope, startDestination, navViewModel.stack,null)
+        NavigationController(scope, startDestination, keepPreviousPage, navViewModel.stack,null)
     }
     return navController
 }
@@ -53,7 +54,7 @@ fun SharedNavHost(
     dependencies: Dependencies = Dependencies(),
     backHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
-    SharedContainerRoot {
+    SharedContainerRoot(navController.keepPrevious) {
         NavHost(
             navController,
             modifier,
@@ -69,12 +70,19 @@ fun SharedNavHost(
 fun SharedNavHost(
     startDestination: Destination,
     modifier: Modifier = Modifier,
+    keepPreviousPage : Boolean = false,
     effect: PageEffects = rememberDefaultPageEffects(),
     dependencies: Dependencies = Dependencies(),
     backHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
-    val navController = rememberNavController(startDestination)
-    SharedNavHost(navController, modifier, effect, dependencies, backHandler)
+    val navController = rememberNavController(startDestination,keepPreviousPage)
+    SharedNavHost(
+        navController,
+        modifier,
+        effect,
+        dependencies,
+        backHandler
+    )
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -82,11 +90,12 @@ fun SharedNavHost(
 fun NavHost(
     startDestination: Destination,
     modifier: Modifier = Modifier,
+    keepPreviousPage : Boolean = false,
     effect: PageEffects = rememberDefaultPageEffects(),
     dependencies: Dependencies = Dependencies(),
     customBackHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
-    val navController = rememberNavController(startDestination)
+    val navController = rememberNavController(startDestination,keepPreviousPage)
 
     NavHost(
         navController,
@@ -108,8 +117,13 @@ fun NavHost(
 ) {
     val registry = LocalSharedRegistry.current
     val saveableStateHolder = rememberSaveableStateHolder()
+
     LaunchedEffect(registry) {
         navController.sharedRegistry = registry
+    }
+
+    LaunchedEffect(navController.keepPrevious) {
+        registry.needWaitMultiFrame = !navController.keepPrevious
     }
 
     CompositionLocalProvider(
@@ -123,7 +137,7 @@ fun NavHost(
         val progress = navController.transitionProgress
 
         // 当 transition 变化时启动动画
-        LaunchedEffect(transition,registry.isRunning) {
+        LaunchedEffect(transition,registry.isRunning,registry.isWaitingFrame) {
             navController.animate()
         }
 
@@ -138,7 +152,6 @@ fun NavHost(
         val level = navController.transitionLevel
         val enableBlur = navController.enableBlur
         val enableShader = navController.enableShader
-        val registryRunning = registry.isRunning
 
         Box(modifier = modifier.fillMaxSize()) {
             visibleEntries.forEach { entry ->
@@ -157,26 +170,14 @@ fun NavHost(
                             Modifier
                                 .fillMaxSize()
                                 .graphicsLayer {
-                                    if (transition != null) {
-                                        when (transition.type) {
-                                            ActionType.PUSH -> {
-                                                if (isFrom) { }
-                                                if(isTo) { }
-                                            }
-                                            ActionType.POP -> {
-                                                if(isFrom) {
-                                                    // 有共享元素
-                                                    if(registry.isRunning) {
-                                                        alpha = 0f
-                                                    }
-                                                }
-                                                if (isTo) { }
-                                            }
-                                        }
+                                    // 容器等帧测量时，将目标测量（isTo）内容隐藏，避免闪烁
+                                    if(transition != null && isTo && registry.isWaitingFrame) {
+                                        alpha = 0f
                                     }
                                 }
                                 .let {
-                                    if (transition != null) {
+                                    // 容器等帧测量时，禁用所有动效，测量容器的真实位置
+                                    if (transition != null && !registry.isWaitingFrame) {
                                         when (transition.type) {
                                             ActionType.PUSH -> {
                                                 if (isFrom) {
@@ -184,7 +185,7 @@ fun NavHost(
                                                     return@let it.backgroundEffect(
                                                         enableShader,
                                                         enableBlur,
-                                                        registryRunning,
+                                                        registry.isRunning,
                                                         backgroundEffect
                                                     )
                                                 }
@@ -205,7 +206,7 @@ fun NavHost(
                                                     return@let it.backgroundEffect(
                                                         enableShader,
                                                         enableBlur,
-                                                        registryRunning,
+                                                        registry.isRunning,
                                                         backgroundEffect
                                                     )
                                                 }

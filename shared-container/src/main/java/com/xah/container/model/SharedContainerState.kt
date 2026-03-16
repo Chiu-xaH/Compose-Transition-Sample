@@ -12,11 +12,13 @@ import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.ScreenCornerHelper
 
-class SharedContainerState() {
+class SharedContainerState(
+    val key : String
+) {
     // 容器Rect
-    var containerRect: Rect? = null
+    var containerRect : Rect? = null
     // 内容Rect
-    var contentRect: Rect? = null
+    var contentRect : Rect? = null
 
     // 内容布局
     var containerLayer : GraphicsLayer? = null
@@ -33,8 +35,9 @@ class SharedContainerState() {
     // 容器填充策略
     var containerFilledStrategy : ContainerFilledStrategy = ContainerFilledStrategy.Pixel()
 
-    // 动画
     val animation = Animatable(0f)
-    // 结束开始标志位
+    // 动画结束开始标志位
     var isTransiting by mutableStateOf(false)
+    // 等帧标志位，开发者没必要去动
+    var isWaitingFrame by mutableStateOf(false)
 }

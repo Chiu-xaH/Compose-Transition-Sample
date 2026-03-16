@@ -21,6 +21,7 @@ import com.xah.container.utils.LocalSharedRegistrySafely
 
 @Composable
 fun SharedContainerRoot(
+    needWaitMultiFrame: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val view = LocalView.current
@@ -32,7 +33,7 @@ fun SharedContainerRoot(
         ScreenCornerHelper(view)
     }
 
-    val registry = remember { SharedRegistry(scope) }
+    val registry = remember { SharedRegistry(scope,needWaitMultiFrame) }
 
     val screenHeightPx = with(density) {
         configuration.screenHeightDp.dp.toPx()

@@ -64,7 +64,7 @@ private fun Modifier.sharedContainer(
     if(!registry.enabled) {
         return@composed this
     }
-    val state = remember { registry.getOrCreate(key) }
+    val state = remember { registry.register(key) }
     val graphicsLayer = rememberGraphicsLayer()
     val graphicsLayerForPixel = if(containerFilledStrategy.getFinalStrategy(registry.enableShader) is ContainerFilledStrategy.Pixel) {
         rememberGraphicsLayer()
@@ -81,8 +81,8 @@ private fun Modifier.sharedContainer(
 
     return@composed this
         .drawWithContent {
-            // 隐藏原组件
-            if (!state.isTransiting) {
+            // 等帧显示组件，容器动画时不显示组件
+            if(state.isWaitingFrame || !state.isTransiting) {
                 drawContent()
             }
             if (state.isTransiting) {
@@ -130,8 +130,8 @@ fun Modifier.sharedContent(
 
     this
         .drawWithContent {
-            // 隐藏原组件
-            if (!state.isTransiting) {
+            // 等帧显示组件，容器动画时不显示组件
+            if(state.isWaitingFrame || !state.isTransiting) {
                 drawContent()
             }
             if (state.isTransiting) {
