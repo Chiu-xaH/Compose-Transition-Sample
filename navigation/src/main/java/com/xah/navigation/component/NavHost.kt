@@ -173,6 +173,9 @@ private fun NavHost(
         val enableBlur = navController.enableBlur
         val enableShader = navController.enableShader
 
+        val graphicsLayer = rememberGraphicsLayer()
+        var frozenSnapshot by remember { mutableStateOf<ImageBitmap?>(null) }
+
         Box(modifier = modifier.fillMaxSize()) {
             visibleEntries.forEachIndexed { index, entry ->
                 key(entry.id) {
@@ -260,11 +263,53 @@ private fun NavHost(
                                 // 动画过程中且为前景
                                 val inTransiting = (transition?.type == ActionType.POP && isFrom && navController.isTransitioning) || (transition?.type == ActionType.PUSH && isTo)
 
-                                if(enableSplashScreen && inTransiting) {
-                                    entry.destination.PlaceHolder!!.invoke()
+                                if(enableSplashScreen) {
+                                    if(inTransiting) {
+                                        if(frozenSnapshot == null) {
+                                            entry.destination.PlaceHolder!!.invoke()
+                                        } else {
+                                            // 显示冻结画面
+                                            Image(
+                                                frozenSnapshot!!,
+                                                null
+                                            )
+                                        }
+                                    } else {
+                                        LaunchedEffect(transition) {
+                                            // POP瞬间抓取冻结快照，作为Placeholder
+                                            if(transition?.type == ActionType.POP && isFrom) {
+                                                frozenSnapshot = graphicsLayer.toImageBitmap()
+                                            } else if(transition == null) {
+                                                frozenSnapshot = null
+                                            }
+                                        }
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .drawWithContent {
+                                                    drawContent()
+                                                    if(transition?.type == ActionType.POP) {
+                                                        graphicsLayer.record {
+                                                            this@drawWithContent.drawContent()
+                                                        }
+                                                    }
+                                                }
+                                        ) {
+                                            entry.destination.Content()
+                                        }
+                                    }
                                 } else {
+                                    LaunchedEffect(transition) {
+                                        frozenSnapshot = null
+                                    }
                                     entry.destination.Content()
                                 }
+//                                if(enableSplashScreen && inTransiting) {
+//                                    // SplashScreen
+//                                    entry.destination.PlaceHolder!!.invoke()
+//                                } else {
+//                                    entry.destination.Content()
+//                                }
                             }
                         }
                     }
