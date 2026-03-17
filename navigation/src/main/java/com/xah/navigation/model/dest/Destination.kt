@@ -8,9 +8,14 @@ abstract class Destination {
      */
     abstract val key: String
 
-    open val enforcePlaceHolder : Boolean = false
     /**
-     * 是否等动画完成后再加载，如果是则需要传一个PlaceHolder(Splash Screen)先显示，比如初始化相机时如果不延迟加载动效就会卡顿
+     * 突破Controller的enableSplashScreen限制
+     */
+    open val enforcePlaceHolder : Boolean = false
+
+    /**
+     * 是否等PUSH动画完成后再加载，如果是则需要传一个PlaceHolder(Splash Screen)先显示，比如初始化相机时如果不延迟加载动效就会卡顿
+     * POP时不显示PlaceHolder，POP瞬间抓取一张冻结的ImageBitmap显示并返回，最大限度地降低动效卡顿
      */
     open val PlaceHolder: (@Composable () -> Unit)? = null
     // ...可扩展
@@ -18,3 +23,4 @@ abstract class Destination {
     @Composable
     abstract fun Content()
 }
+

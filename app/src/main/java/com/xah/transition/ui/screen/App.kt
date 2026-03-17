@@ -24,9 +24,11 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -109,11 +111,10 @@ fun App() {
         dependencies = dependencies,
         effect = rememberDefaultPageEffectsEnhance(),
         backHandler = {
-            val registry = LocalSharedRegistry.current
+            val navigationController = LocalNavController.current
             LaunchedEffect(Unit) {
-                registry.needWaitMultiFrame = true
+//                navigationController.enableKeepAlive = true
             }
-
             DefaultBackHandler()
         }
     )
@@ -531,6 +532,7 @@ fun BezierSettingsScreen(title: String) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
         ) {
             if(isPush) {
                 CubicBezierEditor(

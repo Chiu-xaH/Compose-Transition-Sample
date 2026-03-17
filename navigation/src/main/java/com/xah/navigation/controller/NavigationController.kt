@@ -14,12 +14,11 @@ import com.xah.container.controller.SharedRegistry
 import com.xah.navigation.anim.EffectLevel
 import com.xah.navigation.anim.NavTransition
 import com.xah.navigation.model.action.ActionType
-import com.xah.navigation.model.dest.Destination
 import com.xah.navigation.model.action.LaunchMode
+import com.xah.navigation.model.dest.Destination
 import com.xah.navigation.model.dest.StackEntry
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.android.awaitFrame
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -29,7 +28,6 @@ import java.util.UUID
 class NavigationController(
     private val scope: CoroutineScope,
     val startDestination: Destination,
-    private val keepPreviousPage : Boolean = false,
     private val _stack: SnapshotStateList<StackEntry>,
     var sharedRegistry : SharedRegistry? = null,
 ) {
@@ -43,14 +41,17 @@ class NavigationController(
 
     var transitionLevel by mutableStateOf(EffectLevel.FULL)
 
-    /**
-     * TODO 是否保留以前的栈不被销毁,如果为true则不需要等帧了，所有页面都在，只不过被盖住了
-     */
-    var keepPrevious by mutableStateOf(keepPreviousPage)
-
     var enableBlur by mutableStateOf(Build.VERSION.SDK_INT >= 31)
     var enableShader by mutableStateOf(Build.VERSION.SDK_INT >= 33)
+    /**
+     * 允许Destination.PlaceHolder生效，如果Destination.enforcePlaceHolder为true则不受enableSplashScreen限制
+     */
     var enableSplashScreen by mutableStateOf(false)
+
+    /**
+     * 是否保留页面真正的不被销毁,这个栈一般是应用的主页面，承载的业务比较多，如果为true页面还在，只不过被盖住了,可节省POP的性能开销（!!!多页面卡顿OOM警告,不建议启用）
+     */
+    var enableKeepAlive : Boolean = false
 
     val transitionProgress = Animatable(0f)
 
@@ -102,7 +103,7 @@ class NavigationController(
         destination: Destination,
         launchMode: LaunchMode = LaunchMode.Push(true),
     ) {
-        scope.launch {
+        scope.launch(start = CoroutineStart.UNDISPATCHED) {
             val from = _stack.last()
 
             when (launchMode) {
@@ -171,14 +172,17 @@ class NavigationController(
     }
 
     private fun popInternal() {
-        scope.launch {
+        scope.launch(start = CoroutineStart.UNDISPATCHED) {
+
             if (_stack.size <= 1) return@launch
 
             val from = _stack.last()
             val to = _stack[_stack.lastIndex - 1]
-            // 动画未进行时归位，不影响打断动画
+
             val type = ActionType.POP
+
             snap(type)
+
             navTransition = NavTransition(
                 type = type,
                 from = from,
@@ -275,13 +279,9 @@ class NavigationController(
         }
     }
 
-    fun current() : StackEntry? {
-        return _stack.lastOrNull()
-    }
+    fun current() : StackEntry? = _stack.lastOrNull()
 
-    fun canPop() : Boolean {
-        return _stack.size > 1
-    }
+    fun canPop() : Boolean = _stack.size > 1
 
     init {
         if(_stack.isEmpty()) {

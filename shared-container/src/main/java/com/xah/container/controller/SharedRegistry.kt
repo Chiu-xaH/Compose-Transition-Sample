@@ -1,13 +1,11 @@
 package com.xah.container.controller
 
-import android.os.SystemClock
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -22,7 +20,6 @@ import kotlinx.coroutines.launch
 
 class SharedRegistry(
     private val scope: CoroutineScope,
-    var needWaitMultiFrame : Boolean = true
 ) {
     val states = mutableStateMapOf<String, SharedContainerState>()
     val runningStates: List<SharedContainerState> by derivedStateOf {
@@ -34,6 +31,8 @@ class SharedRegistry(
     val isWaitingFrame: Boolean by derivedStateOf {
         states.values.any { it.isWaitingFrame }
     }
+
+    var needWaitMultiFrame : Boolean = true
 
     private fun SharedContainerState.isRunning() = isTransiting && containerRect != null && contentRect != null
 
@@ -75,19 +74,13 @@ class SharedRegistry(
 
     fun register(
         key: String,
-    ): SharedContainerState {
-        return states.getOrPut(key) {
-            LogUtil.debug("register $key")
-            SharedContainerState(key)
-        }
+    ): SharedContainerState = states.getOrPut(key) {
+        SharedContainerState(key)
     }
 
     fun unregister(state : SharedContainerState) = unregister(state.key)
 
-    fun unregister(key: String) {
-        states.remove(key)
-        LogUtil.debug("unregister $key")
-    }
+    fun unregister(key: String) = states.remove(key)
 
     fun get(
         key: String,
@@ -193,7 +186,7 @@ class SharedRegistry(
 
         state.animation.animateTo(1f,getPushAnimation())
         onAnimatedFinished?.let { it() }
-        if(needWaitMultiFrame) {
+        if(needWaitMultiFrame(state)) {
             state.containerRect = null
         }
         // 结束标志位
@@ -217,7 +210,7 @@ class SharedRegistry(
         state.animation.animateTo(0f,getPopAnimation())
 
         onAnimatedFinished?.let { it() }
-        if(needWaitMultiFrame) {
+        if(needWaitMultiFrame(state)) {
             state.contentRect = null
         }
         // 结束标志位
@@ -266,7 +259,7 @@ class SharedRegistry(
         isContainer : Boolean,
         onSwap: suspend () -> Unit,
     ): Boolean {
-        if(waitFrameMaxValue <= 0 || !needWaitMultiFrame) {
+        if(waitFrameMaxValue <= 0 || !needWaitMultiFrame(state)) {
             // 等一帧即可
             onSwap()
             // state.isTransiting = true 用于稳住导航不要动，开始测量rect
@@ -282,7 +275,6 @@ class SharedRegistry(
                 state.contentRect
             }
             if (rect != null) {
-                LogUtil.debug("start transition, waited 1 frame")
                 state.isWaitingFrame = false
                 return true
             } else {
@@ -311,7 +303,6 @@ class SharedRegistry(
                 state.contentRect
             }
             if (rect != null) {
-                LogUtil.debug("start transition, waited  $frameCount frame")
                 state.isWaitingFrame = false
                 return true
             }

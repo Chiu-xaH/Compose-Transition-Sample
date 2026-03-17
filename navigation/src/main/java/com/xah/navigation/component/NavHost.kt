@@ -2,17 +2,27 @@ package com.xah.navigation.component
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xah.container.container.SharedContent
 import com.xah.container.overlay.SharedContainerRoot
@@ -27,6 +37,7 @@ import com.xah.navigation.controller.NavigationViewModel
 import com.xah.navigation.model.Dependencies
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.dest.Destination
+import com.xah.navigation.model.dest.StackEntry
 import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavControllerSafely
 import com.xah.navigation.util.LocalNavDependencies
@@ -35,12 +46,11 @@ import com.xah.navigation.util.touchEvent
 @Composable
 fun rememberNavController(
     startDestination : Destination,
-    keepPreviousPage : Boolean = false
 ): NavigationController {
     val scope = rememberCoroutineScope()
     val navViewModel: NavigationViewModel = viewModel(factory = NavigationViewModel.Factory())
     val navController = remember(navViewModel) {
-        NavigationController(scope, startDestination, keepPreviousPage, navViewModel.stack,null)
+        NavigationController(scope, startDestination, navViewModel.stack,null)
     }
     return navController
 }
@@ -54,7 +64,7 @@ fun SharedNavHost(
     dependencies: Dependencies = Dependencies(),
     backHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
-    SharedContainerRoot(navController.keepPrevious) {
+    SharedContainerRoot {
         NavHost(
             navController,
             modifier,
@@ -70,12 +80,11 @@ fun SharedNavHost(
 fun SharedNavHost(
     startDestination: Destination,
     modifier: Modifier = Modifier,
-    keepPreviousPage : Boolean = false,
     effect: PageEffects = rememberDefaultPageEffects(),
     dependencies: Dependencies = Dependencies(),
     backHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
-    val navController = rememberNavController(startDestination,keepPreviousPage)
+    val navController = rememberNavController(startDestination)
     SharedNavHost(
         navController,
         modifier,
@@ -90,12 +99,11 @@ fun SharedNavHost(
 private fun NavHost(
     startDestination: Destination,
     modifier: Modifier = Modifier,
-    keepPreviousPage : Boolean = false,
     effect: PageEffects = rememberDefaultPageEffects(),
     dependencies: Dependencies = Dependencies(),
     backHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
-    val navController = rememberNavController(startDestination,keepPreviousPage)
+    val navController = rememberNavController(startDestination)
 
     NavHost(
         navController,
@@ -122,10 +130,6 @@ private fun NavHost(
         navController.sharedRegistry = registry
     }
 
-    LaunchedEffect(navController.keepPrevious) {
-        registry.needWaitMultiFrame = !navController.keepPrevious
-    }
-
     CompositionLocalProvider(
         LocalNavControllerSafely provides navController,
         LocalNavController provides navController,
@@ -141,11 +145,27 @@ private fun NavHost(
             navController.animate()
         }
 
-        val visibleEntries = remember(transition) {
-            when (transition?.type) {
-                ActionType.POP -> listOf(transition.to, transition.from)
-                ActionType.PUSH -> listOf(transition.from, transition.to)
-                else -> listOf(navController.stack.last())
+        val visibleEntries = if (navController.enableKeepAlive) {
+            remember(navController.stack.size, transition) {
+                val expectedStack = when (transition?.type) {
+                    ActionType.POP -> listOf(transition.to, transition.from)
+                    ActionType.PUSH -> listOf(transition.from, transition.to)
+                    else -> null
+                }
+                val actualStack = navController.stack.takeLast(2)
+                if(expectedStack == null || expectedStack == actualStack) {
+                    actualStack
+                } else {
+                    expectedStack
+                }
+            }
+        } else {
+            remember(transition) {
+                when (transition?.type) {
+                    ActionType.POP -> listOf(transition.to, transition.from)
+                    ActionType.PUSH -> listOf(transition.from, transition.to)
+                    else -> listOf(navController.stack.last())
+                }
             }
         }
 
@@ -154,7 +174,7 @@ private fun NavHost(
         val enableShader = navController.enableShader
 
         Box(modifier = modifier.fillMaxSize()) {
-            visibleEntries.forEach { entry ->
+            visibleEntries.forEachIndexed { index, entry ->
                 key(entry.id) {
                     saveableStateHolder.SaveableStateProvider(entry.id) {
                         val isFrom = transition?.from == entry
@@ -231,12 +251,15 @@ private fun NavHost(
                                     // TODO 暂时一刀切，未适配并行动画
                                 )
                         ) {
-                            SharedContent(entry.destination.key) {
+                            SharedContent(
+                                key = entry.destination.key,
+                            ) {
                                 val needDisplaySplashScreen = entry.destination.enforcePlaceHolder || (navController.enableSplashScreen && navController.transitionLevel != EffectLevel.NONE)
                                 // NONE等级动效不需要遮罩
                                 val enableSplashScreen = needDisplaySplashScreen && entry.destination.PlaceHolder != null
                                 // 动画过程中且为前景
                                 val inTransiting = (transition?.type == ActionType.POP && isFrom && navController.isTransitioning) || (transition?.type == ActionType.PUSH && isTo)
+
                                 if(enableSplashScreen && inTransiting) {
                                     entry.destination.PlaceHolder!!.invoke()
                                 } else {
