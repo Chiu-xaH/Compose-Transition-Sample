@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xah.container.container.SharedContent
 import com.xah.container.overlay.SharedContainerRoot
-import com.xah.container.utils.LocalSharedRegistry
+import com.xah.container.util.LocalSharedRegistry
 import com.xah.navigation.anim.EffectLevel
 import com.xah.navigation.anim.PageEffects
 import com.xah.navigation.anim.backgroundEffect
@@ -27,10 +27,10 @@ import com.xah.navigation.controller.NavigationViewModel
 import com.xah.navigation.model.Dependencies
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.dest.Destination
-import com.xah.navigation.utils.LocalNavController
-import com.xah.navigation.utils.LocalNavControllerSafely
-import com.xah.navigation.utils.LocalNavDependencies
-import com.xah.navigation.utils.touchEvent
+import com.xah.navigation.util.LocalNavController
+import com.xah.navigation.util.LocalNavControllerSafely
+import com.xah.navigation.util.LocalNavDependencies
+import com.xah.navigation.util.touchEvent
 
 @Composable
 fun rememberNavController(
@@ -87,13 +87,13 @@ fun SharedNavHost(
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun NavHost(
+private fun NavHost(
     startDestination: Destination,
     modifier: Modifier = Modifier,
     keepPreviousPage : Boolean = false,
     effect: PageEffects = rememberDefaultPageEffects(),
     dependencies: Dependencies = Dependencies(),
-    customBackHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
+    backHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
     val navController = rememberNavController(startDestination,keepPreviousPage)
 
@@ -102,13 +102,13 @@ fun NavHost(
         modifier,
         effect,
         dependencies,
-        customBackHandler
+        backHandler
     )
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun NavHost(
+private fun NavHost(
     navController: NavigationController,
     modifier: Modifier = Modifier,
     effect: PageEffects = rememberDefaultPageEffects(),

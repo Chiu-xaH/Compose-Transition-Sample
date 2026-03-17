@@ -2,7 +2,7 @@ package com.xah.navigation.component
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
-import com.xah.navigation.utils.LocalNavController
+import com.xah.navigation.util.LocalNavController
 
 @Composable
 fun DefaultBackHandler() {

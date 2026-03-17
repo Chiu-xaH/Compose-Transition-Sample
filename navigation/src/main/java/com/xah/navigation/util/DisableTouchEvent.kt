@@ -1,4 +1,4 @@
-package com.xah.navigation.utils
+package com.xah.navigation.util
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInteropFilter

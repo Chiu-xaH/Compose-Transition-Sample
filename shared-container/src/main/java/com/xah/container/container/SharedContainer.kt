@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.ScreenCornerHelper
 import com.xah.container.model.ContainerFilledStrategy
-import com.xah.container.utils.LocalSharedRegistry
+import com.xah.container.util.LocalSharedRegistry
 
 fun Modifier.sharedContainer(
     key : String,

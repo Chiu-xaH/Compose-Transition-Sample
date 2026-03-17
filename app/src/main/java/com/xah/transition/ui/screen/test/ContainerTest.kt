@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import com.xah.container.container.SharedContainer
 import com.xah.container.container.SharedContent
 import com.xah.container.overlay.SharedContainerRoot
-import com.xah.container.utils.LocalSharedRegistry
+import com.xah.container.util.LocalSharedRegistry
 import com.xah.transition.R
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CardListItem

@@ -8,7 +8,7 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
-import com.xah.navigation.utils.scaleMirror
+import com.xah.navigation.util.scaleMirror
 
 private fun Modifier.mask(effect: PageEffect) : Modifier {
     return this.drawWithCache {

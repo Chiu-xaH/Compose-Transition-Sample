@@ -15,8 +15,8 @@ import androidx.compose.ui.unit.dp
 import com.sharednav.common.ScreenCornerHelper
 import com.xah.container.anim.QuadraticBezierRectInterpolator
 import com.xah.container.controller.SharedRegistry
-import com.xah.container.utils.LocalSharedRegistry
-import com.xah.container.utils.LocalSharedRegistrySafely
+import com.xah.container.util.LocalSharedRegistry
+import com.xah.container.util.LocalSharedRegistrySafely
 
 
 @Composable

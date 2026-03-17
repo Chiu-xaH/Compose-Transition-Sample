@@ -1,4 +1,4 @@
-package com.xah.navigation.utils
+package com.xah.navigation.util
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf

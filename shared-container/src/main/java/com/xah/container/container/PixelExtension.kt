@@ -25,10 +25,8 @@ fun Modifier.pixelExtension(
     }
     return composed {
         if (Build.VERSION.SDK_INT < 33) {
-            // 使用defaultColor延展填充extensionHeight
             this
         } else {
-            // 底部1像素延展填充
             val customRenderEffect = remember(parentRect) {
                 val runtimeShader = RuntimeShader(
                     when(direction) {
@@ -47,7 +45,6 @@ fun Modifier.pixelExtension(
 
             this.drawWithCache {
                 onDrawWithContent {
-                    // 使用缓存的自定义渲染效果
                     parentGraphicsLayer.renderEffect = customRenderEffect
                     drawLayer(parentGraphicsLayer)
                 }
@@ -58,7 +55,7 @@ fun Modifier.pixelExtension(
 
 /**
  * @param isLandscape 是否是横屏，为true则取右侧1像素，否则取底部1像素
- * @param isSingle 是否取双边延展
+ * @param isDouble 是否取双边延展
  */
 fun Modifier.pixelExtension(
     parentGraphicsLayer: GraphicsLayer,

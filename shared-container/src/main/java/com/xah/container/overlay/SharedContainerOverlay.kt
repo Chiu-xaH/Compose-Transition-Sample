@@ -20,7 +20,7 @@ import androidx.compose.ui.zIndex
 import com.sharednav.common.lerp
 import com.xah.container.container.pixelExtension
 import com.xah.container.model.ContainerFilledStrategy
-import com.xah.container.utils.LocalSharedRegistry
+import com.xah.container.util.LocalSharedRegistry
 
 @Composable
 fun SharedContainerOverlay() {
