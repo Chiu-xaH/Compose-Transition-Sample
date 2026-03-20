@@ -266,13 +266,11 @@ private fun NavHost(
                                 if(enableSplashScreen) {
                                     if(inTransiting) {
                                         if(frozenSnapshot == null) {
+                                            // 显示SplashScreen
                                             entry.destination.PlaceHolder!!.invoke()
                                         } else {
                                             // 显示冻结画面
-                                            Image(
-                                                frozenSnapshot!!,
-                                                null
-                                            )
+                                            Image(frozenSnapshot!!, null)
                                         }
                                     } else {
                                         LaunchedEffect(transition) {
@@ -284,11 +282,9 @@ private fun NavHost(
                                             }
                                         }
                                         Box(
-                                            modifier = Modifier
-                                                .fillMaxSize()
-                                                .drawWithContent {
+                                            modifier = Modifier.drawWithContent {
                                                     drawContent()
-                                                    if(transition?.type == ActionType.POP) {
+                                                    if(transition?.type == ActionType.POP && frozenSnapshot == null) {
                                                         graphicsLayer.record {
                                                             this@drawWithContent.drawContent()
                                                         }
@@ -304,6 +300,7 @@ private fun NavHost(
                                     }
                                     entry.destination.Content()
                                 }
+                                // TODO 刷新走查
 //                                if(enableSplashScreen && inTransiting) {
 //                                    // SplashScreen
 //                                    entry.destination.PlaceHolder!!.invoke()

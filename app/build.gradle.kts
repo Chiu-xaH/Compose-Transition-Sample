@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.androidx.material3)
 
     implementation(libs.accompanist.systemuicontroller)
+    implementation(libs.androidx.runtime.tracing)
     implementation(project(":navigation"))
 //    implementation(project(":shared-container"))
 //    implementation(project(":common"))
