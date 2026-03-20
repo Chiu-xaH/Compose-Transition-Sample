@@ -2,7 +2,6 @@ package com.xah.navigation.component
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -13,15 +12,11 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xah.container.container.SharedContent
@@ -37,7 +32,6 @@ import com.xah.navigation.controller.NavigationViewModel
 import com.xah.navigation.model.Dependencies
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.dest.Destination
-import com.xah.navigation.model.dest.StackEntry
 import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavControllerSafely
 import com.xah.navigation.util.LocalNavDependencies
@@ -263,50 +257,12 @@ private fun NavHost(
                                 // 动画过程中且为前景
                                 val inTransiting = (transition?.type == ActionType.POP && isFrom && navController.isTransitioning) || (transition?.type == ActionType.PUSH && isTo)
 
-                                if(enableSplashScreen) {
-                                    if(inTransiting) {
-                                        if(frozenSnapshot == null) {
-                                            // 显示SplashScreen
-                                            entry.destination.PlaceHolder!!.invoke()
-                                        } else {
-                                            // 显示冻结画面
-                                            Image(frozenSnapshot!!, null)
-                                        }
-                                    } else {
-                                        LaunchedEffect(transition) {
-                                            // POP瞬间抓取冻结快照，作为Placeholder
-                                            if(transition?.type == ActionType.POP && isFrom) {
-                                                frozenSnapshot = graphicsLayer.toImageBitmap()
-                                            } else if(transition == null) {
-                                                frozenSnapshot = null
-                                            }
-                                        }
-                                        Box(
-                                            modifier = Modifier.drawWithContent {
-                                                    drawContent()
-                                                    if(transition?.type == ActionType.POP && frozenSnapshot == null) {
-                                                        graphicsLayer.record {
-                                                            this@drawWithContent.drawContent()
-                                                        }
-                                                    }
-                                                }
-                                        ) {
-                                            entry.destination.Content()
-                                        }
-                                    }
+                                if(enableSplashScreen && inTransiting) {
+                                    // SplashScreen
+                                    entry.destination.PlaceHolder!!.invoke()
                                 } else {
-                                    LaunchedEffect(transition) {
-                                        frozenSnapshot = null
-                                    }
                                     entry.destination.Content()
                                 }
-                                // TODO 刷新走查
-//                                if(enableSplashScreen && inTransiting) {
-//                                    // SplashScreen
-//                                    entry.destination.PlaceHolder!!.invoke()
-//                                } else {
-//                                    entry.destination.Content()
-//                                }
                             }
                         }
                     }
