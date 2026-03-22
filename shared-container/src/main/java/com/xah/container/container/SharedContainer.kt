@@ -13,6 +13,7 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -20,6 +21,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.ScreenCornerHelper
 import com.xah.container.model.ContainerFilledStrategy
+import com.xah.container.model.State
 import com.xah.container.util.LocalSharedRegistry
 
 fun Modifier.sharedContainer(
@@ -80,17 +82,35 @@ private fun Modifier.sharedContainer(
     }
 
     return@composed this
-        .drawWithContent {
-            // 等帧显示组件，容器动画时不显示组件
-            if(state.isWaitingFrame || !state.isTransiting) {
-                drawContent()
-            }
-            if (state.isTransiting) {
-                graphicsLayerForPixel?.record {
-                    this@drawWithContent.drawContent()
+        .let {
+            when(state.currentState) {
+                State.CONTAINER -> {
+                    it.drawWithContent {
+                        drawContent()
+                    }
                 }
-                graphicsLayer.record {
-                    this@drawWithContent.drawContent()
+                State.CONTENT -> {
+                    it.drawWithContent {}
+                }
+                State.MEASURING_CONTAINER -> {
+                    it
+                        .graphicsLayer(alpha = 0f)
+                        .drawWithContent {
+                            drawContent()
+                        }
+                }
+                State.TRANSITING -> {
+                    it.drawWithContent {
+                        graphicsLayerForPixel?.record {
+                            this@drawWithContent.drawContent()
+                        }
+                        graphicsLayer.record {
+                            this@drawWithContent.drawContent()
+                        }
+                    }
+                }
+                else -> {
+                    it
                 }
             }
         }
@@ -129,14 +149,32 @@ fun Modifier.sharedContent(
     }
 
     this
-        .drawWithContent {
-            // 等帧显示组件，容器动画时不显示组件
-            if(state.isWaitingFrame || !state.isTransiting) {
-                drawContent()
-            }
-            if (state.isTransiting) {
-                graphicsLayer.record {
-                    this@drawWithContent.drawContent()
+        .let {
+            when(state.currentState) {
+                State.CONTENT -> {
+                    it.drawWithContent {
+                        drawContent()
+                    }
+                }
+                State.CONTAINER -> {
+                    it.drawWithContent {}
+                }
+                State.MEASURING_CONTENT -> {
+                    it
+                        .graphicsLayer(alpha = 0f)
+                        .drawWithContent {
+                            drawContent()
+                        }
+                }
+                State.TRANSITING -> {
+                    it.drawWithContent {
+                        graphicsLayer.record {
+                            this@drawWithContent.drawContent()
+                        }
+                    }
+                }
+                else -> {
+                    it
                 }
             }
         }

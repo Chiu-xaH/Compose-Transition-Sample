@@ -5,6 +5,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -245,7 +246,7 @@ class NavigationController(
         launchMode: LaunchMode = LaunchMode.Push(reuse = true),
     ) {
         val registry = this.sharedRegistry
-        if(this.transitionLevel == EffectLevel.NONE || registry == null || launchMode.actionType == ActionType.POP) {
+        if(registry == null || launchMode.actionType == ActionType.POP) {
             this.pushInternal(destination,launchMode)
         } else {
             registry.push(
@@ -263,7 +264,7 @@ class NavigationController(
 
     fun pop() {
         val registry = this.sharedRegistry
-        if(this.transitionLevel == EffectLevel.NONE || registry == null) {
+        if(registry == null) {
             this.popInternal()
         } else {
             registry.pop(

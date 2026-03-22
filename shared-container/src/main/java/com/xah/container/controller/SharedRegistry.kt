@@ -14,6 +14,7 @@ import com.xah.container.anim.LinearRectInterpolator
 import com.xah.container.anim.RectInterpolator
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.model.SharedContainerState
+import com.xah.container.model.State
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
@@ -29,12 +30,12 @@ class SharedRegistry(
         states.values.any { it.isRunning() }
     }
     val isWaitingFrame: Boolean by derivedStateOf {
-        states.values.any { it.isWaitingFrame }
+        states.values.any { it.currentState == State.MEASURING_CONTAINER || it.currentState == State.MEASURING_CONTENT }
     }
 
     var needWaitMultiFrame : Boolean = true
 
-    private fun SharedContainerState.isRunning() = isTransiting && containerRect != null && contentRect != null
+    private fun SharedContainerState.isRunning() = currentState == State.TRANSITING && containerRect != null && contentRect != null
 
     var enabled by mutableStateOf(true)
 
@@ -57,8 +58,8 @@ class SharedRegistry(
     var popX2 by mutableFloatStateOf(0.15f)
     var popY2 by mutableFloatStateOf(1.0f)
 
-    private fun getPushAnimation() = tween<Float>(animationTime, easing = CubicBezierEasing(pushX1,pushY1,pushX2,pushY2))
-    private fun getPopAnimation() = tween<Float>(animationTime, easing = CubicBezierEasing(popX1,popY1,popX2,popY2))
+    fun getPushAnimation() = tween<Float>(animationTime, easing = CubicBezierEasing(pushX1,pushY1,pushX2,pushY2))
+    fun getPopAnimation() = tween<Float>(animationTime, easing = CubicBezierEasing(popX1,popY1,popX2,popY2))
 //    private val popAnimation = tween<Float>(animationTime.toInt(), easing = CubicBezierEasing(0.4f, 0.65f, 0.15f, 1.0f))
 //    private val pushAnimation = tween<Float>(animationTime.toInt(), easing = CubicBezierEasing(0.4f, 0.65f, 0.25f, 1.0f))
 
@@ -94,10 +95,6 @@ class SharedRegistry(
         onSwap: suspend () -> Unit
     ) {
         scope.launch {
-            if(!enabled) {
-                onSwap()
-                return@launch
-            }
             internalPush(key,onAnimatedFinished, onSwap)
         }
     }
@@ -108,10 +105,6 @@ class SharedRegistry(
         onSwap: suspend () -> Unit
     ) {
         scope.launch {
-            if(!enabled) {
-                onSwap()
-                return@launch
-            }
             internalPop(key, onAnimatedFinished,onSwap)
         }
     }
@@ -122,10 +115,6 @@ class SharedRegistry(
         onSwap: suspend () -> Unit
     ) {
         scope.launch {
-            if(!enabled) {
-                onSwap()
-                return@launch
-            }
             internalPush(state,onAnimatedFinished, onSwap)
         }
     }
@@ -136,10 +125,6 @@ class SharedRegistry(
         onSwap: suspend () -> Unit
     ) {
         scope.launch {
-            if(!enabled) {
-                onSwap()
-                return@launch
-            }
             internalPop(state, onAnimatedFinished,onSwap)
         }
     }
@@ -175,14 +160,21 @@ class SharedRegistry(
         onAnimatedFinished : (suspend () -> Unit)? = null,
         onSwap: suspend () -> Unit
     ) {
+        if(!enabled) {
+            onSwap()
+            state.currentState = State.CONTENT
+            return
+        }
         if(
-            !waitContentFrame(state) { onSwap() }
+            !waitContentFrame(state) {
+                onSwap()
+            }
         ) {
             return
         }
         snap(state,true)
         // 开始标识位
-        state.isTransiting = true
+        state.currentState = State.TRANSITING
 
         state.animation.animateTo(1f,getPushAnimation())
         onAnimatedFinished?.let { it() }
@@ -190,7 +182,7 @@ class SharedRegistry(
             state.containerRect = null
         }
         // 结束标志位
-        state.isTransiting = false
+        state.currentState = State.CONTENT
     }
 
     private suspend fun internalPop(
@@ -198,14 +190,21 @@ class SharedRegistry(
         onAnimatedFinished : (suspend () -> Unit)? = null,
         onSwap: suspend () -> Unit
     ) {
+        if(!enabled) {
+            onSwap()
+            state.currentState = State.CONTAINER
+            return
+        }
         if(
-            !waitContainerFrame(state) { onSwap() }
+            !waitContainerFrame(state) {
+                onSwap()
+            }
         ) {
             return
         }
         snap(state,false)
         // 开始标识位
-        state.isTransiting = true
+        state.currentState = State.TRANSITING
 
         state.animation.animateTo(0f,getPopAnimation())
 
@@ -214,7 +213,7 @@ class SharedRegistry(
             state.contentRect = null
         }
         // 结束标志位
-        state.isTransiting = false
+        state.currentState = State.CONTAINER
     }
 
 
@@ -222,7 +221,7 @@ class SharedRegistry(
         state: SharedContainerState,
         isPush : Boolean
     ) {
-        if(!state.isTransiting) {
+        if(state.currentState != State.TRANSITING) {
             state.animation.snapTo(
                 if(isPush) {
                     0f
@@ -263,10 +262,16 @@ class SharedRegistry(
             // 等一帧即可
             onSwap()
             // state.isTransiting = true 用于稳住导航不要动，开始测量rect
-            if(!state.isTransiting) {
-                // state.isTransiting=true代表此时在打断动画中，rect都不为空，无需再次记录Frame标志
-                // state.isTransiting=true时，两个rect一定不为空
-                state.isWaitingFrame = true
+            // state.isTransiting=true代表此时在打断动画中，rect都不为空，无需再次记录Frame标志
+            // state.isTransiting=true时，两个rect一定不为空
+            when(state.currentState) {
+                State.CONTENT -> {
+                    state.currentState = State.MEASURING_CONTAINER
+                }
+                State.CONTAINER -> {
+                    state.currentState = State.MEASURING_CONTENT
+                }
+                else -> {}
             }
             awaitFrame()
             val rect = if(isContainer) {
@@ -275,12 +280,10 @@ class SharedRegistry(
                 state.contentRect
             }
             if (rect != null) {
-                state.isWaitingFrame = false
                 return true
             } else {
                 unregister(state)
                 LogUtil.debug("rendering timeout within 1 frame")
-                state.isWaitingFrame = false
                 return false
             }
         }
@@ -290,10 +293,16 @@ class SharedRegistry(
         onSwap()
         while (true) {
             // state.isTransiting = true 用于稳住导航不要动，开始测量rect
-            if(!state.isTransiting) {
-                // state.isTransiting=true代表此时在打断动画中，rect都不为空，无需再次记录Frame标志
-                // state.isTransiting=true时，两个rect一定不为空
-                state.isWaitingFrame = true
+            // state.isTransiting=true代表此时在打断动画中，rect都不为空，无需再次记录Frame标志
+            // state.isTransiting=true时，两个rect一定不为空
+            when(state.currentState) {
+                State.CONTENT -> {
+                    state.currentState = State.MEASURING_CONTAINER
+                }
+                State.CONTAINER -> {
+                    state.currentState = State.MEASURING_CONTENT
+                }
+                else -> {}
             }
             awaitFrame()
             frameCount++
@@ -303,13 +312,11 @@ class SharedRegistry(
                 state.contentRect
             }
             if (rect != null) {
-                state.isWaitingFrame = false
                 return true
             }
             if (frameCount >= waitFrameMaxValue) {
                 unregister(state)
                 LogUtil.warn("rendering timeout after $frameCount frame")
-                state.isWaitingFrame = false
                 return false
             }
         }

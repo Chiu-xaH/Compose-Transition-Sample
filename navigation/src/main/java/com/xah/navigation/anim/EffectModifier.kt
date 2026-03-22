@@ -10,13 +10,18 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import com.xah.navigation.util.scaleMirror
 
-private fun Modifier.mask(effect: PageEffect) : Modifier {
+
+fun Modifier.mask(color : Color) : Modifier {
     return this.drawWithCache {
         onDrawWithContent {
             drawContent()
-            drawRect(Color.Black.copy(alpha = effect.mask))
+            drawRect(color)
         }
     }
+}
+
+private fun Modifier.mask(effect: PageEffect) : Modifier {
+    return this.mask(Color.Black.copy(alpha = effect.mask))
 }
 
 private fun Modifier.blur(enableBlur : Boolean,effect : PageEffect) : Modifier {

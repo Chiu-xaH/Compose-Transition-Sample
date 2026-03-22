@@ -25,10 +25,6 @@ class SharedContainerState(
     var containerLayerForPixel : GraphicsLayer? = null
     var contentLayer : GraphicsLayer? = null
 
-    // 内容Bitmap 尚未启用
-    var containerSnapshot : ImageBitmap? = null
-    var contentSnapshot : ImageBitmap? = null
-
     // 容器圆角
     var containerCorner: CornerBasedShape = RoundedCornerShape(0.dp)
     var contentCorner: CornerBasedShape = RoundedCornerShape(ScreenCornerHelper.corner)
@@ -36,8 +32,6 @@ class SharedContainerState(
     var containerFilledStrategy : ContainerFilledStrategy = ContainerFilledStrategy.Pixel()
 
     val animation = Animatable(0f)
-    // 动画结束开始标志位
-    var isTransiting by mutableStateOf(false)
-    // 等帧标志位，开发者没必要去动
-    var isWaitingFrame by mutableStateOf(false)
+    // 当前所处状态
+    var currentState by mutableStateOf(State.CONTAINER)
 }

@@ -7,17 +7,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xah.container.container.SharedContent
 import com.xah.container.overlay.SharedContainerRoot
@@ -124,6 +118,11 @@ private fun NavHost(
         navController.sharedRegistry = registry
     }
 
+    val enabledShared = navController.transitionLevel != EffectLevel.NONE
+    LaunchedEffect(enabledShared) {
+        registry.enabled = enabledShared
+    }
+
     CompositionLocalProvider(
         LocalNavControllerSafely provides navController,
         LocalNavController provides navController,
@@ -167,9 +166,6 @@ private fun NavHost(
         val enableBlur = navController.enableBlur
         val enableShader = navController.enableShader
 
-        val graphicsLayer = rememberGraphicsLayer()
-        var frozenSnapshot by remember { mutableStateOf<ImageBitmap?>(null) }
-
         Box(modifier = modifier.fillMaxSize()) {
             visibleEntries.forEachIndexed { index, entry ->
                 key(entry.id) {
@@ -186,12 +182,6 @@ private fun NavHost(
                         Box(
                             Modifier
                                 .fillMaxSize()
-                                .graphicsLayer {
-                                    // 容器等帧测量时，将目标测量（isTo）内容隐藏，避免闪烁
-                                    if(transition != null && isTo && registry.isWaitingFrame) {
-                                        alpha = 0f
-                                    }
-                                }
                                 .let {
                                     // 容器等帧测量时，禁用所有动效，测量容器的真实位置
                                     if (transition != null && !registry.isWaitingFrame) {

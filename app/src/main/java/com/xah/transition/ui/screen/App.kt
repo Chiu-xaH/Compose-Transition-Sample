@@ -2,10 +2,17 @@ package com.xah.transition.ui.screen
 
 import android.os.Build
 import android.provider.MediaStore
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -67,31 +74,32 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.ScreenCornerHelper
 import com.xah.container.container.SharedContainer
+import com.xah.container.container.SharedContent
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.navigation.anim.EffectLevel
+import com.xah.navigation.anim.mask
 import com.xah.navigation.anim.rememberDefaultPageEffectsEnhance
-import com.xah.navigation.component.DefaultBackHandler
 import com.xah.navigation.component.SharedNavHost
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavDependencies
 import com.xah.navigation.util.rememberNavDependencies
+import com.xah.navigation.util.touchEvent
 import com.xah.transition.R
 import com.xah.transition.model.AppIconBean
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CARD_NORMAL_DP
 import com.xah.transition.ui.component.CardListItem
 import com.xah.transition.ui.component.CustomSlider
-import com.xah.transition.ui.component.SmallCard
 import com.xah.transition.ui.component.TransplantListItem
 import com.xah.transition.ui.component.cardNormalColor
-import com.xah.transition.ui.screen.destination.HomeDestination
 import com.xah.transition.ui.screen.destination.AppIconDestination
-import com.xah.transition.ui.screen.destination.SecondDestination
-import com.xah.transition.ui.screen.destination.ThirdDestination
 import com.xah.transition.ui.screen.destination.BezierSettingsDestination
 import com.xah.transition.ui.screen.destination.CornerSettingsDestination
+import com.xah.transition.ui.screen.destination.HomeDestination
+import com.xah.transition.ui.screen.destination.SecondDestination
+import com.xah.transition.ui.screen.destination.ThirdDestination
 import com.xah.transition.ui.screen.test.CubicBezierEditor
 import com.xah.transition.ui.style.topBarTransplantColor
 import com.xah.transition.ui.util.UiHolder
@@ -110,13 +118,6 @@ fun App() {
         modifier = Modifier.background(MaterialTheme.colorScheme.surface),
         dependencies = dependencies,
         effect = rememberDefaultPageEffectsEnhance(),
-        backHandler = {
-            val navigationController = LocalNavController.current
-            LaunchedEffect(Unit) {
-//                navigationController.enableKeepAlive = true
-            }
-            DefaultBackHandler()
-        }
     )
 }
 
@@ -149,9 +150,23 @@ fun HomeScreen() {
     }
 
     val levelList = remember { EffectLevel.entries }
+
+
+    var displayDialog by remember { mutableStateOf(false) }
+    var dialogKey by remember { mutableStateOf("") }
+    val maskColor by animateColorAsState(
+        if(displayDialog) Color.Black.copy(.3f) else Color.Transparent
+    )
+
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .mask(maskColor)
+            .touchEvent(!displayDialog) {
+                registry.pop(dialogKey) {
+                    displayDialog = false
+                }
+            }
     ) {
         if(UiHolder.imageBitmap != null) {
             Image(
@@ -237,38 +252,45 @@ fun HomeScreen() {
                         Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
                             SharedContainer (
                                 key = destination.key,
-//                                containerFilledStrategy = ContainerFilledStrategy.Clip,
                                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                                 shape = MaterialTheme.shapes.small,
                             ) {
                                 Card(
                                     shape = RoundedCornerShape(0.dp),
-//                                    modifier = Modifier.height(150.dp).width(46.dp),
                                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                                 ) {
                                     TransplantListItem(
-                                        headlineContent = { Text("Item #${index}") },
+                                        headlineContent = { Text("Screen #${index}") },
                                         modifier = Modifier.clickable {
-                                            navController.push(SecondDestination(userId = index))
+                                            navController.push(destination)
                                         }
                                     )
                                 }
                             }
                         }
                     }
-                    items(10) { index ->
-                        val route = "ItemNo #$index"
+                    items(20) { index ->
+                        val key = "Dialog #$index"
                         Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
-                            SmallCard(
-                                modifier = Modifier,
-                                color = MaterialTheme.colorScheme.primaryContainer
+                            SharedContainer (
+                                key = key,
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                shape = MaterialTheme.shapes.small,
                             ) {
-                                TransplantListItem(
-                                    headlineContent = { Text(route) },
-                                    modifier = Modifier.clickable {
-                                        navController.push(ThirdDestination)
-                                    }
-                                )
+                                Card(
+                                    shape = RoundedCornerShape(0.dp),
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                                ) {
+                                    TransplantListItem(
+                                        headlineContent = { Text(key) },
+                                        modifier = Modifier.clickable {
+                                            dialogKey = key
+                                            registry.push(dialogKey) {
+                                                displayDialog = true
+                                            }
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
@@ -340,6 +362,32 @@ fun HomeScreen() {
                             }
                         ) {
                             Icon(painterResource(BezierSettingsDestination.icon),null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if(displayDialog) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            BackHandler {
+                registry.pop(dialogKey) {
+                    displayDialog = false
+                }
+            }
+            Box(modifier = Modifier.align(Alignment.Center)) {
+                SharedContent(
+                    key = dialogKey,
+                    shape = MaterialTheme.shapes.large,
+                    modifier = Modifier.padding(horizontal = APP_HORIZONTAL_DP)
+                ) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.surface,
+                        shape = MaterialTheme.shapes.large,
+                    ) {
+                        Box(modifier = Modifier.height(height = 200.dp)) {
+                            Text(dialogKey, modifier = Modifier.align(Alignment.Center))
                         }
                     }
                 }
