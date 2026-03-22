@@ -11,6 +11,9 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
@@ -368,7 +371,12 @@ fun HomeScreen() {
             }
         }
     }
-    if(displayDialog) {
+
+    AnimatedVisibility(
+        visible = displayDialog,
+        enter = fadeIn(registry.getPushAnimation()),
+        exit = fadeOut(registry.getPopAnimation())
+    ) {
         Box(modifier = Modifier.fillMaxSize()) {
             BackHandler {
                 registry.pop(dialogKey) {
