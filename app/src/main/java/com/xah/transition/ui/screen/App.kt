@@ -2,20 +2,14 @@ package com.xah.transition.ui.screen
 
 import android.os.Build
 import android.provider.MediaStore
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -68,6 +62,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -76,6 +71,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.ScreenCornerHelper
+import com.xah.container.container.AnimatedContent
 import com.xah.container.container.SharedContainer
 import com.xah.container.container.SharedContent
 import com.xah.container.util.LocalSharedRegistry
@@ -88,6 +84,7 @@ import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavDependencies
 import com.xah.navigation.util.rememberNavDependencies
+import com.xah.navigation.util.scaleMirror
 import com.xah.navigation.util.touchEvent
 import com.xah.transition.R
 import com.xah.transition.model.AppIconBean
@@ -158,13 +155,23 @@ fun HomeScreen() {
     var displayDialog by remember { mutableStateOf(false) }
     var dialogKey by remember { mutableStateOf("") }
     val maskColor by animateColorAsState(
-        if(displayDialog) Color.Black.copy(.3f) else Color.Transparent
+        if(displayDialog) Color.Black.copy(.2f) else Color.Transparent,
     )
+    val blur by animateDpAsState(
+        if(displayDialog) 5.dp else 0.dp,
+    )
+    val scale by animateFloatAsState(
+        if(displayDialog) 0.95f else 1f,
+        tween(registry.animationTime)
+    )
+
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .mask(maskColor)
+            .blur(blur)
+            .scaleMirror(scale)
             .touchEvent(!displayDialog) {
                 registry.pop(dialogKey) {
                     displayDialog = false
@@ -372,17 +379,14 @@ fun HomeScreen() {
         }
     }
 
-    AnimatedVisibility(
-        visible = displayDialog,
-        enter = fadeIn(registry.getPushAnimation()),
-        exit = fadeOut(registry.getPopAnimation())
+    AnimatedContent(
+        displayDialog,
+        dialogKey,
+        onClosed = {
+            displayDialog = false
+        }
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            BackHandler {
-                registry.pop(dialogKey) {
-                    displayDialog = false
-                }
-            }
             Box(modifier = Modifier.align(Alignment.Center)) {
                 SharedContent(
                     key = dialogKey,

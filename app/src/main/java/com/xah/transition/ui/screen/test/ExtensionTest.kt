@@ -15,11 +15,10 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.zIndex
-import com.xah.container.container.pixelExtension
+import com.xah.container.util.pixelExtension
 import com.xah.container.model.ExtensionDirection
 import com.xah.transition.R
 
