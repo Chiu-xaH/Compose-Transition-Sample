@@ -155,23 +155,23 @@ fun HomeScreen() {
     var displayDialog by remember { mutableStateOf(false) }
     var dialogKey by remember { mutableStateOf("") }
     val maskColor by animateColorAsState(
-        if(displayDialog) Color.Black.copy(.2f) else Color.Transparent,
+        if(displayDialog) Color.Black.copy(.3f) else Color.Transparent,
     )
-    val blur by animateDpAsState(
-        if(displayDialog) 5.dp else 0.dp,
-    )
-    val scale by animateFloatAsState(
-        if(displayDialog) 0.95f else 1f,
-        tween(registry.animationTime)
-    )
+//    val blur by animateDpAsState(
+//        if(displayDialog) 5.dp else 0.dp,
+//    )
+//    val scale by animateFloatAsState(
+//        if(displayDialog) 0.95f else 1f,
+//        tween(registry.animationTime)
+//    )
 
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .mask(maskColor)
-            .blur(blur)
-            .scaleMirror(scale)
+//            .blur(blur)
+//            .scaleMirror(scale)
             .touchEvent(!displayDialog) {
                 registry.pop(dialogKey) {
                     displayDialog = false
@@ -391,6 +391,7 @@ fun HomeScreen() {
                 SharedContent(
                     key = dialogKey,
                     shape = MaterialTheme.shapes.large,
+                    isFullScreen = false,
                     modifier = Modifier.padding(horizontal = APP_HORIZONTAL_DP)
                 ) {
                     Surface(

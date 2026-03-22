@@ -1,6 +1,9 @@
 package com.xah.container.model
 
-enum class State {
+/**
+ * 当前所处状态
+ */
+enum class StatePause {
     CONTAINER,
     CONTENT,
     TRANSITING,

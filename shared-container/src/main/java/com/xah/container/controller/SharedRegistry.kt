@@ -14,7 +14,7 @@ import com.xah.container.anim.LinearRectInterpolator
 import com.xah.container.anim.RectInterpolator
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.model.SharedContainerState
-import com.xah.container.model.State
+import com.xah.container.model.StatePause
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
@@ -30,16 +30,17 @@ class SharedRegistry(
         states.values.any { it.isRunning() }
     }
     val isWaitingFrame: Boolean by derivedStateOf {
-        states.values.any { it.currentState == State.MEASURING_CONTAINER || it.currentState == State.MEASURING_CONTENT }
+        states.values.any { it.currentState == StatePause.MEASURING_CONTAINER || it.currentState == StatePause.MEASURING_CONTENT }
     }
 
     var needWaitMultiFrame : Boolean = true
 
-    private fun SharedContainerState.isRunning() = currentState == State.TRANSITING && containerRect != null && contentRect != null
+    private fun SharedContainerState.isRunning() = currentState == StatePause.TRANSITING && containerRect != null && contentRect != null
 
     var enabled by mutableStateOf(true)
 
     var animationTime by mutableIntStateOf(500)
+
 
     /**
      * 最大等帧时长，为什么需要等，本质上取决于导航栈的设计，如果导航栈只能保持一个页面，其余页面都被销毁，当POP时需要等下面的初始化完成，才能记录容器位置，如果栈中内容都不销毁，那么就只需要等1帧（16ms）
@@ -60,8 +61,6 @@ class SharedRegistry(
 
     fun getPushAnimation() = tween<Float>(animationTime, easing = CubicBezierEasing(pushX1,pushY1,pushX2,pushY2))
     fun getPopAnimation() = tween<Float>(animationTime, easing = CubicBezierEasing(popX1,popY1,popX2,popY2))
-//    private val popAnimation = tween<Float>(animationTime.toInt(), easing = CubicBezierEasing(0.4f, 0.65f, 0.15f, 1.0f))
-//    private val pushAnimation = tween<Float>(animationTime.toInt(), easing = CubicBezierEasing(0.4f, 0.65f, 0.25f, 1.0f))
 
     var rectInterpolator: RectInterpolator = LinearRectInterpolator
 
@@ -85,8 +84,11 @@ class SharedRegistry(
 
     fun get(
         key: String,
+        isFullScreen : Boolean
     ): SharedContainerState? {
-        return states[key]
+        val state = states[key]
+        state?.isFullScreen = isFullScreen
+        return state
     }
 
     fun push(
@@ -106,26 +108,6 @@ class SharedRegistry(
     ) {
         scope.launch {
             internalPop(key, onAnimatedFinished,onSwap)
-        }
-    }
-
-    fun push(
-        state: SharedContainerState,
-        onAnimatedFinished : (suspend () -> Unit)? = null,
-        onSwap: suspend () -> Unit
-    ) {
-        scope.launch {
-            internalPush(state,onAnimatedFinished, onSwap)
-        }
-    }
-
-    fun pop(
-        state: SharedContainerState,
-        onAnimatedFinished : (suspend () -> Unit)? = null,
-        onSwap: suspend () -> Unit
-    ) {
-        scope.launch {
-            internalPop(state, onAnimatedFinished,onSwap)
         }
     }
 
@@ -162,7 +144,7 @@ class SharedRegistry(
     ) {
         if(!enabled) {
             onSwap()
-            state.currentState = State.CONTENT
+            state.currentState = StatePause.CONTENT
             return
         }
         if(
@@ -174,7 +156,7 @@ class SharedRegistry(
         }
         snap(state,true)
         // 开始标识位
-        state.currentState = State.TRANSITING
+        state.currentState = StatePause.TRANSITING
 
         state.animation.animateTo(1f,getPushAnimation())
         onAnimatedFinished?.let { it() }
@@ -182,7 +164,7 @@ class SharedRegistry(
             state.containerRect = null
         }
         // 结束标志位
-        state.currentState = State.CONTENT
+        state.currentState = StatePause.CONTENT
     }
 
     private suspend fun internalPop(
@@ -192,7 +174,7 @@ class SharedRegistry(
     ) {
         if(!enabled) {
             onSwap()
-            state.currentState = State.CONTAINER
+            state.currentState = StatePause.CONTAINER
             return
         }
         if(
@@ -204,7 +186,7 @@ class SharedRegistry(
         }
         snap(state,false)
         // 开始标识位
-        state.currentState = State.TRANSITING
+        state.currentState = StatePause.TRANSITING
 
         state.animation.animateTo(0f,getPopAnimation())
 
@@ -213,7 +195,7 @@ class SharedRegistry(
             state.contentRect = null
         }
         // 结束标志位
-        state.currentState = State.CONTAINER
+        state.currentState = StatePause.CONTAINER
     }
 
 
@@ -221,7 +203,7 @@ class SharedRegistry(
         state: SharedContainerState,
         isPush : Boolean
     ) {
-        if(state.currentState != State.TRANSITING) {
+        if(state.currentState != StatePause.TRANSITING) {
             state.animation.snapTo(
                 if(isPush) {
                     0f
@@ -265,11 +247,11 @@ class SharedRegistry(
             // state.isTransiting=true代表此时在打断动画中，rect都不为空，无需再次记录Frame标志
             // state.isTransiting=true时，两个rect一定不为空
             when(state.currentState) {
-                State.CONTENT -> {
-                    state.currentState = State.MEASURING_CONTAINER
+                StatePause.CONTENT -> {
+                    state.currentState = StatePause.MEASURING_CONTAINER
                 }
-                State.CONTAINER -> {
-                    state.currentState = State.MEASURING_CONTENT
+                StatePause.CONTAINER -> {
+                    state.currentState = StatePause.MEASURING_CONTENT
                 }
                 else -> {}
             }
@@ -296,11 +278,11 @@ class SharedRegistry(
             // state.isTransiting=true代表此时在打断动画中，rect都不为空，无需再次记录Frame标志
             // state.isTransiting=true时，两个rect一定不为空
             when(state.currentState) {
-                State.CONTENT -> {
-                    state.currentState = State.MEASURING_CONTAINER
+                StatePause.CONTENT -> {
+                    state.currentState = StatePause.MEASURING_CONTAINER
                 }
-                State.CONTAINER -> {
-                    state.currentState = State.MEASURING_CONTENT
+                StatePause.CONTAINER -> {
+                    state.currentState = StatePause.MEASURING_CONTENT
                 }
                 else -> {}
             }

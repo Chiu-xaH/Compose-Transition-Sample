@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.ScreenCornerHelper
 import com.xah.container.model.ContainerFilledStrategy
-import com.xah.container.model.State
+import com.xah.container.model.StatePause
 import com.xah.container.util.LocalSharedRegistry
 
 fun Modifier.sharedContainer(
@@ -67,6 +67,7 @@ private fun Modifier.sharedContainer(
         return@composed this
     }
     val state = remember { registry.register(key) }
+    val isFullScreen = state.isFullScreen
     val graphicsLayer = rememberGraphicsLayer()
     val graphicsLayerForPixel = if(containerFilledStrategy.getFinalStrategy(registry.enableShader) is ContainerFilledStrategy.Pixel) {
         rememberGraphicsLayer()
@@ -84,22 +85,26 @@ private fun Modifier.sharedContainer(
     return@composed this
         .let {
             when(state.currentState) {
-                State.CONTAINER -> {
+                StatePause.CONTAINER -> {
                     it.drawWithContent {
                         drawContent()
                     }
                 }
-                State.CONTENT -> {
-                    it.drawWithContent {}
+                StatePause.CONTENT -> {
+                    it.drawWithContent {
+                        if(isFullScreen) {
+                            drawContent()
+                        }
+                    }
                 }
-                State.MEASURING_CONTAINER -> {
+                StatePause.MEASURING_CONTAINER -> {
                     it
                         .graphicsLayer(alpha = 0f)
                         .drawWithContent {
                             drawContent()
                         }
                 }
-                State.TRANSITING -> {
+                StatePause.TRANSITING -> {
                     it.drawWithContent {
                         graphicsLayerForPixel?.record {
                             this@drawWithContent.drawContent()
@@ -131,13 +136,14 @@ private fun Modifier.sharedContainer(
 fun Modifier.sharedContent(
     key : String,
     shape: CornerBasedShape,
+    isFullScreen : Boolean = true,
 ): Modifier = composed {
     val registry = LocalSharedRegistry.current
     if(!registry.enabled) {
         return@composed this
     }
 
-    val state = remember { registry.get(key) }
+    val state = remember { registry.get(key,isFullScreen) }
     if(state == null) {
         return@composed this
     }
@@ -151,22 +157,26 @@ fun Modifier.sharedContent(
     this
         .let {
             when(state.currentState) {
-                State.CONTENT -> {
+                StatePause.CONTENT -> {
                     it.drawWithContent {
                         drawContent()
                     }
                 }
-                State.CONTAINER -> {
-                    it.drawWithContent {}
+                StatePause.CONTAINER -> {
+                    it.drawWithContent {
+                        if(isFullScreen) {
+                            drawContent()
+                        }
+                    }
                 }
-                State.MEASURING_CONTENT -> {
+                StatePause.MEASURING_CONTENT -> {
                     it
                         .graphicsLayer(alpha = 0f)
                         .drawWithContent {
                             drawContent()
                         }
                 }
-                State.TRANSITING -> {
+                StatePause.TRANSITING -> {
                     it.drawWithContent {
                         graphicsLayer.record {
                             this@drawWithContent.drawContent()
@@ -196,22 +206,25 @@ fun Modifier.sharedContent(
  * 共享容器的内容
  * @param key 两个容器之间的Key
  * @param shape 屏幕圆角
+ * @param isFullScreen 是否为全屏，为false则在PUSH完成后隐藏container
  */
 @Composable
 fun SharedContent(
     key : String,
     modifier : Modifier = Modifier,
     shape : CornerBasedShape = RoundedCornerShape(ScreenCornerHelper.corner),
+    isFullScreen : Boolean = true,
     content : @Composable () -> Unit
 )  {
     Box(modifier = modifier) {
         Box(
-            modifier = Modifier.sharedContent(key,shape)
+            modifier = Modifier.sharedContent(key,shape,isFullScreen)
         ) {
             content()
         }
     }
 }
+
 
 /** 共享容器的容器
  * @param key 两个容器之间的Key
