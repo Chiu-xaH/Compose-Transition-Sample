@@ -60,13 +60,14 @@ fun cardNormalColor(enableAlpha : Boolean = false): Color {
 @Composable
 fun SmallCard(
     modifier: Modifier = Modifier.fillMaxSize(),
+    shape: Shape = MaterialTheme.shapes.small,
     color : Color? = null,
     shadow : Dp = 0.dp,
     content: @Composable () -> Unit
 ) {
     Card(
         modifier = modifier,
-        shape = MaterialTheme.shapes.small,
+        shape =shape,
         elevation = CardDefaults.cardElevation(shadow),
         colors = CardDefaults.cardColors(containerColor = color ?: cardNormalColor())
     ) {

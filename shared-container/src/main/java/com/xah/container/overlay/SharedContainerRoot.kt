@@ -19,19 +19,24 @@ import com.xah.container.util.LocalSharedRegistry
 import com.xah.container.util.LocalSharedRegistrySafely
 
 @Composable
+fun rememberSharedRegistry() : SharedRegistry {
+    val scope = rememberCoroutineScope()
+    return remember { SharedRegistry(scope) }
+}
+
+@Composable
 fun SharedContainerRoot(
     content: @Composable () -> Unit
 ) {
     val view = LocalView.current
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(view) {
         ScreenCornerHelper(view)
     }
 
-    val registry = remember { SharedRegistry(scope) }
+    val registry = rememberSharedRegistry()
 
     val screenHeightPx = with(density) {
         configuration.screenHeightDp.dp.toPx()

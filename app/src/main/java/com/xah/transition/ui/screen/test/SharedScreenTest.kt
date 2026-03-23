@@ -2,6 +2,8 @@ package com.xah.transition.ui.screen.test
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.xah.container.container.SharedContainer
 import com.xah.container.container.SharedContent
 import com.xah.container.overlay.SharedContainerRoot
@@ -36,7 +40,6 @@ import com.xah.transition.ui.component.TransplantListItem
 
 @Composable
 fun HomeScreenT(onPush : (Int) -> Unit) {
-    val registry = LocalSharedRegistry.current
     val scrollState = rememberLazyGridState()
     Box(modifier = Modifier.fillMaxSize()) {
         LazyVerticalGrid(
@@ -45,21 +48,20 @@ fun HomeScreenT(onPush : (Int) -> Unit) {
             modifier = Modifier.padding(horizontal = APP_HORIZONTAL_DP- CARD_NORMAL_DP*2)
         ) {
             items(30, key = { it }) { index ->
-                val route = "Item #$index"
+                val route = "$index"
                 Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
                     SharedContainer(
                         key = route,
                         shape = MaterialTheme.shapes.small
                     ) {
                         SmallCard(
+                            shape = RoundedCornerShape(0.dp),
                             color = MaterialTheme.colorScheme.primaryContainer
                         ) {
                             TransplantListItem(
                                 headlineContent = { Text(route) },
                                 modifier = Modifier.clickable {
-                                    registry.push(route) {
-                                        onPush(index)
-                                    }
+                                    onPush(index)
                                 }
                             )
                         }
@@ -72,22 +74,19 @@ fun HomeScreenT(onPush : (Int) -> Unit) {
 
 @Composable
 fun SecondScreenT(userId : Int,onBack : () -> Unit) {
-    val registry = LocalSharedRegistry.current
-    val route = "Item #$userId"
+    val route = "$userId"
     SharedContent(
         key = route
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
+                .background(MaterialTheme.colorScheme.surfaceContainer)
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 Button(
                     onClick = {
-                        registry.pop(route) {
-                            onBack()
-                        }
+                        onBack()
                     },
                     modifier = Modifier.align(Alignment.Center)
                 ) {
@@ -103,25 +102,32 @@ fun SecondScreenT(userId : Int,onBack : () -> Unit) {
 fun SharedTest() {
     var index by remember { mutableIntStateOf(-1) }
     var status by remember { mutableStateOf(true) }
-    BackHandler(status == false) {
-        status = true
-    }
 
     SharedContainerRoot {
+        val registry = LocalSharedRegistry.current
+
+        BackHandler(status == false) {
+            registry.pop(index.toString()) {
+                status = true
+            }
+        }
+
         AnimatedContent(
-            transitionSpec = {
-                scaleIn(initialScale = 1f) togetherWith scaleOut(targetScale = 1f)
-            },
+            transitionSpec = { fadeIn(registry.getPushAnimation()) togetherWith fadeOut(registry.getPopAnimation()) },
             targetState = status
         ) { s ->
             if(s) {
                 HomeScreenT {
                     index = it
-                    status = false
+                    registry.push(index.toString()) {
+                        status = false
+                    }
                 }
             } else {
                 SecondScreenT(userId = index) {
-                    status = true
+                    registry.pop(index.toString()) {
+                        status = true
+                    }
                 }
             }
         }

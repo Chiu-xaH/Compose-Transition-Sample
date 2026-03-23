@@ -28,6 +28,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.xah.transition.ui.component.APP_HORIZONTAL_DP
+import com.xah.transition.ui.component.CustomSlider
 
 @Preview(showBackground = true)
 @Composable
@@ -53,14 +55,11 @@ private fun SpringTestContent() {
     )
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        // ===== 动画区域 =====
         Box(
             modifier = Modifier
                 .weight(1f)
@@ -82,30 +81,31 @@ private fun SpringTestContent() {
             )
         }
 
-        // ===== 控制面板 =====
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
 
             Text(
                 text = "DampingRatio: ${"%.2f".format(damping)}",
+                modifier = Modifier.padding(APP_HORIZONTAL_DP),
                 style = MaterialTheme.typography.bodyMedium
             )
 
-            Slider(
+            CustomSlider(
                 value = damping,
                 onValueChange = { damping = it },
                 valueRange = 0.3f..1.2f
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(APP_HORIZONTAL_DP))
 
             Text(
                 text = "Stiffness: ${stiffness.toInt()}",
+                modifier = Modifier.padding(APP_HORIZONTAL_DP),
                 style = MaterialTheme.typography.bodyMedium
             )
 
-            Slider(
+            CustomSlider(
                 value = stiffness,
                 onValueChange = { stiffness = it },
                 valueRange = 100f..800f

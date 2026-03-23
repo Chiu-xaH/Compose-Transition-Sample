@@ -137,6 +137,22 @@ fun Modifier.sharedContent(
     key : String,
     shape: CornerBasedShape,
     isFullScreen : Boolean = true,
+): Modifier {
+    return this
+        .let {
+            if(isFullScreen) {
+                it
+            } else {
+                it.clip(shape)
+            }
+        }
+        .mSharedContent(key,shape,isFullScreen)
+}
+
+private fun Modifier.mSharedContent(
+    key : String,
+    shape: CornerBasedShape,
+    isFullScreen : Boolean,
 ): Modifier = composed {
     val registry = LocalSharedRegistry.current
     if(!registry.enabled) {
