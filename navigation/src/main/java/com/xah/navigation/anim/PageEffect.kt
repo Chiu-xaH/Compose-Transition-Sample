@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
 import com.sharednav.common.ScreenCornerHelper
-import com.sharednav.common.lerp
+import com.sharednav.common.util.lerp
 
 /** lerp
  * 1. 预测式返回时：

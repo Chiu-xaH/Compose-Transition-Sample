@@ -1,9 +1,8 @@
-package com.xah.navigation.util
+package com.sharednav.common.effect
 
 import android.graphics.RenderEffect
 import android.graphics.RuntimeShader
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,12 +15,10 @@ import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
-import com.xah.container.model.ContainerFilledStrategy
 import org.intellij.lang.annotations.Language
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
-fun Modifier.scaleMirror(scale: Float,enabled : Boolean = ContainerFilledStrategy.CAN_USE_SHADER): Modifier =
-    if(!enabled) {
+fun Modifier.scaleMirror(scale: Float,enabled : Boolean): Modifier =
+    if(!enabled || Build.VERSION.SDK_INT < 33) {
         this.graphicsLayer {
             scaleX = scale
             scaleY = scale

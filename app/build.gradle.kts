@@ -63,6 +63,7 @@ dependencies {
     implementation(libs.accompanist.systemuicontroller)
     implementation(libs.androidx.runtime.tracing)
     implementation(project(":navigation"))
+    implementation(project(":floating-window"))
 //    implementation(project(":shared-container"))
 //    implementation(project(":common"))
 }

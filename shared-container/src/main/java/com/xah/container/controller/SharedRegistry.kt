@@ -9,7 +9,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.sharednav.common.LogUtil
+import com.sharednav.common.util.LogUtil
 import com.xah.container.anim.LinearRectInterpolator
 import com.xah.container.anim.RectInterpolator
 import com.xah.container.model.ContainerFilledStrategy

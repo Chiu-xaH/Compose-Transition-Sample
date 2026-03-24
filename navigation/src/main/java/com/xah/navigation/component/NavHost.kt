@@ -1,7 +1,5 @@
 package com.xah.navigation.component
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -13,6 +11,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.sharednav.common.util.touchEvent
 import com.xah.container.container.SharedContent
 import com.xah.container.overlay.SharedContainerRoot
 import com.xah.container.util.LocalSharedRegistry
@@ -29,7 +28,6 @@ import com.xah.navigation.model.dest.Destination
 import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavControllerSafely
 import com.xah.navigation.util.LocalNavDependencies
-import com.xah.navigation.util.touchEvent
 
 @Composable
 fun rememberNavController(
@@ -43,7 +41,6 @@ fun rememberNavController(
     return navController
 }
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun SharedNavHost(
     navController: NavigationController,
@@ -63,7 +60,6 @@ fun SharedNavHost(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun SharedNavHost(
     startDestination: Destination,
@@ -82,7 +78,6 @@ fun SharedNavHost(
     )
 }
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 private fun NavHost(
     startDestination: Destination,
@@ -102,7 +97,6 @@ private fun NavHost(
     )
 }
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 private fun NavHost(
     navController: NavigationController,

@@ -1,4 +1,4 @@
-package com.xah.navigation.util
+package com.sharednav.common.util
 
 import android.view.MotionEvent
 import androidx.compose.ui.Modifier

@@ -7,9 +7,6 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -62,7 +59,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -71,12 +67,12 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.ScreenCornerHelper
+import com.sharednav.common.effect.mask
 import com.xah.container.container.AnimatedContent
 import com.xah.container.container.SharedContainer
 import com.xah.container.container.SharedContent
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.navigation.anim.EffectLevel
-import com.xah.navigation.anim.mask
 import com.xah.navigation.anim.rememberDefaultPageEffectsEnhance
 import com.xah.navigation.component.SharedNavHost
 import com.xah.navigation.model.action.ActionType
@@ -84,8 +80,7 @@ import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavDependencies
 import com.xah.navigation.util.rememberNavDependencies
-import com.xah.navigation.util.scaleMirror
-import com.xah.navigation.util.touchEvent
+import com.sharednav.common.util.touchEvent
 import com.xah.transition.R
 import com.xah.transition.model.AppIconBean
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP

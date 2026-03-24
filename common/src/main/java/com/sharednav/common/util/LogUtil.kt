@@ -1,4 +1,4 @@
-package com.sharednav.common
+package com.sharednav.common.util
 
 import android.util.Log
 import com.xah.sharednav.common.BuildConfig
