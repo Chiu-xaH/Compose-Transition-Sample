@@ -12,6 +12,9 @@ composeBom = "2026.02.01"
 accompanistSystemuicontroller = "0.31.0-alpha"
 maxAndroidVersion = "36"
 minAndroidVersion = "24"
+coreKtx = "1.18.0"
+appcompat = "1.7.1"
+material = "1.13.0"
 
 [libraries]
 androidx-runtime-tracing = { module = "androidx.compose.runtime:runtime-tracing" }
@@ -30,6 +33,9 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanistSystemuicontroller" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
