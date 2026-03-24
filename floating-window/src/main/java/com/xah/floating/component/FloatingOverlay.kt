@@ -1,4 +1,4 @@
-package com.xah.floating.overlay
+package com.xah.floating.component
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import com.sharednav.common.util.disableTouchEvent
+import com.sharednav.common.modifier.disableTouchEvent
 import com.xah.floating.util.LocalFloatingController
 
 @Composable

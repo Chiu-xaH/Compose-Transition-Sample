@@ -1,4 +1,4 @@
-package com.xah.container.container
+package com.xah.container.component.floating
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent

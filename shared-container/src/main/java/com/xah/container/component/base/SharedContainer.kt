@@ -1,4 +1,4 @@
-package com.xah.container.container
+package com.xah.container.component.base
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.CornerBasedShape
@@ -19,7 +19,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.sharednav.common.ScreenCornerHelper
+import com.sharednav.common.helper.ScreenCornerHelper
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.model.StatePause
 import com.xah.container.util.LocalSharedRegistry

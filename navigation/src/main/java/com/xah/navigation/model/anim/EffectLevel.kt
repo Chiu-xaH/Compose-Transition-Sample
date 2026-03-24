@@ -1,4 +1,4 @@
-package com.xah.navigation.anim
+package com.xah.navigation.model.anim
 
 enum class EffectLevel(val levelNum : Int) {
     /**

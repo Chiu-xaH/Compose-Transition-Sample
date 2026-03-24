@@ -3,8 +3,9 @@ package com.xah.floating.anim
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
-import com.sharednav.common.effect.mask
-import com.sharednav.common.effect.scaleMirror
+import com.sharednav.common.modifier.mask
+import com.sharednav.common.modifier.scaleMirror
+import com.xah.floating.model.anim.PageEffect
 
 private fun Modifier.mask(effect: PageEffect) : Modifier {
     return this.mask(Color.Black.copy(alpha = effect.mask))

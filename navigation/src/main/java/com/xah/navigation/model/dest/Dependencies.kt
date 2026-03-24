@@ -1,7 +1,6 @@
-package com.xah.navigation.model
+package com.xah.navigation.model.dest
 
 import kotlin.reflect.KClass
-
 
 class Dependencies {
     val map = mutableMapOf<Pair<KClass<*>, String?>, Any?>()

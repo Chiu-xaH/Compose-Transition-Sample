@@ -1,4 +1,4 @@
-package com.xah.floating.overlay
+package com.xah.floating.component
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Box
@@ -15,7 +15,6 @@ import com.xah.floating.anim.PageEffects
 import com.xah.floating.anim.backgroundEffect
 import com.xah.floating.controller.FloatingController
 import com.xah.floating.controller.FloatingViewModel
-import com.xah.floating.util.FloatingBackHandler
 import com.xah.floating.util.LocalFloatingController
 import com.xah.floating.util.LocalFloatingControllerSafely
 

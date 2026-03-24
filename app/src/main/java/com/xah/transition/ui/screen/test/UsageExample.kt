@@ -1,7 +1,3 @@
-// ============================================================
-// 使用示例 —— 放在 app 模块中，非库代码
-// ============================================================
-
 package com.xah.transition.ui.screen.test
 
 import androidx.compose.foundation.layout.Box
@@ -23,9 +19,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.util.LogUtil
 import com.xah.floating.model.FloatingWindow
-import com.xah.floating.overlay.FloatingRoot
+import com.xah.floating.component.FloatingRoot
 import com.xah.floating.util.LocalFloatingController
-
 
 class ConfirmFloating(
     private val message: String,

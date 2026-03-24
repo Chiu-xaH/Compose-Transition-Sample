@@ -5,8 +5,8 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
-import com.sharednav.common.effect.mask
-import com.sharednav.common.effect.scaleMirror
+import com.sharednav.common.modifier.mask
+import com.sharednav.common.modifier.scaleMirror
 
 private fun Modifier.mask(effect: PageEffect) : Modifier {
     return this.mask(Color.Black.copy(alpha = effect.mask))

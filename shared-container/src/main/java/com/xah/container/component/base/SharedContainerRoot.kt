@@ -1,4 +1,4 @@
-package com.xah.container.overlay
+package com.xah.container.component.base
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,7 +12,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
-import com.sharednav.common.ScreenCornerHelper
+import com.sharednav.common.helper.ScreenCornerHelper
 import com.xah.container.anim.QuadraticBezierRectInterpolator
 import com.xah.container.controller.SharedRegistry
 import com.xah.container.util.LocalSharedRegistry

@@ -1,4 +1,4 @@
-package com.sharednav.common.effect
+package com.sharednav.common.modifier
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache

@@ -5,15 +5,14 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.xah.container.controller.SharedRegistry
-import com.xah.navigation.anim.EffectLevel
-import com.xah.navigation.anim.NavTransition
+import com.xah.navigation.model.anim.EffectLevel
+import com.xah.navigation.model.anim.Transition
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.model.dest.Destination
@@ -34,7 +33,7 @@ class NavigationController(
 ) {
     val stack: List<StackEntry> get() = _stack
 
-    var navTransition by mutableStateOf<NavTransition?>(null)
+    var transition by mutableStateOf<Transition?>(null)
         private set
 
     var isTransitioning by mutableStateOf(false)
@@ -66,7 +65,7 @@ class NavigationController(
 
     fun getAnimation() =
         if (sharedRegistry?.isRunning == true) {
-            when(navTransition?.type) {
+            when(transition?.type) {
                 ActionType.POP -> popAnimationWithShared
                 ActionType.PUSH -> pushAnimationWithShared
                 else -> defaultSpec
@@ -75,7 +74,7 @@ class NavigationController(
             if(transitionLevel == EffectLevel.NONE) {
                 defaultSpecWithTinyScale
             } else {
-                when(navTransition?.type) {
+                when(transition?.type) {
                     ActionType.POP -> popAnimation
                     ActionType.PUSH -> pushAnimation
                     else -> defaultSpec
@@ -164,7 +163,7 @@ class NavigationController(
             val type = launchMode.actionType
             snap(type)
             // 添加过渡动画
-            navTransition = NavTransition(
+            transition = Transition(
                 type = type,
                 from = from,
                 to = _stack.last()
@@ -184,7 +183,7 @@ class NavigationController(
 
             snap(type)
 
-            navTransition = NavTransition(
+            transition = Transition(
                 type = type,
                 from = from,
                 to = to,
@@ -222,9 +221,9 @@ class NavigationController(
         if(sharedRegistry?.isWaitingFrame == true) {
             return
         }
-        navTransition ?: return
+        transition ?: return
 
-        val target = when (navTransition!!.type) {
+        val target = when (transition!!.type) {
             ActionType.PUSH -> 1f
             ActionType.POP -> 0f
         }
@@ -234,10 +233,10 @@ class NavigationController(
         transitionProgress.animateTo(targetValue = target, animationSpec = animationSpec)
 
         // 移除栈，置状态
-        if (navTransition?.type == ActionType.POP) {
+        if (transition?.type == ActionType.POP) {
             removeAndPop()
         }
-        navTransition = null
+        transition = null
         isTransitioning = false
     }
 

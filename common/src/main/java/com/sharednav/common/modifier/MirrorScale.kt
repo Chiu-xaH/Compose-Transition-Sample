@@ -1,4 +1,4 @@
-package com.sharednav.common.effect
+package com.sharednav.common.modifier
 
 import android.graphics.RenderEffect
 import android.graphics.RuntimeShader
