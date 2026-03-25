@@ -5,8 +5,7 @@ import androidx.compose.runtime.Composable
 import com.xah.navigation.util.LocalNavController
 
 @Composable
-fun DefaultBackHandler() {
-    // TODO 预测式返回
+fun NavigationBackHandler() {
     val navController = LocalNavController.current
     BackHandler(enabled = navController.stack.size > 1) {
         navController.pop()

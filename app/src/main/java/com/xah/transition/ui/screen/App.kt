@@ -81,6 +81,7 @@ import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavDependencies
 import com.xah.navigation.util.rememberNavDependencies
 import com.sharednav.common.modifier.touchEvent
+import com.xah.floating.component.FloatingRoot
 import com.xah.transition.R
 import com.xah.transition.model.AppIconBean
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
@@ -92,6 +93,7 @@ import com.xah.transition.ui.component.cardNormalColor
 import com.xah.transition.ui.screen.destination.AppIconDestination
 import com.xah.transition.ui.screen.destination.BezierSettingsDestination
 import com.xah.transition.ui.screen.destination.CornerSettingsDestination
+import com.xah.transition.ui.screen.destination.FloatingDestination
 import com.xah.transition.ui.screen.destination.HomeDestination
 import com.xah.transition.ui.screen.destination.SecondDestination
 import com.xah.transition.ui.screen.destination.ThirdDestination
@@ -107,7 +109,6 @@ fun App() {
         put(arg1, tag = "args1")
         put("1", tag = "args2")
     }
-
     SharedNavHost(
         startDestination = HomeDestination,
         modifier = Modifier.background(MaterialTheme.colorScheme.surface),
@@ -146,27 +147,16 @@ fun HomeScreen() {
 
     val levelList = remember { EffectLevel.entries }
 
-
     var displayDialog by remember { mutableStateOf(false) }
     var dialogKey by remember { mutableStateOf("") }
     val maskColor by animateColorAsState(
         if(displayDialog) Color.Black.copy(.3f) else Color.Transparent,
     )
-//    val blur by animateDpAsState(
-//        if(displayDialog) 5.dp else 0.dp,
-//    )
-//    val scale by animateFloatAsState(
-//        if(displayDialog) 0.95f else 1f,
-//        tween(registry.animationTime)
-//    )
-
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .mask(maskColor)
-//            .blur(blur)
-//            .scaleMirror(scale)
             .touchEvent(!displayDialog) {
                 registry.pop(dialogKey) {
                     displayDialog = false
@@ -340,6 +330,28 @@ fun HomeScreen() {
                                     registry.extensionDouble = !registry.extensionDouble
                                 },
                             )
+                        }
+                    }
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        SharedContainer(
+                            key = FloatingDestination.key,
+                            containerColor = cardNormalColor(),
+                            shape = MaterialTheme.shapes.small,
+                            modifier = Modifier.padding(CARD_NORMAL_DP * 2)
+                        ) {
+                            Surface(
+                                color = cardNormalColor(),
+                                shape = RoundedCornerShape(0.dp),
+                            ) {
+                                TransplantListItem(
+                                    headlineContent = {
+                                        Text("浮窗示例")
+                                    },
+                                    modifier = Modifier.clickable {
+                                        navController.push(FloatingDestination)
+                                    },
+                                )
+                            }
                         }
                     }
                     item(span = { GridItemSpan(maxLineSpan) }) {

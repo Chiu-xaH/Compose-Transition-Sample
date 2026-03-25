@@ -43,6 +43,7 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.material3)
     api(project(":shared-container"))
+    api(project(":floating-window"))
     api(project(":common"))
 }
 

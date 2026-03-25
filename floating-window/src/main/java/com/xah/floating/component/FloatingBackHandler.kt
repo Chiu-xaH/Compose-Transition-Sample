@@ -2,6 +2,7 @@ package com.xah.floating.component
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
+import com.xah.container.util.LocalSharedRegistrySafely
 import com.xah.floating.util.LocalFloatingController
 
 @Composable

@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 
 abstract class FloatingWindow {
 
+    abstract val key : String
+
     open fun onDismissed() {}
 
     @Composable

@@ -1,5 +1,8 @@
 package com.xah.navigation.component
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -14,7 +17,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sharednav.common.modifier.touchEvent
 import com.xah.container.component.base.SharedContent
 import com.xah.container.component.base.SharedContainerRoot
+import com.xah.container.controller.SharedRegistry
 import com.xah.container.util.LocalSharedRegistry
+import com.xah.floating.anim.DefaultEffects
+import com.xah.floating.component.FloatingRoot
+import com.xah.floating.component.rememberFloatingController
+import com.xah.floating.model.anim.ForegroundEffect
 import com.xah.navigation.model.anim.EffectLevel
 import com.xah.navigation.anim.backgroundEffect
 import com.xah.navigation.anim.foregroundEffect
@@ -25,6 +33,7 @@ import com.xah.navigation.model.dest.Dependencies
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.anim.PageEffects
 import com.xah.navigation.model.dest.Destination
+import com.xah.navigation.util.DefaultBackHandler
 import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavControllerSafely
 import com.xah.navigation.util.LocalNavDependencies
@@ -50,13 +59,28 @@ fun SharedNavHost(
     backHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
     SharedContainerRoot {
-        NavHost(
-            navController,
-            modifier,
-            effect,
-            dependencies,
-            backHandler
+        val registry = LocalSharedRegistry.current
+        val floatingController = rememberFloatingController(
+            DefaultEffects.copy(
+                foregroundEffect = ForegroundEffect(
+                    fadeIn(animationSpec = registry.getPushAnimation()),
+                    fadeOut(animationSpec = registry.getPopAnimation())
+                )
+            )
         )
+        FloatingRoot(
+            floatingController,
+            registry
+        ) {
+            NavHost(
+                navController,
+                registry,
+                modifier,
+                effect,
+                dependencies,
+                backHandler
+            )
+        }
     }
 }
 
@@ -81,6 +105,7 @@ fun SharedNavHost(
 @Composable
 private fun NavHost(
     startDestination: Destination,
+    registry: SharedRegistry,
     modifier: Modifier = Modifier,
     effect: PageEffects = rememberDefaultPageEffects(),
     dependencies: Dependencies = Dependencies(),
@@ -90,6 +115,7 @@ private fun NavHost(
 
     NavHost(
         navController,
+        registry,
         modifier,
         effect,
         dependencies,
@@ -100,12 +126,12 @@ private fun NavHost(
 @Composable
 private fun NavHost(
     navController: NavigationController,
+    registry: SharedRegistry,
     modifier: Modifier = Modifier,
     effect: PageEffects = rememberDefaultPageEffects(),
     dependencies: Dependencies = Dependencies(),
     backHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
-    val registry = LocalSharedRegistry.current
     val saveableStateHolder = rememberSaveableStateHolder()
 
     LaunchedEffect(registry) {

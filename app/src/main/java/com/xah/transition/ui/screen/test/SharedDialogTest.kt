@@ -1,5 +1,10 @@
 package com.xah.transition.ui.screen.test
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -22,7 +27,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.xah.container.component.base.SharedContainer
 import com.xah.container.component.base.SharedContent
-import com.xah.container.component.floating.SharedExpandedContainer
 import com.xah.container.component.base.SharedContainerRoot
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.container.util.LocalSharedRegistrySafely
@@ -100,6 +104,36 @@ fun SharedDialogTest() {
             SharedContainerRoot { UI() }
         } else {
             UI()
+        }
+    }
+}
+
+@Composable
+fun SharedExpandedContainer(
+    key : String,
+    expand : Boolean,
+    modifier: Modifier = Modifier,
+    container : @Composable () -> Unit,
+    content : @Composable () -> Unit,
+    onClosed : (Boolean) -> Unit,
+) {
+    val registry = LocalSharedRegistry.current
+
+    BackHandler {
+        registry.pop(key) {
+            onClosed(false)
+        }
+    }
+
+    AnimatedContent(
+        modifier = modifier,
+        targetState = expand,
+        transitionSpec = { fadeIn(registry.getPushAnimation()) togetherWith fadeOut(registry.getPopAnimation()) },
+    ) { isExpanded ->
+        if(isExpanded) {
+            content()
+        } else {
+            container()
         }
     }
 }

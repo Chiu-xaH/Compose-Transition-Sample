@@ -7,6 +7,7 @@ import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import com.sharednav.common.modifier.disableTouchEvent
+import com.xah.container.util.LocalSharedRegistrySafely
 import com.xah.floating.util.LocalFloatingController
 
 @Composable
