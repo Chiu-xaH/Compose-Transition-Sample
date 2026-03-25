@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import com.sharednav.common.modifier.mask
 import com.sharednav.common.modifier.scaleMirror
+import com.xah.navigation.model.anim.PageEffect
 
 private fun Modifier.mask(effect: PageEffect) : Modifier {
     return this.mask(Color.Black.copy(alpha = effect.mask))

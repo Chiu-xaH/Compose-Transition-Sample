@@ -3,10 +3,9 @@ package com.xah.floating.model.anim
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
+
 @Immutable
 data class PageEffect(
     val scale: Float,

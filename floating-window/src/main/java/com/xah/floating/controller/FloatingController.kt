@@ -7,9 +7,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.xah.floating.anim.DefaultEffects
-import com.xah.floating.anim.PageEffects
 import com.xah.floating.model.FloatingEntry
 import com.xah.floating.model.FloatingWindow
+import com.xah.floating.model.anim.PageEffects
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch

@@ -11,10 +11,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xah.floating.anim.DefaultEffects
-import com.xah.floating.anim.PageEffects
 import com.xah.floating.anim.backgroundEffect
 import com.xah.floating.controller.FloatingController
 import com.xah.floating.controller.FloatingViewModel
+import com.xah.floating.model.anim.PageEffects
 import com.xah.floating.util.LocalFloatingController
 import com.xah.floating.util.LocalFloatingControllerSafely
 

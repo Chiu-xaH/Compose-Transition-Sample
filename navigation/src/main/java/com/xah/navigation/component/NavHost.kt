@@ -16,7 +16,6 @@ import com.xah.container.component.base.SharedContent
 import com.xah.container.component.base.SharedContainerRoot
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.navigation.model.anim.EffectLevel
-import com.xah.navigation.anim.PageEffects
 import com.xah.navigation.anim.backgroundEffect
 import com.xah.navigation.anim.foregroundEffect
 import com.xah.navigation.anim.rememberDefaultPageEffects
@@ -24,6 +23,7 @@ import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.controller.NavigationViewModel
 import com.xah.navigation.model.dest.Dependencies
 import com.xah.navigation.model.action.ActionType
+import com.xah.navigation.model.anim.PageEffects
 import com.xah.navigation.model.dest.Destination
 import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavControllerSafely

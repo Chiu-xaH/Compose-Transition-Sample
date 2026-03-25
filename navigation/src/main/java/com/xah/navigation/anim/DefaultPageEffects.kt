@@ -7,9 +7,9 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.ScreenCornerHelper
-import com.xah.navigation.anim.PageEffect
-import com.xah.navigation.anim.PageEffectState
-import com.xah.navigation.anim.PageEffects
+import com.xah.navigation.model.anim.PageEffect
+import com.xah.navigation.model.anim.PageEffectState
+import com.xah.navigation.model.anim.PageEffects
 
 
 @Composable
