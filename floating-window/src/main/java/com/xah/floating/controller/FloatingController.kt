@@ -1,8 +1,10 @@
 package com.xah.floating.controller
 
 import android.os.Build
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -27,8 +29,21 @@ class FloatingController(
 ) {
     val stack: List<FloatingEntry> get() = _stack
 
+    var overlayProgress: Float by mutableFloatStateOf(0f)
+        private set
+
     var enableBlur by mutableStateOf(Build.VERSION.SDK_INT >= 31)
     var enableShader by mutableStateOf(Build.VERSION.SDK_INT >= 33)
+
+    private val visibleStates = mutableMapOf<String, MutableTransitionState<Boolean>>()
+
+    fun registerVisibleState(id: String, state: MutableTransitionState<Boolean>) {
+        visibleStates[id] = state
+    }
+
+    fun unregisterVisibleState(id: String) {
+        visibleStates.remove(id)
+    }
 
     private fun pushInternal(window: FloatingWindow) {
         scope.launch(start = CoroutineStart.UNDISPATCHED) {
@@ -40,14 +55,30 @@ class FloatingController(
             if(current()?.window == window) {
                 return@launch
             }
+            overlayProgress = 1f
             _stack.add(entry)
         }
     }
 
     private fun popInternal() {
         scope.launch(start = CoroutineStart.UNDISPATCHED) {
-            val item = _stack.removeAt(_stack.size-1)
-            item.window.onDismissed()
+            val entry = _stack.lastOrNull() ?: return@launch
+            // 只有关闭最后一个时才需要把背景还原
+            if (_stack.size == 1) {
+                overlayProgress = 0f
+            }
+            val visibleState = visibleStates[entry.id]
+            if (visibleState != null) {
+                // 触发退场动画，等动画完成后再移除
+                visibleState.targetState = false
+                snapshotFlow { visibleState.isIdle }
+                    .filter { it }
+                    .first()
+            }
+            if (_stack.isNotEmpty()) {
+                val item = _stack.removeAt(_stack.size - 1)
+                item.window.onDismissed()
+            }
         }
     }
 
@@ -72,7 +103,7 @@ class FloatingController(
             this.popInternal()
         } else {
             registry.pop(
-                this.stack.last().window.key
+                this.stack.last().window.key,
             ) {
                 this.popInternal()
             }

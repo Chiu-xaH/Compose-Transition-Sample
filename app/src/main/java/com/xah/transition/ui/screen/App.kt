@@ -82,6 +82,8 @@ import com.xah.navigation.util.LocalNavDependencies
 import com.xah.navigation.util.rememberNavDependencies
 import com.sharednav.common.modifier.touchEvent
 import com.xah.floating.component.FloatingRoot
+import com.xah.floating.model.FloatingWindow
+import com.xah.floating.util.LocalFloatingController
 import com.xah.transition.R
 import com.xah.transition.model.AppIconBean
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
@@ -98,6 +100,7 @@ import com.xah.transition.ui.screen.destination.HomeDestination
 import com.xah.transition.ui.screen.destination.SecondDestination
 import com.xah.transition.ui.screen.destination.ThirdDestination
 import com.xah.transition.ui.screen.test.CubicBezierEditor
+import com.xah.transition.ui.screen.window.DialogFloatingWindow
 import com.xah.transition.ui.style.topBarTransplantColor
 import com.xah.transition.ui.util.UiHolder
 
@@ -136,6 +139,7 @@ fun HomeScreen() {
     val scrollState = rememberLazyGridState()
     val registry = LocalSharedRegistry.current
     val context = LocalContext.current
+    val floatingController = LocalFloatingController.current
     val pickMediaLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -147,22 +151,7 @@ fun HomeScreen() {
 
     val levelList = remember { EffectLevel.entries }
 
-    var displayDialog by remember { mutableStateOf(false) }
-    var dialogKey by remember { mutableStateOf("") }
-    val maskColor by animateColorAsState(
-        if(displayDialog) Color.Black.copy(.3f) else Color.Transparent,
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .mask(maskColor)
-            .touchEvent(!displayDialog) {
-                registry.pop(dialogKey) {
-                    displayDialog = false
-                }
-            }
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
         if(UiHolder.imageBitmap != null) {
             Image(
                 bitmap = UiHolder.imageBitmap!!.asImageBitmap(),
@@ -265,10 +254,10 @@ fun HomeScreen() {
                         }
                     }
                     items(20) { index ->
-                        val key = "Dialog #$index"
+                        val window = DialogFloatingWindow(index)
                         Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
                             SharedContainer (
-                                key = key,
+                                key = window.key,
                                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                                 shape = MaterialTheme.shapes.small,
                             ) {
@@ -277,12 +266,9 @@ fun HomeScreen() {
                                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                                 ) {
                                     TransplantListItem(
-                                        headlineContent = { Text(key) },
+                                        headlineContent = { Text(window.key) },
                                         modifier = Modifier.clickable {
-                                            dialogKey = key
-                                            registry.push(dialogKey) {
-                                                displayDialog = true
-                                            }
+                                            floatingController.push(window)
                                         }
                                     )
                                 }
@@ -379,35 +365,6 @@ fun HomeScreen() {
                             }
                         ) {
                             Icon(painterResource(BezierSettingsDestination.icon),null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    AnimatedContent(
-        displayDialog,
-        dialogKey,
-        onClosed = {
-            displayDialog = false
-        }
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Box(modifier = Modifier.align(Alignment.Center)) {
-                SharedContent(
-                    key = dialogKey,
-                    shape = MaterialTheme.shapes.large,
-                    isFullScreen = false,
-                    modifier = Modifier.padding(horizontal = APP_HORIZONTAL_DP)
-                ) {
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.surface,
-                        shape = MaterialTheme.shapes.large,
-                    ) {
-                        Box(modifier = Modifier.height(height = 200.dp)) {
-                            Text(dialogKey, modifier = Modifier.align(Alignment.Center))
                         }
                     }
                 }
@@ -628,5 +585,6 @@ fun BezierSettingsScreen(title: String) {
         }
     }
 }
+
 
 

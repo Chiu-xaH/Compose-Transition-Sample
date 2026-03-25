@@ -56,7 +56,7 @@ fun FloatingRoot(
     ) {
         val isRunning = controller.isRunning
         val progress by animateFloatAsState(
-            targetValue = if(isRunning) 0f else 1f,
+            targetValue = 1f - controller.overlayProgress,
             animationSpec = controller.effect.backgroundEffect.animationSpec
         )
         val effect = controller.effect.backgroundEffect.pageEffect.lerp(progress)
