@@ -2,6 +2,8 @@ package com.xah.floating.component
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -11,13 +13,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import com.sharednav.common.modifier.disableTouchEvent
+import com.xah.container.util.LocalSharedRegistrySafely
+import com.xah.floating.model.anim.ForegroundEffect
 import com.xah.floating.util.LocalFloatingController
 
 @Composable
 fun FloatingOverlay() {
     val controller = LocalFloatingController.current
     val stack = controller.stack
-    val foregroundEffect = controller.effect.foregroundEffect
+    val registry = LocalSharedRegistrySafely.current
+
+    val foregroundEffect = remember(registry?.isRunning) {
+        if(registry?.isRunning == true) {
+            ForegroundEffect(
+                fadeIn(animationSpec = registry.getPushAnimation()),
+                fadeOut(animationSpec = registry.getPopAnimation())
+            )
+        } else {
+            controller.effect.foregroundEffect
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         stack.forEachIndexed { index, entry ->
@@ -71,3 +86,5 @@ fun FloatingOverlay() {
         }
     }
 }
+
+

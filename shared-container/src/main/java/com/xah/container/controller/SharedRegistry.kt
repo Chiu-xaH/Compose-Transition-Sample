@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import com.sharednav.common.util.LogUtil
 import com.xah.container.anim.LinearRectInterpolator
 import com.xah.container.anim.RectInterpolator
@@ -21,8 +22,8 @@ import kotlinx.coroutines.launch
 
 class SharedRegistry(
     private val scope: CoroutineScope,
+    private val states : SnapshotStateMap<String, SharedContainerState>
 ) {
-    val states = mutableStateMapOf<String, SharedContainerState>()
     val runningStates: List<SharedContainerState> by derivedStateOf {
         states.values.filter { it.isRunning() }
     }
@@ -40,7 +41,6 @@ class SharedRegistry(
     var enabled by mutableStateOf(true)
 
     var animationTime by mutableIntStateOf(500)
-
 
     /**
      * 最大等帧时长，为什么需要等，本质上取决于导航栈的设计，如果导航栈只能保持一个页面，其余页面都被销毁，当POP时需要等下面的初始化完成，才能记录容器位置，如果栈中内容都不销毁，那么就只需要等1帧（16ms）

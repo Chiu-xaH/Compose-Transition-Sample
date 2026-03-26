@@ -27,7 +27,7 @@ fun rememberFloatingController(
     val scope = rememberCoroutineScope()
     val vm: FloatingViewModel = viewModel(factory = FloatingViewModel.Factory())
     return remember(vm) {
-        FloatingController(scope, vm.stack, effect)
+        FloatingController(scope, vm.stack,vm.inOverlay, effect)
     }
 }
 
@@ -54,9 +54,8 @@ fun FloatingRoot(
         LocalFloatingControllerSafely provides controller,
         LocalFloatingController provides controller,
     ) {
-        val isRunning = controller.isRunning
         val progress by animateFloatAsState(
-            targetValue = 1f - controller.overlayProgress,
+            targetValue = if(controller.inOverlay) 0f else 1f,
             animationSpec = controller.effect.backgroundEffect.animationSpec
         )
         val effect = controller.effect.backgroundEffect.pageEffect.lerp(progress)

@@ -12,16 +12,19 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.xah.container.anim.QuadraticBezierRectInterpolator
 import com.xah.container.controller.SharedRegistry
+import com.xah.container.controller.SharedRegistryViewModel
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.container.util.LocalSharedRegistrySafely
 
 @Composable
 fun rememberSharedRegistry() : SharedRegistry {
     val scope = rememberCoroutineScope()
-    return remember { SharedRegistry(scope) }
+    val vm: SharedRegistryViewModel = viewModel(factory = SharedRegistryViewModel.Factory())
+    return remember { SharedRegistry(scope,vm.states) }
 }
 
 @Composable

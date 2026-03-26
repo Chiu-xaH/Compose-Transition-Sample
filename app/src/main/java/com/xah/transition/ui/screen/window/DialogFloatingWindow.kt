@@ -13,10 +13,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.xah.container.component.base.SharedContent
-import com.xah.floating.model.FloatingWindow
+import com.xah.floating.model.Window
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 
-data class DialogFloatingWindow(val index : Int) : FloatingWindow() {
+data class DialogFloatingWindow(val index : Int) : Window() {
     override val key: String = "Dialog #$index"
 
     @Composable

@@ -6,7 +6,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -67,10 +66,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.ScreenCornerHelper
-import com.sharednav.common.modifier.mask
-import com.xah.container.component.floating.AnimatedContent
 import com.xah.container.component.base.SharedContainer
-import com.xah.container.component.base.SharedContent
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.navigation.model.anim.EffectLevel
 import com.xah.navigation.anim.rememberDefaultPageEffectsEnhance
@@ -80,9 +76,6 @@ import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavDependencies
 import com.xah.navigation.util.rememberNavDependencies
-import com.sharednav.common.modifier.touchEvent
-import com.xah.floating.component.FloatingRoot
-import com.xah.floating.model.FloatingWindow
 import com.xah.floating.util.LocalFloatingController
 import com.xah.transition.R
 import com.xah.transition.model.AppIconBean

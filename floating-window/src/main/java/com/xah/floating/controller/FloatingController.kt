@@ -2,17 +2,17 @@ package com.xah.floating.controller
 
 import android.os.Build
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.xah.container.controller.SharedRegistry
 import com.xah.floating.anim.DefaultEffects
-import com.xah.floating.model.FloatingEntry
-import com.xah.floating.model.FloatingWindow
+import com.xah.floating.model.WindowEntry
+import com.xah.floating.model.Window
 import com.xah.floating.model.anim.PageEffects
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -23,14 +23,13 @@ import java.util.UUID
 
 class FloatingController(
     private val scope: CoroutineScope,
-    private val _stack: SnapshotStateList<FloatingEntry>,
+    private val _stack: SnapshotStateList<WindowEntry>,
+    private val _inOverlay: MutableState<Boolean>,
     val effect : PageEffects = DefaultEffects,
     var sharedRegistry : SharedRegistry? = null,
 ) {
-    val stack: List<FloatingEntry> get() = _stack
-
-    var overlayProgress: Float by mutableFloatStateOf(0f)
-        private set
+    val stack: List<WindowEntry> get() = _stack
+    val inOverlay: Boolean get() = _inOverlay.value
 
     var enableBlur by mutableStateOf(Build.VERSION.SDK_INT >= 31)
     var enableShader by mutableStateOf(Build.VERSION.SDK_INT >= 33)
@@ -45,9 +44,9 @@ class FloatingController(
         visibleStates.remove(id)
     }
 
-    private fun pushInternal(window: FloatingWindow) {
+    private fun pushInternal(window: Window) {
         scope.launch(start = CoroutineStart.UNDISPATCHED) {
-            val entry = FloatingEntry(
+            val entry = WindowEntry(
                 id = UUID.randomUUID().toString(),
                 window = window,
             )
@@ -55,7 +54,7 @@ class FloatingController(
             if(current()?.window == window) {
                 return@launch
             }
-            overlayProgress = 1f
+            _inOverlay.value = true
             _stack.add(entry)
         }
     }
@@ -65,7 +64,7 @@ class FloatingController(
             val entry = _stack.lastOrNull() ?: return@launch
             // 只有关闭最后一个时才需要把背景还原
             if (_stack.size == 1) {
-                overlayProgress = 0f
+                _inOverlay.value = false
             }
             val visibleState = visibleStates[entry.id]
             if (visibleState != null) {
@@ -83,7 +82,7 @@ class FloatingController(
     }
 
     fun push(
-        window: FloatingWindow
+        window: Window
     ) {
         val registry = this.sharedRegistry
         if(registry == null) {
@@ -98,6 +97,9 @@ class FloatingController(
     }
 
     fun pop() {
+        if(!canPop()) {
+            return
+        }
         val registry = this.sharedRegistry
         if(registry == null) {
             this.popInternal()
@@ -112,5 +114,7 @@ class FloatingController(
 
     val isRunning: Boolean by derivedStateOf { _stack.isNotEmpty() }
 
-    fun current(): FloatingEntry? = _stack.lastOrNull()
+    fun current(): WindowEntry? = _stack.lastOrNull()
+
+    fun canPop() = _stack.isNotEmpty()
 }

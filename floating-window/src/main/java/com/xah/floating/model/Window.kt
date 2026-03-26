@@ -2,7 +2,7 @@ package com.xah.floating.model
 
 import androidx.compose.runtime.Composable
 
-abstract class FloatingWindow {
+abstract class Window {
 
     abstract val key : String
 

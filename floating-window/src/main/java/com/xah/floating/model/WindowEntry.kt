@@ -1,6 +1,6 @@
 package com.xah.floating.model
 
-class FloatingEntry(
+class WindowEntry(
     val id: String,
-    val window: FloatingWindow,
+    val window: Window,
 )

@@ -1,6 +1,8 @@
 package com.xah.floating.anim
 
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.ui.unit.dp
@@ -21,8 +23,8 @@ val DefaultBackgroundEffect = BackgroundEffect(
 )
 
 val DefaultForegroundEffect = ForegroundEffect(
-    enter = scaleIn(initialScale = 1.1f),
-    exit = scaleOut(targetScale = 1.1f)
+    enter = scaleIn(initialScale = 1.1f) + fadeIn(),
+    exit = scaleOut(targetScale = 1.1f) + fadeOut()
 )
 
 val DefaultEffects = PageEffects(

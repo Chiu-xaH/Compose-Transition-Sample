@@ -23,14 +23,14 @@ import com.sharednav.common.util.LogUtil
 import com.xah.container.component.base.SharedContainer
 import com.xah.container.component.base.SharedContent
 import com.xah.floating.component.FloatingRoot
-import com.xah.floating.model.FloatingWindow
+import com.xah.floating.model.Window
 import com.xah.floating.util.LocalFloatingController
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 
 data class ConfirmFloating(
     private val message: String,
     private val onConfirm: () -> Unit,
-) : FloatingWindow() {
+) : Window() {
 
     override val key: String = "dialog_${message.hashCode()}"
     override fun onDismissed() {
@@ -81,7 +81,7 @@ data class ConfirmFloating(
     }
 }
 
-data class InfoFloating(private val title: String) : FloatingWindow() {
+data class InfoFloating(private val title: String) : Window() {
     override val key: String = "dialog_${title.hashCode()}"
 
     @Composable

@@ -60,18 +60,7 @@ fun SharedNavHost(
 ) {
     SharedContainerRoot {
         val registry = LocalSharedRegistry.current
-        val floatingController = rememberFloatingController(
-            DefaultEffects.copy(
-                foregroundEffect = ForegroundEffect(
-                    fadeIn(animationSpec = registry.getPushAnimation()),
-                    fadeOut(animationSpec = registry.getPopAnimation())
-                )
-            )
-        )
-        FloatingRoot(
-            floatingController,
-            registry
-        ) {
+        FloatingRoot(registry = registry) {
             NavHost(
                 navController,
                 registry,
