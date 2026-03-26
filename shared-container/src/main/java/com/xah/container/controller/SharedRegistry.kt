@@ -160,7 +160,7 @@ class SharedRegistry(
 
         state.animation.animateTo(1f,getPushAnimation())
         onAnimatedFinished?.let { it() }
-        if(needWaitMultiFrame(state)) {
+        if(needWaitMultiFrame) {
             state.containerRect = null
         }
         // 结束标志位
@@ -191,7 +191,7 @@ class SharedRegistry(
         state.animation.animateTo(0f,getPopAnimation())
 
         onAnimatedFinished?.let { it() }
-        if(needWaitMultiFrame(state)) {
+        if(needWaitMultiFrame) {
             state.contentRect = null
         }
         // 结束标志位
@@ -214,13 +214,13 @@ class SharedRegistry(
         }
     }
 
-    private fun needWaitMultiFrame(state: SharedContainerState): Boolean {
-        return if(needWaitMultiFrame) {
-            state.containerFilledStrategy.getFinalStrategy(enableShader) is ContainerFilledStrategy.Color
-        } else {
-            false
-        }
-    }
+//    private fun needWaitMultiFrame(state: SharedContainerState): Boolean {
+//        return if(needWaitMultiFrame) {
+//            state.containerFilledStrategy.getFinalStrategy(enableShader) is ContainerFilledStrategy.Color
+//        } else {
+//            false
+//        }
+//    }
 
     private suspend fun waitContainerFrame(
         state: SharedContainerState,
@@ -240,7 +240,7 @@ class SharedRegistry(
         isContainer : Boolean,
         onSwap: suspend () -> Unit,
     ): Boolean {
-        if(waitFrameMaxValue <= 0 || !needWaitMultiFrame(state)) {
+        if(waitFrameMaxValue <= 0 || !needWaitMultiFrame) {
             // 等一帧即可
             onSwap()
             // state.isTransiting = true 用于稳住导航不要动，开始测量rect

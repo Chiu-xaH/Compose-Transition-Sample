@@ -148,16 +148,15 @@ fun HomeScreen() {
 
 ## 编译为 Release aar
 ```bash
-./gradlew assembleRpelease
+./gradlew assembleRelease
 ```
 
 ## 后续计划
 1. SDK32及其以下背景缩放启用时，动画结束瞬间容器稍微位移抽搐的Bug      [P0]
-2. 新增一些脱离导航场景下的容器共享使用方式     [P1]
-3. 并行动画     [P1]
-4. 大屏适配（平行视界）         [P1]
-5. spring回弹时最后顿挫的问题    [P1]
-6. 预测式返回     [P2]
-7. deeplink         [P4]
-8. 元素共享及导航适配     [P4]
-9. Kotlin Multiplatform         [P4]
+2. 并行动画     [P1]
+3. 大屏适配（平行视界）         [P1]
+4. spring回弹时最后顿挫的问题    [P1]
+5. 预测式返回     [P2]
+6. deeplink         [P4]
+7. 元素共享及导航适配     [P4]
+8. Kotlin Multiplatform         [P4]
