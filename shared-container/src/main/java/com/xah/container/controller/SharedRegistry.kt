@@ -34,8 +34,6 @@ class SharedRegistry(
         states.values.any { it.currentState == StatePause.MEASURING_CONTAINER || it.currentState == StatePause.MEASURING_CONTENT }
     }
 
-    var needWaitMultiFrame : Boolean = true
-
     private fun SharedContainerState.isRunning() = currentState == StatePause.TRANSITING && containerRect != null && contentRect != null
 
     var enabled by mutableStateOf(true)
@@ -160,9 +158,7 @@ class SharedRegistry(
 
         state.animation.animateTo(1f,getPushAnimation())
         onAnimatedFinished?.let { it() }
-        if(needWaitMultiFrame) {
-            state.containerRect = null
-        }
+        state.containerRect = null
         // 结束标志位
         state.currentState = StatePause.CONTENT
     }
@@ -191,9 +187,7 @@ class SharedRegistry(
         state.animation.animateTo(0f,getPopAnimation())
 
         onAnimatedFinished?.let { it() }
-        if(needWaitMultiFrame) {
-            state.contentRect = null
-        }
+        state.contentRect = null
         // 结束标志位
         state.currentState = StatePause.CONTAINER
     }
@@ -214,14 +208,6 @@ class SharedRegistry(
         }
     }
 
-//    private fun needWaitMultiFrame(state: SharedContainerState): Boolean {
-//        return if(needWaitMultiFrame) {
-//            state.containerFilledStrategy.getFinalStrategy(enableShader) is ContainerFilledStrategy.Color
-//        } else {
-//            false
-//        }
-//    }
-
     private suspend fun waitContainerFrame(
         state: SharedContainerState,
         onSwap: suspend () -> Unit,
@@ -240,34 +226,8 @@ class SharedRegistry(
         isContainer : Boolean,
         onSwap: suspend () -> Unit,
     ): Boolean {
-        if(waitFrameMaxValue <= 0 || !needWaitMultiFrame) {
-            // 等一帧即可
-            onSwap()
-            // state.isTransiting = true 用于稳住导航不要动，开始测量rect
-            // state.isTransiting=true代表此时在打断动画中，rect都不为空，无需再次记录Frame标志
-            // state.isTransiting=true时，两个rect一定不为空
-            when(state.currentState) {
-                StatePause.CONTENT -> {
-                    state.currentState = StatePause.MEASURING_CONTAINER
-                }
-                StatePause.CONTAINER -> {
-                    state.currentState = StatePause.MEASURING_CONTENT
-                }
-                else -> {}
-            }
-            awaitFrame()
-            val rect = if(isContainer) {
-                state.containerRect
-            } else {
-                state.contentRect
-            }
-            if (rect != null) {
-                return true
-            } else {
-                unregister(state)
-                LogUtil.debug("rendering timeout within 1 frame")
-                return false
-            }
+        require(waitFrameMaxValue >= 1) {
+            error("waitFrameMaxValue must >= 1")
         }
 
         var frameCount = 0
@@ -294,6 +254,7 @@ class SharedRegistry(
                 state.contentRect
             }
             if (rect != null) {
+                LogUtil.info("waiting for $frameCount frame")
                 return true
             }
             if (frameCount >= waitFrameMaxValue) {

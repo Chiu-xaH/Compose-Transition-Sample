@@ -10,40 +10,39 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import org.intellij.lang.annotations.Language
 
-fun Modifier.scaleMirror(scale: Float,enabled : Boolean): Modifier =
-    if(!enabled || Build.VERSION.SDK_INT < 33) {
+// 绘制内容
+fun Modifier.scaleMirror(
+    scale: Float,
+    enabled : Boolean,
+): Modifier =
+    if(scale == 1f) {
+        this
+    } else if(Build.VERSION.SDK_INT < 33 || !enabled) {
+        this
+        /** fixme:动画收尾有抽搐bug，待修复
         this.graphicsLayer {
             scaleX = scale
             scaleY = scale
         }
+        **/
     } else {
         composed {
             // 绘制面
             var rect by remember { mutableStateOf<Rect?>(null) }
-            // shader 只在尺寸变化时重建，不随每帧 scale 变化重建
-            val shader = remember(rect) {
-                rect?.let { r ->
-                    RuntimeShader(SHADER_CODE.trimIndent()).also {
-                        it.setFloatUniform("size", r.width, r.height)
-                    }
-                }
-            }
-
             this
                 .graphicsLayer {
-                    clip = true
-                    shape = RectangleShape
-                    shader?.let { s ->
-                        // 每帧只更新 scale uniform，不重建 shader/RenderEffect
-                        s.setFloatUniform("scale", scale)
-                        renderEffect = RenderEffect.createRuntimeShaderEffect(s, "content").asComposeRenderEffect()
+                    rect?.let { r ->
+                        val runtimeShader = RuntimeShader(SHADER_CODE.trimIndent())
+                        runtimeShader.setFloatUniform("size", r.width, r.height)
+                        runtimeShader.setFloatUniform("scale", scale)
+
+                        renderEffect = RenderEffect.createRuntimeShaderEffect(runtimeShader, "content").asComposeRenderEffect()
                     }
                 }
                 .onGloballyPositioned { layoutCoordinates ->
@@ -58,7 +57,6 @@ fun Modifier.scaleMirror(scale: Float,enabled : Boolean): Modifier =
                 }
         }
     }
-
 
 @Language("agsl")
 private const val SHADER_CODE = """

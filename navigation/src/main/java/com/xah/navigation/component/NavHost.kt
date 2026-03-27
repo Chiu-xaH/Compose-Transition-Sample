@@ -1,8 +1,5 @@
 package com.xah.navigation.component
 
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -15,23 +12,20 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sharednav.common.modifier.touchEvent
-import com.xah.container.component.base.SharedContent
 import com.xah.container.component.base.SharedContainerRoot
+import com.xah.container.component.base.SharedContent
 import com.xah.container.controller.SharedRegistry
 import com.xah.container.util.LocalSharedRegistry
-import com.xah.floating.anim.DefaultEffects
 import com.xah.floating.component.FloatingRoot
-import com.xah.floating.component.rememberFloatingController
-import com.xah.floating.model.anim.ForegroundEffect
-import com.xah.navigation.model.anim.EffectLevel
 import com.xah.navigation.anim.backgroundEffect
 import com.xah.navigation.anim.foregroundEffect
 import com.xah.navigation.anim.rememberDefaultPageEffects
 import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.controller.NavigationViewModel
-import com.xah.navigation.model.dest.Dependencies
 import com.xah.navigation.model.action.ActionType
+import com.xah.navigation.model.anim.EffectLevel
 import com.xah.navigation.model.anim.PageEffects
+import com.xah.navigation.model.dest.Dependencies
 import com.xah.navigation.model.dest.Destination
 import com.xah.navigation.util.DefaultBackHandler
 import com.xah.navigation.util.LocalNavController
@@ -201,7 +195,6 @@ private fun NavHost(
                                                     return@let it.backgroundEffect(
                                                         enableShader,
                                                         enableBlur,
-                                                        registry.isRunning,
                                                         backgroundEffect
                                                     )
                                                 }
@@ -222,7 +215,6 @@ private fun NavHost(
                                                     return@let it.backgroundEffect(
                                                         enableShader,
                                                         enableBlur,
-                                                        registry.isRunning,
                                                         backgroundEffect
                                                     )
                                                 }

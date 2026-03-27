@@ -23,28 +23,22 @@ private fun Modifier.blur(enableBlur : Boolean,effect : PageEffect) : Modifier {
 
 private fun Modifier.scale(
     enableShader : Boolean,
-    isRegistryRunning : Boolean,
     effect: PageEffect
 ) : Modifier {
-    // fixme:这里用graphicsLayer最后会抽搐一下，太奇怪了，暂时禁用
-    return if(!enableShader && isRegistryRunning) {
-        this
-    } else {
-        this.scaleMirror(effect.scale,enableShader)
-    }
+    // fixme:这里用graphicsLayer最后会抽搐一下，太奇怪了
+    return this.scaleMirror(effect.scale,enableShader)
 }
 
 fun Modifier.backgroundEffect(
     enableShader : Boolean,
     enableBlur : Boolean,
-    isRegistryRunning : Boolean,
     effect: PageEffect
 ) : Modifier {
     return this
         .mask(effect)
         .blur(enableBlur,effect)
         .graphicsLayer(alpha = effect.alpha)
-        .scale(enableShader,isRegistryRunning,effect)
+        .scale(enableShader,effect)
 }
 
 

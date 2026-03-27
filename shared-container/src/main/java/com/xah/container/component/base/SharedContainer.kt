@@ -3,6 +3,7 @@ package com.xah.container.component.base
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -91,10 +92,10 @@ private fun Modifier.sharedContainer(
                     }
                 }
                 StatePause.CONTENT -> {
-                    it.drawWithContent {
-                        if(isFullScreen) {
-                            drawContent()
-                        }
+                    if(!isFullScreen) {
+                        it.drawWithContent {}
+                    } else {
+                        it
                     }
                 }
                 StatePause.MEASURING_CONTAINER -> {
@@ -176,13 +177,6 @@ private fun Modifier.mSharedContent(
                 StatePause.CONTENT -> {
                     it.drawWithContent {
                         drawContent()
-                    }
-                }
-                StatePause.CONTAINER -> {
-                    it.drawWithContent {
-                        if(isFullScreen) {
-                            drawContent()
-                        }
                     }
                 }
                 StatePause.MEASURING_CONTENT -> {
