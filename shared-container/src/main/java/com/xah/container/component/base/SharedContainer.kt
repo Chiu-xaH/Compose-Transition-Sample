@@ -76,9 +76,12 @@ private fun Modifier.sharedContainer(
         null
     }
 
+    LaunchedEffect(shape) {
+        state.containerCorner = shape
+    }
+
     LaunchedEffect(Unit) {
         state.containerFilledStrategy = containerFilledStrategy
-        state.containerCorner = shape
         state.containerLayerForPixel = graphicsLayerForPixel
         state.containerLayer = graphicsLayer
     }
@@ -166,8 +169,11 @@ private fun Modifier.mSharedContent(
     }
     val graphicsLayer = rememberGraphicsLayer()
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(shape) {
         state.contentCorner = shape
+    }
+
+    LaunchedEffect(Unit) {
         state.contentLayer = graphicsLayer
     }
 

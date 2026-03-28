@@ -21,9 +21,7 @@ fun Modifier.scaleMirror(
     scale: Float,
     enabled : Boolean,
 ): Modifier =
-    if(scale == 1f) {
-        this
-    } else if(Build.VERSION.SDK_INT < 33 || !enabled) {
+    if(scale == 1f || !enabled || Build.VERSION.SDK_INT < 33) {
         this
         /** fixme:动画收尾有抽搐bug，待修复
         this.graphicsLayer {
