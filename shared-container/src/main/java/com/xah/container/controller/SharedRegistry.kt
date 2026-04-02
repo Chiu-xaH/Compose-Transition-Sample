@@ -1,5 +1,6 @@
 package com.xah.container.controller
 
+import android.os.Build
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.derivedStateOf
@@ -68,17 +69,21 @@ class SharedRegistry(
     // 单边填充or双边填充
     var extensionDouble by mutableStateOf(false)
 
-    var enableShader by mutableStateOf(ContainerFilledStrategy.CAN_USE_SHADER)
+    var enableShader by mutableStateOf(Build.VERSION.SDK_INT >= 33)
 
     fun register(
         key: String,
     ): SharedContainerState = states.getOrPut(key) {
+        LogUtil.debug("register key: $key")
         SharedContainerState(key)
     }
 
     fun unregister(state : SharedContainerState) = unregister(state.key)
 
-    fun unregister(key: String) = states.remove(key)
+    fun unregister(key: String) {
+        LogUtil.debug("unregister key: $key")
+        states.remove(key)
+    }
 
     fun get(
         key: String,

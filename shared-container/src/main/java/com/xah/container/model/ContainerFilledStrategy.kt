@@ -21,16 +21,12 @@ sealed interface ContainerFilledStrategy {
 
     fun getFinalStrategy(enableShader : Boolean) : ContainerFilledStrategy = when(this) {
         is Pixel -> {
-            if(enableShader && CAN_USE_SHADER) {
+            if(enableShader && Build.VERSION.SDK_INT >= 33) {
                 this
             } else {
                 this.spareStrategy
             }
         }
         else -> this
-    }
-
-    companion object {
-        val CAN_USE_SHADER = Build.VERSION.SDK_INT >= 33
     }
 }
