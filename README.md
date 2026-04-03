@@ -9,7 +9,7 @@
 
 ## 快速开始
 
-**⚠️ 本库目前仍处于Dev开发阶段，目前已在[聚在工大](https://github.com/Chiu-xaH/HFUT-Schdule)项目中实际使用，其余项目推荐等正式版发布后再接入本库**
+**⚠️ 本库目前仍处于Dev开发阶段，目前已在[聚在工大](https://github.com/Chiu-xaH/HFUT-Schedule)项目中实际使用，其余项目推荐等正式版发布后再接入本库**
 
 ### 引入依赖
 
