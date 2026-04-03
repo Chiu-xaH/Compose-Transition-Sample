@@ -7,14 +7,12 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import com.sharednav.common.util.LogUtil
 import com.xah.container.anim.LinearRectInterpolator
 import com.xah.container.anim.RectInterpolator
-import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.model.ContentStrategy
 import com.xah.container.model.SharedContainerState
 import com.xah.container.model.StatePause
@@ -67,7 +65,9 @@ class SharedRegistry(
     // 渐隐、圆角变化比容器变化时长
     var speedUpRadio = 1.5f
 
-    var tiltStrength = 7.5f
+    // 倾斜效果
+    var enableTilt by mutableStateOf(true)
+    var tiltMaxValue = 6.25f
 
     // 单边填充or双边填充
     var extensionDouble by mutableStateOf(false)

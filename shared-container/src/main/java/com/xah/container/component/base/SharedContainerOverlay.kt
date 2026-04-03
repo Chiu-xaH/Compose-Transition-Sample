@@ -22,6 +22,8 @@ import com.xah.container.util.pixelExtension
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.model.ContentStrategy
 import com.xah.container.util.LocalSharedRegistry
+import kotlin.math.abs
+import kotlin.math.sign
 
 @Composable
 fun SharedContainerOverlay() {
@@ -36,6 +38,10 @@ fun SharedContainerOverlay() {
         key(state) {
             val container = state.containerRect!!
             val content = state.contentRect!!
+
+            val progress = state.animation.value
+            val safelyProgress = (progress * registry.speedUpRadio).coerceIn(0f,1f)
+
 
             val cCenterX = container.left + container.width / 2f
             val cCenterY = container.top + container.height / 2f
@@ -58,10 +64,30 @@ fun SharedContainerOverlay() {
                 else -> 0f
             }
 
-            val tiltStrength = registry.tiltStrength
+            val maxTilt = registry.tiltMaxValue
+            val tiltStrengthY = if (registry.enableTilt) {
+                val heightDelta = abs(content.height - container.height)
+                val norm = (heightDelta / content.height).coerceIn(0f, 1f)
+                val factor = 1f - (1f - norm) * (1f - norm)
+                val dir = sign(cCenterY - tCenterY)
 
-            val progress = state.animation.value
-            val safelyProgress = (progress * registry.speedUpRadio).coerceIn(0f,1f)
+                abs(maxTilt * factor * dir)
+            } else {
+                0f
+            }
+
+            val tiltStrengthX = if (registry.enableTilt) {
+                val widthDelta = abs(content.width - container.width)
+                val norm = (widthDelta / content.width).coerceIn(0f, 1f)
+                val factor = 1f - (1f - norm) * (1f - norm)
+                val dir = sign(cCenterX - tCenterX)
+
+                abs(maxTilt * factor * dir)
+            } else {
+                0f
+            }
+
+            val currentTilt = (1f - abs(2f * safelyProgress - 1f))
 
             val parent = registry.rectInterpolator(progress, container, content)
 
@@ -90,9 +116,8 @@ fun SharedContainerOverlay() {
                         translationX = parent.left
                         translationY = parent.top
 
-                        val currentTilt = tiltStrength * (1f - kotlin.math.abs(2f * safelyProgress - 1f))
-                        rotationX = dirX*currentTilt
-                        rotationY = dirY*currentTilt
+                        rotationX = dirX*currentTilt*tiltStrengthX
+                        rotationY = dirY*currentTilt*tiltStrengthY
                     }
                     .size(
                         with(density) { parent.width.toDp() },
