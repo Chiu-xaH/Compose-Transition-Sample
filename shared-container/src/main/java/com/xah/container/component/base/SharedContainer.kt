@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.xah.container.model.ContainerFilledStrategy
+import com.xah.container.model.ContentStrategy
 import com.xah.container.model.StatePause
 import com.xah.container.util.LocalSharedRegistry
 
@@ -68,9 +69,17 @@ private fun Modifier.sharedContainer(
         return@composed this
     }
     val state = remember { registry.register(key) }
-    val isFullScreen = state.isFullScreen
-    val graphicsLayer = rememberGraphicsLayer()
-    val graphicsLayerForPixel = if(containerFilledStrategy.getFinalStrategy(registry.enableShader) is ContainerFilledStrategy.Pixel) {
+    val contentStrategy = state.contentStrategy
+
+    val graphicsLayer = if(contentStrategy !is ContentStrategy.Reveal) {
+        rememberGraphicsLayer()
+    } else {
+        null
+    }
+    val graphicsLayerForPixel = if(
+        containerFilledStrategy.getFinalStrategy(registry.enableShader) is ContainerFilledStrategy.Pixel &&
+        contentStrategy !is ContentStrategy.Reveal
+    ) {
         rememberGraphicsLayer()
     } else {
         null
@@ -95,27 +104,34 @@ private fun Modifier.sharedContainer(
                     }
                 }
                 StatePause.CONTENT -> {
-                    if(!isFullScreen) {
+                    if(contentStrategy is ContentStrategy.FloatingWindow) {
                         it.drawWithContent {}
                     } else {
                         it
                     }
                 }
                 StatePause.MEASURING_CONTAINER -> {
-                    it
-                        .graphicsLayer(alpha = 0f)
+                    if(contentStrategy !is ContentStrategy.Reveal) {
+                        it.graphicsLayer(alpha = 0f)
+                    } else {
+                        it
+                    }
                         .drawWithContent {
                             drawContent()
                         }
                 }
                 StatePause.TRANSITING -> {
-                    it.drawWithContent {
-                        graphicsLayerForPixel?.record {
-                            this@drawWithContent.drawContent()
+                    if(contentStrategy !is ContentStrategy.Reveal) {
+                        it.drawWithContent {
+                            graphicsLayerForPixel?.record {
+                                this@drawWithContent.drawContent()
+                            }
+                            graphicsLayer?.record {
+                                this@drawWithContent.drawContent()
+                            }
                         }
-                        graphicsLayer.record {
-                            this@drawWithContent.drawContent()
-                        }
+                    } else {
+                        it
                     }
                 }
                 else -> {
@@ -140,30 +156,36 @@ private fun Modifier.sharedContainer(
 fun Modifier.sharedContent(
     key : String,
     shape: CornerBasedShape,
-    isFullScreen : Boolean = true,
+    contentStrategy: ContentStrategy = ContentStrategy.Navigation,
 ): Modifier {
     return this
         .let {
-            if(isFullScreen) {
-                it
-            } else {
-                it.clip(shape)
+            when(contentStrategy) {
+                ContentStrategy.Reveal -> {
+                    it.clip(shape)
+                }
+                ContentStrategy.Navigation -> {
+                    it
+                }
+                ContentStrategy.FloatingWindow -> {
+                    it.clip(shape)
+                }
             }
         }
-        .mSharedContent(key,shape,isFullScreen)
+        .mSharedContent(key,shape,contentStrategy)
 }
 
 private fun Modifier.mSharedContent(
     key : String,
     shape: CornerBasedShape,
-    isFullScreen : Boolean,
+    contentStrategy: ContentStrategy,
 ): Modifier = composed {
     val registry = LocalSharedRegistry.current
     if(!registry.enabled) {
         return@composed this
     }
 
-    val state = remember { registry.get(key,isFullScreen) }
+    val state = remember { registry.get(key,contentStrategy) }
     if(state == null) {
         return@composed this
     }
@@ -229,12 +251,12 @@ fun SharedContent(
     key : String,
     modifier : Modifier = Modifier,
     shape : CornerBasedShape = RoundedCornerShape(ScreenCornerHelper.corner),
-    isFullScreen : Boolean = true,
+    contentStrategy: ContentStrategy = ContentStrategy.Navigation,
     content : @Composable () -> Unit
 )  {
     Box(modifier = modifier) {
         Box(
-            modifier = Modifier.sharedContent(key,shape,isFullScreen)
+            modifier = Modifier.sharedContent(key,shape,contentStrategy)
         ) {
             content()
         }

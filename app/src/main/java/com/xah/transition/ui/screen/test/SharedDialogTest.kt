@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.xah.container.component.base.SharedContainer
 import com.xah.container.component.base.SharedContent
 import com.xah.container.component.base.SharedContainerRoot
+import com.xah.container.model.ContentStrategy
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.container.util.LocalSharedRegistrySafely
 import com.xah.transition.R
@@ -50,7 +51,7 @@ fun SharedDialogTest() {
                 SharedContent(
                     key = key,
                     shape = MaterialTheme.shapes.large,
-                    isFullScreen = false,
+                    contentStrategy = ContentStrategy.FloatingWindow,
                     modifier = Modifier.padding(horizontal = APP_HORIZONTAL_DP)
                 ) {
                     Surface(

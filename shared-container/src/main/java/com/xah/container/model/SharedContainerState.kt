@@ -29,10 +29,9 @@ class SharedContainerState(
     var contentCorner: CornerBasedShape = RoundedCornerShape(ScreenCornerHelper.corner)
     // 容器填充策略
     var containerFilledStrategy : ContainerFilledStrategy = ContainerFilledStrategy.Pixel()
+    var contentStrategy : ContentStrategy = ContentStrategy.Navigation
 
     val animation = Animatable(0f)
     // 当前所处状态
     var currentState by mutableStateOf(StatePause.CONTAINER)
-
-    var isFullScreen = true
 }

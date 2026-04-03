@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.sharednav.common.util.LogUtil
 import com.xah.container.component.base.SharedContainer
 import com.xah.container.component.base.SharedContent
+import com.xah.container.model.ContentStrategy
 import com.xah.floating.component.FloatingRoot
 import com.xah.floating.model.Window
 import com.xah.floating.util.LocalFloatingController
@@ -45,7 +46,7 @@ data class ConfirmFloating(
             SharedContent(
                 key = key,
                 shape = RoundedCornerShape(20.dp),
-                isFullScreen = false,
+                contentStrategy = ContentStrategy.FloatingWindow,
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .align(Alignment.Center)
@@ -90,7 +91,7 @@ data class InfoFloating(private val title: String) : Window() {
 
         SharedContent(
             key = this.key,
-            isFullScreen = false,
+            contentStrategy = ContentStrategy.FloatingWindow,
             shape = RoundedCornerShape(20.dp),
             modifier = Modifier.padding(APP_HORIZONTAL_DP)
         ) {

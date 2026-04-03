@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.xah.container.component.base.SharedContent
+import com.xah.container.model.ContentStrategy
 import com.xah.floating.model.Window
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 
@@ -26,7 +27,7 @@ data class DialogFloatingWindow(val index : Int) : Window() {
                 SharedContent(
                     key = key,
                     shape = MaterialTheme.shapes.large,
-                    isFullScreen = false,
+                    contentStrategy = ContentStrategy.FloatingWindow,
                     modifier = Modifier.padding(horizontal = APP_HORIZONTAL_DP)
                 ) {
                     Surface(

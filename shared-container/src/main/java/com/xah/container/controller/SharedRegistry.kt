@@ -15,6 +15,7 @@ import com.sharednav.common.util.LogUtil
 import com.xah.container.anim.LinearRectInterpolator
 import com.xah.container.anim.RectInterpolator
 import com.xah.container.model.ContainerFilledStrategy
+import com.xah.container.model.ContentStrategy
 import com.xah.container.model.SharedContainerState
 import com.xah.container.model.StatePause
 import kotlinx.coroutines.CoroutineScope
@@ -87,10 +88,10 @@ class SharedRegistry(
 
     fun get(
         key: String,
-        isFullScreen : Boolean
+        contentStrategy : ContentStrategy
     ): SharedContainerState? {
         val state = states[key]
-        state?.isFullScreen = isFullScreen
+        state?.contentStrategy = contentStrategy
         return state
     }
 
