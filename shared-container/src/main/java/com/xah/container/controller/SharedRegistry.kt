@@ -65,7 +65,9 @@ class SharedRegistry(
     var rectInterpolator: RectInterpolator = LinearRectInterpolator
 
     // 渐隐、圆角变化比容器变化时长
-    val speedUpRadio = 1.5f
+    var speedUpRadio = 1.5f
+
+    var tiltStrength = 7.5f
 
     // 单边填充or双边填充
     var extensionDouble by mutableStateOf(false)

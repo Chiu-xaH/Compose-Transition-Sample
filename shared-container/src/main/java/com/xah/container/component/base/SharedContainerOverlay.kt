@@ -37,6 +37,29 @@ fun SharedContainerOverlay() {
             val container = state.containerRect!!
             val content = state.contentRect!!
 
+            val cCenterX = container.left + container.width / 2f
+            val cCenterY = container.top + container.height / 2f
+
+            val tCenterX = content.left + content.width / 2f
+            val tCenterY = content.top + content.height / 2f
+
+            val dx = cCenterX - tCenterX
+            val dy = cCenterY - tCenterY
+
+            val dirY = when {
+                dx > 0 -> 1f
+                dx < 0 -> -1f
+                else -> 0f
+            }
+
+            val dirX = when {
+                dy > 0 -> -1f
+                dy < 0 -> 1f
+                else -> 0f
+            }
+
+            val tiltStrength = registry.tiltStrength
+
             val progress = state.animation.value
             val safelyProgress = (progress * registry.speedUpRadio).coerceIn(0f,1f)
 
@@ -66,6 +89,10 @@ fun SharedContainerOverlay() {
                     .graphicsLayer {
                         translationX = parent.left
                         translationY = parent.top
+
+                        val currentTilt = tiltStrength * (1f - kotlin.math.abs(2f * safelyProgress - 1f))
+                        rotationX = dirX*currentTilt
+                        rotationY = dirY*currentTilt
                     }
                     .size(
                         with(density) { parent.width.toDp() },
