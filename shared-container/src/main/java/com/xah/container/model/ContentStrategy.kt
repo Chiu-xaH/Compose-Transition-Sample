@@ -14,5 +14,5 @@ sealed interface ContentStrategy {
     /**
      * container不会隐藏也不会运动，content以透明开始从container出来过渡
      */
-    data object Reveal : ContentStrategy
+    data object Copy : ContentStrategy
 }

@@ -3,7 +3,6 @@ package com.xah.container.component.base
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -71,14 +70,14 @@ private fun Modifier.sharedContainer(
     val state = remember { registry.register(key) }
     val contentStrategy = state.contentStrategy
 
-    val graphicsLayer = if(contentStrategy !is ContentStrategy.Reveal) {
+    val graphicsLayer = if(contentStrategy !is ContentStrategy.Copy) {
         rememberGraphicsLayer()
     } else {
         null
     }
     val graphicsLayerForPixel = if(
         containerFilledStrategy.getFinalStrategy(registry.enableShader) is ContainerFilledStrategy.Pixel &&
-        contentStrategy !is ContentStrategy.Reveal
+        contentStrategy !is ContentStrategy.Copy
     ) {
         rememberGraphicsLayer()
     } else {
@@ -111,7 +110,7 @@ private fun Modifier.sharedContainer(
                     }
                 }
                 StatePause.MEASURING_CONTAINER -> {
-                    if(contentStrategy !is ContentStrategy.Reveal) {
+                    if(contentStrategy !is ContentStrategy.Copy) {
                         it.graphicsLayer(alpha = 0f)
                     } else {
                         it
@@ -121,7 +120,7 @@ private fun Modifier.sharedContainer(
                         }
                 }
                 StatePause.TRANSITING -> {
-                    if(contentStrategy !is ContentStrategy.Reveal) {
+                    if(contentStrategy !is ContentStrategy.Copy) {
                         it.drawWithContent {
                             graphicsLayerForPixel?.record {
                                 this@drawWithContent.drawContent()
@@ -161,7 +160,7 @@ fun Modifier.sharedContent(
     return this
         .let {
             when(contentStrategy) {
-                ContentStrategy.Reveal -> {
+                ContentStrategy.Copy -> {
                     it.clip(shape)
                 }
                 ContentStrategy.Navigation -> {

@@ -39,8 +39,10 @@ fun SharedContainerOverlay() {
             val container = state.containerRect!!
             val content = state.contentRect!!
 
+            val useContainer = state.contentStrategy !is ContentStrategy.Copy
+
             val progress = state.animation.value
-            val safelyProgress = (progress * registry.speedUpRadio).coerceIn(0f,1f)
+            val safelyProgress = (progress * registry.speedUpRadio * if(useContainer) 1f else 2f).coerceIn(0f,1f)
 
 
             val cCenterX = container.left + container.width / 2f
@@ -95,7 +97,6 @@ fun SharedContainerOverlay() {
             val corner = lerp(state.containerCorner,state.contentCorner,safelyProgress)
 
             val containerFilledStrategy = state.containerFilledStrategy.getFinalStrategy(registry.enableShader)
-            val useContainer = state.contentStrategy !is ContentStrategy.Reveal
 
             val heightW = container.height / content.height
             val widthW = container.width / content.width
