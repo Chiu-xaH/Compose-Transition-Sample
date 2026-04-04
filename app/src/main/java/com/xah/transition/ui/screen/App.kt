@@ -212,7 +212,7 @@ fun HomeScreen() {
                         Surface(
                             color = MaterialTheme.colorScheme.primaryContainer,
                             shape = MaterialTheme.shapes.small,
-                            modifier = Modifier.padding(horizontal = CARD_NORMAL_DP*2, vertical = CARD_NORMAL_DP)
+                            modifier = Modifier.padding(CARD_NORMAL_DP*2)
                         ) {
                             TransplantListItem(
                                 headlineContent = {
@@ -307,6 +307,28 @@ fun HomeScreen() {
                                 },
                                 modifier = Modifier.clickable {
                                     registry.extensionDouble = !registry.extensionDouble
+                                },
+                            )
+                        }
+                    }
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Surface(
+                            color = cardNormalColor(),
+                            shape = MaterialTheme.shapes.small,
+                            modifier = Modifier.padding(CARD_NORMAL_DP*2)
+                        ) {
+                            TransplantListItem(
+                                headlineContent = {
+                                    Text("倾斜效果")
+                                },
+                                leadingContent = {
+                                    Icon(painterResource(R.drawable.texture),null)
+                                },
+                                trailingContent = {
+                                    Switch(registry.enableTilt, onCheckedChange = { registry.enableTilt = it })
+                                },
+                                modifier = Modifier.clickable {
+                                    registry.enableTilt = !registry.enableTilt
                                 },
                             )
                         }

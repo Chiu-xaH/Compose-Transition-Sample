@@ -41,66 +41,74 @@ fun SharedContainerOverlay() {
 
             val useContainer = state.contentStrategy !is ContentStrategy.Copy
 
+            // 进度
             val progress = state.animation.value
             val safelyProgress = (progress * registry.speedUpRadio * if(useContainer) 1f else 2f).coerceIn(0f,1f)
 
-
-            val cCenterX = container.left + container.width / 2f
-            val cCenterY = container.top + container.height / 2f
-
-            val tCenterX = content.left + content.width / 2f
-            val tCenterY = content.top + content.height / 2f
-
-            val dx = cCenterX - tCenterX
-            val dy = cCenterY - tCenterY
-
-            val dirY = when {
-                dx > 0 -> 1f
-                dx < 0 -> -1f
-                else -> 0f
-            }
-
-            val dirX = when {
-                dy > 0 -> -1f
-                dy < 0 -> 1f
-                else -> 0f
-            }
-
-            val maxTilt = registry.tiltMaxValue
-            val tiltStrengthY = if (registry.enableTilt) {
-                val heightDelta = abs(content.height - container.height)
-                val norm = (heightDelta / content.height).coerceIn(0f, 1f)
-                val factor = 1f - (1f - norm) * (1f - norm)
-                val dir = sign(cCenterY - tCenterY)
-
-                abs(maxTilt * factor * dir)
-            } else {
-                0f
-            }
-
-            val tiltStrengthX = if (registry.enableTilt) {
-                val widthDelta = abs(content.width - container.width)
-                val norm = (widthDelta / content.width).coerceIn(0f, 1f)
-                val factor = 1f - (1f - norm) * (1f - norm)
-                val dir = sign(cCenterX - tCenterX)
-
-                abs(maxTilt * factor * dir)
-            } else {
-                0f
-            }
-
-            val currentTilt = (1f - abs(2f * safelyProgress - 1f))
-
+            // 路径曲线
             val parent = registry.rectInterpolator(progress, container, content)
 
             val contentAlpha = lerp(0f,1f,safelyProgress)
             val corner = lerp(state.containerCorner,state.contentCorner,safelyProgress)
 
-            val containerFilledStrategy = state.containerFilledStrategy.getFinalStrategy(registry.enableShader)
+            // 倾斜计算
+            val maxTilt = registry.tiltMaxValue
+            val (roX, roY) = if (registry.enableTilt) {
 
+                val cCenterX = container.left + container.width / 2f
+                val cCenterY = container.top + container.height / 2f
+
+                val tCenterX = content.left + content.width / 2f
+                val tCenterY = content.top + content.height / 2f
+
+                val dx = cCenterX - tCenterX
+                val dy = cCenterY - tCenterY
+
+                val dirY = when {
+                    dx > 0 -> 1f
+                    dx < 0 -> -1f
+                    else -> 0f
+                }
+
+                val dirX = when {
+                    dy > 0 -> -1f
+                    dy < 0 -> 1f
+                    else -> 0f
+                }
+
+                val dxNorm = (dx / content.width).coerceIn(-1f, 1f)
+                val dyNorm = (dy / content.height).coerceIn(-1f, 1f)
+
+                val widthDelta = abs(content.width - container.width)
+                val heightDelta = abs(content.height - container.height)
+
+                val widthFactor = 1f - (1f - (widthDelta / content.width).coerceIn(0f, 1f)).let { it * it }
+                val heightFactor = 1f - (1f - (heightDelta / content.height).coerceIn(0f, 1f)).let { it * it }
+
+                val tiltStrengthX1 = abs(maxTilt * heightFactor * dyNorm)
+                val tiltStrengthY1 = abs(maxTilt * widthFactor * dxNorm)
+
+                val tiltStrengthX2 = abs(maxTilt * widthFactor * sign(dx))
+                val tiltStrengthY2 = abs(maxTilt * heightFactor * sign(dy))
+
+                val tiltStrengthX = minOf(tiltStrengthX1, tiltStrengthX2)
+                val tiltStrengthY = minOf(tiltStrengthY1, tiltStrengthY2)
+
+                val currentTilt = (1f - abs(2f * safelyProgress - 1f))
+
+                Pair(
+                    dirX * currentTilt * tiltStrengthX,
+                    dirY * currentTilt * tiltStrengthY
+                )
+
+            } else {
+                Pair(0f, 0f)
+            }
+
+            // 填充策略
+            val containerFilledStrategy = state.containerFilledStrategy.getFinalStrategy(registry.enableShader)
             val heightW = container.height / content.height
             val widthW = container.width / content.width
-
             val isHorizontal = if(heightW > widthW) {
                 // 左右填充
                 true
@@ -117,8 +125,8 @@ fun SharedContainerOverlay() {
                         translationX = parent.left
                         translationY = parent.top
 
-                        rotationX = dirX*currentTilt*tiltStrengthX
-                        rotationY = dirY*currentTilt*tiltStrengthY
+                        rotationX = roX
+                        rotationY = roY
                     }
                     .size(
                         with(density) { parent.width.toDp() },
