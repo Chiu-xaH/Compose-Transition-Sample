@@ -57,10 +57,15 @@ class SharedRegistry(
     var popX2 by mutableFloatStateOf(0.15f)
     var popY2 by mutableFloatStateOf(1.0f)
 
-    fun getPushAnimation() = tween<Float>(animationTime, easing = CubicBezierEasing(pushX1,pushY1,pushX2,pushY2))
-    fun getPopAnimation() = tween<Float>(animationTime, easing = CubicBezierEasing(popX1,popY1,popX2,popY2))
+    fun <T>getPushAnimation() = tween<T>(animationTime, easing = CubicBezierEasing(pushX1,pushY1,pushX2,pushY2))
+    fun <T>getPopAnimation() = tween<T>(animationTime, easing = CubicBezierEasing(popX1,popY1,popX2,popY2))
 
-    var rectInterpolator: RectInterpolator = LinearRectInterpolator
+    var FullScreenRectInterpolator: RectInterpolator = LinearRectInterpolator
+        private set
+
+    fun initFullScreenRectInterpolator(interpolator: RectInterpolator) {
+        FullScreenRectInterpolator = interpolator
+    }
 
     // 渐隐、圆角变化比容器变化时长
     var speedUpRadio = 1.5f

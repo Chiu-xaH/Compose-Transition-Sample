@@ -1,4 +1,4 @@
-package com.xah.container.component.base
+package com.xah.container.component.overlay
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.zIndex
 import com.sharednav.common.util.lerp
+import com.xah.container.anim.LinearRectInterpolator
 import com.xah.container.util.pixelExtension
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.model.ContentStrategy
@@ -46,7 +47,13 @@ fun SharedContainerOverlay() {
             val safelyProgress = (progress * registry.speedUpRadio * if(useContainer) 1f else 2f).coerceIn(0f,1f)
 
             // 路径曲线
-            val parent = registry.rectInterpolator(progress, container, content)
+            val parent = (
+                    if(!state.useLinearRectInterpolator) {
+                        registry.FullScreenRectInterpolator
+                    } else{
+                        LinearRectInterpolator
+                    }
+            ).invoke(progress, container, content)
 
             val contentAlpha = lerp(0f,1f,safelyProgress)
             val corner = lerp(state.containerCorner,state.contentCorner,safelyProgress)

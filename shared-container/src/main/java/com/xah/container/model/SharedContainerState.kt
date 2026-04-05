@@ -34,4 +34,6 @@ class SharedContainerState(
     val animation = Animatable(0f)
     // 当前所处状态
     var currentState by mutableStateOf(StatePause.CONTAINER)
+
+    var useLinearRectInterpolator : Boolean = false
 }

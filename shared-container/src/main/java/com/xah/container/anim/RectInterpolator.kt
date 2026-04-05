@@ -16,10 +16,10 @@ val LinearRectInterpolator: RectInterpolator = { t, from, to ->
 }
 
 fun QuadraticBezierRectInterpolator(
-    screenHeight: Float,
-    screenWidth: Float,
-    maxVerticalArc: Float = screenHeight / 2f,
-    maxHorizontalArc: Float = screenWidth / 3f
+    contentHeight: Float,
+    contentWidth: Float,
+    maxVerticalArc: Float = contentHeight / 2f,
+    maxHorizontalArc: Float = contentWidth / 3f
 ): RectInterpolator = { t, from, to ->
 
     val startCenter = Offset(
@@ -33,11 +33,11 @@ fun QuadraticBezierRectInterpolator(
     )
 
     val avgY = (startCenter.y + endCenter.y) / 2f
-    val normalizedY = ((avgY / screenHeight) - 0.5f) * 2f
+    val normalizedY = ((avgY / contentHeight) - 0.5f) * 2f
     val verticalArc = -normalizedY * maxVerticalArc
 
     val avgX = (startCenter.x + endCenter.x) / 2f
-    val normalizedX = ((avgX / screenWidth) - 0.5f) * 2f
+    val normalizedX = ((avgX / contentWidth) - 0.5f) * 2f
     val horizontalArc = -normalizedX * maxHorizontalArc
 
     val control = Offset(

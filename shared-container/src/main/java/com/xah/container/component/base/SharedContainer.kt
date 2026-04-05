@@ -156,6 +156,7 @@ fun Modifier.sharedContent(
     key : String,
     shape: CornerBasedShape,
     contentStrategy: ContentStrategy = ContentStrategy.Navigation,
+    useLinearRectInterpolator: Boolean = contentStrategy is ContentStrategy.Copy,
 ): Modifier {
     return this
         .let {
@@ -171,13 +172,14 @@ fun Modifier.sharedContent(
                 }
             }
         }
-        .mSharedContent(key,shape,contentStrategy)
+        .mSharedContent(key,shape,contentStrategy,useLinearRectInterpolator)
 }
 
 private fun Modifier.mSharedContent(
     key : String,
     shape: CornerBasedShape,
     contentStrategy: ContentStrategy,
+    useLinearRectInterpolator : Boolean
 ): Modifier = composed {
     val registry = LocalSharedRegistry.current
     if(!registry.enabled) {
@@ -198,17 +200,25 @@ private fun Modifier.mSharedContent(
         state.contentLayer = graphicsLayer
     }
 
+    LaunchedEffect(Unit) {
+        state.useLinearRectInterpolator = useLinearRectInterpolator
+    }
+
     this
         .let {
             when(state.currentState) {
                 StatePause.CONTENT -> {
-                    it.drawWithContent {
-                        drawContent()
-                    }
+                    it
                 }
                 StatePause.MEASURING_CONTENT -> {
                     it
-                        .graphicsLayer(alpha = 0f)
+                        .let {
+                            if(contentStrategy !is ContentStrategy.Copy) {
+                                it.graphicsLayer(alpha = 0f)
+                            } else {
+                                it
+                            }
+                        }
                         .drawWithContent {
                             drawContent()
                         }
@@ -251,11 +261,12 @@ fun SharedContent(
     modifier : Modifier = Modifier,
     shape : CornerBasedShape = RoundedCornerShape(ScreenCornerHelper.corner),
     contentStrategy: ContentStrategy = ContentStrategy.Navigation,
+    useLinearRectInterpolator: Boolean = contentStrategy is ContentStrategy.Copy,
     content : @Composable () -> Unit
 )  {
     Box(modifier = modifier) {
         Box(
-            modifier = Modifier.sharedContent(key,shape,contentStrategy)
+            modifier = Modifier.sharedContent(key,shape,contentStrategy,useLinearRectInterpolator)
         ) {
             content()
         }

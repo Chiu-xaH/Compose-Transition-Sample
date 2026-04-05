@@ -1,4 +1,4 @@
-package com.xah.container.component.base
+package com.xah.container.component.overlay
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -7,6 +7,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -14,6 +15,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sharednav.common.helper.ScreenCornerHelper
+import com.sharednav.common.util.LogUtil
 import com.xah.container.anim.QuadraticBezierRectInterpolator
 import com.xah.container.controller.SharedRegistry
 import com.xah.container.controller.SharedRegistryViewModel
@@ -48,7 +50,15 @@ fun SharedContainerRoot(
         configuration.screenWidthDp.dp.toPx()
     }
 
-    registry.rectInterpolator = QuadraticBezierRectInterpolator(screenHeightPx,screenWidthPx)
+    LaunchedEffect(screenWidthPx, screenHeightPx) {
+        LogUtil.debug("init FullScreenRectInterpolator")
+        registry.initFullScreenRectInterpolator(
+            QuadraticBezierRectInterpolator(
+                screenHeightPx,
+                screenWidthPx
+            )
+        )
+    }
 
     CompositionLocalProvider(
         LocalSharedRegistrySafely provides registry,

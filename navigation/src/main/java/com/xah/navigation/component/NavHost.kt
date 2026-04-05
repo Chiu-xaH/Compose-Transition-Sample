@@ -12,7 +12,7 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sharednav.common.modifier.touchEvent
-import com.xah.container.component.base.SharedContainerRoot
+import com.xah.container.component.overlay.SharedContainerRoot
 import com.xah.container.component.base.SharedContent
 import com.xah.container.controller.SharedRegistry
 import com.xah.container.util.LocalSharedRegistry

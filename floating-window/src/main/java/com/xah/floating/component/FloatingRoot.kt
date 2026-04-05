@@ -12,6 +12,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xah.container.controller.SharedRegistry
+import com.xah.container.util.LocalSharedRegistrySafely
 import com.xah.floating.anim.DefaultEffects
 import com.xah.floating.anim.backgroundEffect
 import com.xah.floating.controller.FloatingController
@@ -50,13 +51,25 @@ fun FloatingRoot(
     backHandler : @Composable () -> Unit = { FloatingBackHandler() },
     content: @Composable () -> Unit,
 ) {
+    val inOverlay = controller.inOverlay
     CompositionLocalProvider(
         LocalFloatingControllerSafely provides controller,
         LocalFloatingController provides controller,
     ) {
+        val registry = LocalSharedRegistrySafely.current
+        val animationSpec = if(registry?.isRunning == true) {
+            if(inOverlay) {
+                registry.getPopAnimation()
+            } else {
+                registry.getPushAnimation()
+            }
+        } else {
+            controller.effect.backgroundEffect.animationSpec
+        }
+
         val progress by animateFloatAsState(
-            targetValue = if(controller.inOverlay) 0f else 1f,
-            animationSpec = controller.effect.backgroundEffect.animationSpec
+            targetValue = if(inOverlay) 0f else 1f,
+            animationSpec = animationSpec
         )
         val effect = controller.effect.backgroundEffect.pageEffect.lerp(progress)
 

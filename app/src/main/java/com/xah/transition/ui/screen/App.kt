@@ -82,7 +82,9 @@ import com.xah.transition.model.AppIconBean
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CARD_NORMAL_DP
 import com.xah.transition.ui.component.CardListItem
+import com.xah.transition.ui.component.CustomCard
 import com.xah.transition.ui.component.CustomSlider
+import com.xah.transition.ui.component.DividerTextExpandedWithShared
 import com.xah.transition.ui.component.TransplantListItem
 import com.xah.transition.ui.component.cardNormalColor
 import com.xah.transition.ui.screen.destination.AppIconDestination
@@ -398,14 +400,22 @@ fun SecondScreen() {
     ) {
         LazyColumn {
             items(30) {
-                CardListItem(
-                    headlineContent = {
-                        Text("测试$it")
-                    },
-                    modifier = Modifier.clickable {
-                        navController.push(ThirdDestination)
+                DividerTextExpandedWithShared("副标题$it") {
+                    CustomCard(
+                        color = cardNormalColor(),
+                        modifier = Modifier.clickable {
+                            navController.push(ThirdDestination)
+                        }
+                    ) {
+                        repeat(3) { r ->
+                            TransplantListItem(
+                                headlineContent = {
+                                    Text("测试${it}_$r")
+                                },
+                            )
+                        }
                     }
-                )
+                }
             }
         }
     }

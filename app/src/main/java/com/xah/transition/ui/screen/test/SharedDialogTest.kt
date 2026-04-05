@@ -27,7 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.xah.container.component.base.SharedContainer
 import com.xah.container.component.base.SharedContent
-import com.xah.container.component.base.SharedContainerRoot
+import com.xah.container.component.overlay.SharedContainerRoot
 import com.xah.container.model.ContentStrategy
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.container.util.LocalSharedRegistrySafely
