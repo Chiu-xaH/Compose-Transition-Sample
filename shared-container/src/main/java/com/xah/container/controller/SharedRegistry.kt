@@ -2,6 +2,7 @@ package com.xah.container.controller
 
 import android.os.Build
 import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -10,6 +11,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateMap
+import androidx.compose.ui.geometry.Rect
 import com.sharednav.common.util.LogUtil
 import com.xah.container.anim.LinearRectInterpolator
 import com.xah.container.anim.RectInterpolator
@@ -47,6 +49,41 @@ class SharedRegistry(
      */
     var waitFrameMaxValue by mutableIntStateOf(10)
 
+    // 自定义曲线
+    var pushEasing : Easing? = null
+    var popEasing : Easing? = null
+    /*
+    TransitEasing { t,container,content ->
+        val bezier = CubicBezierEasing(popX1, popY1, popX2, popY2)
+        val base = bezier.transform(t)
+
+        val w = t * t * (3 - 2 * t)
+
+        val s = 0.4f
+        val x = t - 1f
+        val back = x * x * ((s + 1f) * x + s) + 1f
+
+        base + (back - base) * (w * w)
+    }
+     */
+
+    // TODO 待启用
+    fun interface TransitEasing {
+        fun transform(
+            t: Float,
+            container: Rect,
+            content: Rect
+        ): Float
+    }
+
+    fun TransitEasing.asEasing(
+        container: Rect,
+        content: Rect
+    ): Easing = Easing { t ->
+        this.transform(t, container, content)
+    }
+
+    // 自定义预设曲线
     var pushX1 by mutableFloatStateOf(0.4f)
     var pushY1 by mutableFloatStateOf(0.65f)
     var pushX2 by mutableFloatStateOf(0.25f)
@@ -57,8 +94,9 @@ class SharedRegistry(
     var popX2 by mutableFloatStateOf(0.15f)
     var popY2 by mutableFloatStateOf(1.0f)
 
-    fun <T>getPushAnimation() = tween<T>(animationTime, easing = CubicBezierEasing(pushX1,pushY1,pushX2,pushY2))
-    fun <T>getPopAnimation() = tween<T>(animationTime, easing = CubicBezierEasing(popX1,popY1,popX2,popY2))
+
+    fun <T>getPushAnimation() = tween<T>(animationTime, easing = pushEasing ?: CubicBezierEasing(pushX1,pushY1,pushX2,pushY2))
+    fun <T>getPopAnimation() = tween<T>(animationTime, easing = popEasing ?: CubicBezierEasing(popX1,popY1,popX2,popY2))
 
     var FullScreenRectInterpolator: RectInterpolator = LinearRectInterpolator
         private set
@@ -72,6 +110,7 @@ class SharedRegistry(
 
     // 倾斜效果
     var enableTilt by mutableStateOf(true)
+    // 最大变化值
     var tiltMaxValue = 20f
 
     // 单边填充or双边填充
@@ -168,7 +207,6 @@ class SharedRegistry(
         snap(state,true)
         // 开始标识位
         state.currentState = StatePause.TRANSITING
-
         state.animation.animateTo(1f,getPushAnimation())
         onAnimatedFinished?.let { it() }
         state.containerRect = null
@@ -196,9 +234,7 @@ class SharedRegistry(
         snap(state,false)
         // 开始标识位
         state.currentState = StatePause.TRANSITING
-
         state.animation.animateTo(0f,getPopAnimation())
-
         onAnimatedFinished?.let { it() }
         state.contentRect = null
         // 结束标志位

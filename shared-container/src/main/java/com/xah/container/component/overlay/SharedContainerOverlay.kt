@@ -101,7 +101,7 @@ fun SharedContainerOverlay() {
                 val tiltStrengthX = minOf(tiltStrengthX1, tiltStrengthX2)
                 val tiltStrengthY = minOf(tiltStrengthY1, tiltStrengthY2)
 
-                val currentTilt = (1f - abs(2f * safelyProgress - 1f))
+                val currentTilt = 1f - abs(2f * safelyProgress - 1f)
 
                 Pair(
                     dirX * currentTilt * tiltStrengthX,
