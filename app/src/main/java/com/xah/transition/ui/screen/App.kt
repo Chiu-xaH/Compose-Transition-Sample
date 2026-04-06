@@ -112,7 +112,7 @@ fun App() {
         startDestination = HomeDestination,
         modifier = Modifier.background(MaterialTheme.colorScheme.surface),
         dependencies = dependencies,
-        effect = rememberDefaultPageEffectsEnhance(),
+//        effect = rememberDefaultPageEffectsEnhance(),
     )
 }
 
@@ -332,6 +332,28 @@ fun HomeScreen() {
                                 },
                                 modifier = Modifier.clickable {
                                     registry.enableTilt = !registry.enableTilt
+                                },
+                            )
+                        }
+                    }
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Surface(
+                            color = cardNormalColor(),
+                            shape = MaterialTheme.shapes.small,
+                            modifier = Modifier.padding(CARD_NORMAL_DP*2)
+                        ) {
+                            TransplantListItem(
+                                headlineContent = {
+                                    Text("预测式返回")
+                                },
+                                leadingContent = {
+                                    Icon(painterResource(R.drawable.ic_texture),null)
+                                },
+                                trailingContent = {
+                                    Switch(navController.enablePredictiveBack, onCheckedChange = { navController.enablePredictiveBack = it })
+                                },
+                                modifier = Modifier.clickable {
+                                    navController.enablePredictiveBack = !navController.enablePredictiveBack
                                 },
                             )
                         }

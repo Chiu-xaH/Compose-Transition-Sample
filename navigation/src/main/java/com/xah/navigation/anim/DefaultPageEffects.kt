@@ -2,8 +2,12 @@ package com.xah.navigation.anim
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.ScreenCornerHelper
@@ -14,7 +18,8 @@ import com.xah.navigation.model.anim.PageEffects
 
 @Composable
 fun rememberDefaultPageEffects(): PageEffects {
-    val corner = ScreenCornerHelper.corner
+    val view = LocalView.current
+    val corner = ScreenCornerHelper(view).getCornerDp()
     return remember(corner) {
         DefaultPageEffects(corner)
     }

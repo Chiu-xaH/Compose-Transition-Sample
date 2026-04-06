@@ -35,11 +35,12 @@ import com.xah.navigation.util.LocalNavDependencies
 @Composable
 fun rememberNavController(
     startDestination : Destination,
+    effects: PageEffects = rememberDefaultPageEffects(),
 ): NavigationController {
     val scope = rememberCoroutineScope()
     val navViewModel: NavigationViewModel = viewModel(factory = NavigationViewModel.Factory())
     val navController = remember(navViewModel) {
-        NavigationController(scope, startDestination, navViewModel.stack,null)
+        NavigationController(scope, startDestination, navViewModel.stack,effects,null)
     }
     return navController
 }
@@ -48,7 +49,6 @@ fun rememberNavController(
 fun SharedNavHost(
     navController: NavigationController,
     modifier: Modifier = Modifier,
-    effect: PageEffects = rememberDefaultPageEffects(),
     dependencies: Dependencies = Dependencies(),
     backHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
@@ -59,7 +59,6 @@ fun SharedNavHost(
                 navController,
                 registry,
                 modifier,
-                effect,
                 dependencies,
                 backHandler
             )
@@ -75,11 +74,10 @@ fun SharedNavHost(
     dependencies: Dependencies = Dependencies(),
     backHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
-    val navController = rememberNavController(startDestination)
+    val navController = rememberNavController(startDestination,effect)
     SharedNavHost(
         navController,
         modifier,
-        effect,
         dependencies,
         backHandler
     )
@@ -94,13 +92,12 @@ private fun NavHost(
     dependencies: Dependencies = Dependencies(),
     backHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
-    val navController = rememberNavController(startDestination)
+    val navController = rememberNavController(startDestination,effect)
 
     NavHost(
         navController,
         registry,
         modifier,
-        effect,
         dependencies,
         backHandler
     )
@@ -111,7 +108,6 @@ private fun NavHost(
     navController: NavigationController,
     registry: SharedRegistry,
     modifier: Modifier = Modifier,
-    effect: PageEffects = rememberDefaultPageEffects(),
     dependencies: Dependencies = Dependencies(),
     backHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
@@ -168,6 +164,7 @@ private fun NavHost(
         val level = navController.transitionLevel
         val enableBlur = navController.enableBlur
         val enableShader = navController.enableShader
+        val effect = navController.effects
 
         Box(modifier = modifier.fillMaxSize()) {
             visibleEntries.forEachIndexed { index, entry ->

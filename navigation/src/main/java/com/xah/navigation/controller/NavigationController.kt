@@ -10,11 +10,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import com.sharednav.common.util.LogUtil
 import com.xah.container.controller.SharedRegistry
+import com.xah.container.model.ContentStrategy
+import com.xah.container.model.SharedContainerState
+import com.xah.container.model.StatePause
 import com.xah.navigation.model.anim.EffectLevel
 import com.xah.navigation.model.anim.Transition
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.action.LaunchMode
+import com.xah.navigation.model.anim.PageEffects
 import com.xah.navigation.model.dest.Destination
 import com.xah.navigation.model.dest.StackEntry
 import kotlinx.coroutines.CoroutineScope
@@ -23,12 +28,13 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.UUID
-
+import kotlin.math.pow
 
 class NavigationController(
     private val scope: CoroutineScope,
     val startDestination: Destination,
     private val _stack: SnapshotStateList<StackEntry>,
+    val effects: PageEffects,
     var sharedRegistry : SharedRegistry? = null,
 ) {
     val stack: List<StackEntry> get() = _stack
@@ -43,6 +49,7 @@ class NavigationController(
 
     var enableBlur by mutableStateOf(Build.VERSION.SDK_INT >= 31)
     var enableShader by mutableStateOf(Build.VERSION.SDK_INT >= 33)
+    var enablePredictiveBack by mutableStateOf(Build.VERSION.SDK_INT >= 33)
     /**
      * 允许Destination.PlaceHolder生效，如果Destination.enforcePlaceHolder为true则不受enableSplashScreen限制
      */
@@ -282,6 +289,113 @@ class NavigationController(
     fun current() : StackEntry? = _stack.lastOrNull()
 
     fun canPop() : Boolean = _stack.size > 1
+
+    suspend fun startPredictiveBackShared() : SharedContainerState? {
+        val registry = sharedRegistry
+        if(registry == null) {
+            startPredictiveBack()
+            return null
+        } else {
+            return registry.startPredictiveBack(
+                stack.last().destination.key,
+            ) {
+                startPredictiveBack()
+            }
+        }
+    }
+
+    private fun startPredictiveBack() {
+        scope.launch {
+            if (_stack.size <= 1) return@launch
+            val from = _stack.last()
+            val to = _stack[_stack.lastIndex - 1]
+            transitionProgress.snapTo(1f)
+            transition = Transition(type = ActionType.POP, from = from, to = to)
+            isTransitioning = true
+        }
+    }
+
+    fun updatePredictiveBackShared(
+        progress: Float,
+        minValue : Float = effects.backgroundEffect.end.scale,
+        state : SharedContainerState?
+    ) {
+        scope.launch {
+            val registry = sharedRegistry
+            val eased = 1f - ((1f - minValue) * progress.pow(0.5f))
+
+            if (!(registry == null || state == null)) {
+                launch {
+                    registry.updatePredictiveBack(eased, state)
+                }
+            }
+            launch { updatePredictiveBack(eased) }
+        }
+    }
+
+    private fun updatePredictiveBack(
+        progress: Float,
+    ) {
+        scope.launch {
+            transitionProgress.snapTo(progress)
+        }
+    }
+
+
+    private fun confirmPredictiveBack() {
+        scope.launch {
+            transitionProgress.animateTo(0f, getAnimation())
+            removeAndPop()
+            transition = null
+            isTransitioning = false
+        }
+    }
+
+    fun confirmPredictiveBackShared(
+        state : SharedContainerState?
+    ) {
+        scope.launch {
+            val registry = sharedRegistry
+            if (!(registry == null || state == null)) {
+                launch {
+                    registry.confirmPredictiveBack(state) {
+                        snapshotFlow { isTransitioning }
+                            .filter { !it }
+                            .first()
+                    }
+                }
+            }
+            launch { confirmPredictiveBack() }
+        }
+    }
+
+    private fun cancelPredictiveBack() {
+        scope.launch {
+            transitionProgress.animateTo(1f, getAnimation())
+            transition = null
+            isTransitioning = false
+        }
+    }
+
+
+    fun cancelPredictiveBackShared(
+        state : SharedContainerState?
+    ) {
+        scope.launch {
+            val registry = sharedRegistry
+            if (!(registry == null || state == null)) {
+                launch {
+                    registry.cancelPredictiveBack(state) {
+                        snapshotFlow { isTransitioning }
+                            .filter { !it }
+                            .first()
+                    }
+                }
+            }
+            launch { cancelPredictiveBack() }
+        }
+    }
+
 
     init {
         if(_stack.isEmpty()) {

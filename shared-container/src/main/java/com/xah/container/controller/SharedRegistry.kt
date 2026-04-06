@@ -21,6 +21,7 @@ import com.xah.container.model.StatePause
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
+import kotlin.math.pow
 
 class SharedRegistry(
     private val scope: CoroutineScope,
@@ -312,5 +313,72 @@ class SharedRegistry(
                 return false
             }
         }
+    }
+
+    suspend fun findState(
+        key: String,
+        onSwap: suspend () -> Unit
+    ) : SharedContainerState? {
+        val state = states[key]
+        if(state == null) {
+            onSwap()
+            return null
+        }
+        if(!enabled) {
+            onSwap()
+            state.currentState = StatePause.CONTAINER
+            return null
+        }
+        if(
+            !waitContainerFrame(state) {
+                onSwap()
+            }
+        ) {
+            return null
+        }
+        return state
+    }
+
+    suspend fun startPredictiveBack(
+        key: String,
+        onSwap: suspend () -> Unit
+    ) : SharedContainerState? {
+        val state = findState(key,onSwap) ?: return null
+        snap(state,false)
+        // 开始标识位
+        state.currentState = StatePause.TRANSITING
+        return state
+    }
+
+    suspend fun updatePredictiveBack(
+        progress: Float,
+        state: SharedContainerState,
+    ) {
+        state.animation.snapTo(progress)
+    }
+
+
+    suspend fun confirmPredictiveBack(
+        state: SharedContainerState,
+        onAnimatedFinished : (suspend () -> Unit)? = null,
+    ) {
+        state.currentState = StatePause.TRANSITING
+        state.animation.animateTo(0f,getPopAnimation())
+        onAnimatedFinished?.let { it() }
+        state.contentRect = null
+        // 结束标志位
+        state.currentState = StatePause.CONTAINER
+    }
+
+    suspend fun cancelPredictiveBack(
+        state: SharedContainerState,
+        onAnimatedFinished : (suspend () -> Unit)? = null,
+    ) {
+        state.currentState = StatePause.TRANSITING
+        state.animation.animateTo(1f,getPushAnimation())
+        onAnimatedFinished?.let { it() }
+        state.containerRect = null
+        // 结束标志位
+        state.currentState = StatePause.CONTENT
     }
 }
