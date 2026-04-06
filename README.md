@@ -155,8 +155,5 @@ fun HomeScreen() {
 1. SDK32及其以下背景缩放启用时，动画结束瞬间容器稍微位移抽搐的Bug      [P0]
 2. 并行动画     [P1]
 3. 大屏适配（平行视界）         [P1]
-4. spring回弹时最后顿挫的问题    [P1]
-5. 预测式返回     [P2]
-6. deeplink         [P4]
 7. 元素共享及导航适配     [P4]
 8. Kotlin Multiplatform         [P4]

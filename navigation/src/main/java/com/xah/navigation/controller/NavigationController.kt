@@ -10,7 +10,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.graphics.TransformOrigin
 import com.sharednav.common.util.LogUtil
+import com.sharednav.common.util.PredictiveUtil
 import com.xah.container.controller.SharedRegistry
 import com.xah.container.model.ContentStrategy
 import com.xah.container.model.SharedContainerState
@@ -212,7 +214,6 @@ class NavigationController(
         }
     }
 
-
     fun animate(
         animationSpec: AnimationSpec<Float> = getAnimation()
     ) {
@@ -317,19 +318,27 @@ class NavigationController(
 
     fun updatePredictiveBackShared(
         progress: Float,
-        minValue : Float = effects.backgroundEffect.end.scale,
         state : SharedContainerState?
     ) {
         scope.launch {
             val registry = sharedRegistry
-            val eased = 1f - ((1f - minValue) * progress.pow(0.5f))
+            val noneShared = registry == null || state == null
+            val minValue = if(transitionLevel == EffectLevel.NONE) 0.6f else (
+                    effects.backgroundEffect.end.scale - if(noneShared) 0f else 0.0325f
+            )
+            val easedContainer = 1f - ((1f - minValue) * progress.pow(0.5f))
 
-            if (!(registry == null || state == null)) {
+            if (!noneShared) {
                 launch {
-                    registry.updatePredictiveBack(eased, state)
+                    registry.updatePredictiveBack(easedContainer, state)
                 }
             }
-            launch { updatePredictiveBack(eased) }
+            launch {
+                updatePredictiveBack(
+                    // 有容器的时候背景不动
+                    if(noneShared) easedContainer else 1f
+                )
+            }
         }
     }
 
@@ -369,9 +378,10 @@ class NavigationController(
         }
     }
 
+    // TODO cancelPredictiveBack的动画问题
     private fun cancelPredictiveBack() {
         scope.launch {
-            transitionProgress.animateTo(1f, getAnimation())
+            transitionProgress.animateTo(1f, PredictiveUtil.cancelAnimation)
             transition = null
             isTransitioning = false
         }

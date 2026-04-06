@@ -9,7 +9,7 @@ import androidx.compose.ui.util.lerp
 data class PageEffects(
     val backgroundEffect : PageEffectState,
     val foregroundEffect : PageEffectState,
-    val foregroundOrigin : TransformOrigin
+    var foregroundOrigin : TransformOrigin
 ) {
     fun background(progress : Float,level: EffectLevel) =
         backgroundEffect

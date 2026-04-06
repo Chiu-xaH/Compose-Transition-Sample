@@ -13,6 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.geometry.Rect
 import com.sharednav.common.util.LogUtil
+import com.sharednav.common.util.PredictiveUtil
 import com.xah.container.anim.LinearRectInterpolator
 import com.xah.container.anim.RectInterpolator
 import com.xah.container.model.ContentStrategy
@@ -232,6 +233,7 @@ class SharedRegistry(
         ) {
             return
         }
+        // 重置位置
         snap(state,false)
         // 开始标识位
         state.currentState = StatePause.TRANSITING
@@ -248,6 +250,7 @@ class SharedRegistry(
         isPush : Boolean
     ) {
         if(state.currentState != StatePause.TRANSITING) {
+            // 状态复位
             state.animation.snapTo(
                 if(isPush) {
                     0f
@@ -281,6 +284,14 @@ class SharedRegistry(
         }
 
         var frameCount = 0
+        // 状态复位
+        if(state.currentState != StatePause.TRANSITING) {
+            state.currentState = if(isContainer) {
+                StatePause.CONTENT
+            } else {
+                StatePause.CONTAINER
+            }
+        }
         // 一定要确保页面切换(onSwap)之后马上等帧(awaitFrame)
         onSwap()
         while (true) {
@@ -375,7 +386,7 @@ class SharedRegistry(
         onAnimatedFinished : (suspend () -> Unit)? = null,
     ) {
         state.currentState = StatePause.TRANSITING
-        state.animation.animateTo(1f,getPushAnimation())
+        state.animation.animateTo(1f,PredictiveUtil.cancelAnimation)
         onAnimatedFinished?.let { it() }
         state.containerRect = null
         // 结束标志位

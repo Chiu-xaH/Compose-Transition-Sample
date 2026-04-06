@@ -1,5 +1,6 @@
 package com.xah.navigation.component
 
+import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.runtime.Composable
@@ -13,7 +14,7 @@ fun NavigationBackHandler() {
     val navController = LocalNavController.current
     val canPop = navController.canPop()
 
-    if(navController.enablePredictiveBack) {
+    if(navController.enablePredictiveBack && Build.VERSION.SDK_INT >= 33) {
         PredictiveBackHandler(enabled = canPop) { backEvents ->
             var state : SharedContainerState? = null
             try {
