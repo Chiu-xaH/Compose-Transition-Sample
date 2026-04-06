@@ -9,7 +9,7 @@ data object BezierSettingsDestination : NavDestination() {
 
     override val title: String = "动画曲线设置"
     override val key = "settings_bezier"
-    override val icon = R.drawable.animation
+    override val icon = R.drawable.ic_animation
 //    override val enforcePlaceHolder: Boolean = true
 
     @Composable

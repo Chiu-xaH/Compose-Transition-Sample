@@ -6,6 +6,7 @@ import com.xah.navigation.util.LocalNavController
 
 @Composable
 fun NavigationBackHandler() {
+    // TODO 预测式返回
     val navController = LocalNavController.current
     BackHandler(enabled = navController.stack.size > 1) {
         navController.pop()

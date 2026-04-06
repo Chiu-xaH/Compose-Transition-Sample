@@ -9,7 +9,7 @@ data object CornerSettingsDestination : NavDestination() {
 
     override val title: String = "屏幕圆角校正"
     override val key = "settings_corner"
-    override val icon = R.drawable.rounded_corner
+    override val icon = R.drawable.ic_rounded_corner
 
     @Composable
     override fun Content() {

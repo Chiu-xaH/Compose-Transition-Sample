@@ -98,6 +98,7 @@ import com.xah.transition.ui.screen.test.CubicBezierEditor
 import com.xah.transition.ui.screen.window.DialogFloatingWindow
 import com.xah.transition.ui.style.topBarTransplantColor
 import com.xah.transition.ui.util.UiHolder
+import com.xah.transition.util.Starter
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
@@ -302,7 +303,7 @@ fun HomeScreen() {
                                     Text("双向填充")
                                 },
                                 leadingContent = {
-                                    Icon(painterResource(R.drawable.texture),null)
+                                    Icon(painterResource(R.drawable.ic_texture),null)
                                 },
                                 trailingContent = {
                                     Switch(registry.extensionDouble, onCheckedChange = { registry.extensionDouble = it })
@@ -324,7 +325,7 @@ fun HomeScreen() {
                                     Text("倾斜效果")
                                 },
                                 leadingContent = {
-                                    Icon(painterResource(R.drawable.texture),null)
+                                    Icon(painterResource(R.drawable.ic_texture),null)
                                 },
                                 trailingContent = {
                                     Switch(registry.enableTilt, onCheckedChange = { registry.enableTilt = it })
@@ -336,25 +337,22 @@ fun HomeScreen() {
                         }
                     }
                     item(span = { GridItemSpan(maxLineSpan) }) {
-                        SharedContainer(
-                            key = FloatingDestination.key,
-                            containerColor = cardNormalColor(),
+                        Surface(
+                            color = cardNormalColor(),
                             shape = MaterialTheme.shapes.small,
-                            modifier = Modifier.padding(CARD_NORMAL_DP * 2)
+                            modifier = Modifier.padding(CARD_NORMAL_DP*2)
                         ) {
-                            Surface(
-                                color = cardNormalColor(),
-                                shape = RoundedCornerShape(0.dp),
-                            ) {
-                                TransplantListItem(
-                                    headlineContent = {
-                                        Text("浮窗示例")
-                                    },
-                                    modifier = Modifier.clickable {
-                                        navController.push(FloatingDestination)
-                                    },
-                                )
-                            }
+                            TransplantListItem(
+                                headlineContent = {
+                                    Text("Github")
+                                },
+                                leadingContent = {
+                                    Icon(painterResource(R.drawable.ic_github),null)
+                                },
+                                modifier = Modifier.clickable {
+                                    Starter.startWebUrl(context,"https://github.com/Chiu-xaH/SharedNav")
+                                },
+                            )
                         }
                     }
                     item(span = { GridItemSpan(maxLineSpan) }) {
@@ -410,7 +408,7 @@ fun SecondScreen() {
                         repeat(3) { r ->
                             TransplantListItem(
                                 headlineContent = {
-                                    Text("测试${it}_$r")
+                                    Text("Push to Third $r")
                                 },
                             )
                         }

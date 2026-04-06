@@ -6,7 +6,6 @@ import com.xah.navigation.component.NavigationBackHandler
 
 @Composable
 fun DefaultBackHandler() {
-    // TODO 预测式返回
     NavigationBackHandler()
     FloatingBackHandler()
 }
