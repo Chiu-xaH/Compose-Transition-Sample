@@ -38,7 +38,13 @@ fun SharedContainerOverlay() {
     registry.runningStates.forEach { state ->
         key(state) {
             val container = state.containerRect!!
-            val content = state.contentRect!!
+            val content1 = state.contentRect!!
+            val content = content1.copy(
+                left = state.contentOffset.x + content1.left,
+                right = state.contentOffset.x + content1.right,
+                bottom = state.contentOffset.y + content1.bottom,
+                top = state.contentOffset.y + content1.top
+            )
 
             val useContainer = state.contentStrategy !is ContentStrategy.Copy
 

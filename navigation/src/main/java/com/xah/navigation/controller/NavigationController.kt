@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.TransformOrigin
 import com.sharednav.common.util.LogUtil
 import com.sharednav.common.util.PredictiveUtil
@@ -316,8 +317,17 @@ class NavigationController(
         }
     }
 
+    private fun dampOffset(offset: Offset, factor: Float = 0.01f): Offset {
+        val distance = offset.getDistance()
+        if (distance == 0f) return offset
+
+        val scale = 1f / (1f + distance * factor)
+        return offset * scale
+    }
+
     fun updatePredictiveBackShared(
         progress: Float,
+        offset: Offset,
         state : SharedContainerState?
     ) {
         scope.launch {
@@ -330,7 +340,7 @@ class NavigationController(
 
             if (!noneShared) {
                 launch {
-                    registry.updatePredictiveBack(easedContainer, state)
+                    registry.updatePredictiveBack(easedContainer, dampOffset(offset), state)
                 }
             }
             launch {
@@ -381,7 +391,7 @@ class NavigationController(
     // TODO cancelPredictiveBack的动画问题
     private fun cancelPredictiveBack() {
         scope.launch {
-            transitionProgress.animateTo(1f, PredictiveUtil.cancelAnimation)
+            transitionProgress.animateTo(1f, PredictiveUtil.cancelAnimation())
             transition = null
             isTransitioning = false
         }

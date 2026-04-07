@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.unit.dp
@@ -34,6 +35,8 @@ class SharedContainerState(
     val animation = Animatable(0f)
     // 当前所处状态
     var currentState by mutableStateOf(StatePause.CONTAINER)
+    // 跟手Offset
+    var contentOffset by mutableStateOf(Offset.Zero)
 
     var useLinearRectInterpolator : Boolean = false
 }

@@ -1,11 +1,9 @@
 package com.xah.transition.ui.screen
 
-import android.os.Build
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -68,15 +66,14 @@ import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.xah.container.component.base.SharedContainer
 import com.xah.container.util.LocalSharedRegistry
-import com.xah.navigation.model.anim.EffectLevel
-import com.xah.navigation.anim.rememberDefaultPageEffectsEnhance
+import com.xah.floating.util.LocalFloatingController
 import com.xah.navigation.component.SharedNavHost
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.action.LaunchMode
+import com.xah.navigation.model.anim.EffectLevel
 import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavDependencies
 import com.xah.navigation.util.rememberNavDependencies
-import com.xah.floating.util.LocalFloatingController
 import com.xah.transition.R
 import com.xah.transition.model.AppIconBean
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
@@ -90,7 +87,6 @@ import com.xah.transition.ui.component.cardNormalColor
 import com.xah.transition.ui.screen.destination.AppIconDestination
 import com.xah.transition.ui.screen.destination.BezierSettingsDestination
 import com.xah.transition.ui.screen.destination.CornerSettingsDestination
-import com.xah.transition.ui.screen.destination.FloatingDestination
 import com.xah.transition.ui.screen.destination.HomeDestination
 import com.xah.transition.ui.screen.destination.SecondDestination
 import com.xah.transition.ui.screen.destination.ThirdDestination
@@ -100,7 +96,6 @@ import com.xah.transition.ui.style.topBarTransplantColor
 import com.xah.transition.ui.util.UiHolder
 import com.xah.transition.util.Starter
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun App() {
     var arg1 by remember { mutableStateOf(1) }
@@ -112,7 +107,6 @@ fun App() {
         startDestination = HomeDestination,
         modifier = Modifier.background(MaterialTheme.colorScheme.surface),
         dependencies = dependencies,
-//        effect = rememberDefaultPageEffectsEnhance(),
     )
 }
 

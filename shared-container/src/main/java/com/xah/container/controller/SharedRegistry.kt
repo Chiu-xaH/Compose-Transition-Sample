@@ -1,8 +1,10 @@
 package com.xah.container.controller
 
 import android.os.Build
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Easing
+import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -11,6 +13,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateMap
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import com.sharednav.common.util.LogUtil
 import com.sharednav.common.util.PredictiveUtil
@@ -21,8 +24,9 @@ import com.xah.container.model.SharedContainerState
 import com.xah.container.model.StatePause
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.awaitFrame
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import kotlin.math.pow
 
 class SharedRegistry(
     private val scope: CoroutineScope,
@@ -261,6 +265,23 @@ class SharedRegistry(
         }
     }
 
+    private val offsetAnim = Animatable(Offset.Zero, Offset.VectorConverter)
+
+    private fun resetOffset(state: SharedContainerState) {
+        state.contentOffset = Offset.Zero
+    }
+
+    private suspend fun resetOffsetSmoothly(state: SharedContainerState) {
+        offsetAnim.snapTo(state.contentOffset)
+
+        offsetAnim.animateTo(
+            targetValue = Offset.Zero,
+            animationSpec = PredictiveUtil.cancelAnimation()
+        ) {
+            state.contentOffset = value
+        }
+    }
+
     private suspend fun waitContainerFrame(
         state: SharedContainerState,
         onSwap: suspend () -> Unit,
@@ -357,14 +378,17 @@ class SharedRegistry(
         val state = findState(key,onSwap) ?: return null
         snap(state,false)
         // 开始标识位
+        resetOffset(state)
         state.currentState = StatePause.TRANSITING
         return state
     }
 
     suspend fun updatePredictiveBack(
         progress: Float,
+        offset: Offset,
         state: SharedContainerState,
     ) {
+        state.contentOffset = offset
         state.animation.snapTo(progress)
     }
 
@@ -376,6 +400,7 @@ class SharedRegistry(
         state.currentState = StatePause.TRANSITING
         state.animation.animateTo(0f,getPopAnimation())
         onAnimatedFinished?.let { it() }
+        resetOffset(state)
         state.contentRect = null
         // 结束标志位
         state.currentState = StatePause.CONTAINER
@@ -383,11 +408,26 @@ class SharedRegistry(
 
     suspend fun cancelPredictiveBack(
         state: SharedContainerState,
-        onAnimatedFinished : (suspend () -> Unit)? = null,
-    ) {
+        onAnimatedFinished: (suspend () -> Unit)? = null,
+    ) = coroutineScope {
+
         state.currentState = StatePause.TRANSITING
-        state.animation.animateTo(1f,PredictiveUtil.cancelAnimation)
-        onAnimatedFinished?.let { it() }
+
+        val job1 = launch {
+            resetOffsetSmoothly(state)
+        }
+
+        val job2 = launch {
+            state.animation.animateTo(
+                1f,
+                PredictiveUtil.cancelAnimation()
+            )
+        }
+
+        joinAll(job1, job2)
+
+        onAnimatedFinished?.invoke()
+
         state.containerRect = null
         // 结束标志位
         state.currentState = StatePause.CONTENT

@@ -1,7 +1,10 @@
 package com.xah.navigation.component
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -12,8 +15,8 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sharednav.common.modifier.touchEvent
-import com.xah.container.component.overlay.SharedContainerRoot
 import com.xah.container.component.base.SharedContent
+import com.xah.container.component.overlay.SharedContainerRoot
 import com.xah.container.controller.SharedRegistry
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.floating.component.FloatingRoot
@@ -31,6 +34,8 @@ import com.xah.navigation.util.DefaultBackHandler
 import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavControllerSafely
 import com.xah.navigation.util.LocalNavDependencies
+import com.xah.navigation.util.LocalScreenSize
+import com.xah.navigation.util.isLargeScreen
 
 @Composable
 fun rememberNavController(
@@ -103,6 +108,7 @@ private fun NavHost(
     )
 }
 
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 private fun NavHost(
     navController: NavigationController,
@@ -112,6 +118,8 @@ private fun NavHost(
     backHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
     val saveableStateHolder = rememberSaveableStateHolder()
+    val activity = LocalActivity.current
+    val screenSize = activity?.let { calculateWindowSizeClass(it) }?.isLargeScreen() ?: false
 
     LaunchedEffect(registry) {
         navController.sharedRegistry = registry
@@ -125,7 +133,8 @@ private fun NavHost(
     CompositionLocalProvider(
         LocalNavControllerSafely provides navController,
         LocalNavController provides navController,
-        LocalNavDependencies provides dependencies
+        LocalNavDependencies provides dependencies,
+        LocalScreenSize provides screenSize
     ) {
         backHandler()
 

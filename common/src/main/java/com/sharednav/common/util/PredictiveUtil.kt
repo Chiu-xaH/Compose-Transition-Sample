@@ -3,5 +3,5 @@ package com.sharednav.common.util
 import androidx.compose.animation.core.tween
 
 object PredictiveUtil {
-    val cancelAnimation = tween<Float>(100)
+    fun <T> cancelAnimation() = tween<T>(100)
 }
