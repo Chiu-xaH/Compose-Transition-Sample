@@ -276,7 +276,8 @@ class SharedRegistry(
 
         offsetAnim.animateTo(
             targetValue = Offset.Zero,
-            animationSpec = PredictiveUtil.cancelAnimation()
+            animationSpec = tween(200)
+//            animationSpec = PredictiveUtil.cancelAnimation()
         ) {
             state.contentOffset = value
         }
@@ -388,6 +389,7 @@ class SharedRegistry(
         offset: Offset,
         state: SharedContainerState,
     ) {
+        // 预测式时，content跟手位移，且画面保持按content原比例缩小，而不是直接调整进度
         state.contentOffset = offset
         state.animation.snapTo(progress)
     }

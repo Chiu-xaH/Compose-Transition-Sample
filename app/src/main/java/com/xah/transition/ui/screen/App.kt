@@ -7,6 +7,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.calculatePan
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -52,19 +54,24 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.ScreenCornerHelper
+import com.sharednav.common.util.LogUtil
 import com.xah.container.component.base.SharedContainer
+import com.xah.container.model.SharedContainerState
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.floating.util.LocalFloatingController
 import com.xah.navigation.component.SharedNavHost
@@ -95,6 +102,9 @@ import com.xah.transition.ui.screen.window.DialogFloatingWindow
 import com.xah.transition.ui.style.topBarTransplantColor
 import com.xah.transition.ui.util.UiHolder
 import com.xah.transition.util.Starter
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlin.coroutines.cancellation.CancellationException
 
 @Composable
 fun App() {
@@ -436,21 +446,88 @@ fun SecondScreen() {
 }
 
 @Composable
-fun AppIconScreen() {
+fun AppIconScreen(app : AppIconBean) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
     ) {
-        LazyColumn {
-            items(30) {
-                CardListItem(
-                    headlineContent = {
-                        Text("测试$it")
-                    }
-                )
-            }
-        }
+        val navController = LocalNavController.current
+        val scope = rememberCoroutineScope()
+
+        Text("${app.name}", modifier = Modifier.align(Alignment.Center))
+
+//        Box(
+//            modifier = Modifier
+//                .align(Alignment.BottomCenter)
+//                .navigationBarsPadding()
+//                .padding(APP_HORIZONTAL_DP)
+//                .size(150.dp,CARD_NORMAL_DP*2)
+//                .background(MaterialTheme.colorScheme.onSurface, MaterialTheme.shapes.extraSmall)
+//                .pointerInput(Unit) {
+//                    awaitPointerEventScope {
+//
+//                        var totalOffset = Offset.Zero
+//                        var isDragging = false
+//
+//                        while (true) {
+//                            var state : SharedContainerState? = null
+//                            val event = awaitPointerEvent()
+//                            val pan = event.calculatePan()
+//                            val anyPressed = event.changes.any { it.pressed }
+//
+//                            if (anyPressed) {
+//
+//                                // 第一次按下
+//                                if (!isDragging) {
+//                                    isDragging = true
+//                                    totalOffset = Offset.Zero
+//
+//                                    scope.launch {
+//                                        state = navController.startPredictiveBackShared()
+//                                    }
+//                                }
+//
+//                                // 累计位移（只取Y，模拟上滑返回）
+//                                totalOffset += Offset(0f, pan.y)
+//
+//                                // 限制只能“向上滑”
+//                                if (totalOffset.y > 0f) {
+//                                    totalOffset = Offset(0f, 0f)
+//                                }
+//
+//                                // 计算进度（你可以调这个值）
+//                                val progress = (-totalOffset.y / 600f)
+//                                    .coerceIn(0f, 1f)
+//
+//                                // 更新动画
+//                                navController.updatePredictiveBackShared(
+//                                    progress,
+//                                    totalOffset,
+//                                    state
+//                                )
+//
+//                            } else if (isDragging) {
+//
+//                                // 松手
+//                                val progress = (-totalOffset.y / 600f)
+//
+//                                if (progress > 0.3f) {
+//                                    // 触发返回
+//                                    navController.confirmPredictiveBackShared(state)
+//                                } else {
+//                                    // 取消
+//                                    navController.cancelPredictiveBackShared(state)
+//                                }
+//
+//                                state = null
+//                                isDragging = false
+//                                totalOffset = Offset.Zero
+//                            }
+//                        }
+//                    }
+//                }
+//        )
     }
 }
 
