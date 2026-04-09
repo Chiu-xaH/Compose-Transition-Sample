@@ -8,11 +8,12 @@ import androidx.compose.ui.geometry.Offset
 import com.sharednav.common.util.LogUtil
 import com.xah.container.model.SharedContainerState
 import com.xah.navigation.util.LocalNavController
+import com.xah.navigation.util.LocalNavControllerSafely
 import kotlin.coroutines.cancellation.CancellationException
 
 @Composable
 fun NavigationBackHandler() {
-    val navController = LocalNavController.current
+    val navController = LocalNavControllerSafely.current ?: return
     val canPop = navController.canPop()
 
     if(navController.enablePredictiveBack && Build.VERSION.SDK_INT >= 33) {

@@ -6,6 +6,7 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -36,7 +37,8 @@ import kotlin.math.pow
 class NavigationController(
     private val scope: CoroutineScope,
     val startDestination: Destination,
-    private val _stack: SnapshotStateList<StackEntry>,
+    private val _stack: SnapshotStateList<StackEntry> = mutableStateListOf(),
+    val historyQueue: SnapshotStateList<Destination> = mutableStateListOf(),
     val effects: PageEffects,
     var sharedRegistry : SharedRegistry? = null,
 ) {
@@ -100,6 +102,7 @@ class NavigationController(
             destination = destination
         )
         _stack += newEntry
+        historyQueue.add(destination)
     }
 
     private fun removeAndPop() {

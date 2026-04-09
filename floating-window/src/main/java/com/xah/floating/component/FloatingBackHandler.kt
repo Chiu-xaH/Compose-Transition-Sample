@@ -9,11 +9,12 @@ import com.sharednav.common.util.LogUtil
 import com.xah.container.model.SharedContainerState
 import com.xah.container.util.LocalSharedRegistrySafely
 import com.xah.floating.util.LocalFloatingController
+import com.xah.floating.util.LocalFloatingControllerSafely
 import kotlin.coroutines.cancellation.CancellationException
 
 @Composable
 fun FloatingBackHandler() {
-    val controller = LocalFloatingController.current
+    val controller = LocalFloatingControllerSafely.current ?: return
     val registry = LocalSharedRegistrySafely.current
     val canPop = controller.isRunning
     if(registry?.enablePredictiveBack == true && Build.VERSION.SDK_INT >= 33) {
