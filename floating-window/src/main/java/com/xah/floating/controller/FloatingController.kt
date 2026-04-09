@@ -6,10 +6,14 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.geometry.Offset
+import com.sharednav.common.util.PredictiveUtil
 import com.xah.container.controller.SharedRegistry
+import com.xah.container.model.SharedContainerState
 import com.xah.floating.anim.DefaultEffects
 import com.xah.floating.model.WindowEntry
 import com.xah.floating.model.Window
@@ -20,6 +24,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.UUID
+import kotlin.math.pow
 
 class FloatingController(
     private val scope: CoroutineScope,
@@ -33,6 +38,10 @@ class FloatingController(
 
     var enableBlur by mutableStateOf(Build.VERSION.SDK_INT >= 31)
     var enableShader by mutableStateOf(Build.VERSION.SDK_INT >= 33)
+
+
+    var isPredictiveTransiting by mutableStateOf(false)
+        private set
 
     private val visibleStates = mutableMapOf<String, MutableTransitionState<Boolean>>()
 
@@ -117,4 +126,59 @@ class FloatingController(
     fun current(): WindowEntry? = _stack.lastOrNull()
 
     fun canPop() = _stack.isNotEmpty()
+
+
+    suspend fun startPredictiveBackShared() : SharedContainerState? {
+        val registry = sharedRegistry
+        return registry?.startPredictiveBack(
+            stack.last().window.key,
+        ) {}
+    }
+
+
+    fun updatePredictiveBackShared(
+        progress: Float,
+        offset: Offset,
+        state : SharedContainerState?
+    ) {
+        scope.launch {
+            val registry = sharedRegistry
+            val noneShared = registry == null || state == null
+            val minValue = 0.85f
+            val easedContainer = 1f - ((1f - minValue) * progress.pow(0.5f))
+
+            if (!noneShared) {
+                launch {
+                    registry.updatePredictiveBack(easedContainer, offset, state)
+                }
+            }
+        }
+    }
+
+    fun confirmPredictiveBackShared(
+        state : SharedContainerState?
+    ) {
+        scope.launch {
+            val registry = sharedRegistry
+            if (!(registry == null || state == null)) {
+                launch {
+                    registry.confirmPredictiveBack(state)
+                }
+            }
+            launch { popInternal() }
+        }
+    }
+
+    fun cancelPredictiveBackShared(
+        state : SharedContainerState?
+    ) {
+        scope.launch {
+            val registry = sharedRegistry
+            if (!(registry == null || state == null)) {
+                launch {
+                    registry.cancelPredictiveBack(state)
+                }
+            }
+        }
+    }
 }

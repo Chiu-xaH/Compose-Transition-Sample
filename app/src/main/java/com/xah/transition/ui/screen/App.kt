@@ -1,5 +1,6 @@
 package com.xah.transition.ui.screen
 
+import android.os.Build
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -341,6 +342,10 @@ fun HomeScreen() {
                         }
                     }
                     item(span = { GridItemSpan(maxLineSpan) }) {
+                        LaunchedEffect(UiHolder.enablePredictiveBack) {
+                            navController.enablePredictiveBack = UiHolder.enablePredictiveBack
+                            registry.enablePredictiveBack = UiHolder.enablePredictiveBack
+                        }
                         Surface(
                             color = cardNormalColor(),
                             shape = MaterialTheme.shapes.small,
@@ -354,10 +359,10 @@ fun HomeScreen() {
                                     Icon(painterResource(R.drawable.ic_texture),null)
                                 },
                                 trailingContent = {
-                                    Switch(navController.enablePredictiveBack, onCheckedChange = { navController.enablePredictiveBack = it })
+                                    Switch(UiHolder.enablePredictiveBack, onCheckedChange = { UiHolder.enablePredictiveBack = it })
                                 },
                                 modifier = Modifier.clickable {
-                                    navController.enablePredictiveBack = !navController.enablePredictiveBack
+                                    UiHolder.enablePredictiveBack = !UiHolder.enablePredictiveBack
                                 },
                             )
                         }

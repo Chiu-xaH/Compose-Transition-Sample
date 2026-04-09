@@ -42,6 +42,8 @@ class SharedRegistry(
         states.values.any { it.currentState == StatePause.MEASURING_CONTAINER || it.currentState == StatePause.MEASURING_CONTENT }
     }
 
+    var enablePredictiveBack by mutableStateOf(Build.VERSION.SDK_INT >= 33)
+
     private fun SharedContainerState.isRunning() = currentState == StatePause.TRANSITING && containerRect != null && contentRect != null
 
     var enabled by mutableStateOf(true)
@@ -348,7 +350,7 @@ class SharedRegistry(
         }
     }
 
-    suspend fun findState(
+    private suspend fun findState(
         key: String,
         onSwap: suspend () -> Unit
     ) : SharedContainerState? {
@@ -376,6 +378,9 @@ class SharedRegistry(
         key: String,
         onSwap: suspend () -> Unit
     ) : SharedContainerState? {
+        if(!enablePredictiveBack) {
+            return null
+        }
         val state = findState(key,onSwap) ?: return null
         snap(state,false)
         // 开始标识位
@@ -389,6 +394,9 @@ class SharedRegistry(
         offset: Offset,
         state: SharedContainerState,
     ) {
+        if(!enablePredictiveBack) {
+            return
+        }
         // 预测式时，content跟手位移，且画面保持按content原比例缩小，而不是直接调整进度
         state.contentOffset = offset
         state.animation.snapTo(progress)
@@ -399,6 +407,9 @@ class SharedRegistry(
         state: SharedContainerState,
         onAnimatedFinished : (suspend () -> Unit)? = null,
     ) {
+        if(!enablePredictiveBack) {
+            return
+        }
         state.currentState = StatePause.TRANSITING
         state.animation.animateTo(0f,getPopAnimation())
         onAnimatedFinished?.let { it() }
@@ -412,6 +423,9 @@ class SharedRegistry(
         state: SharedContainerState,
         onAnimatedFinished: (suspend () -> Unit)? = null,
     ) = coroutineScope {
+        if(!enablePredictiveBack) {
+            return@coroutineScope
+        }
 
         state.currentState = StatePause.TRANSITING
 

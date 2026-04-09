@@ -388,7 +388,6 @@ class NavigationController(
         }
     }
 
-    // TODO cancelPredictiveBack的动画问题
     private fun cancelPredictiveBack() {
         scope.launch {
             transitionProgress.animateTo(1f, PredictiveUtil.cancelAnimation())
@@ -396,7 +395,6 @@ class NavigationController(
             isTransitioning = false
         }
     }
-
 
     fun cancelPredictiveBackShared(
         state : SharedContainerState?
