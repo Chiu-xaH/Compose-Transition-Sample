@@ -22,13 +22,10 @@ fun Modifier.scaleMirror(
     enabled : Boolean,
 ): Modifier =
     if(scale == 1f || !enabled || Build.VERSION.SDK_INT < 33) {
-        this
-        /** fixme:动画收尾有抽搐bug，待修复
         this.graphicsLayer {
             scaleX = scale
             scaleY = scale
         }
-        **/
     } else {
         composed {
             // 绘制面

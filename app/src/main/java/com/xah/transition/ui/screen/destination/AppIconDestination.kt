@@ -3,6 +3,7 @@ package com.xah.transition.ui.screen.destination
 import androidx.compose.runtime.Composable
 import com.xah.transition.model.AppIconBean
 import com.xah.transition.ui.screen.AppIconScreen
+import com.xah.transition.ui.screen.SecondScreen
 import com.xah.transition.ui.util.NavDestination
 
 data class AppIconDestination(
@@ -14,6 +15,6 @@ data class AppIconDestination(
 
     @Composable
     override fun Content() {
-        AppIconScreen(app)
+        SecondScreen()
     }
 }

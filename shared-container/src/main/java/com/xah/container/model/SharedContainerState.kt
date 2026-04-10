@@ -17,9 +17,9 @@ class SharedContainerState(
     val key : String
 ) {
     // 容器Rect
-    var containerRect : Rect? = null
+    var containerRect by mutableStateOf<Rect?>(null)
     // 内容Rect
-    var contentRect : Rect? = null
+    var contentRect by mutableStateOf<Rect?>(null)
 
     // 内容布局
     var containerLayer : GraphicsLayer? = null

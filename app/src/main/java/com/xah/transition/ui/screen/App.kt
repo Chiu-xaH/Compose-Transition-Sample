@@ -90,6 +90,7 @@ import com.xah.transition.ui.component.CardListItem
 import com.xah.transition.ui.component.CustomCard
 import com.xah.transition.ui.component.CustomSlider
 import com.xah.transition.ui.component.DividerTextExpandedWithShared
+import com.xah.transition.ui.component.TopBarNavigationIcon
 import com.xah.transition.ui.component.TransplantListItem
 import com.xah.transition.ui.component.cardNormalColor
 import com.xah.transition.ui.screen.destination.AppIconDestination
@@ -577,6 +578,9 @@ fun CornerSettingsScreen(title : String) {
             MediumTopAppBar(
                 colors = topBarTransplantColor(),
                 title = { Text(title) },
+                navigationIcon = {
+                    TopBarNavigationIcon()
+                }
             )
         },
         bottomBar = {
@@ -652,6 +656,9 @@ fun BezierSettingsScreen(title: String) {
             MediumTopAppBar(
                 colors = topBarTransplantColor(),
                 title = { Text(title) },
+                navigationIcon = {
+                    TopBarNavigationIcon()
+                }
             )
         },
         bottomBar = {

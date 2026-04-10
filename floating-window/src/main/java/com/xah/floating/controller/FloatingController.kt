@@ -39,10 +39,6 @@ class FloatingController(
     var enableBlur by mutableStateOf(Build.VERSION.SDK_INT >= 31)
     var enableShader by mutableStateOf(Build.VERSION.SDK_INT >= 33)
 
-
-    var isPredictiveTransiting by mutableStateOf(false)
-        private set
-
     private val visibleStates = mutableMapOf<String, MutableTransitionState<Boolean>>()
 
     fun registerVisibleState(id: String, state: MutableTransitionState<Boolean>) {
