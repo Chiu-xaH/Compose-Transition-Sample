@@ -169,7 +169,7 @@ private fun NavHost(
         val effect = navController.effects
 
         Box(modifier = modifier.fillMaxSize()) {
-            visibleEntries.forEachIndexed { index, entry ->
+            visibleEntries.forEachIndexed { _, entry ->
                 key(entry.id) {
                     saveableStateHolder.SaveableStateProvider(entry.id) {
                         val isFrom = transition?.from == entry
@@ -180,6 +180,21 @@ private fun NavHost(
                         val backgroundEffect = remember(animatedProgress,level) { effect.background(animatedProgress,level) }
                         val foregroundEffect = remember(animatedProgress,level) { effect.foreground(animatedProgress, level) }
                         val foregroundOrigin = remember(level) { effect.foregroundOrigin(level) }
+
+                        // 当返回时，禁用前景；当前进时，禁用背景；当非动画态，启用
+                        // fixme: 暂时一刀切，未适配并行动画
+                        val (enableTouch,interceptTouch) = Pair(transition == null,true)
+//                      when(transition?.type) {
+//                            ActionType.POP -> {
+//                                Pair(isTo,false)
+//                            }
+//                            ActionType.PUSH -> {
+//                                Pair(false,true)
+//                            }
+//                            null -> {
+//                                Pair(true,true)
+//                            }
+//                        }
 
                         Box(
                             Modifier
@@ -233,9 +248,7 @@ private fun NavHost(
                                     return@let it
                                 }
                                 .touchEvent(
-                                    transition == null
-                                    // 当返回时，禁用前景；当前进时，禁用背景；当非动画态，启用
-                                    // TODO 暂时一刀切，未适配并行动画
+                                    enableTouch,interceptTouch
                                 )
                         ) {
                             SharedContent(
