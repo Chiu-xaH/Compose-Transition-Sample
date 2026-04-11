@@ -306,6 +306,28 @@ fun HomeScreen() {
                         ) {
                             TransplantListItem(
                                 headlineContent = {
+                                    Text("容器共享")
+                                },
+                                leadingContent = {
+                                    Icon(painterResource(R.drawable.ic_texture),null)
+                                },
+                                trailingContent = {
+                                    Switch(registry.enabled, onCheckedChange = { registry.enabled = it })
+                                },
+                                modifier = Modifier.clickable {
+                                    registry.enabled = !registry.enabled
+                                },
+                            )
+                        }
+                    }
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Surface(
+                            color = cardNormalColor(),
+                            shape = MaterialTheme.shapes.small,
+                            modifier = Modifier.padding(CARD_NORMAL_DP*2)
+                        ) {
+                            TransplantListItem(
+                                headlineContent = {
                                     Text("双向填充")
                                 },
                                 leadingContent = {

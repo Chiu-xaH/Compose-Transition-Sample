@@ -38,7 +38,7 @@ fun NavigationBackHandler() {
                         LogUtil.debug("updatePredictiveBack $progress")
                     }
                 }
-                firstOffset = null
+//                firstOffset = null
                 if(transiting) {
                     navController.pop()
                 } else {

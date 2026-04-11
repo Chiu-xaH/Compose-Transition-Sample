@@ -113,6 +113,16 @@ class NavigationController(
         launchMode: LaunchMode = LaunchMode.Push(true),
     ) {
         scope.launch(start = CoroutineStart.UNDISPATCHED) {
+
+            // 并行动画
+            if(isTransitioning && transition?.type == ActionType.POP) {
+                if(_stack.last().destination != destination) {
+                    // 同一界面的打断，无需解除容器共享
+                    sharedRegistry?.cancelPop()
+                }
+                removeAndPop()
+            }
+
             val from = _stack.last()
 
             when (launchMode) {

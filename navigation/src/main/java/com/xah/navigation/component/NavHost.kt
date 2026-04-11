@@ -2,7 +2,6 @@ package com.xah.navigation.component
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -86,27 +85,6 @@ fun SharedNavHost(
 
 @Composable
 private fun NavHost(
-    startDestination: Destination,
-    registry: SharedRegistry,
-    modifier: Modifier = Modifier,
-    effect: PageEffects = rememberDefaultPageEffects(),
-    dependencies: Dependencies = Dependencies(),
-    backHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
-) {
-    val navController = rememberNavController(startDestination,effect)
-
-    NavHost(
-        navController,
-        registry,
-        modifier,
-        dependencies,
-        backHandler
-    )
-}
-
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@Composable
-private fun NavHost(
     navController: NavigationController,
     registry: SharedRegistry,
     modifier: Modifier = Modifier,
@@ -135,7 +113,7 @@ private fun NavHost(
         val progress = navController.transitionProgress
 
         // 当 transition 变化时启动动画
-        LaunchedEffect(transition,registry.isRunning,registry.isWaitingFrame) {
+        LaunchedEffect(transition,registry.isRunning) {
             navController.animate()
         }
 
@@ -183,25 +161,26 @@ private fun NavHost(
 
                         // 当返回时，禁用前景；当前进时，禁用背景；当非动画态，启用
                         // fixme: 暂时一刀切，未适配并行动画
-                        val (enableTouch,interceptTouch) = Pair(transition == null,true)
-//                      when(transition?.type) {
-//                            ActionType.POP -> {
-//                                Pair(isTo,false)
-//                            }
-//                            ActionType.PUSH -> {
-//                                Pair(false,true)
-//                            }
-//                            null -> {
-//                                Pair(true,true)
-//                            }
-//                        }
+                        val (enableTouch,interceptTouch) =
+//                            Pair(transition == null,true)
+                      when(transition?.type) {
+                            ActionType.POP -> {
+                                Pair(isTo,false)
+                            }
+                            ActionType.PUSH -> {
+                                Pair(false,true)
+                            }
+                            null -> {
+                                Pair(true,true)
+                            }
+                        }
 
                         Box(
                             Modifier
                                 .fillMaxSize()
                                 .let {
                                     // 容器等帧测量时，禁用所有动效，测量容器的真实位置
-                                    if (transition != null && !registry.isWaitingFrame) {
+                                    if (transition != null) {
                                         when (transition.type) {
                                             ActionType.PUSH -> {
                                                 if (isFrom) {

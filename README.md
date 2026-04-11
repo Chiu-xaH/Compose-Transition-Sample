@@ -152,7 +152,6 @@ fun HomeScreen() {
 ```
 
 ## 后续计划
-2. 导航的并行动画     [P1]
 3. 大屏适配（平行视界）         [P1]
 7. 元素共享     [P4]
 8. Kotlin Multiplatform         [P4]
