@@ -1,5 +1,5 @@
 # SharedNav  [![](https://jitpack.io/v/Chiu-xaH/SharedNav.svg)](https://jitpack.io/#Chiu-xaH/SharedNav)
-容器共享与导航库，实现类似 Launcher 的打开关闭动画，支持背景压暗、镜面缩放、模糊，1像素填充、自适应贝赛尔曲线、屏幕圆角插值、内容一次渲染等特性；旨在减少开发流程、提高可定制性。
+基于 Compose 的容器共享（SharedContainer）、页面导航（Navigation）以及全局浮窗（FloatingWindow）库。支持背景模糊、镜面缩放，1像素填充、贝赛尔曲线、屏幕圆角插值、内容一次渲染、预测式返回、并行动画等特性；旨在减少开发流程、提高可定制性。
 
 ![cover](src/cover.jpg)
 
