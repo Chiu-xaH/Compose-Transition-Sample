@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -196,11 +197,8 @@ private fun Modifier.mSharedContent(
         state.contentCorner = shape
     }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect (Unit) {
         state.contentLayer = graphicsLayer
-    }
-
-    LaunchedEffect(Unit) {
         state.useLinearRectInterpolator = useLinearRectInterpolator
     }
 
@@ -253,7 +251,6 @@ private fun Modifier.mSharedContent(
  * 共享容器的内容
  * @param key 两个容器之间的Key
  * @param shape 屏幕圆角
- * @param isFullScreen 是否为全屏，为false则在PUSH完成后隐藏container
  */
 @Composable
 fun SharedContent(

@@ -12,6 +12,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -25,6 +26,8 @@ import com.xah.container.model.StatePause
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 
@@ -88,7 +91,7 @@ class SharedRegistry(
         container: Rect,
         content: Rect
     ): Easing = Easing { t ->
-        this.transform(t, container, content)
+        transform(t, container, content)
     }
 
     // 自定义预设曲线
@@ -271,6 +274,8 @@ class SharedRegistry(
             )
         }
     }
+
+    suspend fun awaitTransition() = snapshotFlow { isRunning }.filter { !it }.first()
 
     private val offsetAnim = Animatable(Offset.Zero, Offset.VectorConverter)
 

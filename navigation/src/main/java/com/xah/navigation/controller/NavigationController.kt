@@ -5,6 +5,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -12,6 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.geometry.Offset
+import com.sharednav.common.util.LogUtil
 import com.sharednav.common.util.PredictiveUtil
 import com.xah.container.controller.SharedRegistry
 import com.xah.container.model.SharedContainerState
@@ -39,6 +41,10 @@ class NavigationController(
     var sharedRegistry : SharedRegistry? = null,
 ) {
     val stack: List<StackEntry> get() = _stack
+
+    val current by derivedStateOf {
+        _stack.last()
+    }
 
     var transition by mutableStateOf<Transition?>(null)
         private set
@@ -101,10 +107,11 @@ class NavigationController(
         historyQueue.add(destination)
     }
 
-    private fun removeAndPop() {
+    private fun removeAndPop() : StackEntry? {
         if(canPop()) {
-            _stack.removeAt(_stack.size-1)
+            return _stack.removeAt(_stack.size-1)
         }
+        return null
     }
 
 
@@ -113,29 +120,44 @@ class NavigationController(
         launchMode: LaunchMode = LaunchMode.Push(true),
     ) {
         scope.launch(start = CoroutineStart.UNDISPATCHED) {
-
+            var cachedEntry : StackEntry? = null
             // 并行动画
             if(isTransitioning && transition?.type == ActionType.POP) {
-                if(_stack.last().destination != destination) {
-                    // 同一界面的打断，无需解除容器共享
+                val reuse =
+                    (launchMode is LaunchMode.Push && launchMode.reuse) ||
+                    (launchMode is LaunchMode.Single && launchMode.reuse) ||
+                    (launchMode is LaunchMode.PopToExisting && launchMode.actionType == ActionType.PUSH)
+
+                if(reuse && isCurrentDestination(destination)) {
+                    // 同一界面的打断，无需解除容器共享和重建栈
+                    cachedEntry = removeAndPop()
+                } else {
                     sharedRegistry?.cancelPop()
+                    removeAndPop()
                 }
-                removeAndPop()
             }
 
-            val from = _stack.last()
+            val from = current()
 
             when (launchMode) {
                 is LaunchMode.Push -> {
                     if(launchMode.reuse) {
                         // 如果栈顶是目标项目，则复用
-                        if (_stack.isNotEmpty() && _stack.last().destination == destination) {
+                        if (isCurrentDestination(destination)) {
+                            LogUtil.debug("Push(reuse=true) : current is target destination ${destination.key}")
                             // 如果栈顶就是目标，保持栈顶不变
                             return@launch
                         } else {
-                            createAndPush(destination)
+                            if(cachedEntry != null) {
+                                LogUtil.debug("Push(reuse=true) : reuse destination ${destination.key}")
+                                _stack.add(cachedEntry)
+                            } else {
+                                LogUtil.debug("Push(reuse=true) : create destination ${destination.key}")
+                                createAndPush(destination)
+                            }
                         }
                     } else {
+                        LogUtil.debug("Push(reuse=false) : create destination ${destination.key}")
                         // 每次都创建新的并加入栈
                         createAndPush(destination)
                     }
@@ -146,33 +168,43 @@ class NavigationController(
                         // 从栈底（索引0）开始寻找
                         val existingIndex = _stack.indexOfFirst { it.destination == destination }
                         if (existingIndex != -1) {
+                            LogUtil.debug("Single(reuse=true) : found destination ${destination.key}")
                             // 目标项已经存在，复用
                             val item = _stack[existingIndex]
                             _stack.clear()
                             _stack.add(item)
                         } else {
+                            LogUtil.debug("Single(reuse=true) : not found destination ${destination.key}")
                             // 如果栈中没有该目标，直接清空栈并压入
-                            _stack.clear()
-                            createAndPush(destination)
+                            createAndPushClearly(destination)
                         }
                     } else {
+                        LogUtil.debug("Single(reuse=false) : create destination ${destination.key}")
                         // 清空栈并压入
-                        _stack.clear()
-                        createAndPush(destination)
+                        createAndPushClearly(destination)
                     }
                 }
                 is LaunchMode.PopToExisting -> {
                     // 如果栈顶就是目标，保持栈顶不变
-                    if(_stack.last().destination == destination) {
+                    if(isCurrentDestination(destination)) {
+                        LogUtil.debug("PopToExisting : current is target destination ${destination.key}")
                         return@launch
                     }
                     // 如果栈中已经有该目标，则清除其之上的所有栈并复用它
-                    val existingIndex = _stack.indexOfFirst { it.destination == destination }
-                    if (existingIndex != -1) {
-                        _stack.subList(existingIndex + 1, _stack.size-1).clear() // 清除中间元素
+                    if(previous()?.destination == destination) {
+                        // 等效于POP
+                        LogUtil.debug("PopToExisting : equal Pop ${destination.key}")
                         pop()
                         return@launch
+                    }
+                    val existingIndex = _stack.indexOfFirst { it.destination == destination }
+                    if (existingIndex != -1) {
+                        LogUtil.debug("PopToExisting : found destination ${destination.key}")
+                        _stack.subList(existingIndex + 1, _stack.size-1).clear() // 清除中间元素
+                        popInternal()
+                        return@launch
                     } else {
+                        LogUtil.debug("PopToExisting : not found destination ${destination.key}")
                         launchMode.actionType = ActionType.PUSH
                         createAndPush(destination)
                     }
@@ -185,7 +217,7 @@ class NavigationController(
             transition = Transition(
                 type = type,
                 from = from,
-                to = _stack.last()
+                to = current()
             )
         }
     }
@@ -195,8 +227,8 @@ class NavigationController(
 
             if (_stack.size <= 1) return@launch
 
-            val from = _stack.last()
-            val to = _stack[_stack.lastIndex - 1]
+            val from = current()
+            val to = previous() ?: return@launch
 
             val type = ActionType.POP
 
@@ -262,44 +294,49 @@ class NavigationController(
         destination: Destination,
         launchMode: LaunchMode = LaunchMode.Push(reuse = true),
     ) {
-        val registry = this.sharedRegistry
+        val registry = sharedRegistry
         if(registry == null || launchMode.actionType == ActionType.POP) {
-            this.pushInternal(destination,launchMode)
+            pushInternal(destination,launchMode)
         } else {
             registry.push(
                 destination.key,
-                onAnimatedFinished = {
-                    snapshotFlow { this.isTransitioning }
-                        .filter { !it }
-                        .first()
-                }
+                onAnimatedFinished = { awaitTransition() }
             ) {
-                this.pushInternal(destination,launchMode)
+                pushInternal(destination,launchMode)
             }
         }
     }
 
     fun pop() {
-        val registry = this.sharedRegistry
+        val registry = sharedRegistry
         if(registry == null) {
-            this.popInternal()
+            popInternal()
         } else {
             registry.pop(
-                this.stack.last().destination.key,
-                onAnimatedFinished = {
-                    snapshotFlow { this.isTransitioning }
-                        .filter { !it }
-                        .first()
-                }
+                current().destination.key,
+                onAnimatedFinished = { awaitTransition() }
             ) {
-                this.popInternal()
+                popInternal()
             }
         }
     }
 
-    fun current() : StackEntry? = _stack.lastOrNull()
+    suspend fun awaitTransition() = snapshotFlow { isTransitioning }.filter { !it }.first()
+
+    fun current() : StackEntry = _stack.last()
+
+    fun isCurrentDestination(destination : Destination) : Boolean = current().destination == destination
+
+    fun previous() : StackEntry? = _stack.getOrNull(_stack.lastIndex - 1)
 
     fun canPop() : Boolean = _stack.size > 1
+
+
+    // 清空栈并压入
+    private fun createAndPushClearly(destination : Destination) {
+        _stack.clear()
+        createAndPush(destination)
+    }
 
     suspend fun startPredictiveBackShared() : SharedContainerState? {
         val registry = sharedRegistry
@@ -308,7 +345,7 @@ class NavigationController(
             return null
         } else {
             return registry.startPredictiveBack(
-                stack.last().destination.key,
+                current().destination.key,
             ) {
                 startPredictiveBack()
             }
@@ -318,8 +355,8 @@ class NavigationController(
     private fun startPredictiveBack() {
         scope.launch {
             if (_stack.size <= 1) return@launch
-            val from = _stack.last()
-            val to = _stack[_stack.lastIndex - 1]
+            val from = current()
+            val to = previous() ?: return@launch
             transitionProgress.snapTo(1f)
             transition = Transition(type = ActionType.POP, from = from, to = to)
             isTransitioning = true
@@ -387,9 +424,7 @@ class NavigationController(
             if (!(registry == null || state == null)) {
                 launch {
                     registry.confirmPredictiveBack(state) {
-                        snapshotFlow { isTransitioning }
-                            .filter { !it }
-                            .first()
+                        awaitTransition()
                     }
                 }
             }
@@ -413,9 +448,7 @@ class NavigationController(
             if (!(registry == null || state == null)) {
                 launch {
                     registry.cancelPredictiveBack(state) {
-                        snapshotFlow { isTransitioning }
-                            .filter { !it }
-                            .first()
+                        awaitTransition()
                     }
                 }
             }
