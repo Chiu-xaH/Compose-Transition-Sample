@@ -158,7 +158,7 @@ class SharedRegistry(
         onSwap: suspend () -> Unit
     ) {
         scope.launch {
-            internalPush(key,onAnimatedFinished, onSwap)
+            pushInternal(key,onAnimatedFinished, onSwap)
         }
     }
 
@@ -168,11 +168,11 @@ class SharedRegistry(
         onSwap: suspend () -> Unit
     ) {
         scope.launch {
-            internalPop(key, onAnimatedFinished,onSwap)
+            popInternal(key, onAnimatedFinished,onSwap)
         }
     }
 
-    private suspend fun internalPush(
+    private suspend fun pushInternal(
         key: String,
         onAnimatedFinished : (suspend () -> Unit)? = null,
         onSwap: suspend () -> Unit
@@ -182,10 +182,10 @@ class SharedRegistry(
             onSwap()
             return
         }
-        internalPush(state,onAnimatedFinished,onSwap)
+        pushInternal(state,onAnimatedFinished,onSwap)
     }
 
-    private suspend fun internalPop(
+    private suspend fun popInternal(
         key: String,
         onAnimatedFinished : (suspend () -> Unit)? = null,
         onSwap: suspend () -> Unit
@@ -195,15 +195,16 @@ class SharedRegistry(
             onSwap()
             return
         }
-        internalPop(state,onAnimatedFinished,onSwap)
+        popInternal(state,onAnimatedFinished,onSwap)
     }
 
-    private suspend fun internalPush(
+    private suspend fun pushInternal(
         state: SharedContainerState,
         onAnimatedFinished : (suspend () -> Unit)? = null,
         onSwap: suspend () -> Unit
     ) {
-        if(!enabled) {
+        // state.containerRect == null : SharedContainer destroy
+        if(!enabled || state.containerRect == null) {
             onSwap()
             state.currentState = StatePause.CONTENT
             return
@@ -225,12 +226,13 @@ class SharedRegistry(
         state.currentState = StatePause.CONTENT
     }
 
-    private suspend fun internalPop(
+    private suspend fun popInternal(
         state: SharedContainerState,
-        onAnimatedFinished : (suspend () -> Unit)? = null,
+        onAnimatedFinished :
+        (suspend () -> Unit)? = null,
         onSwap: suspend () -> Unit
     ) {
-        if(!enabled) {
+        if(!enabled || state.contentRect == null) {
             onSwap()
             state.currentState = StatePause.CONTAINER
             return

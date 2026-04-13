@@ -21,6 +21,7 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.ScreenCornerHelper
+import com.sharednav.common.util.LogUtil
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.model.ContentStrategy
 import com.xah.container.model.StatePause
@@ -89,10 +90,13 @@ private fun Modifier.sharedContainer(
         state.containerCorner = shape
     }
 
-    LaunchedEffect(Unit) {
+    DisposableEffect (Unit) {
         state.containerFilledStrategy = containerFilledStrategy
         state.containerLayerForPixel = graphicsLayerForPixel
         state.containerLayer = graphicsLayer
+        onDispose {
+            state.containerRect = null
+        }
     }
 
     return@composed this
@@ -197,9 +201,12 @@ private fun Modifier.mSharedContent(
         state.contentCorner = shape
     }
 
-    LaunchedEffect (Unit) {
+    DisposableEffect (Unit) {
         state.contentLayer = graphicsLayer
         state.useLinearRectInterpolator = useLinearRectInterpolator
+        onDispose {
+//            state.contentRect = null
+        }
     }
 
     this
