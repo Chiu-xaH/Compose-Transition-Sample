@@ -203,10 +203,17 @@ class SharedRegistry(
         onAnimatedFinished : (suspend () -> Unit)? = null,
         onSwap: suspend () -> Unit
     ) {
-        // state.containerRect == null : SharedContainer destroy
         if(!enabled || state.containerRect == null) {
             onSwap()
             state.currentState = StatePause.CONTENT
+            return
+        }
+        // container destroy的时候不启用动画
+        if(!state.active) {
+            onSwap()
+            state.containerRect = null
+            state.currentState = StatePause.CONTENT
+            LogUtil.debug("push without shared ${state.key}")
             return
         }
         if(
@@ -235,6 +242,7 @@ class SharedRegistry(
         if(!enabled || state.contentRect == null) {
             onSwap()
             state.currentState = StatePause.CONTAINER
+            LogUtil.debug("pop without shared ${state.key}")
             return
         }
         if(

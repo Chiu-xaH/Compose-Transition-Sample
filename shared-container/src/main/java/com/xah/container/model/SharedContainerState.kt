@@ -36,6 +36,7 @@ class SharedContainerState(
     val animation = Animatable(0f)
     // 当前所处状态
     var currentState by mutableStateOf(StatePause.CONTAINER)
+    var active by mutableStateOf(false)
 
     // 跟手Offset
     var contentOffset by mutableStateOf(Offset.Zero)

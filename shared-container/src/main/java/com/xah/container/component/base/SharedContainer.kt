@@ -91,11 +91,13 @@ private fun Modifier.sharedContainer(
     }
 
     DisposableEffect (Unit) {
+        state.active = true
         state.containerFilledStrategy = containerFilledStrategy
         state.containerLayerForPixel = graphicsLayerForPixel
         state.containerLayer = graphicsLayer
         onDispose {
-            state.containerRect = null
+            LogUtil.debug("SharedContainer ${state.key} onDestroy")
+            state.active = false
         }
     }
 
@@ -204,9 +206,7 @@ private fun Modifier.mSharedContent(
     DisposableEffect (Unit) {
         state.contentLayer = graphicsLayer
         state.useLinearRectInterpolator = useLinearRectInterpolator
-        onDispose {
-//            state.contentRect = null
-        }
+        onDispose {}
     }
 
     this
