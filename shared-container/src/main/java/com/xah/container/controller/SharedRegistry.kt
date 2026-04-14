@@ -209,10 +209,9 @@ class SharedRegistry(
             return
         }
         // container destroy的时候不启用动画
-        if(!state.active) {
+        if(!state.isActive) {
             onSwap()
-            state.containerRect = null
-            state.currentState = StatePause.CONTENT
+            unregister(state)
             LogUtil.debug("push without shared ${state.key}")
             return
         }
@@ -235,21 +234,16 @@ class SharedRegistry(
 
     private suspend fun popInternal(
         state: SharedContainerState,
-        onAnimatedFinished :
-        (suspend () -> Unit)? = null,
+        onAnimatedFinished : (suspend () -> Unit)? = null,
         onSwap: suspend () -> Unit
     ) {
-        if(!enabled || state.contentRect == null) {
+        if(!enabled) {
             onSwap()
             state.currentState = StatePause.CONTAINER
             LogUtil.debug("pop without shared ${state.key}")
             return
         }
-        if(
-            !waitContainerFrame(state) {
-                onSwap()
-            }
-        ) {
+        if(!waitContainerFrame(state,onSwap)) {
             return
         }
         // 重置位置
@@ -384,11 +378,7 @@ class SharedRegistry(
             state.currentState = StatePause.CONTAINER
             return null
         }
-        if(
-            !waitContainerFrame(state) {
-                onSwap()
-            }
-        ) {
+        if(!waitContainerFrame(state,onSwap)) {
             return null
         }
         return state

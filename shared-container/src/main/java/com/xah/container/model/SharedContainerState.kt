@@ -4,7 +4,6 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
@@ -36,7 +35,9 @@ class SharedContainerState(
     val animation = Animatable(0f)
     // 当前所处状态
     var currentState by mutableStateOf(StatePause.CONTAINER)
-    var active by mutableStateOf(false)
+
+    // 被标注为不活跃的将会在合适的时机解除注册
+    var isActive : Boolean = false
 
     // 跟手Offset
     var contentOffset by mutableStateOf(Offset.Zero)
