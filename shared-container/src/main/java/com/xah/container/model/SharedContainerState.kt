@@ -36,9 +36,9 @@ class SharedContainerState(
     // 当前所处状态
     var currentState by mutableStateOf(StatePause.CONTAINER)
 
-    // 被标注为不活跃的将会在合适的时机解除注册
-    var isActive : Boolean = false
-
+    // 被标注为不活跃的将会在合适的时机解除注册 引用计数法
+    var isActive : Int = 0
+    fun isActive() = isActive <= 0
     // 跟手Offset
     var contentOffset by mutableStateOf(Offset.Zero)
     var useLinearRectInterpolator : Boolean = false

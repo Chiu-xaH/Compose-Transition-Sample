@@ -91,13 +91,14 @@ private fun Modifier.sharedContainer(
     }
 
     DisposableEffect (Unit) {
-        state.isActive = true
+        LogUtil.debug("SharedContainer ${state.key} onCreate")
+        state.isActive++
         state.containerFilledStrategy = containerFilledStrategy
         state.containerLayerForPixel = graphicsLayerForPixel
         state.containerLayer = graphicsLayer
         onDispose {
             LogUtil.debug("SharedContainer ${state.key} onDestroy")
-            state.isActive = false
+            state.isActive--
         }
     }
 

@@ -209,17 +209,13 @@ class SharedRegistry(
             return
         }
         // container destroy的时候不启用动画
-        if(!state.isActive) {
+        if(state.isActive()) {
             onSwap()
             unregister(state)
             LogUtil.debug("push without shared ${state.key}")
             return
         }
-        if(
-            !waitContentFrame(state) {
-                onSwap()
-            }
-        ) {
+        if(!waitContentFrame(state,onSwap)) {
             return
         }
         snap(state,true)
@@ -353,15 +349,39 @@ class SharedRegistry(
                 state.contentRect
             }
             if (rect != null) {
-                LogUtil.info("waiting for $frameCount frame")
+                LogUtil.info("Pop : waiting for $frameCount frame")
                 return true
             }
             if (frameCount >= waitFrameMaxValue) {
                 unregister(state)
-                LogUtil.warn("rendering timeout after $frameCount frame")
+                LogUtil.warn("Pop : rendering timeout after $frameCount frame")
                 return false
             }
         }
+    }
+
+    private suspend fun waitFrameForPush(
+        state: SharedContainerState,
+    ): Boolean {
+        require(waitFrameMaxValue >= 1) {
+            error("waitFrameMaxValue must >= 1")
+        }
+
+        var frameCount = 0
+        while (state.isActive()) {
+            awaitFrame()
+            frameCount++
+            if (state.isActive()) {
+                LogUtil.info("Push : waiting for $frameCount frame")
+                return true
+            }
+            if (frameCount >= waitFrameMaxValue) {
+                unregister(state)
+                LogUtil.warn("Pop : rendering timeout after $frameCount frame")
+                return false
+            }
+        }
+        return true
     }
 
     private suspend fun findState(
