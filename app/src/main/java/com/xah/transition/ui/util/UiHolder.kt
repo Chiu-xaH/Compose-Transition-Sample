@@ -11,4 +11,5 @@ object UiHolder {
     var imageBitmap by mutableStateOf<Bitmap?>(null)
 
     var enablePredictiveBack by mutableStateOf(Build.VERSION.SDK_INT >= 33)
+    var enableWallpaper by mutableStateOf(false)
 }

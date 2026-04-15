@@ -77,6 +77,8 @@ class NavigationController(
     private val popAnimation = tween<Float>(animationSpecSharedTween*6/5, easing = CubicBezierEasing(0.4f, 0.65f, 0.25f, 1.0f))
     private val pushAnimation = tween<Float>(animationSpecSharedTween*6/5, easing = CubicBezierEasing(0.4f, 0.65f, 0.25f, 1.0f))
 
+    var inPredictive by mutableStateOf(false)
+
     fun getAnimation() =
         if (sharedRegistry?.isRunning == true) {
             when(transition?.type) {
@@ -363,6 +365,7 @@ class NavigationController(
                 from = from,
                 to = to
             )
+            inPredictive = true
             isTransitioning = true
         }
     }
@@ -413,6 +416,7 @@ class NavigationController(
 
     private fun confirmPredictiveBack() {
         scope.launch {
+            inPredictive = false
             transitionProgress.animateTo(0f, getAnimation())
             removeAndPop()
             transition = null
@@ -441,6 +445,7 @@ class NavigationController(
             transitionProgress.animateTo(1f, PredictiveUtil.cancelAnimation())
             transition = null
             isTransitioning = false
+            inPredictive = false
         }
     }
 

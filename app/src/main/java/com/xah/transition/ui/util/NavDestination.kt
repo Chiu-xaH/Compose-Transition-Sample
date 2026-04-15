@@ -4,18 +4,27 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.xah.navigation.model.dest.Destination
+import com.xah.transition.R
+import com.xah.transition.ui.component.StatusIcon
 
 abstract class NavDestination : Destination() {
     abstract val title : String
-    open val icon : Int? = null
+    open val icon : Int = R.drawable.ic_texture
+
     override val PlaceHolder = @Composable {
-        Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
-            Text("Splash Screen", modifier = Modifier.align(Alignment.Center))
+        Box(
+            modifier = Modifier.fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface)
+        ) {
+            Box(
+                modifier = Modifier.align(Alignment.Center)
+            ) {
+                StatusIcon(icon, title, textColor = MaterialTheme.colorScheme.secondary)
+            }
         }
     }
 }

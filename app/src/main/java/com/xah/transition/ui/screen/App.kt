@@ -146,7 +146,7 @@ fun App() {
     val inHomeDest = navigationController.current.destination == navigationController.startDestination || navigationController.transition?.to?.destination == navigationController.startDestination || navigationController.transition?.from?.destination == navigationController.startDestination
     val displayWallpaper = UiHolder.imageBitmap != null
     Box(modifier = Modifier.fillMaxSize()) {
-       if(displayWallpaper && inHomeDest) {
+       if(UiHolder.enableWallpaper && displayWallpaper && inHomeDest) {
            val progress = navigationController.transitionProgress.value
            val blurRadius = when(navigationController.transitionLevel) {
                EffectLevel.FULL -> lerp(navigationController.effects.backgroundEffect.start.blur,navigationController.effects.backgroundEffect.end.blur,progress)
@@ -165,14 +165,14 @@ fun App() {
                 modifier = Modifier.fillMaxSize().backgroundEffect(navigationController.enableBlur,blurRadius,scale),
                 contentScale = ContentScale.Crop
             )
-        }
+       }
         SharedNavHost(
             navController = navigationController,
             modifier = Modifier.let {
-                if(!displayWallpaper) {
-                    it.background(MaterialTheme.colorScheme.surface)
-                } else {
+                if(UiHolder.enableWallpaper && displayWallpaper) {
                     it
+                } else {
+                    it.background(MaterialTheme.colorScheme.surface)
                 }
             },
             dependencies = dependencies,
@@ -210,16 +210,17 @@ fun HomeScreen() {
     }
 
     val levelList = remember { EffectLevel.entries }
+    val displayWallpaper = UiHolder.imageBitmap != null
 
     Box(modifier = Modifier.fillMaxSize()) {
-//        if(UiHolder.imageBitmap != null) {
-//            Image(
-//                bitmap = UiHolder.imageBitmap!!.asImageBitmap(),
-//                contentDescription = null,
-//                modifier = Modifier.fillMaxSize(),
-//                contentScale = ContentScale.Crop
-//            )
-//        }
+        if(!UiHolder.enableWallpaper && displayWallpaper) {
+            Image(
+                bitmap = UiHolder.imageBitmap!!.asImageBitmap(),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        }
         Scaffold(
             containerColor = Color.Transparent,
             floatingActionButton = {
@@ -444,6 +445,58 @@ fun HomeScreen() {
                                 },
                                 modifier = Modifier.clickable {
                                     UiHolder.enablePredictiveBack = !UiHolder.enablePredictiveBack
+                                },
+                            )
+                        }
+                    }
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        LaunchedEffect(UiHolder.enablePredictiveBack) {
+                            navController.enablePredictiveBack = UiHolder.enablePredictiveBack
+                            registry.enablePredictiveBack = UiHolder.enablePredictiveBack
+                        }
+                        Surface(
+                            color = cardNormalColor(),
+                            shape = MaterialTheme.shapes.small,
+                            modifier = Modifier.padding(CARD_NORMAL_DP*2)
+                        ) {
+                            TransplantListItem(
+                                headlineContent = {
+                                    Text("Splash Screen")
+                                },
+                                leadingContent = {
+                                    Icon(painterResource(R.drawable.ic_texture),null)
+                                },
+                                trailingContent = {
+                                    Switch(navController.enableSplashScreen, onCheckedChange = { navController.enableSplashScreen = it })
+                                },
+                                modifier = Modifier.clickable {
+                                    navController.enableSplashScreen = !navController.enableSplashScreen
+                                },
+                            )
+                        }
+                    }
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        LaunchedEffect(UiHolder.enablePredictiveBack) {
+                            navController.enablePredictiveBack = UiHolder.enablePredictiveBack
+                            registry.enablePredictiveBack = UiHolder.enablePredictiveBack
+                        }
+                        Surface(
+                            color = cardNormalColor(),
+                            shape = MaterialTheme.shapes.small,
+                            modifier = Modifier.padding(CARD_NORMAL_DP*2)
+                        ) {
+                            TransplantListItem(
+                                headlineContent = {
+                                    Text("壁纸缩放")
+                                },
+                                leadingContent = {
+                                    Icon(painterResource(R.drawable.ic_texture),null)
+                                },
+                                trailingContent = {
+                                    Switch(enabled = displayWallpaper, checked = UiHolder.enableWallpaper, onCheckedChange = { UiHolder.enableWallpaper = it })
+                                },
+                                modifier = Modifier.clickable(displayWallpaper) {
+                                    UiHolder.enableWallpaper = !UiHolder.enableWallpaper
                                 },
                             )
                         }

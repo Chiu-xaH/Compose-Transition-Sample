@@ -160,10 +160,7 @@ private fun NavHost(
                         val foregroundOrigin = remember(level) { effect.foregroundOrigin(level) }
 
                         // 当返回时，禁用前景；当前进时，禁用背景；当非动画态，启用
-                        // fixme: 暂时一刀切，未适配并行动画
-                        val (enableTouch,interceptTouch) =
-//                            Pair(transition == null,true)
-                      when(transition?.type) {
+                        val (enableTouch,interceptTouch) = when(transition?.type) {
                             ActionType.POP -> {
                                 Pair(isTo,false)
                             }
@@ -239,7 +236,7 @@ private fun NavHost(
                                 // 动画过程中且为前景
                                 val inTransiting = (transition?.type == ActionType.POP && isFrom && navController.isTransitioning) || (transition?.type == ActionType.PUSH && isTo)
 
-                                if(enableSplashScreen && inTransiting) {
+                                if(enableSplashScreen && inTransiting && !navController.inPredictive) {
                                     // SplashScreen
                                     entry.destination.PlaceHolder!!.invoke()
                                 } else {
