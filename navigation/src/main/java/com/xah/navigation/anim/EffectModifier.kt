@@ -25,7 +25,6 @@ private fun Modifier.scale(
     enableShader : Boolean,
     effect: PageEffect
 ) : Modifier {
-    // fixme:这里用graphicsLayer最后会抽搐一下，太奇怪了
     return this.scaleMirror(effect.scale,enableShader)
 }
 

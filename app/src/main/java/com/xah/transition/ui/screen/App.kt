@@ -1,6 +1,5 @@
 package com.xah.transition.ui.screen
 
-import android.os.Build
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -8,8 +7,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.calculatePan
-import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -50,6 +47,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -60,25 +58,30 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
+import androidx.compose.ui.util.lerp
 import com.sharednav.common.helper.ScreenCornerHelper
+import com.sharednav.common.modifier.scaleMirror
 import com.sharednav.common.util.LogUtil
 import com.xah.container.component.base.SharedContainer
-import com.xah.container.model.SharedContainerState
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.floating.util.LocalFloatingController
 import com.xah.navigation.component.SharedNavHost
+import com.xah.navigation.component.rememberNavController
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.model.anim.EffectLevel
+import com.xah.navigation.model.anim.PageEffect
 import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavDependencies
 import com.xah.navigation.util.rememberNavDependencies
@@ -86,7 +89,6 @@ import com.xah.transition.R
 import com.xah.transition.model.AppIconBean
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CARD_NORMAL_DP
-import com.xah.transition.ui.component.CardListItem
 import com.xah.transition.ui.component.CustomCard
 import com.xah.transition.ui.component.CustomSlider
 import com.xah.transition.ui.component.DividerTextExpandedWithShared
@@ -104,9 +106,34 @@ import com.xah.transition.ui.screen.window.DialogFloatingWindow
 import com.xah.transition.ui.style.topBarTransplantColor
 import com.xah.transition.ui.util.UiHolder
 import com.xah.transition.util.Starter
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlin.coroutines.cancellation.CancellationException
+
+private fun Modifier.blur(enableBlur : Boolean,radius : Dp) : Modifier {
+    return if(enableBlur) {
+        this.blur(radius)
+    } else {
+        this
+    }
+}
+
+private fun Modifier.scale(
+    scale: Float
+) : Modifier {
+    return this.graphicsLayer {
+        scaleX = scale
+        scaleY = scale
+    }
+}
+
+private fun Modifier.backgroundEffect(
+    enableBlur : Boolean,
+    blurRadius : Dp,
+    scale: Float
+) : Modifier {
+    return this
+        .blur(enableBlur,blurRadius)
+        .scale(scale)
+}
+
 
 @Composable
 fun App() {
@@ -115,14 +142,45 @@ fun App() {
         put(arg1, tag = "args1")
         put("1", tag = "args2")
     }
-    SharedNavHost(
-        startDestination = HomeDestination,
-        modifier = Modifier.background(MaterialTheme.colorScheme.surface),
-        dependencies = dependencies,
-    )
+    val navigationController = rememberNavController(HomeDestination)
+    val inHomeDest = navigationController.current.destination == navigationController.startDestination || navigationController.transition?.to?.destination == navigationController.startDestination || navigationController.transition?.from?.destination == navigationController.startDestination
+    val displayWallpaper = UiHolder.imageBitmap != null
+    Box(modifier = Modifier.fillMaxSize()) {
+       if(displayWallpaper && inHomeDest) {
+           val progress = navigationController.transitionProgress.value
+           val blurRadius = when(navigationController.transitionLevel) {
+               EffectLevel.FULL -> lerp(navigationController.effects.backgroundEffect.start.blur,navigationController.effects.backgroundEffect.end.blur,progress)
+               else -> navigationController.effects.backgroundEffect.start.blur
+           }
+           val scale = when(navigationController.transitionLevel) {
+               EffectLevel.NO_BLUR -> lerp(navigationController.effects.backgroundEffect.start.scale,2 - navigationController.effects.backgroundEffect.end.scale,progress)
+               EffectLevel.FULL -> lerp(navigationController.effects.backgroundEffect.start.scale,2 - navigationController.effects.backgroundEffect.end.scale,progress)
+               EffectLevel.NO_SCALE -> navigationController.effects.backgroundEffect.start.scale
+               EffectLevel.NONE -> navigationController.effects.backgroundEffect.start.scale
+           }
+
+           Image(
+                bitmap = UiHolder.imageBitmap!!.asImageBitmap(),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize().backgroundEffect(navigationController.enableBlur,blurRadius,scale),
+                contentScale = ContentScale.Crop
+            )
+        }
+        SharedNavHost(
+            navController = navigationController,
+            modifier = Modifier.let {
+                if(!displayWallpaper) {
+                    it.background(MaterialTheme.colorScheme.surface)
+                } else {
+                    it
+                }
+            },
+            dependencies = dependencies,
+        )
+    }
 }
 
-private val appList = listOf<AppIconBean>(
+private val appList = listOf(
     AppIconBean("jd","京东",R.drawable.ic_jd),
     AppIconBean("xhs","小红书",R.drawable.ic_xhs),
     AppIconBean("amap","高德地图",R.drawable.ic_amap),
@@ -154,14 +212,14 @@ fun HomeScreen() {
     val levelList = remember { EffectLevel.entries }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if(UiHolder.imageBitmap != null) {
-            Image(
-                bitmap = UiHolder.imageBitmap!!.asImageBitmap(),
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
-        }
+//        if(UiHolder.imageBitmap != null) {
+//            Image(
+//                bitmap = UiHolder.imageBitmap!!.asImageBitmap(),
+//                contentDescription = null,
+//                modifier = Modifier.fillMaxSize(),
+//                contentScale = ContentScale.Crop
+//            )
+//        }
         Scaffold(
             containerColor = Color.Transparent,
             floatingActionButton = {

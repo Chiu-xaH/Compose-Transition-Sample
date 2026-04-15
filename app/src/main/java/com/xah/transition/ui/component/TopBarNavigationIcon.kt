@@ -1,5 +1,6 @@
 package com.xah.transition.ui.component
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
@@ -28,18 +29,23 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.util.LocalNavController
 import com.xah.transition.R
+import com.xah.transition.ui.screen.test.DraggableFollowIcon2
 import com.xah.transition.ui.util.NavDestination
 import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBarNavigationIcon() {
+fun TopBarNavigationIcon(
+    modifier : Modifier = Modifier
+) {
     val navController = LocalNavController.current
+    val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
     val queue = navController.stack.reversed()
     var displayDialog by remember { mutableStateOf(false) }
@@ -109,13 +115,16 @@ fun TopBarNavigationIcon() {
     val enabled = navController.canPop()
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .padding(horizontal = CARD_NORMAL_DP/2)
             .clip(CircleShape)
             .combinedClickable(
-                enabled = enabled,
                 onClick = {
-                    navController.pop()
+                    if(enabled) {
+                        navController.pop()
+                    } else {
+                        activity?.finish()
+                    }
                 },
                 // TODO 预留唤出启动台
                 onDoubleClick = null,
@@ -128,14 +137,18 @@ fun TopBarNavigationIcon() {
             modifier = Modifier.padding(DIVIDER_TEXT_VERTICAL_PADDING)
         ) {
             Icon(
-                painterResource(R.drawable.ic_arrow_back),
+                painterResource(
+                    if(enabled) {
+                        R.drawable.ic_arrow_back
+                    } else {
+                        R.drawable.ic_close
+                    }
+                ),
                 contentDescription = null,
-                tint = if(enabled) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.primary.copy(.5f)
-                }
+                tint = MaterialTheme.colorScheme.primary
             )
         }
     }
 }
+
+
