@@ -38,12 +38,12 @@ fun SharedContainerOverlay() {
     registry.runningStates.forEach { state ->
         key(state) {
             val container = state.containerRect!!
-            val content1 = state.contentRect!!
-            val content = content1.copy(
-                left = state.contentOffset.x + content1.left,
-                right = state.contentOffset.x + content1.right,
-                bottom = state.contentOffset.y + content1.bottom,
-                top = state.contentOffset.y + content1.top
+            val originContent = state.contentRect!!
+            val content = originContent.copy(
+                left = state.contentOffset.x + originContent.left,
+                right = state.contentOffset.x + originContent.right,
+                bottom = state.contentOffset.y + originContent.bottom,
+                top = state.contentOffset.y + originContent.top
             )
 
             val useContainer = state.contentStrategy !is ContentStrategy.Copy
@@ -54,11 +54,11 @@ fun SharedContainerOverlay() {
 
             // 路径曲线
             val parent = (
-                    if(!state.useLinearRectInterpolator) {
-                        registry.FullScreenRectInterpolator
-                    } else{
-                        LinearRectInterpolator
-                    }
+                if(!state.useLinearRectInterpolator) {
+                    registry.FullScreenRectInterpolator
+                } else {
+                    LinearRectInterpolator
+                }
             ).invoke(progress, container, content)
 
             val contentAlpha = lerp(0f,1f,safelyProgress)

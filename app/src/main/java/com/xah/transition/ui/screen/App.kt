@@ -47,7 +47,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -71,8 +70,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
 import com.sharednav.common.helper.ScreenCornerHelper
-import com.sharednav.common.modifier.scaleMirror
-import com.sharednav.common.util.LogUtil
 import com.xah.container.component.base.SharedContainer
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.floating.util.LocalFloatingController
@@ -81,7 +78,6 @@ import com.xah.navigation.component.rememberNavController
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.model.anim.EffectLevel
-import com.xah.navigation.model.anim.PageEffect
 import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavDependencies
 import com.xah.navigation.util.rememberNavDependencies
@@ -293,7 +289,7 @@ fun HomeScreen() {
                         }
                     }
                     items(30) { index ->
-                        val destination = SecondDestination(userId = index)
+                        val destination = SecondDestination(userId = index,false)
                         Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
                             SharedContainer (
                                 key = destination.key,
@@ -314,7 +310,7 @@ fun HomeScreen() {
                             }
                         }
                     }
-                    items(20) { index ->
+                    items(30) { index ->
                         val window = DialogFloatingWindow(index)
                         Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
                             SharedContainer (
@@ -330,6 +326,28 @@ fun HomeScreen() {
                                         headlineContent = { Text(window.key) },
                                         modifier = Modifier.clickable {
                                             floatingController.push(window)
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    items(15,span = { GridItemSpan(maxLineSpan) }) { index ->
+                        val destination = SecondDestination(userId = index,true)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            SharedContainer (
+                                key = destination.key,
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                shape = MaterialTheme.shapes.small,
+                            ) {
+                                Card(
+                                    shape = RoundedCornerShape(0.dp),
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                                ) {
+                                    TransplantListItem(
+                                        headlineContent = { Text("Screen #${index}") },
+                                        modifier = Modifier.clickable {
+                                            navController.push(destination)
                                         }
                                     )
                                 }
@@ -501,6 +519,30 @@ fun HomeScreen() {
                             )
                         }
                     }
+                    /*
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Surface(
+                            color = cardNormalColor(),
+                            shape = MaterialTheme.shapes.small,
+                            modifier = Modifier.padding(CARD_NORMAL_DP*2)
+                        ) {
+                            TransplantListItem(
+                                headlineContent = {
+                                    Text("着色器")
+                                },
+                                leadingContent = {
+                                    Icon(painterResource(R.drawable.ic_texture),null)
+                                },
+                                trailingContent = {
+                                    Switch(checked = navController.enableShader, onCheckedChange = { navController.enableShader = it })
+                                },
+                                modifier = Modifier.clickable {
+                                    navController.enableShader = !navController.enableShader
+                                },
+                            )
+                        }
+                    }
+                     */
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         Surface(
                             color = cardNormalColor(),

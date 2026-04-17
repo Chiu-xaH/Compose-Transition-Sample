@@ -112,6 +112,8 @@ class SharedRegistry(
     var FullScreenRectInterpolator: RectInterpolator = LinearRectInterpolator
         private set
 
+    var screenRect : Rect? = null
+
     fun initFullScreenRectInterpolator(interpolator: RectInterpolator) {
         FullScreenRectInterpolator = interpolator
     }

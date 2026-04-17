@@ -8,6 +8,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -51,6 +52,7 @@ fun SharedContainerRoot(
 
     LaunchedEffect(screenWidthPx, screenHeightPx) {
         LogUtil.debug("init FullScreenRectInterpolator")
+        registry.screenRect = Rect(0f,0f,screenWidthPx,screenHeightPx)
         registry.initFullScreenRectInterpolator(
             QuadraticBezierRectInterpolator(
                 screenHeightPx,

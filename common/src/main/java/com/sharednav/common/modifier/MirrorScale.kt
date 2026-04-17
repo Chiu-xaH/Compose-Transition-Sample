@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -21,7 +22,9 @@ fun Modifier.scaleMirror(
     scale: Float,
     enabled : Boolean,
 ): Modifier =
-    if(scale == 1f || !enabled || Build.VERSION.SDK_INT < 33) {
+    if(scale == 1f) {
+        this
+    } else if(!enabled || Build.VERSION.SDK_INT < 33) {
         this.graphicsLayer {
             scaleX = scale
             scaleY = scale

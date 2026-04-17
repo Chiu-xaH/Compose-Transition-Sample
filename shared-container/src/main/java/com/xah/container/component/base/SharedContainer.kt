@@ -150,15 +150,34 @@ private fun Modifier.sharedContainer(
         .onGloballyPositioned { coordinates ->
             val position = coordinates.positionInRoot()
             val size = coordinates.size
-
-            state.containerRect = Rect(
+            val layoutRect = Rect(
                 left = position.x,
                 top = position.y,
                 right = position.x + size.width,
                 bottom = position.y + size.height
             )
+//            val visualRect = coordinates.boundsInRoot()
+//            LogUtil.debug(
+//                """
+//                    ${state.key}:
+//                    positionInRoot=${coordinates.positionInRoot()};
+//                    boundsInRoot=${coordinates.boundsInRoot()};
+//                    final=${finalRect}
+//                """.trimIndent()
+//            )
+
+            state.containerRect = layoutRect
         }
 }
+
+
+private fun isOutOfScreen(screenRect : Rect,containerRect : Rect) : Boolean {
+    return  containerRect.left < screenRect.left ||
+            containerRect.top < screenRect.top ||
+            containerRect.right > screenRect.right ||
+            containerRect.bottom > screenRect.bottom
+}
+
 
 fun Modifier.sharedContent(
     key : String,
