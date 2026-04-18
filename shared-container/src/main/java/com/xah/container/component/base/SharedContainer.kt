@@ -28,7 +28,7 @@ import com.xah.container.model.StatePause
 import com.xah.container.util.LocalSharedRegistry
 
 fun Modifier.sharedContainer(
-    key : String,
+    key : String?,
     shape : CornerBasedShape,
     containerColor : Color?,
     shadow : Dp = 0.dp,
@@ -49,7 +49,7 @@ fun Modifier.sharedContainer(
 
 
 fun Modifier.sharedContainer(
-    key : String,
+    key : String?,
     shape : CornerBasedShape,
     shadow : Dp = 0.dp,
     containerFilledStrategy : ContainerFilledStrategy = ContainerFilledStrategy.Pixel(),
@@ -61,10 +61,13 @@ fun Modifier.sharedContainer(
 }
 
 private fun Modifier.sharedContainer(
-    key : String,
+    key : String?,
     containerFilledStrategy : ContainerFilledStrategy,
     shape : CornerBasedShape,
 ): Modifier = composed {
+    if(key == null) {
+        return@composed this
+    }
     val registry = LocalSharedRegistry.current
     if(!registry.enabled) {
         return@composed this
@@ -111,7 +114,7 @@ private fun Modifier.sharedContainer(
                     }
                 }
                 StatePause.CONTENT -> {
-                    if(contentStrategy is ContentStrategy.FloatingWindow) {
+                    if(contentStrategy is ContentStrategy.Layer) {
                         it.drawWithContent {}
                     } else {
                         it
@@ -180,34 +183,35 @@ private fun isOutOfScreen(screenRect : Rect,containerRect : Rect) : Boolean {
 
 
 fun Modifier.sharedContent(
-    key : String,
+    key : String?,
     shape: CornerBasedShape,
     contentStrategy: ContentStrategy = ContentStrategy.Navigation,
-    useLinearRectInterpolator: Boolean = contentStrategy is ContentStrategy.Copy,
 ): Modifier {
     return this
         .let {
             when(contentStrategy) {
-                ContentStrategy.Copy -> {
+                is ContentStrategy.Copy -> {
                     it.clip(shape)
                 }
-                ContentStrategy.Navigation -> {
+                is ContentStrategy.Navigation -> {
                     it
                 }
-                ContentStrategy.FloatingWindow -> {
+                is ContentStrategy.Layer -> {
                     it.clip(shape)
                 }
             }
         }
-        .mSharedContent(key,shape,contentStrategy,useLinearRectInterpolator)
+        .mSharedContent(key,shape,contentStrategy)
 }
 
 private fun Modifier.mSharedContent(
-    key : String,
+    key : String?,
     shape: CornerBasedShape,
     contentStrategy: ContentStrategy,
-    useLinearRectInterpolator : Boolean
 ): Modifier = composed {
+    if(key == null) {
+        return@composed this
+    }
     val registry = LocalSharedRegistry.current
     if(!registry.enabled) {
         return@composed this
@@ -225,7 +229,6 @@ private fun Modifier.mSharedContent(
 
     DisposableEffect (Unit) {
         state.contentLayer = graphicsLayer
-        state.useLinearRectInterpolator = useLinearRectInterpolator
         onDispose {}
     }
 
@@ -281,16 +284,15 @@ private fun Modifier.mSharedContent(
  */
 @Composable
 fun SharedContent(
-    key : String,
+    key : String?,
     modifier : Modifier = Modifier,
     shape : CornerBasedShape = RoundedCornerShape(ScreenCornerHelper.corner),
     contentStrategy: ContentStrategy = ContentStrategy.Navigation,
-    useLinearRectInterpolator: Boolean = contentStrategy is ContentStrategy.Copy,
     content : @Composable () -> Unit
 )  {
     Box(modifier = modifier) {
         Box(
-            modifier = Modifier.sharedContent(key,shape,contentStrategy,useLinearRectInterpolator)
+            modifier = Modifier.sharedContent(key,shape,contentStrategy)
         ) {
             content()
         }
@@ -305,7 +307,7 @@ fun SharedContent(
  */
 @Composable
 fun SharedContainer(
-    key : String,
+    key : String?,
     shape: CornerBasedShape,
     modifier : Modifier = Modifier,
     shadow : Dp = 0.dp,
@@ -332,7 +334,7 @@ fun SharedContainer(
  */
 @Composable
 fun SharedContainer(
-    key : String,
+    key : String?,
     shape : CornerBasedShape,
     modifier : Modifier = Modifier,
     shadow : Dp = 0.dp,

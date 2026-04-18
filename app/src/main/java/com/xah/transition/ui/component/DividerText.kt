@@ -121,7 +121,6 @@ fun DividerTextExpandedWithShared(
             key = key,
             contentStrategy = ContentStrategy.Copy,
             shape = shape,
-            useLinearRectInterpolator = true
         ) {
             Column {
                 content()

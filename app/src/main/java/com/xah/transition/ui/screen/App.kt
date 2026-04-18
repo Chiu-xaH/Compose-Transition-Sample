@@ -72,6 +72,7 @@ import androidx.compose.ui.util.lerp
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.xah.container.component.base.SharedContainer
 import com.xah.container.util.LocalSharedRegistry
+import com.xah.floating.model.componment.BottomDialog
 import com.xah.floating.util.LocalFloatingController
 import com.xah.navigation.component.SharedNavHost
 import com.xah.navigation.component.rememberNavController
@@ -99,6 +100,9 @@ import com.xah.transition.ui.screen.destination.SecondDestination
 import com.xah.transition.ui.screen.destination.ThirdDestination
 import com.xah.transition.ui.screen.test.CubicBezierEditor
 import com.xah.transition.ui.screen.window.DialogFloatingWindow
+import com.xah.transition.ui.screen.window.BottomDialogWindow
+import com.xah.transition.ui.screen.window.BottomSheetWindow
+import com.xah.transition.ui.screen.window.CenterDialogWindow
 import com.xah.transition.ui.style.topBarTransplantColor
 import com.xah.transition.ui.util.UiHolder
 import com.xah.transition.util.Starter
@@ -323,7 +327,95 @@ fun HomeScreen() {
                                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                                 ) {
                                     TransplantListItem(
-                                        headlineContent = { Text(window.key) },
+                                        headlineContent = { Text(window.key ?: "Empty") },
+                                        modifier = Modifier.clickable {
+                                            floatingController.push(window)
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    item {
+                        val window = BottomDialogWindow
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            SharedContainer (
+                                key = window.key,
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                shape = MaterialTheme.shapes.small,
+                            ) {
+                                Card(
+                                    shape = RoundedCornerShape(0.dp),
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                                ) {
+                                    TransplantListItem(
+                                        headlineContent = { Text(window.key ?: "底部Dialog") },
+                                        modifier = Modifier.clickable {
+                                            floatingController.push(window)
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    item {
+                        val window = BottomSheetWindow
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            SharedContainer (
+                                key = window.key,
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                shape = MaterialTheme.shapes.small,
+                            ) {
+                                Card(
+                                    shape = RoundedCornerShape(0.dp),
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                                ) {
+                                    TransplantListItem(
+                                        headlineContent = { Text(window.key ?: "底部Sheet") },
+                                        modifier = Modifier.clickable {
+                                            floatingController.push(window)
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    item {
+                        val window = CenterDialogWindow
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            SharedContainer (
+                                key = window.key,
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                shape = MaterialTheme.shapes.small,
+                            ) {
+                                Card(
+                                    shape = RoundedCornerShape(0.dp),
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                                ) {
+                                    TransplantListItem(
+                                        headlineContent = { Text(window.key ?: "中心弹窗") },
+                                        modifier = Modifier.clickable {
+                                            floatingController.push(window)
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    item {
+                        val window = DialogFloatingWindow(888)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            SharedContainer (
+                                key = window.key,
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                shape = MaterialTheme.shapes.small,
+                            ) {
+                                Card(
+                                    shape = RoundedCornerShape(0.dp),
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                                ) {
+                                    TransplantListItem(
+                                        headlineContent = { Text("容器共享弹窗") },
                                         modifier = Modifier.clickable {
                                             floatingController.push(window)
                                         }

@@ -41,5 +41,4 @@ class SharedContainerState(
     fun isActive() = isActive <= 0
     // 跟手Offset
     var contentOffset by mutableStateOf(Offset.Zero)
-    var useLinearRectInterpolator : Boolean = false
 }

@@ -47,6 +47,7 @@ fun SharedContainerOverlay() {
             )
 
             val useContainer = state.contentStrategy !is ContentStrategy.Copy
+            val useLinear = (state.contentStrategy as? ContentStrategy.Layer)?.isFloating == false
 
             // 进度
             val progress = state.animation.value
@@ -54,10 +55,10 @@ fun SharedContainerOverlay() {
 
             // 路径曲线
             val parent = (
-                if(!state.useLinearRectInterpolator) {
-                    registry.FullScreenRectInterpolator
-                } else {
+                if(useLinear || !useContainer) {
                     LinearRectInterpolator
+                } else {
+                    registry.FullScreenRectInterpolator
                 }
             ).invoke(progress, container, content)
 
@@ -66,7 +67,7 @@ fun SharedContainerOverlay() {
 
             // 倾斜计算
             val maxTilt = registry.tiltMaxValue
-            val (roX, roY) = if (registry.enableTilt) {
+            val (roX, roY) = if (registry.enableTilt && !useLinear) {
 
                 val cCenterX = container.left + container.width / 2f
                 val cCenterY = container.top + container.height / 2f

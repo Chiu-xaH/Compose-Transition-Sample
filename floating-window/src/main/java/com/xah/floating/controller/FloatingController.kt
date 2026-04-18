@@ -6,18 +6,16 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.geometry.Offset
-import com.sharednav.common.util.PredictiveUtil
 import com.xah.container.controller.SharedRegistry
 import com.xah.container.model.SharedContainerState
-import com.xah.floating.anim.DefaultEffects
+import com.xah.floating.anim.DefaultBackgroundEffect
 import com.xah.floating.model.WindowEntry
 import com.xah.floating.model.Window
-import com.xah.floating.model.anim.PageEffects
+import com.xah.floating.model.anim.BackgroundEffect
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.flow.filter
@@ -30,7 +28,7 @@ class FloatingController(
     private val scope: CoroutineScope,
     private val _stack: SnapshotStateList<WindowEntry>,
     private val _inOverlay: MutableState<Boolean>,
-    val effect : PageEffects = DefaultEffects,
+    val backgroundEffect : BackgroundEffect = DefaultBackgroundEffect,
     var sharedRegistry : SharedRegistry? = null,
 ) {
     val stack: List<WindowEntry> get() = _stack
@@ -90,11 +88,12 @@ class FloatingController(
         window: Window
     ) {
         val registry = this.sharedRegistry
-        if(registry == null) {
+        val key = window.key
+        if(registry == null || key == null) {
             this.pushInternal(window)
         } else {
             registry.push(
-                window.key,
+                key!!,
             ) {
                 this.pushInternal(window)
             }
@@ -106,11 +105,12 @@ class FloatingController(
             return
         }
         val registry = this.sharedRegistry
-        if(registry == null) {
+        val lastKey = this.stack.last().window.key
+        if(registry == null || lastKey == null) {
             this.popInternal()
         } else {
             registry.pop(
-                this.stack.last().window.key,
+                lastKey,
             ) {
                 this.popInternal()
             }
@@ -126,9 +126,7 @@ class FloatingController(
 
     suspend fun startPredictiveBackShared() : SharedContainerState? {
         val registry = sharedRegistry
-        return registry?.startPredictiveBack(
-            stack.last().window.key,
-        ) {}
+        return stack.last().window.key?.let { registry?.startPredictiveBack(it) {} }
     }
 
 

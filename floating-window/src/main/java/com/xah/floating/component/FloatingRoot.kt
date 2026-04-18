@@ -13,22 +13,24 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xah.container.controller.SharedRegistry
 import com.xah.container.util.LocalSharedRegistrySafely
+import com.xah.floating.anim.DefaultBackgroundEffect
 import com.xah.floating.anim.DefaultEffects
 import com.xah.floating.anim.backgroundEffect
 import com.xah.floating.controller.FloatingController
 import com.xah.floating.controller.FloatingViewModel
+import com.xah.floating.model.anim.BackgroundEffect
 import com.xah.floating.model.anim.PageEffects
 import com.xah.floating.util.LocalFloatingController
 import com.xah.floating.util.LocalFloatingControllerSafely
 
 @Composable
 fun rememberFloatingController(
-    effect: PageEffects = DefaultEffects,
+    backgroundEffect: BackgroundEffect = DefaultBackgroundEffect,
 ): FloatingController {
     val scope = rememberCoroutineScope()
     val vm: FloatingViewModel = viewModel(factory = FloatingViewModel.Factory())
     return remember(vm) {
-        FloatingController(scope, vm.stack,vm.inOverlay, effect)
+        FloatingController(scope, vm.stack,vm.inOverlay, backgroundEffect)
     }
 }
 
@@ -64,14 +66,14 @@ fun FloatingRoot(
                 registry.getPushAnimation()
             }
         } else {
-            controller.effect.backgroundEffect.animationSpec
+            controller.backgroundEffect.animationSpec
         }
 
         val progress by animateFloatAsState(
             targetValue = if(inOverlay) 0f else 1f,
             animationSpec = animationSpec
         )
-        val effect = controller.effect.backgroundEffect.pageEffect.lerp(progress)
+        val effect = controller.backgroundEffect.pageEffect.lerp(progress)
 
         backHandler()
 

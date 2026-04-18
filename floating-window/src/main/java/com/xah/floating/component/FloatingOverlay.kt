@@ -23,17 +23,6 @@ fun FloatingOverlay() {
     val stack = controller.stack
     val registry = LocalSharedRegistrySafely.current
 
-    val foregroundEffect = remember(registry?.isRunning) {
-        if(registry?.isRunning == true) {
-            ForegroundEffect(
-                fadeIn(animationSpec = registry.getPushAnimation()),
-                fadeOut(animationSpec = registry.getPopAnimation())
-            )
-        } else {
-            controller.effect.foregroundEffect
-        }
-    }
-
     Box(modifier = Modifier.fillMaxSize()) {
         stack.forEachIndexed { index, entry ->
             key(entry.id) {
@@ -65,6 +54,16 @@ fun FloatingOverlay() {
                             }
                         }
                 )
+                val foregroundEffect = remember(registry?.isRunning) {
+                    if(registry?.isRunning == true) {
+                        ForegroundEffect(
+                            fadeIn(animationSpec = registry.getPushAnimation()),
+                            fadeOut(animationSpec = registry.getPopAnimation())
+                        )
+                    } else {
+                        entry.window.animation
+                    }
+                }
                 AnimatedVisibility(
                     visibleState = visibleState,
                     enter = foregroundEffect.enter,
@@ -76,15 +75,14 @@ fun FloatingOverlay() {
                             } else {
                                 it
                                     .disableTouchEvent { controller.pop() }
-                                    .graphicsLayer(alpha = 1 - controller.effect.backgroundEffect.pageEffect.mask)
+                                    .graphicsLayer(alpha = 1 - controller.backgroundEffect.pageEffect.mask)
                             }
                         }
                 ) {
-                    entry.window.Content()
+                    entry.window.Layer()
                 }
             }
         }
     }
 }
-
 
