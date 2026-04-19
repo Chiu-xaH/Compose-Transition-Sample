@@ -19,6 +19,8 @@ sealed interface ContainerFilledStrategy {
      */
     data object Clip : ContainerFilledStrategy
 
+    data object Element : ContainerFilledStrategy
+
     fun getFinalStrategy(enableShader : Boolean) : ContainerFilledStrategy = when(this) {
         is Pixel -> {
             if(enableShader && Build.VERSION.SDK_INT >= 33) {

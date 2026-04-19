@@ -92,9 +92,7 @@ class FloatingController(
         if(registry == null || key == null) {
             this.pushInternal(window)
         } else {
-            registry.push(
-                key!!,
-            ) {
+            registry.push(key) {
                 this.pushInternal(window)
             }
         }

@@ -71,6 +71,7 @@ import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.xah.container.component.base.SharedContainer
+import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.floating.model.componment.BottomDialog
 import com.xah.floating.util.LocalFloatingController
@@ -416,8 +417,20 @@ fun HomeScreen() {
                                 ) {
                                     TransplantListItem(
                                         headlineContent = { Text("容器共享弹窗") },
+                                        leadingContent = {
+
+                                            SharedContainer(
+                                                key = "element",
+                                                containerFilledStrategy = ContainerFilledStrategy.Element,
+                                                shape = RoundedCornerShape(0.dp)
+                                            ) {
+                                                Icon(painterResource(R.drawable.ic_settings),null, tint = Color.Red)
+                                            }
+                                        },
                                         modifier = Modifier.clickable {
-                                            floatingController.push(window)
+//                                            registry.push("element") {
+                                                floatingController.push(window)
+//                                            }
                                         }
                                     )
                                 }

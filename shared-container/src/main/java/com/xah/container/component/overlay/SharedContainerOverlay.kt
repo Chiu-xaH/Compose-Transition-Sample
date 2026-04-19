@@ -33,7 +33,6 @@ fun SharedContainerOverlay() {
     val configuration = LocalConfiguration.current
 
     val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
-    val extensionDouble = registry.extensionDouble
 
     registry.runningStates.forEach { state ->
         key(state) {
@@ -121,6 +120,8 @@ fun SharedContainerOverlay() {
 
             // 填充策略
             val containerFilledStrategy = state.containerFilledStrategy.getFinalStrategy(registry.enableShader)
+            val extensionDouble = registry.extensionDouble || containerFilledStrategy is ContainerFilledStrategy.Element
+
             val heightW = container.height / content.height
             val widthW = container.width / content.width
             val isHorizontal = if(heightW > widthW) {
