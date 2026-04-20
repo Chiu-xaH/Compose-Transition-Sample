@@ -25,7 +25,7 @@ import com.sharednav.common.util.LogUtil
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.model.ContentStrategy
 import com.xah.container.model.StatePause
-import com.xah.container.util.LocalSharedRegistry
+import com.xah.container.util.LocalSharedRegistrySafely
 
 fun Modifier.sharedContainer(
     key : String?,
@@ -68,7 +68,7 @@ private fun Modifier.sharedContainer(
     if(key == null) {
         return@composed this
     }
-    val registry = LocalSharedRegistry.current
+    val registry = LocalSharedRegistrySafely.current ?: return@composed this
     if(!registry.enabled) {
         return@composed this
     }
@@ -212,7 +212,7 @@ private fun Modifier.mSharedContent(
     if(key == null) {
         return@composed this
     }
-    val registry = LocalSharedRegistry.current
+    val registry = LocalSharedRegistrySafely.current ?: return@composed this
     if(!registry.enabled) {
         return@composed this
     }
