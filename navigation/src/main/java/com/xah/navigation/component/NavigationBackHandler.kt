@@ -19,7 +19,6 @@ fun NavigationBackHandler() {
     if(navController.enablePredictiveBack && Build.VERSION.SDK_INT >= 33) {
         PredictiveBackHandler(enabled = canPop) { backEvents ->
             var state : SharedContainerState? = null
-            var firstOffset : Offset? = null
             try {
                 val transiting = navController.isTransitioning
                 if(!transiting) {
@@ -29,16 +28,10 @@ fun NavigationBackHandler() {
                 backEvents.collect { backEvent ->
                     if(!transiting) {
                         val progress = backEvent.progress
-//                        val offset = Offset(0f,backEvent.touchY)
-//                        if(firstOffset == null) {
-//                            firstOffset = offset
-//                        }
-//                        val finalOffset = offset - firstOffset!!
                         navController.updatePredictiveBackShared(progress, Offset.Zero,state)
                         LogUtil.debug("updatePredictiveBack $progress")
                     }
                 }
-//                firstOffset = null
                 if(transiting) {
                     navController.pop()
                 } else {

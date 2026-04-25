@@ -115,6 +115,8 @@ class FloatingController(
         }
     }
 
+    suspend fun awaitRunning() = snapshotFlow { isRunning }.filter { !it }.first()
+
     val isRunning: Boolean by derivedStateOf { _stack.isNotEmpty() }
 
     fun current(): WindowEntry? = _stack.lastOrNull()

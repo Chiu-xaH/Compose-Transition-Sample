@@ -54,14 +54,19 @@ fun SharedNavHost(
 ) {
     SharedContainerRoot {
         val registry = LocalSharedRegistry.current
-        FloatingRoot(registry = registry) {
-            NavHost(
-                navController,
-                registry,
-                modifier,
-                dependencies,
-                backHandler
-            )
+        CompositionLocalProvider(
+            LocalNavControllerSafely provides navController,
+            LocalNavController provides navController,
+        ) {
+            FloatingRoot(registry = registry) {
+                NavHost(
+                    navController,
+                    registry,
+                    modifier,
+                    dependencies,
+                    backHandler
+                )
+            }
         }
     }
 }

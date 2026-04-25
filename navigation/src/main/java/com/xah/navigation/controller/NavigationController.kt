@@ -354,6 +354,15 @@ class NavigationController(
         }
     }
 
+    fun startPredictiveBackSharedAsync(
+        onResult: (SharedContainerState?) -> Unit
+    ) {
+        scope.launch {
+            val result = startPredictiveBackShared()
+            onResult(result)
+        }
+    }
+
     private fun startPredictiveBack() {
         scope.launch {
             if (!canPop()) return@launch

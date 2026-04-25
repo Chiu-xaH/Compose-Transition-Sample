@@ -91,6 +91,7 @@ import com.xah.transition.ui.component.CustomCard
 import com.xah.transition.ui.component.CustomSlider
 import com.xah.transition.ui.component.DividerTextExpandedWithShared
 import com.xah.transition.ui.component.TopBarNavigationIcon
+import com.xah.transition.ui.component.TopBarNavigationIcon2
 import com.xah.transition.ui.component.TransplantListItem
 import com.xah.transition.ui.component.cardNormalColor
 import com.xah.transition.ui.screen.destination.AppIconDestination
