@@ -19,7 +19,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Transition"
+rootProject.name = "SharedNav"
 
 include(":app")
 include(":navigation")

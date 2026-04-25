@@ -22,6 +22,7 @@ import com.xah.floating.model.anim.BackgroundEffect
 import com.xah.floating.model.anim.PageEffects
 import com.xah.floating.util.LocalFloatingController
 import com.xah.floating.util.LocalFloatingControllerSafely
+import com.xah.floating.util.SystemBarColorForFloatingWindow
 
 @Composable
 fun rememberFloatingController(
@@ -39,18 +40,20 @@ fun FloatingRoot(
     controller: FloatingController = rememberFloatingController(),
     registry: SharedRegistry? = null,
     backHandler : @Composable () -> Unit = { FloatingBackHandler() },
+    systemUiController : @Composable () -> Unit = { SystemBarColorForFloatingWindow() },
     content: @Composable () -> Unit,
 ) {
     LaunchedEffect(registry) {
         controller.sharedRegistry = registry
     }
-    FloatingRoot(controller,backHandler,content)
+    FloatingRoot(controller,backHandler,systemUiController,content)
 }
 
 @Composable
 fun FloatingRoot(
     controller: FloatingController = rememberFloatingController(),
     backHandler : @Composable () -> Unit = { FloatingBackHandler() },
+    systemUiController : @Composable () -> Unit = { SystemBarColorForFloatingWindow() },
     content: @Composable () -> Unit,
 ) {
     val inOverlay = controller.inOverlay
@@ -58,6 +61,8 @@ fun FloatingRoot(
         LocalFloatingControllerSafely provides controller,
         LocalFloatingController provides controller,
     ) {
+        systemUiController()
+
         val registry = LocalSharedRegistrySafely.current
         val animationSpec = if(registry?.isRunning == true) {
             if(inOverlay) {
