@@ -292,12 +292,14 @@ class NavigationController(
         isTransitioning = false
     }
 
+    private fun withoutShared() = transitionLevel == EffectLevel.NONE
+
     fun push(
         destination: Destination,
         launchMode: LaunchMode = LaunchMode.Push(reuse = true),
     ) {
         val registry = sharedRegistry
-        if(registry == null || launchMode.actionType == ActionType.POP) {
+        if(registry == null || withoutShared() || launchMode.actionType == ActionType.POP) {
             pushInternal(destination,launchMode)
         } else {
             registry.push(
@@ -311,7 +313,7 @@ class NavigationController(
 
     fun pop() {
         val registry = sharedRegistry
-        if(registry == null) {
+        if(registry == null || withoutShared()) {
             popInternal()
         } else {
             registry.pop(
@@ -342,7 +344,7 @@ class NavigationController(
 
     suspend fun startPredictiveBackShared() : SharedContainerState? {
         val registry = sharedRegistry
-        if(registry == null) {
+        if(registry == null || withoutShared()) {
             startPredictiveBack()
             return null
         } else {
@@ -394,7 +396,7 @@ class NavigationController(
     ) {
         scope.launch {
             val registry = sharedRegistry
-            val noneShared = registry == null || state == null
+            val noneShared = registry == null || state == null || withoutShared()
             val minValue = if(transitionLevel == EffectLevel.NONE) 0.6f else (
                     effects.backgroundEffect.end.scale - if(noneShared) 0f else 0.0325f
             )
@@ -438,7 +440,7 @@ class NavigationController(
     ) {
         scope.launch {
             val registry = sharedRegistry
-            if (!(registry == null || state == null)) {
+            if (!(registry == null || state == null || withoutShared())) {
                 launch {
                     registry.confirmPredictiveBack(state) {
                         awaitTransition()
@@ -463,7 +465,7 @@ class NavigationController(
     ) {
         scope.launch {
             val registry = sharedRegistry
-            if (!(registry == null || state == null)) {
+            if (!(registry == null || state == null || withoutShared())) {
                 launch {
                     registry.cancelPredictiveBack(state) {
                         awaitTransition()

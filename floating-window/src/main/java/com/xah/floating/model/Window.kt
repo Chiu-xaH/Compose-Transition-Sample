@@ -19,8 +19,6 @@ abstract class Window {
     abstract val key : String?
     open val animation : ForegroundEffect = DefaultForegroundEffect
 
-    open fun onDismissed() {}
-
     @Composable
     abstract fun BoxScope.Content()
 

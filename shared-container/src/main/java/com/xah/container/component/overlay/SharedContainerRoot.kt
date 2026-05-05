@@ -61,6 +61,13 @@ fun SharedContainerRoot(
         )
     }
 
+    LaunchedEffect(registry.enabled) {
+        if(!registry.enabled) {
+            // 注销所有state
+            registry.clearStates()
+        }
+    }
+
     CompositionLocalProvider(
         LocalSharedRegistrySafely provides registry,
         LocalSharedRegistry provides registry

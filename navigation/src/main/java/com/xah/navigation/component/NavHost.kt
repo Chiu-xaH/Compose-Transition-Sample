@@ -102,11 +102,6 @@ private fun NavHost(
         navController.sharedRegistry = registry
     }
 
-    val enabledShared = navController.transitionLevel != EffectLevel.NONE
-    LaunchedEffect(enabledShared) {
-        registry.enabled = enabledShared
-    }
-
     CompositionLocalProvider(
         LocalNavControllerSafely provides navController,
         LocalNavController provides navController,
@@ -118,7 +113,11 @@ private fun NavHost(
         val progress = navController.transitionProgress
 
         // 当 transition 变化时启动动画
-        LaunchedEffect(transition,registry.isRunning) {
+        LaunchedEffect(
+            transition,
+            registry.isRunning,
+            registry.isWaitingFrame
+        ) {
             navController.animate()
         }
 

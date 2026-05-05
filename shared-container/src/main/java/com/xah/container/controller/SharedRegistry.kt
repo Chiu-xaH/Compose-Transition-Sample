@@ -1,6 +1,7 @@
 package com.xah.container.controller
 
 import android.os.Build
+import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Easing
@@ -20,6 +21,7 @@ import com.sharednav.common.util.LogUtil
 import com.sharednav.common.util.PredictiveUtil
 import com.xah.container.anim.LinearRectInterpolator
 import com.xah.container.anim.RectInterpolator
+import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.model.ContentStrategy
 import com.xah.container.model.SharedContainerState
 import com.xah.container.model.StatePause
@@ -157,7 +159,7 @@ class SharedRegistry(
     fun push(
         key: String,
         onAnimatedFinished : (suspend () -> Unit)? = null,
-        onSwap: suspend () -> Unit
+        onSwap: () -> Unit
     ) {
         scope.launch {
             pushInternal(key,onAnimatedFinished, onSwap)
@@ -167,7 +169,7 @@ class SharedRegistry(
     fun pop(
         key: String,
         onAnimatedFinished : (suspend () -> Unit)? = null,
-        onSwap: suspend () -> Unit
+        onSwap: () -> Unit
     ) {
         scope.launch {
             popInternal(key, onAnimatedFinished,onSwap)
@@ -177,7 +179,7 @@ class SharedRegistry(
     private suspend fun pushInternal(
         key: String,
         onAnimatedFinished : (suspend () -> Unit)? = null,
-        onSwap: suspend () -> Unit
+        onSwap: () -> Unit
     ) {
         val state = states[key]
         if(state == null) {
@@ -190,7 +192,7 @@ class SharedRegistry(
     private suspend fun popInternal(
         key: String,
         onAnimatedFinished : (suspend () -> Unit)? = null,
-        onSwap: suspend () -> Unit
+        onSwap: () -> Unit
     ) {
         val state = states[key]
         if(state == null) {
@@ -203,9 +205,9 @@ class SharedRegistry(
     private suspend fun pushInternal(
         state: SharedContainerState,
         onAnimatedFinished : (suspend () -> Unit)? = null,
-        onSwap: suspend () -> Unit
+        onSwap: () -> Unit
     ) {
-        if(!enabled || state.containerRect == null) {
+        if(state.containerRect == null) {
             onSwap()
             state.currentState = StatePause.CONTENT
             return
@@ -233,14 +235,8 @@ class SharedRegistry(
     private suspend fun popInternal(
         state: SharedContainerState,
         onAnimatedFinished : (suspend () -> Unit)? = null,
-        onSwap: suspend () -> Unit
+        onSwap: () -> Unit
     ) {
-        if(!enabled) {
-            onSwap()
-            state.currentState = StatePause.CONTAINER
-            LogUtil.debug("pop without shared ${state.key}")
-            return
-        }
         if(!waitContainerFrame(state,onSwap)) {
             return
         }
@@ -259,7 +255,6 @@ class SharedRegistry(
         val state = runningStates.firstOrNull() ?: return
         state.currentState = StatePause.CONTAINER
     }
-
 
     private suspend fun snap(
         state: SharedContainerState,
@@ -299,12 +294,12 @@ class SharedRegistry(
 
     private suspend fun waitContainerFrame(
         state: SharedContainerState,
-        onSwap: suspend () -> Unit,
+        onSwap: () -> Unit,
     ): Boolean = waitFrame(state,true,onSwap)
 
     private suspend fun waitContentFrame(
         state: SharedContainerState,
-        onSwap: suspend () -> Unit,
+        onSwap: () -> Unit,
     ): Boolean = waitFrame(state,false,onSwap)
 
     /**
@@ -313,7 +308,7 @@ class SharedRegistry(
     private suspend fun waitFrame(
         state: SharedContainerState,
         isContainer : Boolean,
-        onSwap: suspend () -> Unit,
+        onSwap: () -> Unit,
     ): Boolean {
         require(waitFrameMaxValue >= 1) {
             error("waitFrameMaxValue must >= 1")
@@ -330,19 +325,19 @@ class SharedRegistry(
         }
         // 一定要确保页面切换(onSwap)之后马上等帧(awaitFrame)
         onSwap()
+        when(state.currentState) {
+            StatePause.CONTENT -> {
+                state.currentState = StatePause.MEASURING_CONTAINER
+            }
+            StatePause.CONTAINER -> {
+                state.currentState = StatePause.MEASURING_CONTENT
+            }
+            else -> Unit
+        }
         while (true) {
             // state.isTransiting = true 用于稳住导航不要动，开始测量rect
             // state.isTransiting=true代表此时在打断动画中，rect都不为空，无需再次记录Frame标志
             // state.isTransiting=true时，两个rect一定不为空
-            when(state.currentState) {
-                StatePause.CONTENT -> {
-                    state.currentState = StatePause.MEASURING_CONTAINER
-                }
-                StatePause.CONTAINER -> {
-                    state.currentState = StatePause.MEASURING_CONTENT
-                }
-                else -> {}
-            }
             awaitFrame()
             frameCount++
             val rect = if(isContainer) {
@@ -355,8 +350,13 @@ class SharedRegistry(
                 return true
             }
             if (frameCount >= waitFrameMaxValue) {
-                unregister(state)
                 LogUtil.warn("Pop : rendering timeout after $frameCount frame")
+                // 复位 停止等帧
+                state.currentState = if(isContainer) {
+                    StatePause.CONTAINER
+                } else {
+                    StatePause.CONTENT
+                }
                 return false
             }
         }
@@ -388,16 +388,11 @@ class SharedRegistry(
 
     private suspend fun findState(
         key: String,
-        onSwap: suspend () -> Unit
+        onSwap: () -> Unit
     ) : SharedContainerState? {
         val state = states[key]
         if(state == null) {
             onSwap()
-            return null
-        }
-        if(!enabled) {
-            onSwap()
-            state.currentState = StatePause.CONTAINER
             return null
         }
         if(!waitContainerFrame(state,onSwap)) {
@@ -408,7 +403,7 @@ class SharedRegistry(
 
     suspend fun startPredictiveBack(
         key: String,
-        onSwap: suspend () -> Unit
+        onSwap: () -> Unit
     ) : SharedContainerState? {
         if(!enablePredictiveBack) {
             return null
@@ -479,5 +474,10 @@ class SharedRegistry(
         state.containerRect = null
         // 结束标志位
         state.currentState = StatePause.CONTENT
+    }
+
+    fun clearStates() {
+        states.clear()
+        LogUtil.debug("Clear all SharedStates")
     }
 }

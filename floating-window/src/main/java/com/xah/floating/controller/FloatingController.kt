@@ -64,7 +64,7 @@ class FloatingController(
 
     private fun popInternal() {
         scope.launch(start = CoroutineStart.UNDISPATCHED) {
-            val entry = _stack.lastOrNull() ?: return@launch
+            val entry = current() ?: return@launch
             // 只有关闭最后一个时才需要把背景还原
             if (_stack.size == 1) {
                 _inOverlay.value = false
@@ -77,23 +77,20 @@ class FloatingController(
                     .filter { it }
                     .first()
             }
-            if (_stack.isNotEmpty()) {
-                val item = _stack.removeAt(_stack.size - 1)
-                item.window.onDismissed()
-            }
+            removeAndPop()
         }
     }
 
     fun push(
         window: Window
     ) {
-        val registry = this.sharedRegistry
+        val registry = sharedRegistry
         val key = window.key
         if(registry == null || key == null) {
-            this.pushInternal(window)
+            pushInternal(window)
         } else {
             registry.push(key) {
-                this.pushInternal(window)
+                pushInternal(window)
             }
         }
     }
@@ -102,17 +99,24 @@ class FloatingController(
         if(!canPop()) {
             return
         }
-        val registry = this.sharedRegistry
-        val lastKey = this.stack.last().window.key
+        val registry = sharedRegistry
+        val lastKey = current()?.window?.key
         if(registry == null || lastKey == null) {
-            this.popInternal()
+            popInternal()
         } else {
             registry.pop(
                 lastKey,
             ) {
-                this.popInternal()
+                popInternal()
             }
         }
+    }
+
+    private fun removeAndPop() : WindowEntry? {
+        if (canPop()) {
+            return _stack.removeAt(_stack.size - 1)
+        }
+        return null
     }
 
     suspend fun awaitRunning() = snapshotFlow { isRunning }.filter { !it }.first()
