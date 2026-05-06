@@ -73,13 +73,14 @@ import com.sharednav.common.helper.ScreenCornerHelper
 import com.xah.container.component.base.SharedContainer
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.util.LocalSharedRegistry
-import com.xah.floating.model.componment.BottomDialog
 import com.xah.floating.util.LocalFloatingController
 import com.xah.navigation.component.SharedNavHost
 import com.xah.navigation.component.rememberNavController
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.model.anim.EffectLevel
+import com.xah.navigation.model.anim.Jump
+import com.xah.navigation.model.anim.SlideFromEnd
 import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavDependencies
 import com.xah.navigation.util.rememberNavDependencies
@@ -91,7 +92,6 @@ import com.xah.transition.ui.component.CustomCard
 import com.xah.transition.ui.component.CustomSlider
 import com.xah.transition.ui.component.DividerTextExpandedWithShared
 import com.xah.transition.ui.component.TopBarNavigationIcon
-import com.xah.transition.ui.component.TopBarNavigationIcon2
 import com.xah.transition.ui.component.TransplantListItem
 import com.xah.transition.ui.component.cardNormalColor
 import com.xah.transition.ui.screen.destination.AppIconDestination
@@ -151,14 +151,14 @@ fun App() {
        if(UiHolder.enableWallpaper && displayWallpaper && inHomeDest) {
            val progress = navigationController.transitionProgress.value
            val blurRadius = when(navigationController.transitionLevel) {
-               EffectLevel.FULL -> lerp(navigationController.effects.backgroundEffect.start.blur,navigationController.effects.backgroundEffect.end.blur,progress)
-               else -> navigationController.effects.backgroundEffect.start.blur
+               EffectLevel.FULL -> lerp(navigationController.defaultEffects.backgroundEffect.start.blur,navigationController.defaultEffects.backgroundEffect.end.blur,progress)
+               else -> navigationController.defaultEffects.backgroundEffect.start.blur
            }
            val scale = when(navigationController.transitionLevel) {
-               EffectLevel.NO_BLUR -> lerp(navigationController.effects.backgroundEffect.start.scale,2 - navigationController.effects.backgroundEffect.end.scale,progress)
-               EffectLevel.FULL -> lerp(navigationController.effects.backgroundEffect.start.scale,2 - navigationController.effects.backgroundEffect.end.scale,progress)
-               EffectLevel.NO_SCALE -> navigationController.effects.backgroundEffect.start.scale
-               EffectLevel.NONE -> navigationController.effects.backgroundEffect.start.scale
+               EffectLevel.NO_BLUR -> lerp(navigationController.defaultEffects.backgroundEffect.start.scale,2 - navigationController.defaultEffects.backgroundEffect.end.scale,progress)
+               EffectLevel.FULL -> lerp(navigationController.defaultEffects.backgroundEffect.start.scale,2 - navigationController.defaultEffects.backgroundEffect.end.scale,progress)
+               EffectLevel.NO_SCALE -> navigationController.defaultEffects.backgroundEffect.start.scale
+               EffectLevel.NONE -> navigationController.defaultEffects.backgroundEffect.start.scale
            }
 
            Image(
@@ -174,7 +174,7 @@ fun App() {
                 if(UiHolder.enableWallpaper && displayWallpaper) {
                     it
                 } else {
-                    it.background(MaterialTheme.colorScheme.surface)
+                    it.background(Color.Black)
                 }
             },
             dependencies = dependencies,
@@ -224,7 +224,12 @@ fun HomeScreen() {
             )
         }
         Scaffold(
-            containerColor = Color.Transparent,
+            containerColor =
+                if(UiHolder.enableWallpaper && displayWallpaper) {
+                    Color.Transparent
+                } else {
+                    MaterialTheme.colorScheme.surface
+                },
             floatingActionButton = {
                 SharedContainer (
                     containerColor = MaterialTheme.colorScheme.inversePrimary,
@@ -309,7 +314,7 @@ fun HomeScreen() {
                                     TransplantListItem(
                                         headlineContent = { Text("Screen #${index}") },
                                         modifier = Modifier.clickable {
-                                            navController.push(destination)
+                                            navController.push(destination, transitionMode = Jump())
                                         }
                                     )
                                 }
@@ -418,20 +423,8 @@ fun HomeScreen() {
                                 ) {
                                     TransplantListItem(
                                         headlineContent = { Text("容器共享弹窗") },
-                                        leadingContent = {
-
-                                            SharedContainer(
-                                                key = "element",
-                                                containerFilledStrategy = ContainerFilledStrategy.Element,
-                                                shape = RoundedCornerShape(0.dp)
-                                            ) {
-                                                Icon(painterResource(R.drawable.ic_settings),null, tint = Color.Red)
-                                            }
-                                        },
                                         modifier = Modifier.clickable {
-//                                            registry.push("element") {
-                                                floatingController.push(window)
-//                                            }
+                                            floatingController.push(window)
                                         }
                                     )
                                 }

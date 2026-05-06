@@ -41,14 +41,14 @@ data class DialogFloatingWindow(val index : Int) : SharedWindow() {
             shape = shape,
         ) {
             Box(modifier = Modifier.height(height = 200.dp)) {
-                SharedContent (
-                    key = "element",
-                    contentStrategy = ContentStrategy.Layer(isFloating = true),
-                    shape = RoundedCornerShape(0.dp),
-                    modifier = Modifier.align(Alignment.TopEnd).padding(APP_HORIZONTAL_DP)
-                ) {
-                    Icon(painterResource(R.drawable.ic_settings),null, tint = Color.Blue)
-                }
+//                SharedContent (
+//                    key = "element",
+//                    contentStrategy = ContentStrategy.Layer(isFloating = true),
+//                    shape = RoundedCornerShape(0.dp),
+//                    modifier = Modifier.align(Alignment.TopEnd).padding(APP_HORIZONTAL_DP)
+//                ) {
+//                    Icon(painterResource(R.drawable.ic_settings),null, tint = Color.Blue)
+//                }
                 Text(key, modifier = Modifier.align(Alignment.Center))
             }
         }

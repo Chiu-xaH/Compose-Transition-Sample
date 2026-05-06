@@ -7,6 +7,7 @@ data class Transition(
     val type: ActionType,
     val from: StackEntry,
     val to: StackEntry,
+    val mode : TransitionMode
 ) {
     override fun toString(): String {
         return "(type=${type.name},from=${from},to=${to})"

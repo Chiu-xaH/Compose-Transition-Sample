@@ -1,7 +1,6 @@
 package com.xah.navigation.model.anim
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 
@@ -9,7 +8,6 @@ import androidx.compose.ui.util.lerp
 data class PageEffects(
     val backgroundEffect : PageEffectState,
     val foregroundEffect : PageEffectState,
-    var foregroundOrigin : TransformOrigin
 ) {
     fun background(progress : Float,level: EffectLevel) =
         backgroundEffect
@@ -55,6 +53,4 @@ data class PageEffects(
                     }
                 }
             }
-
-    fun foregroundOrigin(level: EffectLevel) = if(level == EffectLevel.NONE) TransformOrigin(0.5f,0.5f) else foregroundOrigin
 }

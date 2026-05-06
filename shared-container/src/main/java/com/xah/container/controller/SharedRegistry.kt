@@ -1,7 +1,6 @@
 package com.xah.container.controller
 
 import android.os.Build
-import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Easing
@@ -21,7 +20,6 @@ import com.sharednav.common.util.LogUtil
 import com.sharednav.common.util.PredictiveUtil
 import com.xah.container.anim.LinearRectInterpolator
 import com.xah.container.anim.RectInterpolator
-import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.model.ContentStrategy
 import com.xah.container.model.SharedContainerState
 import com.xah.container.model.StatePause

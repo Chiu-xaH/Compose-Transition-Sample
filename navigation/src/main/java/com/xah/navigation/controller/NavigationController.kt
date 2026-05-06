@@ -21,7 +21,9 @@ import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.model.anim.EffectLevel
 import com.xah.navigation.model.anim.PageEffects
+import com.xah.navigation.model.anim.Scale
 import com.xah.navigation.model.anim.Transition
+import com.xah.navigation.model.anim.TransitionMode
 import com.xah.navigation.model.dest.Destination
 import com.xah.navigation.model.dest.StackEntry
 import kotlinx.coroutines.CoroutineScope
@@ -29,6 +31,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.util.Stack
 import java.util.UUID
 import kotlin.math.pow
 
@@ -37,7 +40,7 @@ class NavigationController(
     val startDestination: Destination,
     private val _stack: SnapshotStateList<StackEntry> = mutableStateListOf(),
     val historyQueue: SnapshotStateList<Destination> = mutableStateListOf(),
-    val effects: PageEffects,
+    val defaultEffects: PageEffects,
     var sharedRegistry : SharedRegistry? = null,
 ) {
     val stack: List<StackEntry> get() = _stack
@@ -99,11 +102,11 @@ class NavigationController(
         }
 
     private fun createAndPush(
-        destination : Destination
+        destination : Destination,
     ) {
         val newEntry = StackEntry(
             id = UUID.randomUUID().toString(),
-            destination = destination
+            destination = destination,
         )
         _stack += newEntry
         historyQueue.add(destination)
@@ -111,6 +114,7 @@ class NavigationController(
 
     private fun removeAndPop() : StackEntry? {
         if(canPop()) {
+            backTransitionMode.pop()
             return _stack.removeAt(_stack.size-1)
         }
         return null
@@ -119,7 +123,8 @@ class NavigationController(
 
     private fun pushInternal(
         destination: Destination,
-        launchMode: LaunchMode = LaunchMode.Push(true),
+        launchMode: LaunchMode,
+        transitionMode: TransitionMode
     ) {
         scope.launch(start = CoroutineStart.UNDISPATCHED) {
             var cachedEntry : StackEntry? = null
@@ -216,10 +221,12 @@ class NavigationController(
             val type = launchMode.actionType
             snap(type)
             // 添加过渡动画
+            backTransitionMode.add(transitionMode)
             transition = Transition(
                 type = type,
                 from = from,
-                to = current()
+                to = current(),
+                mode = transitionMode
             )
         }
     }
@@ -240,6 +247,7 @@ class NavigationController(
                 type = type,
                 from = from,
                 to = to,
+                mode = backTransitionMode.peek()
             )
         }
     }
@@ -297,16 +305,17 @@ class NavigationController(
     fun push(
         destination: Destination,
         launchMode: LaunchMode = LaunchMode.Push(reuse = true),
+        transitionMode: TransitionMode = getDefaultTransition()
     ) {
         val registry = sharedRegistry
         if(registry == null || withoutShared() || launchMode.actionType == ActionType.POP) {
-            pushInternal(destination,launchMode)
+            pushInternal(destination,launchMode,transitionMode)
         } else {
             registry.push(
                 destination.key,
                 onAnimatedFinished = { awaitTransition() }
             ) {
-                pushInternal(destination,launchMode)
+                pushInternal(destination,launchMode,transitionMode)
             }
         }
     }
@@ -325,6 +334,8 @@ class NavigationController(
         }
     }
 
+    fun getDefaultTransition() = Scale(defaultEffects)
+
     suspend fun awaitTransition() = snapshotFlow { isTransitioning }.filter { !it }.first()
 
     fun current() : StackEntry = _stack.last()
@@ -337,7 +348,9 @@ class NavigationController(
 
 
     // 清空栈并压入
-    private fun createAndPushClearly(destination : Destination) {
+    private fun createAndPushClearly(
+        destination : Destination,
+    ) {
         _stack.clear()
         createAndPush(destination)
     }
@@ -365,6 +378,8 @@ class NavigationController(
         }
     }
 
+    private var backTransitionMode : Stack<TransitionMode> = Stack()
+
     private fun startPredictiveBack() {
         scope.launch {
             if (!canPop()) return@launch
@@ -374,7 +389,8 @@ class NavigationController(
             transition = Transition(
                 type = ActionType.POP,
                 from = from,
-                to = to
+                to = to,
+                mode = backTransitionMode.peek()
             )
             inPredictive = true
             isTransitioning = true
@@ -397,10 +413,7 @@ class NavigationController(
         scope.launch {
             val registry = sharedRegistry
             val noneShared = registry == null || state == null || withoutShared()
-            val minValue = if(transitionLevel == EffectLevel.NONE) 0.6f else (
-                    effects.backgroundEffect.end.scale - if(noneShared) 0f else 0.0325f
-            )
-            val easedContainer = 1f - ((1f - minValue) * progress.pow(0.5f))
+            val easedContainer = getPredictiveMaxValue(!noneShared,progress)
 
             if (!noneShared) {
                 launch {
@@ -414,6 +427,17 @@ class NavigationController(
                 )
             }
         }
+    }
+
+    fun getPredictiveMaxValue(
+        withShared : Boolean,
+        progress : Float
+    ) : Float {
+        val minValue = if(transitionLevel == EffectLevel.NONE) 0.6f else (
+                0.875f - if(!withShared) 0f else 0.0325f
+        )
+        val easedContainer = 1f - ((1f - minValue) * progress.pow(0.5f))
+        return easedContainer
     }
 
     private fun updatePredictiveBack(

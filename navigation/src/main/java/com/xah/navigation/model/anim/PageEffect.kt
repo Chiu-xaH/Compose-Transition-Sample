@@ -2,6 +2,8 @@ package com.xah.navigation.model.anim
 
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.unit.Dp
 
 /** lerp
@@ -23,5 +25,14 @@ data class PageEffect(
     val blur: Dp,
     val mask: Float,
     val corner : CornerBasedShape,
-    val alpha : Float
-)
+    val alpha : Float,
+    val position : TransformOrigin = TransformOrigin.Center,
+    // 范围：[-1,+1]
+    val translationPercent: Offset = Offset.Zero,
+) {
+    init {
+        require(translationPercent.x in -1f..1f && translationPercent.y in -1f..1f) {
+            error("translationPercent must in [-1,+1]")
+        }
+    }
+}

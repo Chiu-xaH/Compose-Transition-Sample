@@ -35,12 +35,12 @@ import com.xah.navigation.util.LocalNavDependencies
 @Composable
 fun rememberNavController(
     startDestination : Destination,
-    effects: PageEffects = rememberDefaultPageEffects(),
+    defaultEffects: PageEffects = rememberDefaultPageEffects(),
 ): NavigationController {
     val scope = rememberCoroutineScope()
     val navViewModel: NavigationViewModel = viewModel(factory = NavigationViewModel.Factory())
     val navController = remember(navViewModel) {
-        NavigationController(scope, startDestination, navViewModel.stack,navViewModel.historyQueue,effects,null)
+        NavigationController(scope, startDestination, navViewModel.stack,navViewModel.historyQueue,defaultEffects,null)
     }
     return navController
 }
@@ -75,11 +75,11 @@ fun SharedNavHost(
 fun SharedNavHost(
     startDestination: Destination,
     modifier: Modifier = Modifier,
-    effect: PageEffects = rememberDefaultPageEffects(),
+    defaultEffects: PageEffects = rememberDefaultPageEffects(),
     dependencies: Dependencies = Dependencies(),
     backHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
-    val navController = rememberNavController(startDestination,effect)
+    val navController = rememberNavController(startDestination,defaultEffects)
     SharedNavHost(
         navController,
         modifier,
@@ -148,9 +148,10 @@ private fun NavHost(
         val level = navController.transitionLevel
         val enableBlur = navController.enableBlur
         val enableShader = navController.enableShader
-        val effect = navController.effects
 
-        Box(modifier = modifier.fillMaxSize()) {
+        Box(
+            modifier = modifier.fillMaxSize()
+        ) {
             visibleEntries.forEachIndexed { _, entry ->
                 key(entry.id) {
                     saveableStateHolder.SaveableStateProvider(entry.id) {
@@ -159,9 +160,15 @@ private fun NavHost(
 
                         val animatedProgress = progress.value
 
+                        val finalTransitionMode = if(registry.isRunning) {
+                            navController.getDefaultTransition()
+                        } else {
+                            transition?.mode ?: navController.getDefaultTransition()
+                        }
+                        val effect = finalTransitionMode.pageEffects
+
                         val backgroundEffect = remember(animatedProgress,level) { effect.background(animatedProgress,level) }
                         val foregroundEffect = remember(animatedProgress,level) { effect.foreground(animatedProgress, level) }
-                        val foregroundOrigin = remember(level) { effect.foregroundOrigin(level) }
 
                         // 当返回时，禁用前景；当前进时，禁用背景；当非动画态，启用
                         val (enableTouch,interceptTouch) = when(transition?.type) {
@@ -176,6 +183,9 @@ private fun NavHost(
                             }
                         }
 
+
+                        val enableMirror = enableShader && finalTransitionMode.pageEffects.backgroundEffect.enableMirror
+
                         Box(
                             Modifier
                                 .fillMaxSize()
@@ -187,7 +197,7 @@ private fun NavHost(
                                                 if (isFrom) {
                                                     // 背景
                                                     return@let it.backgroundEffect(
-                                                        enableShader,
+                                                        enableMirror,
                                                         enableBlur,
                                                         backgroundEffect
                                                     )
@@ -198,7 +208,6 @@ private fun NavHost(
                                                         return@let it.foregroundEffect(
                                                             enableBlur,
                                                             foregroundEffect,
-                                                            foregroundOrigin
                                                         )
                                                     }
                                                 }
@@ -207,7 +216,7 @@ private fun NavHost(
                                                 if (isTo) {
                                                     // 背景
                                                     return@let it.backgroundEffect(
-                                                        enableShader,
+                                                        enableMirror,
                                                         enableBlur,
                                                         backgroundEffect
                                                     )
@@ -218,7 +227,6 @@ private fun NavHost(
                                                         return@let it.foregroundEffect(
                                                             enableBlur,
                                                             foregroundEffect,
-                                                            foregroundOrigin
                                                         )
                                                     }
                                                 }
