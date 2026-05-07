@@ -2,7 +2,6 @@ package com.xah.navigation.controller
 
 import android.os.Build
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.derivedStateOf
@@ -17,13 +16,12 @@ import com.sharednav.common.util.LogUtil
 import com.sharednav.common.util.PredictiveUtil
 import com.xah.container.controller.SharedRegistry
 import com.xah.container.model.SharedContainerState
+import com.xah.navigation.anim.DefaultTransitionEffect
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.model.anim.EffectLevel
-import com.xah.navigation.model.anim.PageEffects
-import com.xah.navigation.model.anim.Scale
 import com.xah.navigation.model.anim.Transition
-import com.xah.navigation.model.anim.TransitionMode
+import com.xah.navigation.model.anim.TransitionEffect
 import com.xah.navigation.model.dest.Destination
 import com.xah.navigation.model.dest.StackEntry
 import kotlinx.coroutines.CoroutineScope
@@ -31,7 +29,6 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.util.Stack
 import java.util.UUID
 import kotlin.math.pow
 
@@ -40,7 +37,7 @@ class NavigationController(
     val startDestination: Destination,
     private val _stack: SnapshotStateList<StackEntry> = mutableStateListOf(),
     val historyQueue: SnapshotStateList<Destination> = mutableStateListOf(),
-    val defaultEffects: PageEffects,
+    val defaultTransitionEffect: TransitionEffect = DefaultTransitionEffect(),
     var sharedRegistry : SharedRegistry? = null,
 ) {
     val stack: List<StackEntry> get() = _stack
@@ -68,45 +65,50 @@ class NavigationController(
     /**
      * 是否保留页面真正的不被销毁,这个栈一般是应用的主页面，承载的业务比较多，如果为true页面还在，只不过被盖住了,可节省POP的性能开销（!!!多页面卡顿OOM警告,不建议启用）
      */
-    var enableKeepAlive : Boolean = false
+    var enableKeepAlive by mutableStateOf(false)
 
     val transitionProgress = Animatable(0f)
 
-    private val animationSpecSharedTween = 500
+    companion object {
+        const val DEFAULT_SHARED_MAX_PRECENT = 0.875f
+        const val DEFAULT_SHARED_SPEC = 500
+        val DEFAULT_EASING = CubicBezierEasing(0.4f, 0.65f, 0.25f, 1.0f)
+    }
     val defaultSpecWithTinyScale = tween<Float>(250)
-    private val defaultSpec = tween<Float>(animationSpecSharedTween*13/10)
-    private val popAnimationWithShared = tween<Float>(animationSpecSharedTween*7/5)
-    private val pushAnimationWithShared = tween<Float>(animationSpecSharedTween)
-    private val popAnimation = tween<Float>(animationSpecSharedTween*6/5, easing = CubicBezierEasing(0.4f, 0.65f, 0.25f, 1.0f))
-    private val pushAnimation = tween<Float>(animationSpecSharedTween*6/5, easing = CubicBezierEasing(0.4f, 0.65f, 0.25f, 1.0f))
+//    private val defaultSpec = tween<Float>(animationSpecSharedTween*13/10)
+    private val popAnimationWithShared = tween<Float>(DEFAULT_SHARED_SPEC*7/5)
+    private val pushAnimationWithShared = tween<Float>(DEFAULT_SHARED_SPEC)
+//    private val popAnimation = tween<Float>(animationSpecSharedTween*6/5, easing = CubicBezierEasing(0.4f, 0.65f, 0.25f, 1.0f))
+//    private val pushAnimation = tween<Float>(animationSpecSharedTween*6/5, easing = CubicBezierEasing(0.4f, 0.65f, 0.25f, 1.0f))
 
     var inPredictive by mutableStateOf(false)
 
-    fun getAnimation() =
+    private fun getAnimation() =
         if (sharedRegistry?.isRunning == true) {
-            when(transition?.type) {
+            when(transition!!.type) {
                 ActionType.POP -> popAnimationWithShared
                 ActionType.PUSH -> pushAnimationWithShared
-                else -> defaultSpec
             }
         } else {
             if(transitionLevel == EffectLevel.NONE) {
                 defaultSpecWithTinyScale
             } else {
-                when(transition?.type) {
-                    ActionType.POP -> popAnimation
-                    ActionType.PUSH -> pushAnimation
-                    else -> defaultSpec
+                val transitionMode = current().transitionMode
+                when(transition!!.type) {
+                    ActionType.POP -> transitionMode.popAnimation
+                    ActionType.PUSH -> transitionMode.pushAnimation
                 }
             }
         }
 
     private fun createAndPush(
         destination : Destination,
+        effect : TransitionEffect
     ) {
         val newEntry = StackEntry(
             id = UUID.randomUUID().toString(),
             destination = destination,
+            transitionMode = effect
         )
         _stack += newEntry
         historyQueue.add(destination)
@@ -114,7 +116,6 @@ class NavigationController(
 
     private fun removeAndPop() : StackEntry? {
         if(canPop()) {
-            backTransitionMode.pop()
             return _stack.removeAt(_stack.size-1)
         }
         return null
@@ -124,7 +125,7 @@ class NavigationController(
     private fun pushInternal(
         destination: Destination,
         launchMode: LaunchMode,
-        transitionMode: TransitionMode
+        effect: TransitionEffect
     ) {
         scope.launch(start = CoroutineStart.UNDISPATCHED) {
             var cachedEntry : StackEntry? = null
@@ -160,13 +161,13 @@ class NavigationController(
                                 _stack.add(cachedEntry)
                             } else {
                                 LogUtil.debug("Push(reuse=true) : create destination ${destination.key}")
-                                createAndPush(destination)
+                                createAndPush(destination,effect)
                             }
                         }
                     } else {
                         LogUtil.debug("Push(reuse=false) : create destination ${destination.key}")
                         // 每次都创建新的并加入栈
-                        createAndPush(destination)
+                        createAndPush(destination,effect)
                     }
                 }
                 is LaunchMode.Single -> {
@@ -183,12 +184,12 @@ class NavigationController(
                         } else {
                             LogUtil.debug("Single(reuse=true) : not found destination ${destination.key}")
                             // 如果栈中没有该目标，直接清空栈并压入
-                            createAndPushClearly(destination)
+                            createAndPushClearly(destination,effect)
                         }
                     } else {
                         LogUtil.debug("Single(reuse=false) : create destination ${destination.key}")
                         // 清空栈并压入
-                        createAndPushClearly(destination)
+                        createAndPushClearly(destination,effect)
                     }
                 }
                 is LaunchMode.PopToExisting -> {
@@ -213,7 +214,7 @@ class NavigationController(
                     } else {
                         LogUtil.debug("PopToExisting : not found destination ${destination.key}")
                         launchMode.actionType = ActionType.PUSH
-                        createAndPush(destination)
+                        createAndPush(destination,effect)
                     }
                 }
             }
@@ -221,12 +222,11 @@ class NavigationController(
             val type = launchMode.actionType
             snap(type)
             // 添加过渡动画
-            backTransitionMode.add(transitionMode)
             transition = Transition(
                 type = type,
                 from = from,
                 to = current(),
-                mode = transitionMode
+                effect = effect
             )
         }
     }
@@ -247,7 +247,7 @@ class NavigationController(
                 type = type,
                 from = from,
                 to = to,
-                mode = backTransitionMode.peek()
+                effect = from.transitionMode
             )
         }
     }
@@ -266,18 +266,14 @@ class NavigationController(
         }
     }
 
-    fun animate(
-        animationSpec: AnimationSpec<Float> = getAnimation()
-    ) {
+    fun animate() {
         scope.launch {
-            internalAnimate(animationSpec)
+            internalAnimate()
         }
     }
 
 
-    private suspend fun internalAnimate(
-        animationSpec: AnimationSpec<Float> = defaultSpec
-    ) {
+    private suspend fun internalAnimate() {
         if(sharedRegistry?.isWaitingFrame == true) {
             return
         }
@@ -290,7 +286,7 @@ class NavigationController(
 
         // 设置标志位，开始动画
         isTransitioning = true
-        transitionProgress.animateTo(targetValue = target, animationSpec = animationSpec)
+        transitionProgress.animateTo(targetValue = target, animationSpec = getAnimation())
 
         // 移除栈，置状态
         if (transition?.type == ActionType.POP) {
@@ -300,41 +296,44 @@ class NavigationController(
         isTransitioning = false
     }
 
-    private fun withoutShared() = transitionLevel == EffectLevel.NONE
+    private fun canShared() = transitionLevel != EffectLevel.NONE && sharedRegistry != null
 
     fun push(
         destination: Destination,
         launchMode: LaunchMode = LaunchMode.Push(reuse = true),
-        transitionMode: TransitionMode = getDefaultTransition()
+        effect: TransitionEffect = defaultTransitionEffect,
     ) {
-        val registry = sharedRegistry
-        if(registry == null || withoutShared() || launchMode.actionType == ActionType.POP) {
-            pushInternal(destination,launchMode,transitionMode)
-        } else {
-            registry.push(
+        if(
+            canShared() &&
+            launchMode.actionType == ActionType.PUSH &&
+            sharedRegistry!!.canPush(destination.key)
+        ) {
+            sharedRegistry!!.push(
                 destination.key,
-                onAnimatedFinished = { awaitTransition() }
+                onAnimatedFinished = { awaitTransition() },
             ) {
-                pushInternal(destination,launchMode,transitionMode)
+                pushInternal(destination,launchMode,defaultTransitionEffect)
             }
+        } else {
+            pushInternal(destination,launchMode,effect)
         }
     }
 
     fun pop() {
-        val registry = sharedRegistry
-        if(registry == null || withoutShared()) {
-            popInternal()
-        } else {
-            registry.pop(
+        if(
+            canShared() &&
+            sharedRegistry!!.canPop()
+        ) {
+            sharedRegistry!!.pop(
                 current().destination.key,
                 onAnimatedFinished = { awaitTransition() }
             ) {
                 popInternal()
             }
+        } else {
+            popInternal()
         }
     }
-
-    fun getDefaultTransition() = Scale(defaultEffects)
 
     suspend fun awaitTransition() = snapshotFlow { isTransitioning }.filter { !it }.first()
 
@@ -350,22 +349,22 @@ class NavigationController(
     // 清空栈并压入
     private fun createAndPushClearly(
         destination : Destination,
+        effect: TransitionEffect
     ) {
         _stack.clear()
-        createAndPush(destination)
+        createAndPush(destination,effect)
     }
 
     suspend fun startPredictiveBackShared() : SharedContainerState? {
-        val registry = sharedRegistry
-        if(registry == null || withoutShared()) {
-            startPredictiveBack()
-            return null
-        } else {
-            return registry.startPredictiveBack(
+        if(canShared()) {
+            return sharedRegistry!!.startPredictiveBack(
                 current().destination.key,
             ) {
                 startPredictiveBack()
             }
+        } else {
+            startPredictiveBack()
+            return null
         }
     }
 
@@ -378,8 +377,6 @@ class NavigationController(
         }
     }
 
-    private var backTransitionMode : Stack<TransitionMode> = Stack()
-
     private fun startPredictiveBack() {
         scope.launch {
             if (!canPop()) return@launch
@@ -390,7 +387,7 @@ class NavigationController(
                 type = ActionType.POP,
                 from = from,
                 to = to,
-                mode = backTransitionMode.peek()
+                effect = from.transitionMode
             )
             inPredictive = true
             isTransitioning = true
@@ -411,30 +408,29 @@ class NavigationController(
         state : SharedContainerState?
     ) {
         scope.launch {
-            val registry = sharedRegistry
-            val noneShared = registry == null || state == null || withoutShared()
-            val easedContainer = getPredictiveMaxValue(!noneShared,progress)
+            val canShared = state != null && canShared()
+            val easedContainer = getPredictiveMaxValue(progress)
 
-            if (!noneShared) {
+            if (canShared) {
                 launch {
-                    registry.updatePredictiveBack(easedContainer, dampOffset(offset), state)
+                    sharedRegistry!!.updatePredictiveBack(easedContainer, dampOffset(offset), state)
                 }
             }
             launch {
                 updatePredictiveBack(
                     // 有容器的时候背景不动
-                    if(noneShared) easedContainer else 1f
+                    if(canShared) 1f else easedContainer
                 )
             }
         }
     }
 
     fun getPredictiveMaxValue(
-        withShared : Boolean,
         progress : Float
     ) : Float {
         val minValue = if(transitionLevel == EffectLevel.NONE) 0.6f else (
-                0.875f - if(!withShared) 0f else 0.0325f
+                current().transitionMode.predictiveMinValue
+//                0.875f - if(!withShared) 0f else 0.0325f
         )
         val easedContainer = 1f - ((1f - minValue) * progress.pow(0.5f))
         return easedContainer
@@ -462,11 +458,11 @@ class NavigationController(
     fun confirmPredictiveBackShared(
         state : SharedContainerState?
     ) {
+        val canShared = state != null && canShared()
         scope.launch {
-            val registry = sharedRegistry
-            if (!(registry == null || state == null || withoutShared())) {
+            if (canShared) {
                 launch {
-                    registry.confirmPredictiveBack(state) {
+                    sharedRegistry!!.confirmPredictiveBack(state) {
                         awaitTransition()
                     }
                 }
@@ -487,11 +483,11 @@ class NavigationController(
     fun cancelPredictiveBackShared(
         state : SharedContainerState?
     ) {
+        val canShared = state != null && canShared()
         scope.launch {
-            val registry = sharedRegistry
-            if (!(registry == null || state == null || withoutShared())) {
+            if (canShared) {
                 launch {
-                    registry.cancelPredictiveBack(state) {
+                    sharedRegistry!!.cancelPredictiveBack(state) {
                         awaitTransition()
                     }
                 }
@@ -503,7 +499,7 @@ class NavigationController(
 
     init {
         if(_stack.isEmpty()) {
-            createAndPush(startDestination)
+            createAndPush(startDestination,defaultTransitionEffect)
         }
     }
 }

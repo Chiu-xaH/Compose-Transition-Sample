@@ -7,7 +7,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
 import com.sharednav.common.util.LogUtil
 import com.xah.container.model.SharedContainerState
-import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavControllerSafely
 import kotlin.coroutines.cancellation.CancellationException
 

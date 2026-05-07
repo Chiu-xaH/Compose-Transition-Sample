@@ -9,6 +9,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.ScreenCornerHelper
+import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.model.anim.PageEffect
 import com.xah.navigation.model.anim.PageEffectState
 import com.xah.navigation.model.anim.PageEffects
@@ -38,7 +39,7 @@ private fun DefaultPageEffects(corner : Dp) : PageEffects {
                 alpha = 1f,
             ),
             end = PageEffect(
-                scale = 0.875f,
+                scale = NavigationController.DEFAULT_SHARED_MAX_PRECENT,
                 blur = 25.dp,
                 mask = 0.25f,
                 corner = RoundedCornerShape(0.dp),
@@ -95,7 +96,7 @@ private fun DefaultPageEffectsEnhance(corner : Dp) : PageEffects {
                 alpha = 1f,
             ),
             end = PageEffect(
-                scale = 0.875f,
+                scale = NavigationController.DEFAULT_SHARED_MAX_PRECENT,
                 blur = 25.dp,
                 mask = 0.25f,
                 corner = RoundedCornerShape(0.dp),
@@ -150,7 +151,7 @@ private fun IslandPageEffects(corner : Dp) : PageEffects {
                 alpha = 1f,
             ),
             end = PageEffect(
-                scale = 0.875f,
+                scale = NavigationController.DEFAULT_SHARED_MAX_PRECENT,
                 blur = 25.dp,
                 mask = 0.25f,
                 corner = RoundedCornerShape(0.dp),

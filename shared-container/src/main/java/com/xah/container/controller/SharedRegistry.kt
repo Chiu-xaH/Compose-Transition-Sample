@@ -478,4 +478,7 @@ class SharedRegistry(
         states.clear()
         LogUtil.debug("Clear all SharedStates")
     }
+
+    fun canPush(key: String) = states.contains(key) && enabled
+    fun canPop() = enabled
 }

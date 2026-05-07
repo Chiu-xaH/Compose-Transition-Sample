@@ -71,7 +71,6 @@ import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.xah.container.component.base.SharedContainer
-import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.floating.util.LocalFloatingController
 import com.xah.navigation.component.SharedNavHost
@@ -79,8 +78,10 @@ import com.xah.navigation.component.rememberNavController
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.model.anim.EffectLevel
-import com.xah.navigation.model.anim.Jump
-import com.xah.navigation.model.anim.SlideFromEnd
+import com.xah.navigation.anim.JumpTransitionEffect
+import com.xah.navigation.anim.DefaultTransitionEffect
+import com.xah.navigation.anim.SlideBottomTransitionEffect
+import com.xah.navigation.anim.SlideRightTransitionEffect
 import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavDependencies
 import com.xah.navigation.util.rememberNavDependencies
@@ -151,14 +152,14 @@ fun App() {
        if(UiHolder.enableWallpaper && displayWallpaper && inHomeDest) {
            val progress = navigationController.transitionProgress.value
            val blurRadius = when(navigationController.transitionLevel) {
-               EffectLevel.FULL -> lerp(navigationController.defaultEffects.backgroundEffect.start.blur,navigationController.defaultEffects.backgroundEffect.end.blur,progress)
-               else -> navigationController.defaultEffects.backgroundEffect.start.blur
+               EffectLevel.FULL -> lerp(navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.start.blur,navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.end.blur,progress)
+               else -> navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.start.blur
            }
            val scale = when(navigationController.transitionLevel) {
-               EffectLevel.NO_BLUR -> lerp(navigationController.defaultEffects.backgroundEffect.start.scale,2 - navigationController.defaultEffects.backgroundEffect.end.scale,progress)
-               EffectLevel.FULL -> lerp(navigationController.defaultEffects.backgroundEffect.start.scale,2 - navigationController.defaultEffects.backgroundEffect.end.scale,progress)
-               EffectLevel.NO_SCALE -> navigationController.defaultEffects.backgroundEffect.start.scale
-               EffectLevel.NONE -> navigationController.defaultEffects.backgroundEffect.start.scale
+               EffectLevel.NO_BLUR -> lerp(navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.start.scale,2 - navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.end.scale,progress)
+               EffectLevel.FULL -> lerp(navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.start.scale,2 - navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.end.scale,progress)
+               EffectLevel.NO_SCALE -> navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.start.scale
+               EffectLevel.NONE -> navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.start.scale
            }
 
            Image(
@@ -211,6 +212,15 @@ fun HomeScreen() {
         }
     }
 
+    val transitionModes = remember {
+        listOf(
+            SlideBottomTransitionEffect(),
+            SlideRightTransitionEffect(),
+            JumpTransitionEffect(),
+            DefaultTransitionEffect()
+        )
+    }
+
     val levelList = remember { EffectLevel.entries }
     val displayWallpaper = UiHolder.imageBitmap != null
 
@@ -241,7 +251,7 @@ fun HomeScreen() {
                         containerColor = MaterialTheme.colorScheme.inversePrimary,
                         shape = RoundedCornerShape(0.dp),
                         onClick = {
-                            navController.push(CornerSettingsDestination)
+                            navController.push(CornerSettingsDestination, effect = transitionModes.random())
                         }
                     ) {
                         Icon(painterResource(CornerSettingsDestination.icon),null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
@@ -271,7 +281,7 @@ fun HomeScreen() {
                                     modifier = Modifier
                                         .size(150.dp)
                                         .clickable {
-                                            navController.push(destination)
+                                            navController.push(destination, effect = transitionModes.random())
                                         }
                                 ) {
                                     Image(painterResource(item.icon),null)
@@ -314,7 +324,7 @@ fun HomeScreen() {
                                     TransplantListItem(
                                         headlineContent = { Text("Screen #${index}") },
                                         modifier = Modifier.clickable {
-                                            navController.push(destination, transitionMode = Jump())
+                                            navController.push(destination, effect = transitionModes.random())
                                         }
                                     )
                                 }
@@ -446,7 +456,7 @@ fun HomeScreen() {
                                     TransplantListItem(
                                         headlineContent = { Text("Screen #${index}") },
                                         modifier = Modifier.clickable {
-                                            navController.push(destination)
+                                            navController.push(destination, effect = transitionModes.random())
                                         }
                                     )
                                 }
@@ -682,7 +692,7 @@ fun HomeScreen() {
                             shape = RoundedCornerShape(0.dp),
                             colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = MaterialTheme.colorScheme.inversePrimary),
                             onClick = {
-                                navController.push(BezierSettingsDestination)
+                                navController.push(BezierSettingsDestination, effect = transitionModes.random())
                             }
                         ) {
                             Icon(painterResource(BezierSettingsDestination.icon),null, tint = MaterialTheme.colorScheme.onPrimaryContainer)

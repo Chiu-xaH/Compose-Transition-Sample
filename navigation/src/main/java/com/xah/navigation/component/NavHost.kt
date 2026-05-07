@@ -17,6 +17,7 @@ import com.xah.container.component.overlay.SharedContainerRoot
 import com.xah.container.controller.SharedRegistry
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.floating.component.FloatingRoot
+import com.xah.navigation.anim.DefaultTransitionEffect
 import com.xah.navigation.anim.backgroundEffect
 import com.xah.navigation.anim.foregroundEffect
 import com.xah.navigation.anim.rememberDefaultPageEffects
@@ -24,7 +25,7 @@ import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.controller.NavigationViewModel
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.anim.EffectLevel
-import com.xah.navigation.model.anim.PageEffects
+import com.xah.navigation.model.anim.TransitionEffect
 import com.xah.navigation.model.dest.Dependencies
 import com.xah.navigation.model.dest.Destination
 import com.xah.navigation.util.DefaultBackHandler
@@ -35,12 +36,12 @@ import com.xah.navigation.util.LocalNavDependencies
 @Composable
 fun rememberNavController(
     startDestination : Destination,
-    defaultEffects: PageEffects = rememberDefaultPageEffects(),
+    defaultTransitionEffect: TransitionEffect = DefaultTransitionEffect(rememberDefaultPageEffects()),
 ): NavigationController {
     val scope = rememberCoroutineScope()
     val navViewModel: NavigationViewModel = viewModel(factory = NavigationViewModel.Factory())
     val navController = remember(navViewModel) {
-        NavigationController(scope, startDestination, navViewModel.stack,navViewModel.historyQueue,defaultEffects,null)
+        NavigationController(scope, startDestination, navViewModel.stack,navViewModel.historyQueue,defaultTransitionEffect,null)
     }
     return navController
 }
@@ -69,23 +70,6 @@ fun SharedNavHost(
             }
         }
     }
-}
-
-@Composable
-fun SharedNavHost(
-    startDestination: Destination,
-    modifier: Modifier = Modifier,
-    defaultEffects: PageEffects = rememberDefaultPageEffects(),
-    dependencies: Dependencies = Dependencies(),
-    backHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
-) {
-    val navController = rememberNavController(startDestination,defaultEffects)
-    SharedNavHost(
-        navController,
-        modifier,
-        dependencies,
-        backHandler
-    )
 }
 
 @Composable
@@ -160,12 +144,8 @@ private fun NavHost(
 
                         val animatedProgress = progress.value
 
-                        val finalTransitionMode = if(registry.isRunning) {
-                            navController.getDefaultTransition()
-                        } else {
-                            transition?.mode ?: navController.getDefaultTransition()
-                        }
-                        val effect = finalTransitionMode.pageEffects
+                        val finalTransitionMode = transition?.effect ?: navController.defaultTransitionEffect
+                        val effect = finalTransitionMode.pageEffect
 
                         val backgroundEffect = remember(animatedProgress,level) { effect.background(animatedProgress,level) }
                         val foregroundEffect = remember(animatedProgress,level) { effect.foreground(animatedProgress, level) }
@@ -184,7 +164,7 @@ private fun NavHost(
                         }
 
 
-                        val enableMirror = enableShader && finalTransitionMode.pageEffects.backgroundEffect.enableMirror
+                        val enableMirror = enableShader && effect.backgroundEffect.enableMirror
 
                         Box(
                             Modifier
