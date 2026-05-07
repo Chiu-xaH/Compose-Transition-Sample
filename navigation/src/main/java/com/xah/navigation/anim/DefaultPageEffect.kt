@@ -85,24 +85,7 @@ fun DefaultPageEffectsEnhance() = DefaultPageEffectsEnhance(ScreenCornerHelper.c
 
 private fun DefaultPageEffectsEnhance(corner : Dp) : PageEffects {
     val foregroundOrigin = TransformOrigin(0.5f, 0.275f)
-    return PageEffects(
-        backgroundEffect = PageEffectState(
-            enableMirror = true,
-            start = PageEffect(
-                scale = 1f,
-                blur = 0.dp,
-                mask = 0f,
-                corner = RoundedCornerShape(0.dp),
-                alpha = 1f,
-            ),
-            end = PageEffect(
-                scale = NavigationController.DEFAULT_SHARED_MAX_PRECENT,
-                blur = 25.dp,
-                mask = 0.25f,
-                corner = RoundedCornerShape(0.dp),
-                alpha = 1f,
-            )
-        ),
+    return DefaultPageEffects(corner).copy(
         foregroundEffect = PageEffectState(
             enableMirror = false,
             start = PageEffect(
@@ -140,24 +123,7 @@ fun rememberIslandPageEffects(): PageEffects {
 fun IslandPageEffects() = IslandPageEffects(ScreenCornerHelper.corner)
 
 private fun IslandPageEffects(corner : Dp) : PageEffects {
-    return PageEffects(
-        backgroundEffect = PageEffectState(
-            enableMirror = true,
-            start = PageEffect(
-                scale = 1f,
-                blur = 0.dp,
-                mask = 0f,
-                corner = RoundedCornerShape(0.dp),
-                alpha = 1f,
-            ),
-            end = PageEffect(
-                scale = NavigationController.DEFAULT_SHARED_MAX_PRECENT,
-                blur = 25.dp,
-                mask = 0.25f,
-                corner = RoundedCornerShape(0.dp),
-                alpha = 1f,
-            )
-        ),
+    return DefaultPageEffects(corner).copy(
         foregroundEffect = PageEffectState(
             enableMirror = false,
             start = PageEffect(
@@ -181,17 +147,30 @@ private fun IslandPageEffects(corner : Dp) : PageEffects {
 }
 
 @Composable
-fun rememberSlideFromBottomPageEffects(): PageEffects {
+fun rememberSlidePageEffects(direction : Direction): PageEffects {
     val view = LocalView.current
     val corner = ScreenCornerHelper(view).getCornerDp()
     return remember(corner) {
-        SlideFromBottomPageEffects(corner)
+        SlidePageEffects(corner,direction)
     }
 }
 
-fun SlideFromBottomPageEffects() = SlideFromBottomPageEffects(ScreenCornerHelper.corner)
+fun SlidePageEffects(direction : Direction) = SlidePageEffects(ScreenCornerHelper.corner,direction)
 
-private fun SlideFromBottomPageEffects(corner : Dp) : PageEffects {
+enum class Direction {
+    TOP,
+    BOTTOM,
+    START,
+    END
+}
+
+private fun SlidePageEffects(corner : Dp,direction : Direction) : PageEffects {
+    val from = when(direction) {
+        Direction.TOP -> Offset(0f,-1f)
+        Direction.BOTTOM -> Offset(0f,1f)
+        Direction.START -> Offset(-1f,0f)
+        Direction.END -> Offset(1f,0f)
+    }
     return PageEffects(
         backgroundEffect = PageEffectState(
             enableMirror = true,
@@ -203,8 +182,8 @@ private fun SlideFromBottomPageEffects(corner : Dp) : PageEffects {
                 alpha = 1f,
             ),
             end = PageEffect(
-                scale = 1f,
-                blur = 0.dp,
+                scale = NavigationController.DEFAULT_SHARED_MAX_PRECENT,
+                blur = 15.dp,
                 mask = 0.25f,
                 corner = RoundedCornerShape(0.dp),
                 alpha = 1f,
@@ -218,7 +197,7 @@ private fun SlideFromBottomPageEffects(corner : Dp) : PageEffects {
                 mask = 0f,
                 corner = RoundedCornerShape(corner),
                 alpha = 1f,
-                translationPercent = Offset(0f,1f),
+                translationPercent = from,
             ),
             end = PageEffect(
                 scale = 1f,
@@ -233,17 +212,17 @@ private fun SlideFromBottomPageEffects(corner : Dp) : PageEffects {
 }
 
 @Composable
-fun rememberSlideFromEndPageEffects(): PageEffects {
+fun rememberFlipPageEffects(): PageEffects {
     val view = LocalView.current
     val corner = ScreenCornerHelper(view).getCornerDp()
     return remember(corner) {
-        SlideFromEndPageEffects(corner)
+        FlipPageEffects(corner)
     }
 }
 
-fun SlideFromEndPageEffects() = SlideFromEndPageEffects(ScreenCornerHelper.corner)
+fun FlipPageEffects() = FlipPageEffects(ScreenCornerHelper.corner)
 
-private fun SlideFromEndPageEffects(corner : Dp) : PageEffects {
+private fun FlipPageEffects(corner : Dp) : PageEffects {
     return PageEffects(
         backgroundEffect = PageEffectState(
             enableMirror = true,

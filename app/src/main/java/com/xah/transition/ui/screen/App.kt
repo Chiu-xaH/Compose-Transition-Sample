@@ -80,8 +80,8 @@ import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.model.anim.EffectLevel
 import com.xah.navigation.anim.JumpTransitionEffect
 import com.xah.navigation.anim.DefaultTransitionEffect
-import com.xah.navigation.anim.SlideBottomTransitionEffect
-import com.xah.navigation.anim.SlideRightTransitionEffect
+import com.xah.navigation.anim.SlideTransitionEffect
+import com.xah.navigation.anim.FlipTransitionEffect
 import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavDependencies
 import com.xah.navigation.util.rememberNavDependencies
@@ -212,15 +212,6 @@ fun HomeScreen() {
         }
     }
 
-    val transitionModes = remember {
-        listOf(
-            SlideBottomTransitionEffect(),
-            SlideRightTransitionEffect(),
-            JumpTransitionEffect(),
-            DefaultTransitionEffect()
-        )
-    }
-
     val levelList = remember { EffectLevel.entries }
     val displayWallpaper = UiHolder.imageBitmap != null
 
@@ -251,7 +242,7 @@ fun HomeScreen() {
                         containerColor = MaterialTheme.colorScheme.inversePrimary,
                         shape = RoundedCornerShape(0.dp),
                         onClick = {
-                            navController.push(CornerSettingsDestination, effect = transitionModes.random())
+                            navController.push(CornerSettingsDestination)
                         }
                     ) {
                         Icon(painterResource(CornerSettingsDestination.icon),null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
@@ -281,7 +272,7 @@ fun HomeScreen() {
                                     modifier = Modifier
                                         .size(150.dp)
                                         .clickable {
-                                            navController.push(destination, effect = transitionModes.random())
+                                            navController.push(destination)
                                         }
                                 ) {
                                     Image(painterResource(item.icon),null)
@@ -324,10 +315,74 @@ fun HomeScreen() {
                                     TransplantListItem(
                                         headlineContent = { Text("Screen #${index}") },
                                         modifier = Modifier.clickable {
-                                            navController.push(destination, effect = transitionModes.random())
+                                            navController.push(destination)
                                         }
                                     )
                                 }
+                            }
+                        }
+                    }
+                    item {
+                        val dest = SecondDestination(888,false)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            Card(
+                                shape = MaterialTheme.shapes.small,
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                TransplantListItem(
+                                    headlineContent = { Text("默认动效") },
+                                    modifier = Modifier.clickable {
+                                        navController.push(dest, effect = DefaultTransitionEffect())
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        val dest = SecondDestination(888,false)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            Card(
+                                shape = MaterialTheme.shapes.small,
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                TransplantListItem(
+                                    headlineContent = { Text("推入动效") },
+                                    modifier = Modifier.clickable {
+                                        navController.push(dest, effect = SlideTransitionEffect())
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        val dest = SecondDestination(888,false)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            Card(
+                                shape = MaterialTheme.shapes.small,
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                TransplantListItem(
+                                    headlineContent = { Text("跳转动效") },
+                                    modifier = Modifier.clickable {
+                                        navController.push(dest, effect = JumpTransitionEffect())
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        val dest = SecondDestination(888,false)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            Card(
+                                shape = MaterialTheme.shapes.small,
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                TransplantListItem(
+                                    headlineContent = { Text("翻页动效") },
+                                    modifier = Modifier.clickable {
+                                        navController.push(dest, effect = FlipTransitionEffect())
+                                    }
+                                )
                             }
                         }
                     }
@@ -456,7 +511,7 @@ fun HomeScreen() {
                                     TransplantListItem(
                                         headlineContent = { Text("Screen #${index}") },
                                         modifier = Modifier.clickable {
-                                            navController.push(destination, effect = transitionModes.random())
+                                            navController.push(destination)
                                         }
                                     )
                                 }
@@ -692,7 +747,7 @@ fun HomeScreen() {
                             shape = RoundedCornerShape(0.dp),
                             colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = MaterialTheme.colorScheme.inversePrimary),
                             onClick = {
-                                navController.push(BezierSettingsDestination, effect = transitionModes.random())
+                                navController.push(BezierSettingsDestination)
                             }
                         ) {
                             Icon(painterResource(BezierSettingsDestination.icon),null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
@@ -704,32 +759,47 @@ fun HomeScreen() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SecondScreen() {
     val navController = LocalNavController.current
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
-    ) {
-        LazyColumn {
-            items(30) {
-                DividerTextExpandedWithShared("副标题$it") {
-                    CustomCard(
-                        color = cardNormalColor(),
-                        modifier = Modifier.clickable {
-                            navController.push(ThirdDestination)
-                        }
-                    ) {
-                        repeat(3) { r ->
-                            TransplantListItem(
-                                headlineContent = {
-                                    Text("Push to Third $r")
-                                },
-                            )
+    Scaffold(
+        topBar = {
+            MediumTopAppBar(
+                colors = topBarTransplantColor(),
+                title = { Text("二级界面") },
+                navigationIcon = {
+                    TopBarNavigationIcon()
+                }
+            )
+        },
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface)
+        ) {
+            LazyColumn {
+                item { Spacer(Modifier.height(innerPadding.calculateTopPadding())) }
+                items(30) {
+                    DividerTextExpandedWithShared("副标题$it") {
+                        CustomCard(
+                            color = cardNormalColor(),
+                            modifier = Modifier.clickable {
+                                navController.push(ThirdDestination)
+                            }
+                        ) {
+                            repeat(3) { r ->
+                                TransplantListItem(
+                                    headlineContent = {
+                                        Text("Push to Third $r")
+                                    },
+                                )
+                            }
                         }
                     }
                 }
+                item { Spacer(Modifier.height(innerPadding.calculateBottomPadding())) }
             }
         }
     }

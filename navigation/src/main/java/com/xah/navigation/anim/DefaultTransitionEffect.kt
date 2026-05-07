@@ -6,8 +6,9 @@ import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.model.anim.PageEffects
 import com.xah.navigation.model.anim.TransitionEffect
 
+
 /**
- * 从底部滑入
+ * 从四周滑入
  * eg: 微信支付完成弹窗
  * PUSH -> 起始界面压暗，目标界面从底部推入直到完全覆盖
  * POP -> 方向反向，其余不变
@@ -15,11 +16,12 @@ import com.xah.navigation.model.anim.TransitionEffect
  * 参数：压暗程度
  * 预测式返回手势阈值：0.875f
  */
-data class SlideBottomTransitionEffect(
-    override val pageEffect : PageEffects = SlideFromBottomPageEffects(),
+data class SlideTransitionEffect(
+    val direction: Direction = Direction.BOTTOM,
+    override val pageEffect : PageEffects = SlidePageEffects(direction),
     override val predictiveMinValue: Float = NavigationController.DEFAULT_SHARED_MAX_PRECENT,
-    override val pushAnimation: AnimationSpec<Float> = tween(350, easing = NavigationController.DEFAULT_EASING),
-    override val popAnimation: AnimationSpec<Float> = tween(350, easing = NavigationController.DEFAULT_EASING)
+    override val pushAnimation: AnimationSpec<Float> = tween(400, easing = NavigationController.DEFAULT_EASING),
+    override val popAnimation: AnimationSpec<Float> = tween(400, easing = NavigationController.DEFAULT_EASING)
 ) : TransitionEffect
 
 /**
@@ -31,8 +33,8 @@ data class SlideBottomTransitionEffect(
  * 参数：位移程度、压暗程度
  * 预测式返回手势阈值：0.8f
  */
-data class SlideRightTransitionEffect(
-    override val pageEffect : PageEffects = SlideFromEndPageEffects(),
+data class FlipTransitionEffect(
+    override val pageEffect : PageEffects = FlipPageEffects(),
     override val predictiveMinValue: Float = 0.8f,
     override val pushAnimation: AnimationSpec<Float> = tween(450, easing = NavigationController.DEFAULT_EASING),
     override val popAnimation: AnimationSpec<Float> = tween(450, easing = NavigationController.DEFAULT_EASING)

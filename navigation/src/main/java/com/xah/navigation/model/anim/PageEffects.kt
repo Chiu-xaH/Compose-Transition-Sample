@@ -9,6 +9,10 @@ data class PageEffects(
     val backgroundEffect : PageEffectState,
     val foregroundEffect : PageEffectState,
 ) {
+    /*
+     * 动画分级
+     */
+
     fun background(progress : Float,level: EffectLevel) =
         backgroundEffect
             .lerp(progress)

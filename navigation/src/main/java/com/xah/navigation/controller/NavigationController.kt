@@ -428,10 +428,7 @@ class NavigationController(
     fun getPredictiveMaxValue(
         progress : Float
     ) : Float {
-        val minValue = if(transitionLevel == EffectLevel.NONE) 0.6f else (
-                current().transitionMode.predictiveMinValue
-//                0.875f - if(!withShared) 0f else 0.0325f
-        )
+        val minValue = if(transitionLevel == EffectLevel.NONE) 0.6f else current().transitionMode.predictiveMinValue
         val easedContainer = 1f - ((1f - minValue) * progress.pow(0.5f))
         return easedContainer
     }
