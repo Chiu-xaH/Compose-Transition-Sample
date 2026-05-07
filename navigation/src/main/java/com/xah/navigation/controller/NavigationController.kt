@@ -16,7 +16,7 @@ import com.sharednav.common.util.LogUtil
 import com.sharednav.common.util.PredictiveUtil
 import com.xah.container.controller.SharedRegistry
 import com.xah.container.model.SharedContainerState
-import com.xah.navigation.anim.DefaultTransitionEffect
+import com.xah.navigation.anim.effect.DefaultTransitionEffect
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.model.anim.EffectLevel

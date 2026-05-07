@@ -17,7 +17,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import org.intellij.lang.annotations.Language
 
-// 绘制内容
 fun Modifier.scaleMirror(
     scale: Float,
     enabled : Boolean,
@@ -56,6 +55,7 @@ fun Modifier.scaleMirror(
         }
     }
 
+/*
 @Language("agsl")
 private const val SHADER_CODE = """
     uniform shader content;
@@ -77,6 +77,44 @@ private const val SHADER_CODE = """
         if(sampleCoord.y < 0.0) sampleCoord.y = -sampleCoord.y;
         if(sampleCoord.y > size.y) sampleCoord.y = 2.0*size.y - sampleCoord.y;
         
+        return content.eval(sampleCoord);
+    }
+"""
+ */
+
+// 改进版 by Claude，无缝隙
+@Language("agsl")
+private const val SHADER_CODE = """
+    uniform shader content;
+    uniform float2 size;
+    uniform float scale;
+
+    // 无缝镜像折叠：将任意坐标映射到 [0, maxVal] 的三角波
+    float mirrorFold(float v, float maxVal) {
+        float period = 2.0 * maxVal;
+        // 先把负数折到正数范围
+        v = abs(v);
+        // 取模得到 [0, period) 内的值
+        v = mod(v, period);
+        // 超过 maxVal 的部分再折回来
+        if (v > maxVal) v = period - v;
+        return v;
+    }
+
+    half4 main(float2 fragCoord) {
+        float2 center = size * 0.5;
+        float2 offset = fragCoord - center;
+
+        // 缩放
+        float2 sampleCoord = center + offset / scale;
+
+        // 镜面折叠（支持多次反射）
+        sampleCoord.x = mirrorFold(sampleCoord.x, size.x);
+        sampleCoord.y = mirrorFold(sampleCoord.y, size.y);
+
+        // 收缩半像素，防止浮点误差导致边缘双线性采样混入透明像素
+        sampleCoord = clamp(sampleCoord, float2(0.5), size - float2(0.5));
+
         return content.eval(sampleCoord);
     }
 """

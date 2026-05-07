@@ -73,15 +73,16 @@ import com.sharednav.common.helper.ScreenCornerHelper
 import com.xah.container.component.base.SharedContainer
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.floating.util.LocalFloatingController
+import com.xah.navigation.anim.effect.DefaultTransitionEffect
+import com.xah.navigation.anim.effect.FlipTransitionEffect
+import com.xah.navigation.anim.effect.IslandTransitionEffect
+import com.xah.navigation.anim.effect.JumpTransitionEffect
+import com.xah.navigation.anim.effect.SlideTransitionEffect
 import com.xah.navigation.component.SharedNavHost
 import com.xah.navigation.component.rememberNavController
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.model.anim.EffectLevel
-import com.xah.navigation.anim.JumpTransitionEffect
-import com.xah.navigation.anim.DefaultTransitionEffect
-import com.xah.navigation.anim.SlideTransitionEffect
-import com.xah.navigation.anim.FlipTransitionEffect
 import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavDependencies
 import com.xah.navigation.util.rememberNavDependencies
@@ -330,9 +331,9 @@ fun HomeScreen() {
                                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                             ) {
                                 TransplantListItem(
-                                    headlineContent = { Text("默认动效") },
+                                    headlineContent = { Text("灵动岛动效") },
                                     modifier = Modifier.clickable {
-                                        navController.push(dest, effect = DefaultTransitionEffect())
+                                        navController.push(dest, effect = IslandTransitionEffect())
                                     }
                                 )
                             }

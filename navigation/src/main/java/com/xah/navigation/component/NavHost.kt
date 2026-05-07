@@ -17,10 +17,10 @@ import com.xah.container.component.overlay.SharedContainerRoot
 import com.xah.container.controller.SharedRegistry
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.floating.component.FloatingRoot
-import com.xah.navigation.anim.DefaultTransitionEffect
 import com.xah.navigation.anim.backgroundEffect
+import com.xah.navigation.anim.effect.DefaultTransitionEffect
 import com.xah.navigation.anim.foregroundEffect
-import com.xah.navigation.anim.rememberDefaultPageEffects
+import com.xah.navigation.anim.effect.rememberDefaultPageEffects
 import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.controller.NavigationViewModel
 import com.xah.navigation.model.action.ActionType

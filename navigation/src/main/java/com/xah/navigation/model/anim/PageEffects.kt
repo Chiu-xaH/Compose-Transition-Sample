@@ -5,15 +5,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 
 @Immutable
-data class PageEffects(
+open class PageEffects(
     val backgroundEffect : PageEffectState,
     val foregroundEffect : PageEffectState,
 ) {
-    /*
-     * 动画分级
-     */
 
-    fun background(progress : Float,level: EffectLevel) =
+    /**
+     * 动画分级，自定义效果时可重写
+     */
+    open fun background(progress : Float,level: EffectLevel) =
         backgroundEffect
             .lerp(progress)
             .let {
@@ -33,7 +33,10 @@ data class PageEffects(
                 }
             }
 
-    fun foreground(progress : Float,level: EffectLevel) =
+    /**
+     * 动画分级，自定义效果时可重写
+     */
+    open fun foreground(progress : Float,level: EffectLevel) =
         foregroundEffect
             .let {
                 when(level) {
