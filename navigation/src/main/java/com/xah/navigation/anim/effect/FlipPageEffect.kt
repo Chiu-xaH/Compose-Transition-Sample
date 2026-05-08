@@ -11,8 +11,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.xah.navigation.controller.NavigationController
+import com.xah.navigation.model.anim.BackgroundPageEffectState
+import com.xah.navigation.model.anim.ForegroundPageEffectState
 import com.xah.navigation.model.anim.PageEffect
-import com.xah.navigation.model.anim.PageEffectState
 import com.xah.navigation.model.anim.PageEffects
 import com.xah.navigation.model.anim.TransitionEffect
 
@@ -45,7 +46,7 @@ fun FlipPageEffects() = FlipPageEffects(ScreenCornerHelper.corner)
 
 private fun FlipPageEffects(corner : Dp) : PageEffects {
     return PageEffects(
-        backgroundEffect = PageEffectState(
+        backgroundEffect = BackgroundPageEffectState(
             enableMirror = true,
             start = PageEffect(
                 scale = 1f,
@@ -64,8 +65,7 @@ private fun FlipPageEffects(corner : Dp) : PageEffects {
                 translationPercent = Offset(-1/3f,0f),
             )
         ),
-        foregroundEffect = PageEffectState(
-            enableMirror = false,
+        foregroundEffect = ForegroundPageEffectState(
             start = PageEffect(
                 scale = 1f,
                 blur = 0.dp,

@@ -1,5 +1,6 @@
 package com.xah.navigation.anim
 
+import androidx.compose.foundation.background
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
@@ -31,8 +32,14 @@ private fun Modifier.scale(
 fun Modifier.backgroundEffect(
     enableShader : Boolean,
     enableBlur : Boolean,
+    background : Color?,
     effect: PageEffect
 ) : Modifier = this
+    .let {
+        background?.let { bg ->
+            it.background(bg)
+        } ?: it
+    }
     .mask(effect)
     .blur(enableBlur,effect)
     .graphicsLayer {

@@ -176,7 +176,7 @@ fun App() {
                 if(UiHolder.enableWallpaper && displayWallpaper) {
                     it
                 } else {
-                    it.background(Color.Black)
+                    it.background(MaterialTheme.colorScheme.surface)
                 }
             },
             dependencies = dependencies,
@@ -215,9 +215,10 @@ fun HomeScreen() {
 
     val levelList = remember { EffectLevel.entries }
     val displayWallpaper = UiHolder.imageBitmap != null
+    val d = !UiHolder.enableWallpaper && displayWallpaper
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if(!UiHolder.enableWallpaper && displayWallpaper) {
+        if(d) {
             Image(
                 bitmap = UiHolder.imageBitmap!!.asImageBitmap(),
                 contentDescription = null,
@@ -226,12 +227,7 @@ fun HomeScreen() {
             )
         }
         Scaffold(
-            containerColor =
-                if(UiHolder.enableWallpaper && displayWallpaper) {
-                    Color.Transparent
-                } else {
-                    MaterialTheme.colorScheme.surface
-                },
+            containerColor = if(!d) MaterialTheme.colorScheme.surface else Color.Transparent,
             floatingActionButton = {
                 SharedContainer (
                     containerColor = MaterialTheme.colorScheme.inversePrimary,

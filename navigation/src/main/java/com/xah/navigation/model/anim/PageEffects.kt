@@ -6,8 +6,8 @@ import androidx.compose.ui.util.lerp
 
 @Immutable
 open class PageEffects(
-    val backgroundEffect : PageEffectState,
-    val foregroundEffect : PageEffectState,
+    val backgroundEffect : BackgroundPageEffectState,
+    val foregroundEffect : ForegroundPageEffectState,
 ) {
 
     /**

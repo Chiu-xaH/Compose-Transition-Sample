@@ -165,6 +165,7 @@ private fun NavHost(
 
 
                         val enableMirror = enableShader && effect.backgroundEffect.enableMirror
+                        val backgroundColor = effect.backgroundEffect.backgroundColor
 
                         Box(
                             Modifier
@@ -179,6 +180,7 @@ private fun NavHost(
                                                     return@let it.backgroundEffect(
                                                         enableMirror,
                                                         enableBlur,
+                                                        backgroundColor,
                                                         backgroundEffect
                                                     )
                                                 }
@@ -198,6 +200,7 @@ private fun NavHost(
                                                     return@let it.backgroundEffect(
                                                         enableMirror,
                                                         enableBlur,
+                                                        backgroundColor,
                                                         backgroundEffect
                                                     )
                                                 }

@@ -3,6 +3,7 @@ package com.xah.navigation.anim.effect
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.TransformOrigin
@@ -11,8 +12,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.xah.navigation.controller.NavigationController
+import com.xah.navigation.model.anim.BackgroundPageEffectState
+import com.xah.navigation.model.anim.ForegroundPageEffectState
 import com.xah.navigation.model.anim.PageEffect
-import com.xah.navigation.model.anim.PageEffectState
 import com.xah.navigation.model.anim.PageEffects
 import com.xah.navigation.model.anim.TransitionEffect
 
@@ -42,10 +44,11 @@ fun rememberDefaultPageEffects(): PageEffects {
 
 fun DefaultPageEffects() = DefaultPageEffects(ScreenCornerHelper.corner)
 
+
 fun DefaultPageEffects(corner : Dp) : PageEffects {
     val foregroundOrigin = TransformOrigin(0.5f, 0.275f)
     return PageEffects(
-        backgroundEffect = PageEffectState(
+        backgroundEffect = BackgroundPageEffectState(
             enableMirror = true,
             start = PageEffect(
                 scale = 1f,
@@ -62,8 +65,7 @@ fun DefaultPageEffects(corner : Dp) : PageEffects {
                 alpha = 1f,
             )
         ),
-        foregroundEffect = PageEffectState(
-            enableMirror = false,
+        foregroundEffect = ForegroundPageEffectState(
             start = PageEffect(
                 scale = 0f,
                 blur = 0.dp,

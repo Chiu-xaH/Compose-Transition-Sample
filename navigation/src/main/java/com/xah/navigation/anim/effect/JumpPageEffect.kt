@@ -6,14 +6,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.xah.navigation.controller.NavigationController
+import com.xah.navigation.model.anim.BackgroundPageEffectState
 import com.xah.navigation.model.anim.EffectLevel
+import com.xah.navigation.model.anim.ForegroundPageEffectState
 import com.xah.navigation.model.anim.PageEffect
-import com.xah.navigation.model.anim.PageEffectState
 import com.xah.navigation.model.anim.PageEffects
 import com.xah.navigation.model.anim.TransitionEffect
 
@@ -46,8 +48,9 @@ fun JumpPageEffects() = JumpPageEffects(ScreenCornerHelper.corner)
 
 private fun JumpPageEffects(corner : Dp) : PageEffects {
     return object : PageEffects(
-        backgroundEffect = PageEffectState(
+        backgroundEffect = BackgroundPageEffectState(
             enableMirror = false,
+            backgroundColor = Color.Black,
             start = PageEffect(
                 scale = 1f,
                 blur = 0.dp,
@@ -65,8 +68,7 @@ private fun JumpPageEffects(corner : Dp) : PageEffects {
                 translationPercent = Offset(-1f,0f),
             )
         ),
-        foregroundEffect = PageEffectState(
-            enableMirror = false,
+        foregroundEffect = ForegroundPageEffectState(
             start = PageEffect(
                 scale = 0.85f,
                 blur = 0.dp,
