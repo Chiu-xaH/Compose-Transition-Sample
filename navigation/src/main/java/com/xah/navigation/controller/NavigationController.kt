@@ -37,7 +37,7 @@ class NavigationController(
     val startDestination: Destination,
     private val _stack: SnapshotStateList<StackEntry> = mutableStateListOf(),
     val historyQueue: SnapshotStateList<Destination> = mutableStateListOf(),
-    val defaultTransitionEffect: TransitionEffect = DefaultTransitionEffect(),
+    val defaultTransitionEffect: TransitionEffect,
     var sharedRegistry : SharedRegistry? = null,
 ) {
     val stack: List<StackEntry> get() = _stack

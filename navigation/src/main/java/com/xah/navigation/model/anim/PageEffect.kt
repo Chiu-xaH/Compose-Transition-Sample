@@ -27,12 +27,5 @@ data class PageEffect(
     val corner : CornerBasedShape,
     val alpha : Float,
     val position : TransformOrigin = TransformOrigin.Center,
-    // 范围：[-1,+1]
     val translationPercent: Offset = Offset.Zero,
-) {
-    init {
-        require(translationPercent.x in -1f..1f && translationPercent.y in -1f..1f) {
-            error("translationPercent must in [-1,+1]")
-        }
-    }
-}
+)

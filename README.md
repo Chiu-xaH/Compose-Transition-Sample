@@ -55,19 +55,6 @@ object HomeDestination : Destination() {
 
 在 Activity 或顶层 Composable 中启动导航：
 
-**写法 1：**
-
-```kotlin
-@Composable
-fun App() {
-    SharedNavHost(
-        startDestination = HomeDestination
-    )
-}
-```
-
-**写法 2：手动控制 NavController**
-
 ```kotlin
 val navController = rememberNavController(startDestination = HomeDestination)
 
@@ -152,6 +139,6 @@ fun HomeScreen() {
 ```
 
 ## 后续计划
-3. 大屏适配（平行视界）         [P1]
-7. 元素共享     [P4]
+3. 大屏适配         [P1]
+4. 浮窗并行动画            [P1]
 8. Kotlin Multiplatform         [P4]

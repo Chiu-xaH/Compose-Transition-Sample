@@ -47,6 +47,7 @@ fun rememberJumpPageEffects(): PageEffects {
 fun JumpPageEffects() = JumpPageEffects(ScreenCornerHelper.corner)
 
 private fun JumpPageEffects(corner : Dp) : PageEffects {
+    val flyMaxValue = 1f
     return object : PageEffects(
         backgroundEffect = BackgroundPageEffectState(
             enableMirror = false,
@@ -65,7 +66,7 @@ private fun JumpPageEffects(corner : Dp) : PageEffects {
                 mask = 0f,
                 corner = RoundedCornerShape(corner),
                 alpha = 1f,
-                translationPercent = Offset(-1f,0f),
+                translationPercent = Offset(-flyMaxValue,0f),
             )
         ),
         foregroundEffect = ForegroundPageEffectState(
@@ -75,7 +76,7 @@ private fun JumpPageEffects(corner : Dp) : PageEffects {
                 mask = 0f,
                 corner = RoundedCornerShape(corner),
                 alpha = 1f,
-                translationPercent = Offset(1f,0f),
+                translationPercent = Offset(flyMaxValue,0f),
             ),
             end = PageEffect(
                 scale = 1f,
