@@ -162,24 +162,28 @@ fun SharedContainerOverlay() {
                     Box {
                         Box(modifier = Modifier.fillMaxSize()) {
                             Box(modifier = Modifier.align(
-                                if(isHorizontal) {
-                                    if(containerFilledStrategy is ContainerFilledStrategy.Clip) {
-                                        Alignment.CenterStart
-                                    } else {
-                                        if(!extensionDouble) {
-                                            Alignment.TopStart
-                                        } else {
-                                            Alignment.TopCenter
-                                        }
-                                    }
+                                if(containerFilledStrategy is ContainerFilledStrategy.Stretch) {
+                                    Alignment.TopStart
                                 } else {
-                                    if(containerFilledStrategy is ContainerFilledStrategy.Clip) {
-                                        Alignment.TopCenter
+                                    if(isHorizontal) {
+                                        if(containerFilledStrategy is ContainerFilledStrategy.Clip) {
+                                            Alignment.CenterStart
+                                        } else {
+                                            if(!extensionDouble) {
+                                                Alignment.TopStart
+                                            } else {
+                                                Alignment.TopCenter
+                                            }
+                                        }
                                     } else {
-                                        if(!extensionDouble) {
+                                        if(containerFilledStrategy is ContainerFilledStrategy.Clip) {
                                             Alignment.TopCenter
                                         } else {
-                                            Alignment.CenterStart
+                                            if(!extensionDouble) {
+                                                Alignment.TopCenter
+                                            } else {
+                                                Alignment.CenterStart
+                                            }
                                         }
                                     }
                                 }
@@ -202,6 +206,22 @@ fun SharedContainerOverlay() {
                                                         } else {
                                                             translate(left = -container.width/2f , top = 0f)
                                                         }
+                                                    }) {
+                                                        drawLayer(layer)
+                                                    }
+                                                }
+                                            }
+                                        )
+                                    }
+                                    is ContainerFilledStrategy.Stretch -> {
+                                        Box(modifier = Modifier
+                                            .drawWithCache {
+                                                onDrawWithContent {
+                                                    val layer = state.containerLayer ?: return@onDrawWithContent
+                                                    val scaleX = parent.width / container.width
+                                                    val scaleY = parent.height / container.height
+                                                    withTransform({
+                                                        scale(scaleX, scaleY)
                                                     }) {
                                                         drawLayer(layer)
                                                     }
