@@ -20,6 +20,7 @@ import com.sharednav.common.util.LogUtil
 import com.sharednav.common.util.PredictiveUtil
 import com.xah.container.anim.LinearRectInterpolator
 import com.xah.container.anim.RectInterpolator
+import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.model.ContentStrategy
 import com.xah.container.model.SharedContainerState
 import com.xah.container.model.StatePause
@@ -52,6 +53,11 @@ class SharedRegistry(
     var enabled by mutableStateOf(true)
 
     var animationTime by mutableIntStateOf(500)
+
+    /**
+     * 强制使用某种填充方式,null为不强制
+     */
+    var enforceContainerFilledStrategy by mutableStateOf<ContainerFilledStrategy?>(null)
 
     /**
      * 最大等帧时长，为什么需要等，本质上取决于导航栈的设计，如果导航栈只能保持一个页面，其余页面都被销毁，当POP时需要等下面的初始化完成，才能记录容器位置，如果栈中内容都不销毁，那么就只需要等1帧（16ms）

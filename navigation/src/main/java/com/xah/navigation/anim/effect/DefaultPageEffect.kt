@@ -3,7 +3,6 @@ package com.xah.navigation.anim.effect
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.TransformOrigin
@@ -11,6 +10,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.ScreenCornerHelper
+import com.sharednav.common.util.NoneRoundShape
 import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.model.anim.BackgroundPageEffectState
 import com.xah.navigation.model.anim.ForegroundPageEffectState
@@ -54,14 +54,14 @@ fun DefaultPageEffects(corner : Dp) : PageEffects {
                 scale = 1f,
                 blur = 0.dp,
                 mask = 0f,
-                corner = RoundedCornerShape(0.dp),
+                corner = NoneRoundShape,
                 alpha = 1f,
             ),
             end = PageEffect(
                 scale = NavigationController.DEFAULT_SHARED_MAX_PRECENT,
                 blur = 25.dp,
                 mask = 0.25f,
-                corner = RoundedCornerShape(0.dp),
+                corner = NoneRoundShape,
                 alpha = 1f,
             )
         ),

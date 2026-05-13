@@ -119,7 +119,7 @@ fun SharedContainerOverlay() {
             }
 
             // 填充策略
-            val containerFilledStrategy = state.containerFilledStrategy.getFinalStrategy(registry.enableShader)
+            val containerFilledStrategy = state.containerFilledStrategy.getFinalStrategy(registry)
             val extensionDouble = registry.extensionDouble || containerFilledStrategy is ContainerFilledStrategy.Element
 
             val heightW = container.height / content.height

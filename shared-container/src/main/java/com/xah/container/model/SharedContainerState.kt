@@ -9,8 +9,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.layer.GraphicsLayer
-import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.ScreenCornerHelper
+import com.sharednav.common.util.NoneRoundShape
 
 class SharedContainerState(
     val key : String
@@ -26,7 +26,7 @@ class SharedContainerState(
     var contentLayer : GraphicsLayer? = null
 
     // 容器圆角
-    var containerCorner: CornerBasedShape = RoundedCornerShape(0.dp)
+    var containerCorner: CornerBasedShape = NoneRoundShape
     var contentCorner: CornerBasedShape = RoundedCornerShape(ScreenCornerHelper.corner)
     // 容器填充策略
     var containerFilledStrategy : ContainerFilledStrategy = ContainerFilledStrategy.Pixel()

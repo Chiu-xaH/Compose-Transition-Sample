@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.ScreenCornerHelper
+import com.sharednav.common.util.NoneRoundShape
 import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.model.anim.BackgroundPageEffectState
 import com.xah.navigation.model.anim.ForegroundPageEffectState
@@ -52,7 +53,7 @@ private fun FlipPageEffects(corner : Dp) : PageEffects {
                 scale = 1f,
                 blur = 0.dp,
                 mask = 0f,
-                corner = RoundedCornerShape(0.dp),
+                corner = NoneRoundShape,
                 alpha = 1f,
                 translationPercent = Offset(0f,0f),
             ),
@@ -60,7 +61,7 @@ private fun FlipPageEffects(corner : Dp) : PageEffects {
                 scale = 1f,
                 blur = 0.dp,
                 mask = 0.25f,
-                corner = RoundedCornerShape(0.dp),
+                corner = NoneRoundShape,
                 alpha = 1f,
                 translationPercent = Offset(-1/3f,0f),
             )

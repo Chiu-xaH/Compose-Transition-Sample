@@ -72,8 +72,9 @@ import androidx.compose.ui.util.lerp
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.xah.container.component.base.SharedContainer
 import com.xah.container.util.LocalSharedRegistry
+import com.sharednav.common.util.NoneRoundShape
+import com.xah.container.model.ContainerFilledStrategy
 import com.xah.floating.util.LocalFloatingController
-import com.xah.navigation.anim.effect.DefaultTransitionEffect
 import com.xah.navigation.anim.effect.FlipTransitionEffect
 import com.xah.navigation.anim.effect.IslandTransitionEffect
 import com.xah.navigation.anim.effect.JumpTransitionEffect
@@ -214,6 +215,14 @@ fun HomeScreen() {
     }
 
     val levelList = remember { EffectLevel.entries }
+    val filedList = remember {
+        listOf(
+            Pair(null,"不强制"),
+            Pair(ContainerFilledStrategy.Clip,"裁切"),
+            Pair(ContainerFilledStrategy.Stretch,"拉伸"),
+            Pair(ContainerFilledStrategy.Color(Color.Black),"色彩"),
+        )
+    }
     val displayWallpaper = UiHolder.imageBitmap != null
     val d = !UiHolder.enableWallpaper && displayWallpaper
 
@@ -237,7 +246,7 @@ fun HomeScreen() {
                     FloatingActionButton(
                         elevation = FloatingActionButtonDefaults.elevation(0.dp,0.dp,0.dp,0.dp),
                         containerColor = MaterialTheme.colorScheme.inversePrimary,
-                        shape = RoundedCornerShape(0.dp),
+                        shape = NoneRoundShape,
                         onClick = {
                             navController.push(CornerSettingsDestination)
                         }
@@ -306,7 +315,7 @@ fun HomeScreen() {
                                 shape = MaterialTheme.shapes.small,
                             ) {
                                 Card(
-                                    shape = RoundedCornerShape(0.dp),
+                                    shape = NoneRoundShape,
                                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                                 ) {
                                     TransplantListItem(
@@ -392,7 +401,7 @@ fun HomeScreen() {
                                 shape = MaterialTheme.shapes.small,
                             ) {
                                 Card(
-                                    shape = RoundedCornerShape(0.dp),
+                                    shape = NoneRoundShape,
                                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                                 ) {
                                     TransplantListItem(
@@ -414,7 +423,7 @@ fun HomeScreen() {
                                 shape = MaterialTheme.shapes.small,
                             ) {
                                 Card(
-                                    shape = RoundedCornerShape(0.dp),
+                                    shape = NoneRoundShape,
                                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                                 ) {
                                     TransplantListItem(
@@ -436,7 +445,7 @@ fun HomeScreen() {
                                 shape = MaterialTheme.shapes.small,
                             ) {
                                 Card(
-                                    shape = RoundedCornerShape(0.dp),
+                                    shape = NoneRoundShape,
                                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                                 ) {
                                     TransplantListItem(
@@ -458,7 +467,7 @@ fun HomeScreen() {
                                 shape = MaterialTheme.shapes.small,
                             ) {
                                 Card(
-                                    shape = RoundedCornerShape(0.dp),
+                                    shape = NoneRoundShape,
                                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                                 ) {
                                     TransplantListItem(
@@ -480,7 +489,7 @@ fun HomeScreen() {
                                 shape = MaterialTheme.shapes.small,
                             ) {
                                 Card(
-                                    shape = RoundedCornerShape(0.dp),
+                                    shape = NoneRoundShape,
                                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                                 ) {
                                     TransplantListItem(
@@ -502,7 +511,7 @@ fun HomeScreen() {
                                 shape = MaterialTheme.shapes.small,
                             ) {
                                 Card(
-                                    shape = RoundedCornerShape(0.dp),
+                                    shape = NoneRoundShape,
                                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                                 ) {
                                     TransplantListItem(
@@ -680,6 +689,30 @@ fun HomeScreen() {
                             )
                         }
                     }
+                    items(filedList.size, key = { filedList[it].hashCode() }) { index ->
+                        val item = filedList[index]
+                        val selected = registry.enforceContainerFilledStrategy == item.first
+
+                        val color = if(selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer
+
+                        Surface(
+                            color = color,
+                            shape = MaterialTheme.shapes.small,
+                            modifier = Modifier.padding(CARD_NORMAL_DP*2)
+                        ) {
+                            TransplantListItem(
+                                headlineContent = {
+                                    Text(item.second, color = contentColorFor(color))
+                                },
+                                overlineContent = {
+                                    Text("容器填充方案",color = contentColorFor(color))
+                                },
+                                modifier = Modifier.clickable {
+                                    registry.enforceContainerFilledStrategy = item.first
+                                },
+                            )
+                        }
+                    }
                     /*
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         Surface(
@@ -741,7 +774,7 @@ fun HomeScreen() {
                         shape = CircleShape
                     ) {
                         FilledTonalIconButton (
-                            shape = RoundedCornerShape(0.dp),
+                            shape = NoneRoundShape,
                             colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = MaterialTheme.colorScheme.inversePrimary),
                             onClick = {
                                 navController.push(BezierSettingsDestination)

@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.ScreenCornerHelper
+import com.sharednav.common.util.NoneRoundShape
 import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.model.anim.BackgroundPageEffectState
 import com.xah.navigation.model.anim.ForegroundPageEffectState
@@ -66,14 +67,14 @@ private fun SlidePageEffects(corner : Dp,direction : Direction) : PageEffects {
                 scale = 1f,
                 blur = 0.dp,
                 mask = 0f,
-                corner = RoundedCornerShape(0.dp),
+                corner = NoneRoundShape,
                 alpha = 1f,
             ),
             end = PageEffect(
                 scale = NavigationController.DEFAULT_SHARED_MAX_PRECENT,
                 blur = 15.dp,
                 mask = 0.25f,
-                corner = RoundedCornerShape(0.dp),
+                corner = NoneRoundShape,
                 alpha = 1f,
             )
         ),

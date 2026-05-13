@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -31,6 +30,7 @@ import com.xah.container.component.overlay.SharedContainerRoot
 import com.xah.container.model.ContentStrategy
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.container.util.LocalSharedRegistrySafely
+import com.sharednav.common.util.NoneRoundShape
 import com.xah.transition.R
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 
@@ -80,7 +80,7 @@ fun SharedDialogTest() {
                 ) {
                     Surface(
                         color = MaterialTheme.colorScheme.primary,
-                        shape = RoundedCornerShape(0.dp)
+                        shape = NoneRoundShape
                     ) {
                         Image(
                             painterResource(R.drawable.ic_jd),

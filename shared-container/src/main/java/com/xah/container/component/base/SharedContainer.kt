@@ -81,7 +81,7 @@ private fun Modifier.sharedContainer(
         null
     }
     val graphicsLayerForPixel = if(
-        containerFilledStrategy.getFinalStrategy(registry.enableShader) is ContainerFilledStrategy.Pixel &&
+        containerFilledStrategy.getFinalStrategy(registry) is ContainerFilledStrategy.Pixel &&
         contentStrategy !is ContentStrategy.Copy
     ) {
         rememberGraphicsLayer()

@@ -44,7 +44,7 @@ data class DialogFloatingWindow(val index : Int) : SharedWindow() {
 //                SharedContent (
 //                    key = "element",
 //                    contentStrategy = ContentStrategy.Layer(isFloating = true),
-//                    shape = RoundedCornerShape(0.dp),
+//                    shape = NoneRoundShape
 //                    modifier = Modifier.align(Alignment.TopEnd).padding(APP_HORIZONTAL_DP)
 //                ) {
 //                    Icon(painterResource(R.drawable.ic_settings),null, tint = Color.Blue)

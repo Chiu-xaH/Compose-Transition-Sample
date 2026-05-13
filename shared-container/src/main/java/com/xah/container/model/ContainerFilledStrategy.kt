@@ -1,6 +1,7 @@
 package com.xah.container.model
 
 import android.os.Build
+import com.xah.container.controller.SharedRegistry
 
 sealed interface ContainerFilledStrategy {
     /**
@@ -30,14 +31,17 @@ sealed interface ContainerFilledStrategy {
      */
     data object Element : ContainerFilledStrategy
 
-    fun getFinalStrategy(enableShader : Boolean) : ContainerFilledStrategy = when(this) {
-        is Pixel -> {
-            if(enableShader && Build.VERSION.SDK_INT >= 33) {
-                this
-            } else {
-                this.spareStrategy
+    fun getFinalStrategy(sharedRegistry: SharedRegistry) : ContainerFilledStrategy {
+        return sharedRegistry.enforceContainerFilledStrategy ?:
+        when(this) {
+            is Pixel -> {
+                if(sharedRegistry.enableShader && Build.VERSION.SDK_INT >= 33) {
+                    this
+                } else {
+                    this.spareStrategy
+                }
             }
+            else -> this
         }
-        else -> this
     }
 }

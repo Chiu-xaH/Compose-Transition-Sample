@@ -34,6 +34,7 @@ import com.xah.container.component.base.SharedContainer
 import com.xah.container.component.base.SharedContent
 import com.xah.container.model.ContentStrategy
 import com.xah.container.util.LocalSharedRegistry
+import com.sharednav.common.util.NoneRoundShape
 
 val ANIMATION_SPEED = 400
 val DIVIDER_TEXT_VERTICAL_PADDING = 9.dp
@@ -82,7 +83,7 @@ fun DividerText(
 @Composable
 fun DividerTextExpandedWithShared(
     text : String,
-    shape : RoundedCornerShape = RoundedCornerShape(0.dp),
+    shape : RoundedCornerShape = NoneRoundShape,
     contentColor : Color = MaterialTheme.colorScheme.primary,
     content: @Composable () -> Unit
 ) {
@@ -105,7 +106,7 @@ fun DividerTextExpandedWithShared(
 
     SharedContainer(
         key = key,
-        shape = RoundedCornerShape(0.dp),
+        shape = NoneRoundShape,
     ) {
         DividerText(text,contentColor, onClick = {
             set()

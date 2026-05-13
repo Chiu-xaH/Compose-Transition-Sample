@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,11 +25,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.xah.container.component.base.SharedContainer
 import com.xah.container.component.base.SharedContent
 import com.xah.container.component.overlay.SharedContainerRoot
 import com.xah.container.util.LocalSharedRegistry
+import com.sharednav.common.util.NoneRoundShape
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CARD_NORMAL_DP
 import com.xah.transition.ui.component.SmallCard
@@ -53,7 +52,7 @@ fun HomeScreenT(onPush : (Int) -> Unit) {
                         shape = MaterialTheme.shapes.small
                     ) {
                         SmallCard(
-                            shape = RoundedCornerShape(0.dp),
+                            shape = NoneRoundShape,
                             color = MaterialTheme.colorScheme.primaryContainer
                         ) {
                             TransplantListItem(
