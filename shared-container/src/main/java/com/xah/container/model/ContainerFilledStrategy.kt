@@ -27,21 +27,25 @@ sealed interface ContainerFilledStrategy {
     data object Stretch : ContainerFilledStrategy
 
     /**
-     * 元素共享专用，对Content做透明度渐变，并置于中央裁切
+     * 元素共享专用，不受enforceContainerFilledStrategy限制，对Content做透明度渐变，并置于中央裁切
      */
     data object Element : ContainerFilledStrategy
 
     fun getFinalStrategy(sharedRegistry: SharedRegistry) : ContainerFilledStrategy {
-        return sharedRegistry.enforceContainerFilledStrategy ?:
-        when(this) {
-            is Pixel -> {
-                if(sharedRegistry.enableShader && Build.VERSION.SDK_INT >= 33) {
-                    this
-                } else {
-                    this.spareStrategy
-                }
-            }
-            else -> this
+        if(this is Element) {
+            return this
         }
+        return sharedRegistry.enforceContainerFilledStrategy
+            ?:
+            when(this) {
+                is Pixel -> {
+                    if(sharedRegistry.enableShader && Build.VERSION.SDK_INT >= 33) {
+                        this
+                    } else {
+                        this.spareStrategy
+                    }
+                }
+                else -> this
+            }
     }
 }
