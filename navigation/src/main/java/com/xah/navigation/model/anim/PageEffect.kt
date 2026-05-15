@@ -1,10 +1,13 @@
 package com.xah.navigation.model.anim
 
 import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import com.sharednav.common.helper.ScreenCornerHelper
 
 /** lerp
  * 1. 预测式返回时：
@@ -21,11 +24,13 @@ import androidx.compose.ui.unit.Dp
  */
 @Immutable
 data class PageEffect(
-    val scale: Float,
-    val blur: Dp,
-    val mask: Float,
-    val corner : CornerBasedShape,
-    val alpha : Float,
-    val position : TransformOrigin = TransformOrigin.Center,
+    val scale: Float = 1f,
+    val blur: Dp = 0.dp,
+    val mask: Float = 0f,
+    val corner: CornerBasedShape = RoundedCornerShape(ScreenCornerHelper.corner),
+    val alpha: Float = 1f,
+    val position: TransformOrigin = TransformOrigin.Center,
     val translationPercent: Offset = Offset.Zero,
+    val rotate: Rotation = Rotation(),
+    // TODO RenderEffect
 )

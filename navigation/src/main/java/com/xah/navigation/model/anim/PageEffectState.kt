@@ -40,6 +40,11 @@ abstract class BasePageEffectState(
         translationPercent = Offset(
             lerp(start.translationPercent.x,end.translationPercent.x,progress),
             lerp(start.translationPercent.y,end.translationPercent.y,progress)
+        ),
+        rotate = Rotation(
+            x = lerp(start.rotate.x,end.rotate.x,progress),
+            y = lerp(start.rotate.y,end.rotate.y,progress),
+            z = lerp(start.rotate.z,end.rotate.z,progress),
         )
     )
 }
