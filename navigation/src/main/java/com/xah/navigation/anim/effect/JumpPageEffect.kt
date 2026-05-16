@@ -9,11 +9,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.model.anim.BackgroundPageEffectState
 import com.xah.navigation.model.anim.EffectLevel
+import com.xah.navigation.model.anim.EffectValue
 import com.xah.navigation.model.anim.ForegroundPageEffectState
 import com.xah.navigation.model.anim.PageEffect
 import com.xah.navigation.model.anim.PageEffects
@@ -30,7 +30,7 @@ import com.xah.navigation.model.anim.TransitionEffect
  */
 data class JumpTransitionEffect(
     override val pageEffect : PageEffects = JumpPageEffects(),
-    override val predictiveMinValue: Float = 0.5f,
+    override val predictiveMinValue: Float = (0.75f+0.8f)/2f,
     override val pushAnimation: AnimationSpec<Float> = tween(450, easing = NavigationController.DEFAULT_EASING),
     override val popAnimation: AnimationSpec<Float> = tween(450, easing = NavigationController.DEFAULT_EASING)
 ) : TransitionEffect
@@ -47,47 +47,49 @@ fun rememberJumpPageEffects(): PageEffects {
 fun JumpPageEffects() = JumpPageEffects(ScreenCornerHelper.corner)
 
 private fun JumpPageEffects(corner : Dp) : PageEffects {
-    val flyMaxValue = 1f
+    val maxFlyValue = 1f
+    val maxScaleValue = 0.9f
     return object : PageEffects(
         backgroundEffect = BackgroundPageEffectState(
             enableMirror = false,
             backgroundColor = Color.Black,
-            start = PageEffect(
-                scale = 1f,
-                blur = 0.dp,
-                mask = 0f,
-                corner = RoundedCornerShape(corner),
-                alpha = 1f,
-                translationPercent = Offset(0f,0f),
-            ),
-            end = PageEffect(
-                scale = 0.85f,
-                blur = 0.dp,
-                mask = 0f,
-                corner = RoundedCornerShape(corner),
-                alpha = 1f,
-                translationPercent = Offset(-flyMaxValue,0f),
+            effect = PageEffect(
+                scale = EffectValue(
+                    start = 1f,
+                    end = maxScaleValue,
+                    reserved = true
+                ),
+                alpha = EffectValue(
+                    start = 1f,
+                    end = 0f
+                ),
+                corner = EffectValue.const(RoundedCornerShape(corner)),
+                translationPercent = EffectValue(
+                    start = Offset.Zero,
+                    end = Offset(-maxFlyValue,0f)
+                )
             )
         ),
         foregroundEffect = ForegroundPageEffectState(
-            start = PageEffect(
-                scale = 0.85f,
-                blur = 0.dp,
-                mask = 0f,
-                corner = RoundedCornerShape(corner),
-                alpha = 1f,
-                translationPercent = Offset(flyMaxValue,0f),
-            ),
-            end = PageEffect(
-                scale = 1f,
-                blur = 0.dp,
-                mask = 0f,
-                corner = RoundedCornerShape(corner),
-                alpha = 1f,
-                translationPercent = Offset(0f,0f),
+            effect = PageEffect(
+                scale = EffectValue(
+                    start = 1f,
+                    end = maxScaleValue,
+                    reserved = true
+                ),
+                alpha = EffectValue(
+                    start = 0f,
+                    end = 1f
+                ),
+                corner = EffectValue.const(RoundedCornerShape(corner)),
+                translationPercent = EffectValue(
+                    start = Offset(maxFlyValue,0f),
+                    end = Offset.Zero,
+                )
             )
         )
     ) {
+        // 重写方法，此PageEffect效果不受EffectLevel影响
         override fun background(progress: Float, level: EffectLevel) = backgroundEffect.lerp(progress)
 
         override fun foreground(progress: Float, level: EffectLevel) = foregroundEffect.lerp(progress)

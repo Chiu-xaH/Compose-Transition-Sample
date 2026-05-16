@@ -12,39 +12,60 @@ import com.sharednav.common.util.lerp
 data class BackgroundPageEffectState(
     val enableMirror : Boolean,
     val backgroundColor : Color? = null,
-    override val start: PageEffect,
-    override val end: PageEffect,
-) : BasePageEffectState(start,end)
+    override val effect: PageEffect
+) : BasePageEffectState(effect)
 
 @Immutable
 data class ForegroundPageEffectState(
-    override val start: PageEffect,
-    override val end: PageEffect,
-) : BasePageEffectState(start,end)
+    override val effect: PageEffect
+) : BasePageEffectState(effect)
 
 @Immutable
 abstract class BasePageEffectState(
-    open val start: PageEffect,
-    open val end: PageEffect,
+    open val effect: PageEffect
 ) {
-    fun lerp(progress : Float) = PageEffect(
-        scale = lerp(start.scale, end.scale, progress),
-        blur = lerp(start.blur, end.blur, progress),
-        mask = lerp(start.mask, end.mask, progress),
-        corner = lerp(start.corner, end.corner, progress),
-        alpha = lerp(start.alpha, end.alpha, progress),
-        position = TransformOrigin(
-            lerp(start.position.pivotFractionX,end.position.pivotFractionX,progress),
-            lerp(start.position.pivotFractionY,end.position.pivotFractionY,progress)
-        ),
-        translationPercent = Offset(
-            lerp(start.translationPercent.x,end.translationPercent.x,progress),
-            lerp(start.translationPercent.y,end.translationPercent.y,progress)
-        ),
-        rotate = Rotation(
-            x = lerp(start.rotate.x,end.rotate.x,progress),
-            y = lerp(start.rotate.y,end.rotate.y,progress),
-            z = lerp(start.rotate.z,end.rotate.z,progress),
+    fun lerp(progress : Float): PageEffectFrame = with(effect) {
+        PageEffectFrame(
+            scale = with(scale) {
+                lerp(start, end, getFinalProgress(progress))
+            },
+            blur = with(blur) {
+                lerp(start, end, getFinalProgress(progress))
+            },
+            mask = with(mask) {
+                lerp(start, end, getFinalProgress(progress))
+            },
+            corner = with(corner) {
+                lerp(start, end, getFinalProgress(progress))
+            },
+            alpha = with(alpha) {
+                lerp(start, end, getFinalProgress(progress))
+            },
+            position = with(position) {
+                getFinalProgress(progress).let { finalProgress ->
+                    TransformOrigin(
+                        lerp(start.pivotFractionX,end.pivotFractionX,finalProgress),
+                        lerp(start.pivotFractionY,end.pivotFractionY,finalProgress)
+                    )
+                }
+            },
+            translationPercent = with(translationPercent) {
+                getFinalProgress(progress).let { finalProgress ->
+                    Offset(
+                        lerp(start.x, end.x, finalProgress),
+                        lerp(start.y, end.y, finalProgress)
+                    )
+                }
+            },
+            rotate = with(rotate) {
+                getFinalProgress(progress).let { finalProgress ->
+                    Rotation(
+                        x = lerp(start.x,end.x,finalProgress),
+                        y = lerp(start.y,end.y,finalProgress),
+                        z = lerp(start.z,end.z,finalProgress),
+                    )
+                }
+            }
         )
-    )
+    }
 }

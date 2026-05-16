@@ -13,6 +13,7 @@ import com.sharednav.common.helper.ScreenCornerHelper
 import com.sharednav.common.util.NoneRoundShape
 import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.model.anim.BackgroundPageEffectState
+import com.xah.navigation.model.anim.EffectValue
 import com.xah.navigation.model.anim.ForegroundPageEffectState
 import com.xah.navigation.model.anim.PageEffect
 import com.xah.navigation.model.anim.PageEffects
@@ -44,43 +45,41 @@ fun rememberDefaultPageEffects(): PageEffects {
 
 fun DefaultPageEffects() = DefaultPageEffects(ScreenCornerHelper.corner)
 
-
 fun DefaultPageEffects(corner : Dp) : PageEffects {
-    val foregroundOrigin = TransformOrigin(0.5f, 0.275f)
     return PageEffects(
         backgroundEffect = BackgroundPageEffectState(
             enableMirror = true,
-            start = PageEffect(
-                scale = 1f,
-                blur = 0.dp,
-                mask = 0f,
-                corner = NoneRoundShape,
-                alpha = 1f,
-            ),
-            end = PageEffect(
-                scale = NavigationController.DEFAULT_SHARED_MAX_PRECENT,
-                blur = 25.dp,
-                mask = 0.25f,
-                corner = NoneRoundShape,
-                alpha = 1f,
+            effect = PageEffect(
+                scale = EffectValue(
+                    start = 1f,
+                    end = NavigationController.DEFAULT_SHARED_MAX_PRECENT,
+                ),
+                blur = EffectValue(
+                    start = 0.dp,
+                    end = 25.dp
+                ),
+                mask = EffectValue(
+                    start = 0f,
+                    end = 0.25f
+                ),
+                corner = EffectValue.const(NoneRoundShape),
             )
         ),
         foregroundEffect = ForegroundPageEffectState(
-            start = PageEffect(
-                scale = 0f,
-                blur = 0.dp,
-                mask = 0f,
-                corner = RoundedCornerShape(corner * 2.25f),
-                alpha = 0.75f,
-                position = foregroundOrigin
-            ),
-            end = PageEffect(
-                scale = 1f,
-                blur = 0.dp,
-                mask = 0f,
-                corner = RoundedCornerShape(corner),
-                alpha = 1f,
-                position = foregroundOrigin
+            PageEffect(
+                scale = EffectValue(
+                    start = 0f,
+                    end = 1f,
+                ),
+                corner = EffectValue(
+                    start = RoundedCornerShape(corner * 2.25f),
+                    end = RoundedCornerShape(corner)
+                ),
+                alpha = EffectValue(
+                    start = 0.75f,
+                    end = 1f
+                ),
+                position = EffectValue.const(TransformOrigin(0.5f, 0.275f))
             )
         )
     )

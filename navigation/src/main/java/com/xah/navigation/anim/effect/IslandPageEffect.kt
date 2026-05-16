@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.xah.navigation.controller.NavigationController
+import com.xah.navigation.model.anim.EffectValue
 import com.xah.navigation.model.anim.ForegroundPageEffectState
 import com.xah.navigation.model.anim.PageEffect
 import com.xah.navigation.model.anim.PageEffects
@@ -49,21 +50,23 @@ private fun IslandPageEffects(corner : Dp,position : TransformOrigin) : PageEffe
     return PageEffects(
         backgroundEffect = DefaultPageEffects(corner).backgroundEffect,
         foregroundEffect = ForegroundPageEffectState(
-            start = PageEffect(
-                scale = 0f,
-                blur = 15.dp,
-                mask = 0f,
-                corner = RoundedCornerShape(corner * 2.25f),
-                alpha = 1f,
-                position = position
-            ),
-            end = PageEffect(
-                scale = 1f,
-                blur = 0.dp,
-                mask = 0f,
-                corner = RoundedCornerShape(corner),
-                alpha = 1f,
-                position = TransformOrigin(0.5f, 0.5f)
+            effect = PageEffect(
+                scale = EffectValue(
+                    start = 0f,
+                    end = 1f
+                ),
+                blur = EffectValue(
+                    start = 15.dp,
+                    end = 0.dp
+                ),
+                corner = EffectValue(
+                    start = RoundedCornerShape(corner * 2.25f),
+                    end = RoundedCornerShape(corner)
+                ),
+                position = EffectValue(
+                    start = position,
+                    end = TransformOrigin(0.5f, 0.5f)
+                )
             )
         )
     )

@@ -8,13 +8,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import com.sharednav.common.modifier.mask
 import com.sharednav.common.modifier.scaleMirror
-import com.xah.navigation.model.anim.PageEffect
+import com.xah.navigation.model.anim.PageEffectFrame
 
-private fun Modifier.mask(effect: PageEffect) : Modifier {
+private fun Modifier.mask(effect: PageEffectFrame) : Modifier {
     return this.mask(Color.Black.copy(alpha = effect.mask))
 }
 
-private fun Modifier.blur(enableBlur : Boolean,effect : PageEffect) : Modifier {
+private fun Modifier.blur(enableBlur : Boolean,effect : PageEffectFrame) : Modifier {
     return if(enableBlur) {
         this.blur(effect.blur)
     } else {
@@ -24,7 +24,7 @@ private fun Modifier.blur(enableBlur : Boolean,effect : PageEffect) : Modifier {
 
 private fun Modifier.scale(
     enableShader : Boolean,
-    effect: PageEffect
+    effect: PageEffectFrame
 ) : Modifier {
     return this.scaleMirror(effect.scale,enableShader)
 }
@@ -33,7 +33,7 @@ fun Modifier.backgroundEffect(
     enableShader : Boolean,
     enableBlur : Boolean,
     background : Color?,
-    effect: PageEffect
+    effect: PageEffectFrame
 ) : Modifier = this
     // 背景色
     .let {
@@ -66,7 +66,7 @@ fun Modifier.backgroundEffect(
 
 fun Modifier.foregroundEffect(
     enableBlur : Boolean,
-    effect: PageEffect,
+    effect: PageEffectFrame,
 ) : Modifier = this
     // 模糊
     .blur(enableBlur,effect)

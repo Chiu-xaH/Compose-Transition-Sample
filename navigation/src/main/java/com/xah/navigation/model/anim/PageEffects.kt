@@ -50,11 +50,11 @@ open class PageEffects(
                         it.lerp(progress).copy(blur = 0.dp)
                     }
                     EffectLevel.NONE -> {
-                        PageEffect(
-                            scale = lerp(backgroundEffect.end.scale,1f,progress),
+                        PageEffectFrame(
+                            scale = lerp(backgroundEffect.effect.scale.end,1f,progress),
                             blur = 0.dp,
-                            mask = lerp(it.start.mask,it.end.mask,progress),
-                            corner = it.end.corner,
+                            mask = lerp(it.effect.mask.start,it.effect.mask.end,progress),
+                            corner = it.effect.corner.end,
                             alpha = lerp(0f,1f,progress),
                         )
                     }

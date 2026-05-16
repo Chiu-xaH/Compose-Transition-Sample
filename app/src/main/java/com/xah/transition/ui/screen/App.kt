@@ -154,14 +154,14 @@ fun App() {
        if(UiHolder.enableWallpaper && displayWallpaper && inHomeDest) {
            val progress = navigationController.transitionProgress.value
            val blurRadius = when(navigationController.transitionLevel) {
-               EffectLevel.FULL -> lerp(navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.start.blur,navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.end.blur,progress)
-               else -> navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.start.blur
+               EffectLevel.FULL -> lerp(navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.effect.blur.start,navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.effect.blur.end,progress)
+               else -> navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.effect.blur.start
            }
            val scale = when(navigationController.transitionLevel) {
-               EffectLevel.NO_BLUR -> lerp(navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.start.scale,2 - navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.end.scale,progress)
-               EffectLevel.FULL -> lerp(navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.start.scale,2 - navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.end.scale,progress)
-               EffectLevel.NO_SCALE -> navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.start.scale
-               EffectLevel.NONE -> navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.start.scale
+               EffectLevel.NO_BLUR -> lerp(navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.effect.scale.start,2 - navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.effect.scale.end,progress)
+               EffectLevel.FULL -> lerp(navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.effect.scale.start,2 - navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.effect.scale.end,progress)
+               EffectLevel.NO_SCALE -> navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.effect.scale.start
+               EffectLevel.NONE -> navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.effect.scale.start
            }
 
            Image(

@@ -13,6 +13,7 @@ import com.sharednav.common.helper.ScreenCornerHelper
 import com.sharednav.common.util.NoneRoundShape
 import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.model.anim.BackgroundPageEffectState
+import com.xah.navigation.model.anim.EffectValue
 import com.xah.navigation.model.anim.ForegroundPageEffectState
 import com.xah.navigation.model.anim.PageEffect
 import com.xah.navigation.model.anim.PageEffects
@@ -63,37 +64,29 @@ private fun SlidePageEffects(corner : Dp,direction : Direction) : PageEffects {
     return PageEffects(
         backgroundEffect = BackgroundPageEffectState(
             enableMirror = true,
-            start = PageEffect(
-                scale = 1f,
-                blur = 0.dp,
-                mask = 0f,
-                corner = NoneRoundShape,
-                alpha = 1f,
-            ),
-            end = PageEffect(
-                scale = NavigationController.DEFAULT_SHARED_MAX_PRECENT,
-                blur = 15.dp,
-                mask = 0.25f,
-                corner = NoneRoundShape,
-                alpha = 1f,
+            effect = PageEffect(
+                scale = EffectValue(
+                    start = 1f,
+                    end = NavigationController.DEFAULT_SHARED_MAX_PRECENT
+                ),
+                blur = EffectValue(
+                    start = 0.dp,
+                    end = 15.dp
+                ),
+                mask = EffectValue(
+                    start = 0f,
+                    end = 0.25f
+                ),
+                corner = EffectValue.const(NoneRoundShape),
             )
         ),
         foregroundEffect = ForegroundPageEffectState(
-            start = PageEffect(
-                scale = 1f,
-                blur = 0.dp,
-                mask = 0f,
-                corner = RoundedCornerShape(corner),
-                alpha = 1f,
-                translationPercent = from,
-            ),
-            end = PageEffect(
-                scale = 1f,
-                blur = 0.dp,
-                mask = 0f,
-                corner = RoundedCornerShape(corner),
-                alpha = 1f,
-                translationPercent = Offset(0f,0f),
+            effect = PageEffect(
+                corner = EffectValue.const(RoundedCornerShape(corner)),
+                translationPercent = EffectValue(
+                    start = from,
+                    end = Offset.Zero
+                )
             )
         )
     )
