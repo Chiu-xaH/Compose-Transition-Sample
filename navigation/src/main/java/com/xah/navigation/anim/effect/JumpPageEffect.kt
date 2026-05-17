@@ -1,5 +1,8 @@
 package com.xah.navigation.anim.effect
 
+import android.Manifest
+import android.content.Context
+import androidx.annotation.RequiresPermission
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,6 +22,7 @@ import com.xah.navigation.model.anim.ForegroundPageEffectState
 import com.xah.navigation.model.anim.PageEffect
 import com.xah.navigation.model.anim.PageEffects
 import com.xah.navigation.model.anim.TransitionEffect
+import com.xah.navigation.util.getWallpaper
 
 val defaultJumpBackground =  BackgroundEffectBg.Color(Color.Black)
 
@@ -47,6 +51,13 @@ fun rememberJumpPageEffects(background: BackgroundEffectBg = defaultJumpBackgrou
         JumpPageEffects(corner,background)
     }
 }
+
+@RequiresPermission(anyOf = ["android.permission.READ_WALLPAPER_INTERNAL", Manifest.permission.MANAGE_EXTERNAL_STORAGE])
+fun JumpTransitionEffect(context : Context) = JumpTransitionEffect(
+    getWallpaper(context)?.let { bitmap ->
+        BackgroundEffectBg.Image(bitmap)
+    } ?: defaultJumpBackground
+)
 
 fun JumpPageEffects(background: BackgroundEffectBg = defaultJumpBackground) = JumpPageEffects(ScreenCornerHelper.corner,background)
 

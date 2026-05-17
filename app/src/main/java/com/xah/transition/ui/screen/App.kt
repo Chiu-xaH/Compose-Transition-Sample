@@ -1,7 +1,5 @@
 package com.xah.transition.ui.screen
 
-import android.app.WallpaperManager
-import android.graphics.drawable.BitmapDrawable
 import android.provider.MediaStore
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -68,16 +66,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
 import com.sharednav.common.helper.ScreenCornerHelper
-import com.xah.container.component.base.SharedContainer
-import com.xah.container.util.LocalSharedRegistry
 import com.sharednav.common.util.NoneRoundShape
+import com.xah.container.component.base.SharedContainer
 import com.xah.container.model.ContainerFilledStrategy
+import com.xah.container.util.LocalSharedRegistry
 import com.xah.floating.util.LocalFloatingController
 import com.xah.navigation.anim.effect.FlipTransitionEffect
 import com.xah.navigation.anim.effect.IslandTransitionEffect
@@ -111,10 +108,10 @@ import com.xah.transition.ui.screen.destination.HomeDestination
 import com.xah.transition.ui.screen.destination.SecondDestination
 import com.xah.transition.ui.screen.destination.ThirdDestination
 import com.xah.transition.ui.screen.test.CubicBezierEditor
-import com.xah.transition.ui.screen.window.DialogFloatingWindow
 import com.xah.transition.ui.screen.window.BottomDialogWindow
 import com.xah.transition.ui.screen.window.BottomSheetWindow
 import com.xah.transition.ui.screen.window.CenterDialogWindow
+import com.xah.transition.ui.screen.window.DialogFloatingWindow
 import com.xah.transition.ui.style.topBarTransplantColor
 import com.xah.transition.ui.util.PermissionSet.checkAndRequestStoragePermission
 import com.xah.transition.ui.util.UiHolder
@@ -385,11 +382,7 @@ fun HomeScreen() {
                                     modifier = Modifier.clickable {
                                         navController.push(
                                             dest,
-                                            effect = JumpTransitionEffect(
-                                                getWallpaper(context)?.let { bitmap ->
-                                                    BackgroundEffectBg.Image(bitmap)
-                                                } ?: defaultJumpBackground
-                                            )
+                                            effect = JumpTransitionEffect(context)
                                         )
                                     }
                                 )
