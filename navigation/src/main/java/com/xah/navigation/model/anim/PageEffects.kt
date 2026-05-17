@@ -1,6 +1,7 @@
 package com.xah.navigation.model.anim
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 

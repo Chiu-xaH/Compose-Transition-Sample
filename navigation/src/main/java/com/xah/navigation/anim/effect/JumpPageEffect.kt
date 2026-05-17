@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.xah.navigation.controller.NavigationController
+import com.xah.navigation.model.anim.BackgroundEffectBg
 import com.xah.navigation.model.anim.BackgroundPageEffectState
 import com.xah.navigation.model.anim.EffectLevel
 import com.xah.navigation.model.anim.EffectValue
@@ -18,6 +19,8 @@ import com.xah.navigation.model.anim.ForegroundPageEffectState
 import com.xah.navigation.model.anim.PageEffect
 import com.xah.navigation.model.anim.PageEffects
 import com.xah.navigation.model.anim.TransitionEffect
+
+val defaultJumpBackground =  BackgroundEffectBg.Color(Color.Black)
 
 /**
  * 跳转
@@ -29,30 +32,31 @@ import com.xah.navigation.model.anim.TransitionEffect
  * 预测式返回手势阈值：0.5f
  */
 data class JumpTransitionEffect(
-    override val pageEffect : PageEffects = JumpPageEffects(),
+    val background: BackgroundEffectBg = defaultJumpBackground,
+    override val pageEffect : PageEffects = JumpPageEffects(background),
     override val predictiveMinValue: Float = (0.75f+0.8f)/2f,
     override val pushAnimation: AnimationSpec<Float> = tween(450, easing = NavigationController.DEFAULT_EASING),
     override val popAnimation: AnimationSpec<Float> = tween(450, easing = NavigationController.DEFAULT_EASING)
 ) : TransitionEffect
 
 @Composable
-fun rememberJumpPageEffects(): PageEffects {
+fun rememberJumpPageEffects(background: BackgroundEffectBg = defaultJumpBackground): PageEffects {
     val view = LocalView.current
     val corner = ScreenCornerHelper(view).getCornerDp()
     return remember(corner) {
-        JumpPageEffects(corner)
+        JumpPageEffects(corner,background)
     }
 }
 
-fun JumpPageEffects() = JumpPageEffects(ScreenCornerHelper.corner)
+fun JumpPageEffects(background: BackgroundEffectBg = defaultJumpBackground) = JumpPageEffects(ScreenCornerHelper.corner,background)
 
-private fun JumpPageEffects(corner : Dp) : PageEffects {
+private fun JumpPageEffects(corner : Dp,background: BackgroundEffectBg) : PageEffects {
     val maxScaleValue = NavigationController.DEFAULT_SHARED_MAX_PRECENT
     val maxFlyValue = (1-maxScaleValue)/2 + 1f
     return object : PageEffects(
         backgroundEffect = BackgroundPageEffectState(
             enableMirror = false,
-            backgroundColor = Color.Black,
+            backgroundColor = background,
             effect = PageEffect(
                 scale = EffectValue(
                     start = 1f,

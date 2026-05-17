@@ -4,6 +4,7 @@ import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -27,7 +28,7 @@ import kotlin.math.abs
 data class PageEffectFrame(
     val scale: Float = 1f,
     val blur: Dp = 0.dp,
-    val mask: Float = 0f,
+    val mask: Color = Color.Transparent,
     val corner: CornerBasedShape = RoundedCornerShape(ScreenCornerHelper.corner),
     val alpha: Float = 1f,
     val position: TransformOrigin = TransformOrigin.Center,

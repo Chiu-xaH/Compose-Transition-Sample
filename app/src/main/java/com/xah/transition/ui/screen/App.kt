@@ -1,6 +1,9 @@
 package com.xah.transition.ui.screen
 
+import android.app.WallpaperManager
+import android.graphics.drawable.BitmapDrawable
 import android.provider.MediaStore
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -65,6 +68,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
@@ -79,13 +83,16 @@ import com.xah.navigation.anim.effect.FlipTransitionEffect
 import com.xah.navigation.anim.effect.IslandTransitionEffect
 import com.xah.navigation.anim.effect.JumpTransitionEffect
 import com.xah.navigation.anim.effect.SlideTransitionEffect
+import com.xah.navigation.anim.effect.defaultJumpBackground
 import com.xah.navigation.component.SharedNavHost
 import com.xah.navigation.component.rememberNavController
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.action.LaunchMode
+import com.xah.navigation.model.anim.BackgroundEffectBg
 import com.xah.navigation.model.anim.EffectLevel
 import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavDependencies
+import com.xah.navigation.util.getWallpaper
 import com.xah.navigation.util.rememberNavDependencies
 import com.xah.transition.R
 import com.xah.transition.model.AppIconBean
@@ -109,6 +116,7 @@ import com.xah.transition.ui.screen.window.BottomDialogWindow
 import com.xah.transition.ui.screen.window.BottomSheetWindow
 import com.xah.transition.ui.screen.window.CenterDialogWindow
 import com.xah.transition.ui.style.topBarTransplantColor
+import com.xah.transition.ui.util.PermissionSet.checkAndRequestStoragePermission
 import com.xah.transition.ui.util.UiHolder
 import com.xah.transition.util.Starter
 
@@ -223,6 +231,8 @@ fun HomeScreen() {
             Pair(ContainerFilledStrategy.Color(Color.Black),"色彩"),
         )
     }
+    val activity = LocalActivity.current
+
     val displayWallpaper = UiHolder.imageBitmap != null
     val d = !UiHolder.enableWallpaper && displayWallpaper
 
@@ -361,6 +371,9 @@ fun HomeScreen() {
                         }
                     }
                     item {
+                        LaunchedEffect(activity) {
+                            activity?.let { checkAndRequestStoragePermission(it) }
+                        }
                         val dest = SecondDestination(888,false)
                         Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
                             Card(
@@ -370,7 +383,14 @@ fun HomeScreen() {
                                 TransplantListItem(
                                     headlineContent = { Text("跳转动效") },
                                     modifier = Modifier.clickable {
-                                        navController.push(dest, effect = JumpTransitionEffect())
+                                        navController.push(
+                                            dest,
+                                            effect = JumpTransitionEffect(
+                                                getWallpaper(context)?.let { bitmap ->
+                                                    BackgroundEffectBg.Image(bitmap)
+                                                } ?: defaultJumpBackground
+                                            )
+                                        )
                                     }
                                 )
                             }
@@ -1097,6 +1117,5 @@ fun BezierSettingsScreen(title: String) {
         }
     }
 }
-
 
 

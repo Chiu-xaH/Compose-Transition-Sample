@@ -7,11 +7,12 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.unit.lerp
 import com.sharednav.common.util.lerp
+import androidx.compose.ui.graphics.lerp
 
 @Immutable
 data class BackgroundPageEffectState(
     val enableMirror : Boolean,
-    val backgroundColor : Color? = null,
+    val backgroundColor : BackgroundEffectBg? = null,
     override val effect: PageEffect
 ) : BasePageEffectState(effect)
 

@@ -4,15 +4,18 @@ import androidx.compose.foundation.background
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.layout.ContentScale
 import com.sharednav.common.modifier.mask
 import com.sharednav.common.modifier.scaleMirror
+import com.xah.navigation.model.anim.BackgroundEffectBg
 import com.xah.navigation.model.anim.PageEffectFrame
 
-private fun Modifier.mask(effect: PageEffectFrame) : Modifier {
-    return this.mask(Color.Black.copy(alpha = effect.mask))
-}
+private fun Modifier.mask(effect: PageEffectFrame) : Modifier = this.mask(effect.mask)
 
 private fun Modifier.blur(enableBlur : Boolean,effect : PageEffectFrame) : Modifier {
     return if(enableBlur) {
@@ -32,14 +35,25 @@ private fun Modifier.scale(
 fun Modifier.backgroundEffect(
     enableShader : Boolean,
     enableBlur : Boolean,
-    background : Color?,
+    background : BackgroundEffectBg?,
     effect: PageEffectFrame
 ) : Modifier = this
     // 背景色
     .let {
-        background?.let { bg ->
-            it.background(bg)
-        } ?: it
+        when(background) {
+            null -> it
+            is BackgroundEffectBg.Image -> {
+                it
+                    .paint(
+                        painter = BitmapPainter(background.bitmap.asImageBitmap()),
+                        contentScale = ContentScale.Crop
+                    )
+                    .background(background.mask)
+            }
+            is BackgroundEffectBg.Color -> {
+                it.background(background.color)
+            }
+        }
     }
     // 压暗
     .mask(effect)
