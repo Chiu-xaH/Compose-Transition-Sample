@@ -42,6 +42,7 @@ fun FloatingBackHandler() {
             } catch (e: CancellationException) {
                 controller.cancelPredictiveBackShared(state)
                 LogUtil.debug("cancelPredictiveBack")
+                throw e
             }
         }
     } else {

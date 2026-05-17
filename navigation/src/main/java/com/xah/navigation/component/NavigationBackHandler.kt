@@ -40,6 +40,7 @@ fun NavigationBackHandler() {
             } catch (e: CancellationException) {
                 navController.cancelPredictiveBackShared(state)
                 LogUtil.debug("cancelPredictiveBack")
+                throw e
             }
         }
     } else {
