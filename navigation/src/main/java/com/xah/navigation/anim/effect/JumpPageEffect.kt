@@ -37,33 +37,35 @@ val defaultJumpBackground =  BgEffectBackground.Color(Color.Black)
  */
 data class JumpTransitionEffect(
     val background: BgEffectBackground = defaultJumpBackground,
-    override val pageEffect : PageEffects = JumpPageEffects(background),
+    val alphaStyle: Boolean = false,
+    override val pageEffect : PageEffects = JumpPageEffects(background,alphaStyle),
     override val predictiveMinValue: Float = (0.75f+0.8f)/2f,
     override val pushAnimation: AnimationSpec<Float> = tween(450, easing = NavigationController.DEFAULT_EASING),
     override val popAnimation: AnimationSpec<Float> = tween(450, easing = NavigationController.DEFAULT_EASING)
 ) : TransitionEffect
 
 @Composable
-fun rememberJumpPageEffects(background: BgEffectBackground = defaultJumpBackground): PageEffects {
+fun rememberJumpPageEffects(background: BgEffectBackground = defaultJumpBackground,enableAlpha : Boolean = false): PageEffects {
     val view = LocalView.current
     val corner = ScreenCornerHelper(view).getCornerDp()
     return remember(corner) {
-        JumpPageEffects(corner,background)
+        JumpPageEffects(corner,background,enableAlpha)
     }
 }
 
 @RequiresPermission(anyOf = ["android.permission.READ_WALLPAPER_INTERNAL", Manifest.permission.MANAGE_EXTERNAL_STORAGE])
-fun JumpTransitionEffect(context : Context) = JumpTransitionEffect(
+fun JumpTransitionEffect(context : Context,alphaStyle : Boolean = false) = JumpTransitionEffect(
     getWallpaper(context)?.let { bitmap ->
         BgEffectBackground.Image(bitmap)
-    } ?: defaultJumpBackground
+    } ?: defaultJumpBackground,
+    alphaStyle
 )
 
-fun JumpPageEffects(background: BgEffectBackground = defaultJumpBackground) = JumpPageEffects(ScreenCornerHelper.corner,background)
+fun JumpPageEffects(background: BgEffectBackground = defaultJumpBackground, alphaStyle : Boolean) = JumpPageEffects(ScreenCornerHelper.corner,background, alphaStyle)
 
-private fun JumpPageEffects(corner : Dp,background: BgEffectBackground) : PageEffects {
+private fun JumpPageEffects(corner : Dp, background: BgEffectBackground, alphaStyle: Boolean) : PageEffects {
     val maxScaleValue = NavigationController.DEFAULT_SHARED_MAX_PRECENT
-    val maxFlyValue = (1-maxScaleValue)/2 + 1f
+    val maxFlyValue = if(alphaStyle) 1f else (1-maxScaleValue)/2 + 1f
     return object : PageEffects(
         backgroundEffect = BackgroundPageEffectState(
             enableMirror = false,
@@ -74,10 +76,14 @@ private fun JumpPageEffects(corner : Dp,background: BgEffectBackground) : PageEf
                     end = maxScaleValue,
                     reserved = true
                 ),
-//                alpha = EffectValue(
-//                    start = 1f,
-//                    end = 0f
-//                ),
+                alpha = if(alphaStyle) {
+                    EffectValue(
+                        start = 1f,
+                        end = 0f
+                    )
+                } else {
+                    EffectValue.const(1f)
+                },
                 corner = EffectValue.const(RoundedCornerShape(corner)),
                 translationPercent = EffectValue(
                     start = Offset.Zero,
@@ -92,10 +98,14 @@ private fun JumpPageEffects(corner : Dp,background: BgEffectBackground) : PageEf
                     end = maxScaleValue,
                     reserved = true
                 ),
-//                alpha = EffectValue(
-//                    start = 0f,
-//                    end = 1f
-//                ),
+                alpha = if(alphaStyle) {
+                    EffectValue(
+                        start = 0f,
+                        end = 1f
+                    )
+                } else {
+                    EffectValue.const(1f)
+                },
                 corner = EffectValue.const(RoundedCornerShape(corner)),
                 translationPercent = EffectValue(
                     start = Offset(maxFlyValue,0f),

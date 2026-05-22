@@ -16,6 +16,7 @@ import com.xah.navigation.model.anim.effect.ForegroundPageEffectState
 import com.xah.navigation.model.anim.effect.PageEffect
 import com.xah.navigation.model.anim.effect.PageEffects
 import com.xah.navigation.model.anim.TransitionEffect
+import com.xah.navigation.model.anim.effect.sub.Rotation
 
 /**
  * 灵动岛
@@ -28,7 +29,8 @@ import com.xah.navigation.model.anim.TransitionEffect
  */
 data class IslandTransitionEffect(
     val position: TransformOrigin = TransformOrigin(0.5f, 0f),
-    override val pageEffect : PageEffects = IslandPageEffects(position),
+    val rotation: Rotation = Rotation(),
+    override val pageEffect : PageEffects = IslandPageEffects(position,rotation),
     override val predictiveMinValue: Float = NavigationController.DEFAULT_SHARED_MAX_PRECENT,
     override val pushAnimation: AnimationSpec<Float> = tween(NavigationController.DEFAULT_SHARED_SPEC*6/5, easing = NavigationController.DEFAULT_EASING),
     override val popAnimation: AnimationSpec<Float> = tween(NavigationController.DEFAULT_SHARED_SPEC*6/5, easing = NavigationController.DEFAULT_EASING)
@@ -36,17 +38,17 @@ data class IslandTransitionEffect(
 
 
 @Composable
-fun rememberIslandPageEffects(position: TransformOrigin = TransformOrigin(0.5f, 0f)): PageEffects {
+fun rememberIslandPageEffects(position: TransformOrigin = TransformOrigin(0.5f, 0f),rotation: Rotation = Rotation()): PageEffects {
     val view = LocalView.current
     val corner = ScreenCornerHelper(view).getCornerDp()
     return remember(corner) {
-        IslandPageEffects(corner,position)
+        IslandPageEffects(corner,position,rotation)
     }
 }
 
-fun IslandPageEffects(position: TransformOrigin = TransformOrigin(0.5f, 0f)) = IslandPageEffects(ScreenCornerHelper.corner,position)
+fun IslandPageEffects(position: TransformOrigin = TransformOrigin(0.5f, 0f),rotation: Rotation = Rotation()) = IslandPageEffects(ScreenCornerHelper.corner,position,rotation)
 
-private fun IslandPageEffects(corner : Dp,position : TransformOrigin) : PageEffects {
+private fun IslandPageEffects(corner : Dp,position : TransformOrigin,rotation: Rotation) : PageEffects {
     return PageEffects(
         backgroundEffect = DefaultPageEffects(corner).backgroundEffect,
         foregroundEffect = ForegroundPageEffectState(
@@ -66,6 +68,10 @@ private fun IslandPageEffects(corner : Dp,position : TransformOrigin) : PageEffe
                 position = EffectValue(
                     start = position,
                     end = TransformOrigin(0.5f, 0.5f)
+                ),
+                rotate = EffectValue(
+                    start = rotation,
+                    end = Rotation()
                 )
             )
         )

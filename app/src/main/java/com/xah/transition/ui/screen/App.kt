@@ -60,6 +60,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -76,6 +77,7 @@ import com.xah.container.component.base.SharedContainer
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.floating.util.LocalFloatingController
+import com.xah.navigation.anim.effect.Direction
 import com.xah.navigation.anim.effect.FlipTransitionEffect
 import com.xah.navigation.anim.effect.IslandTransitionEffect
 import com.xah.navigation.anim.effect.JumpTransitionEffect
@@ -85,6 +87,7 @@ import com.xah.navigation.component.rememberNavController
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.model.anim.EffectLevel
+import com.xah.navigation.model.anim.effect.sub.Rotation
 import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavDependencies
 import com.xah.navigation.util.rememberNavDependencies
@@ -356,6 +359,38 @@ fun HomeScreen() {
                                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                             ) {
                                 TransplantListItem(
+                                    headlineContent = { Text("侧方岛动效") },
+                                    modifier = Modifier.clickable {
+                                        navController.push(dest, effect = IslandTransitionEffect(position = TransformOrigin(1f,0.5f)))
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        val dest = SecondDestination(888,false)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            Card(
+                                shape = MaterialTheme.shapes.small,
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                TransplantListItem(
+                                    headlineContent = { Text("对角岛动效") },
+                                    modifier = Modifier.clickable {
+                                        navController.push(dest, effect = IslandTransitionEffect(position = TransformOrigin(1f,0f), rotation = Rotation(z = 30f)))
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        val dest = SecondDestination(888,false)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            Card(
+                                shape = MaterialTheme.shapes.small,
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                TransplantListItem(
                                     headlineContent = { Text("推入动效") },
                                     modifier = Modifier.clickable {
                                         navController.push(dest, effect = SlideTransitionEffect())
@@ -364,6 +399,24 @@ fun HomeScreen() {
                             }
                         }
                     }
+
+                    item {
+                        val dest = SecondDestination(888,false)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            Card(
+                                shape = MaterialTheme.shapes.small,
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                TransplantListItem(
+                                    headlineContent = { Text("推入动效(左侧)") },
+                                    modifier = Modifier.clickable {
+                                        navController.push(dest, effect = SlideTransitionEffect(Direction.START))
+                                    }
+                                )
+                            }
+                        }
+                    }
+
                     item {
                         LaunchedEffect(activity) {
                             activity?.let { checkAndRequestStoragePermission(it) }
@@ -380,6 +433,28 @@ fun HomeScreen() {
                                         navController.push(
                                             dest,
                                             effect = JumpTransitionEffect(context)
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        LaunchedEffect(activity) {
+                            activity?.let { checkAndRequestStoragePermission(it) }
+                        }
+                        val dest = SecondDestination(888,false)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            Card(
+                                shape = MaterialTheme.shapes.small,
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                TransplantListItem(
+                                    headlineContent = { Text("跳转动效2") },
+                                    modifier = Modifier.clickable {
+                                        navController.push(
+                                            dest,
+                                            effect = JumpTransitionEffect(context,true)
                                         )
                                     }
                                 )
