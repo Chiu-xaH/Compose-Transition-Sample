@@ -6,11 +6,11 @@ import androidx.lifecycle.ViewModelProvider
 import com.xah.navigation.model.dest.Destination
 import com.xah.navigation.model.dest.StackEntry
 
-class NavigationViewModel() : ViewModel() {
+class NavigationViewModel : ViewModel() {
     val stack = mutableStateListOf<StackEntry>()
     val historyQueue = mutableStateListOf<Destination>()
 
-    class Factory() : ViewModelProvider.Factory {
+    class Factory : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return NavigationViewModel() as T

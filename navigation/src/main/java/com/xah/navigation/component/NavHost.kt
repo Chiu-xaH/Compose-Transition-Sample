@@ -93,7 +93,7 @@ private fun NavHost(
     ) {
         backHandler()
 
-        val transition = navController.transition
+        val transition = navController.transitionEntry
         val progress = navController.transitionProgress
 
         // 当 transition 变化时启动动画

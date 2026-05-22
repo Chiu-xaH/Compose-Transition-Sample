@@ -1,4 +1,4 @@
-package com.xah.navigation.model.anim
+package com.xah.navigation.model.anim.effect.sub
 
 import androidx.compose.runtime.Immutable
 

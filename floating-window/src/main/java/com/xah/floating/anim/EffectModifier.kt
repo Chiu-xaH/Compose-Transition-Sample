@@ -26,7 +26,7 @@ private fun Modifier.scale(
     return this.scaleMirror(effect.scale,enableShader)
 }
 
-fun Modifier.backgroundEffect(
+internal fun Modifier.backgroundEffect(
     enableShader : Boolean,
     enableBlur : Boolean,
     effect: PageEffect

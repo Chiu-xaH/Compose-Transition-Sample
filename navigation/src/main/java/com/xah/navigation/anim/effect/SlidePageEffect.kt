@@ -15,11 +15,11 @@ import com.sharednav.common.modifier.defaultMask
 import com.sharednav.common.modifier.noneMask
 import com.sharednav.common.util.NoneRoundShape
 import com.xah.navigation.controller.NavigationController
-import com.xah.navigation.model.anim.BackgroundPageEffectState
-import com.xah.navigation.model.anim.EffectValue
-import com.xah.navigation.model.anim.ForegroundPageEffectState
-import com.xah.navigation.model.anim.PageEffect
-import com.xah.navigation.model.anim.PageEffects
+import com.xah.navigation.model.anim.effect.BackgroundPageEffectState
+import com.xah.navigation.model.anim.effect.EffectValue
+import com.xah.navigation.model.anim.effect.ForegroundPageEffectState
+import com.xah.navigation.model.anim.effect.PageEffect
+import com.xah.navigation.model.anim.effect.PageEffects
 import com.xah.navigation.model.anim.TransitionEffect
 
 /**

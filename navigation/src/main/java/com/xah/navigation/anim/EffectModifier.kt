@@ -5,15 +5,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.paint
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import com.sharednav.common.modifier.mask
 import com.sharednav.common.modifier.scaleMirror
-import com.xah.navigation.model.anim.BackgroundEffectBg
-import com.xah.navigation.model.anim.PageEffectFrame
+import com.xah.navigation.model.anim.effect.sub.BgEffectBackground
+import com.xah.navigation.model.anim.effect.PageEffectFrame
 
 private fun Modifier.mask(effect: PageEffectFrame) : Modifier = this.mask(effect.mask)
 
@@ -32,17 +31,17 @@ private fun Modifier.scale(
     return this.scaleMirror(effect.scale,enableShader)
 }
 
-fun Modifier.backgroundEffect(
+internal fun Modifier.backgroundEffect(
     enableShader : Boolean,
     enableBlur : Boolean,
-    background : BackgroundEffectBg?,
+    background : BgEffectBackground?,
     effect: PageEffectFrame
 ) : Modifier = this
     // 背景色
     .let {
         when(background) {
             null -> it
-            is BackgroundEffectBg.Image -> {
+            is BgEffectBackground.Image -> {
                 it
                     .paint(
                         painter = BitmapPainter(background.bitmap.asImageBitmap()),
@@ -50,7 +49,7 @@ fun Modifier.backgroundEffect(
                     )
                     .background(background.mask)
             }
-            is BackgroundEffectBg.Color -> {
+            is BgEffectBackground.Color -> {
                 it.background(background.color)
             }
         }
@@ -78,7 +77,7 @@ fun Modifier.backgroundEffect(
     // 圆角
     .clip(effect.corner)
 
-fun Modifier.foregroundEffect(
+internal fun Modifier.foregroundEffect(
     enableBlur : Boolean,
     effect: PageEffectFrame,
 ) : Modifier = this

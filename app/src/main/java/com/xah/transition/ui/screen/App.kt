@@ -80,16 +80,13 @@ import com.xah.navigation.anim.effect.FlipTransitionEffect
 import com.xah.navigation.anim.effect.IslandTransitionEffect
 import com.xah.navigation.anim.effect.JumpTransitionEffect
 import com.xah.navigation.anim.effect.SlideTransitionEffect
-import com.xah.navigation.anim.effect.defaultJumpBackground
 import com.xah.navigation.component.SharedNavHost
 import com.xah.navigation.component.rememberNavController
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.action.LaunchMode
-import com.xah.navigation.model.anim.BackgroundEffectBg
 import com.xah.navigation.model.anim.EffectLevel
 import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavDependencies
-import com.xah.navigation.util.getWallpaper
 import com.xah.navigation.util.rememberNavDependencies
 import com.xah.transition.R
 import com.xah.transition.model.AppIconBean
@@ -153,7 +150,7 @@ fun App() {
         put("1", tag = "args2")
     }
     val navigationController = rememberNavController(HomeDestination)
-    val inHomeDest = navigationController.current.destination == navigationController.startDestination || navigationController.transition?.to?.destination == navigationController.startDestination || navigationController.transition?.from?.destination == navigationController.startDestination
+    val inHomeDest = navigationController.current.destination == navigationController.startDestination || navigationController.transitionEntry?.to?.destination == navigationController.startDestination || navigationController.transitionEntry?.from?.destination == navigationController.startDestination
     val displayWallpaper = UiHolder.imageBitmap != null
     Box(modifier = Modifier.fillMaxSize()) {
        if(UiHolder.enableWallpaper && displayWallpaper && inHomeDest) {

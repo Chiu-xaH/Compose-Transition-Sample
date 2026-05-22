@@ -1,4 +1,4 @@
-package com.xah.navigation.model.anim
+package com.xah.navigation.model.anim.effect
 
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.ScreenCornerHelper
-import kotlin.math.abs
+import com.xah.navigation.model.anim.effect.sub.Rotation
 
 /** lerp
  * 1. 预测式返回时：
@@ -36,4 +36,3 @@ data class PageEffectFrame(
     val rotate: Rotation = Rotation(),
     // TODO RenderEffect
 )
-

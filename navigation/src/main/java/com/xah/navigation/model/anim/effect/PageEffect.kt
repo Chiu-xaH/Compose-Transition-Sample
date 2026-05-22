@@ -1,4 +1,4 @@
-package com.xah.navigation.model.anim
+package com.xah.navigation.model.anim.effect
 
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.runtime.Immutable
@@ -7,6 +7,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.xah.navigation.model.anim.effect.EffectValue
+import com.xah.navigation.model.anim.effect.sub.Rotation
 
 @Immutable
 data class PageEffect(

@@ -14,17 +14,17 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.xah.navigation.controller.NavigationController
-import com.xah.navigation.model.anim.BackgroundEffectBg
-import com.xah.navigation.model.anim.BackgroundPageEffectState
+import com.xah.navigation.model.anim.effect.sub.BgEffectBackground
+import com.xah.navigation.model.anim.effect.BackgroundPageEffectState
 import com.xah.navigation.model.anim.EffectLevel
-import com.xah.navigation.model.anim.EffectValue
-import com.xah.navigation.model.anim.ForegroundPageEffectState
-import com.xah.navigation.model.anim.PageEffect
-import com.xah.navigation.model.anim.PageEffects
+import com.xah.navigation.model.anim.effect.EffectValue
+import com.xah.navigation.model.anim.effect.ForegroundPageEffectState
+import com.xah.navigation.model.anim.effect.PageEffect
+import com.xah.navigation.model.anim.effect.PageEffects
 import com.xah.navigation.model.anim.TransitionEffect
 import com.xah.navigation.util.getWallpaper
 
-val defaultJumpBackground =  BackgroundEffectBg.Color(Color.Black)
+val defaultJumpBackground =  BgEffectBackground.Color(Color.Black)
 
 /**
  * 跳转
@@ -36,7 +36,7 @@ val defaultJumpBackground =  BackgroundEffectBg.Color(Color.Black)
  * 预测式返回手势阈值：0.5f
  */
 data class JumpTransitionEffect(
-    val background: BackgroundEffectBg = defaultJumpBackground,
+    val background: BgEffectBackground = defaultJumpBackground,
     override val pageEffect : PageEffects = JumpPageEffects(background),
     override val predictiveMinValue: Float = (0.75f+0.8f)/2f,
     override val pushAnimation: AnimationSpec<Float> = tween(450, easing = NavigationController.DEFAULT_EASING),
@@ -44,7 +44,7 @@ data class JumpTransitionEffect(
 ) : TransitionEffect
 
 @Composable
-fun rememberJumpPageEffects(background: BackgroundEffectBg = defaultJumpBackground): PageEffects {
+fun rememberJumpPageEffects(background: BgEffectBackground = defaultJumpBackground): PageEffects {
     val view = LocalView.current
     val corner = ScreenCornerHelper(view).getCornerDp()
     return remember(corner) {
@@ -55,13 +55,13 @@ fun rememberJumpPageEffects(background: BackgroundEffectBg = defaultJumpBackgrou
 @RequiresPermission(anyOf = ["android.permission.READ_WALLPAPER_INTERNAL", Manifest.permission.MANAGE_EXTERNAL_STORAGE])
 fun JumpTransitionEffect(context : Context) = JumpTransitionEffect(
     getWallpaper(context)?.let { bitmap ->
-        BackgroundEffectBg.Image(bitmap)
+        BgEffectBackground.Image(bitmap)
     } ?: defaultJumpBackground
 )
 
-fun JumpPageEffects(background: BackgroundEffectBg = defaultJumpBackground) = JumpPageEffects(ScreenCornerHelper.corner,background)
+fun JumpPageEffects(background: BgEffectBackground = defaultJumpBackground) = JumpPageEffects(ScreenCornerHelper.corner,background)
 
-private fun JumpPageEffects(corner : Dp,background: BackgroundEffectBg) : PageEffects {
+private fun JumpPageEffects(corner : Dp,background: BgEffectBackground) : PageEffects {
     val maxScaleValue = NavigationController.DEFAULT_SHARED_MAX_PRECENT
     val maxFlyValue = (1-maxScaleValue)/2 + 1f
     return object : PageEffects(

@@ -1,9 +1,10 @@
-package com.xah.navigation.model.anim
+package com.xah.navigation.model.anim.effect
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
+import com.xah.navigation.model.anim.EffectLevel
 
 @Immutable
 open class PageEffects(
@@ -52,11 +53,11 @@ open class PageEffects(
                     }
                     EffectLevel.NONE -> {
                         PageEffectFrame(
-                            scale = lerp(backgroundEffect.effect.scale.end,1f,progress),
+                            scale = lerp(backgroundEffect.effect.scale.end, 1f, progress),
                             blur = 0.dp,
-                            mask = lerp(it.effect.mask.start,it.effect.mask.end,progress),
+                            mask = lerp(it.effect.mask.start, it.effect.mask.end, progress),
                             corner = it.effect.corner.end,
-                            alpha = lerp(0f,1f,progress),
+                            alpha = lerp(0f, 1f, progress),
                         )
                     }
                 }

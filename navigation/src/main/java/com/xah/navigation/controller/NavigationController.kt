@@ -16,11 +16,10 @@ import com.sharednav.common.util.LogUtil
 import com.sharednav.common.util.PredictiveUtil
 import com.xah.container.controller.SharedRegistry
 import com.xah.container.model.SharedContainerState
-import com.xah.navigation.anim.effect.DefaultTransitionEffect
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.model.anim.EffectLevel
-import com.xah.navigation.model.anim.Transition
+import com.xah.navigation.model.anim.TransitionEntry
 import com.xah.navigation.model.anim.TransitionEffect
 import com.xah.navigation.model.dest.Destination
 import com.xah.navigation.model.dest.StackEntry
@@ -46,7 +45,7 @@ class NavigationController(
         _stack.last()
     }
 
-    var transition by mutableStateOf<Transition?>(null)
+    var transitionEntry by mutableStateOf<TransitionEntry?>(null)
         private set
 
     var isTransitioning by mutableStateOf(false)
@@ -85,7 +84,7 @@ class NavigationController(
 
     private fun getAnimation() =
         if (sharedRegistry?.isRunning == true) {
-            when(transition!!.type) {
+            when(transitionEntry!!.type) {
                 ActionType.POP -> popAnimationWithShared
                 ActionType.PUSH -> pushAnimationWithShared
             }
@@ -94,7 +93,7 @@ class NavigationController(
                 defaultSpecWithTinyScale
             } else {
                 val transitionMode = current().transitionMode
-                when(transition!!.type) {
+                when(transitionEntry!!.type) {
                     ActionType.POP -> transitionMode.popAnimation
                     ActionType.PUSH -> transitionMode.pushAnimation
                 }
@@ -130,7 +129,7 @@ class NavigationController(
         scope.launch(start = CoroutineStart.UNDISPATCHED) {
             var cachedEntry : StackEntry? = null
             // 并行动画
-            if(isTransitioning && transition?.type == ActionType.POP) {
+            if(isTransitioning && transitionEntry?.type == ActionType.POP) {
                 val reuse =
                     (launchMode is LaunchMode.Push && launchMode.reuse) ||
                     (launchMode is LaunchMode.Single && launchMode.reuse) ||
@@ -222,7 +221,7 @@ class NavigationController(
             val type = launchMode.actionType
             snap(type)
             // 添加过渡动画
-            transition = Transition(
+            transitionEntry = TransitionEntry(
                 type = type,
                 from = from,
                 to = current(),
@@ -243,7 +242,7 @@ class NavigationController(
 
             snap(type)
 
-            transition = Transition(
+            transitionEntry = TransitionEntry(
                 type = type,
                 from = from,
                 to = to,
@@ -277,9 +276,9 @@ class NavigationController(
         if(sharedRegistry?.isWaitingFrame == true) {
             return
         }
-        transition ?: return
+        transitionEntry ?: return
 
-        val target = when (transition!!.type) {
+        val target = when (transitionEntry!!.type) {
             ActionType.PUSH -> 1f
             ActionType.POP -> 0f
         }
@@ -289,10 +288,10 @@ class NavigationController(
         transitionProgress.animateTo(targetValue = target, animationSpec = getAnimation())
 
         // 移除栈，置状态
-        if (transition?.type == ActionType.POP) {
+        if (transitionEntry?.type == ActionType.POP) {
             removeAndPop()
         }
-        transition = null
+        transitionEntry = null
         isTransitioning = false
     }
 
@@ -383,7 +382,7 @@ class NavigationController(
             val from = current()
             val to = previous() ?: return@launch
             snap(ActionType.POP)
-            transition = Transition(
+            transitionEntry = TransitionEntry(
                 type = ActionType.POP,
                 from = from,
                 to = to,
@@ -447,7 +446,7 @@ class NavigationController(
             inPredictive = false
             transitionProgress.animateTo(0f, getAnimation())
             removeAndPop()
-            transition = null
+            transitionEntry = null
             isTransitioning = false
         }
     }
@@ -471,7 +470,7 @@ class NavigationController(
     private fun cancelPredictiveBack() {
         scope.launch {
             transitionProgress.animateTo(1f, PredictiveUtil.cancelAnimation())
-            transition = null
+            transitionEntry = null
             isTransitioning = false
             inPredictive = false
         }
