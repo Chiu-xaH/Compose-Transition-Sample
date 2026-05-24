@@ -5,7 +5,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
@@ -33,8 +32,8 @@ import com.xah.navigation.model.anim.TransitionEffect
 data class DefaultTransitionEffect(
     override val pageEffect : PageEffects = DefaultPageEffects(),
     override val predictiveMinValue: Float = NavigationController.DEFAULT_SHARED_MAX_PRECENT,
-    override val pushAnimation: AnimationSpec<Float> = tween(NavigationController.DEFAULT_SHARED_SPEC*6/5, easing = NavigationController.DEFAULT_EASING),
-    override val popAnimation: AnimationSpec<Float> = tween(NavigationController.DEFAULT_SHARED_SPEC*6/5, easing = NavigationController.DEFAULT_EASING)
+    override val pushAnimation: AnimationSpec<Float> = tween(NavigationController.DEFAULT_ANIMATION_TIME*6/5, easing = NavigationController.DEFAULT_EASING),
+    override val popAnimation: AnimationSpec<Float> = tween(NavigationController.DEFAULT_ANIMATION_TIME*6/5, easing = NavigationController.DEFAULT_EASING)
 ) : TransitionEffect
 
 @Composable

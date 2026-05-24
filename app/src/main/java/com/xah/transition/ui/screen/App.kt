@@ -116,6 +116,7 @@ import com.xah.transition.ui.style.topBarTransplantColor
 import com.xah.transition.ui.util.PermissionSet.checkAndRequestStoragePermission
 import com.xah.transition.ui.util.UiHolder
 import com.xah.transition.util.Starter
+import kotlin.math.roundToInt
 
 private fun Modifier.blur(enableBlur : Boolean,radius : Dp) : Modifier {
     return if(enableBlur) {
@@ -140,7 +141,7 @@ private fun Modifier.backgroundEffect(
     scale: Float
 ) : Modifier {
     return this
-        .blur(enableBlur,blurRadius)
+        .blur(enableBlur, blurRadius)
         .scale(scale)
 }
 
@@ -172,7 +173,9 @@ fun App() {
            Image(
                 bitmap = UiHolder.imageBitmap!!.asImageBitmap(),
                 contentDescription = null,
-                modifier = Modifier.fillMaxSize().backgroundEffect(navigationController.enableBlur,blurRadius,scale),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .backgroundEffect(navigationController.enableBlur, blurRadius, scale),
                 contentScale = ContentScale.Crop
             )
        }
@@ -798,6 +801,90 @@ fun HomeScreen() {
                             )
                         }
                     }
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Surface(
+                            color = cardNormalColor(),
+                            shape = MaterialTheme.shapes.small,
+                            modifier = Modifier.padding(CARD_NORMAL_DP*2)
+                        ) {
+                            var value by remember { mutableStateOf(registry.animationTime.toFloat()) }
+                            Column {
+                                TransplantListItem(
+                                    headlineContent = {
+                                        Text("容器共享动画速率 ${value.roundToInt()}ms")
+                                    },
+                                )
+                                CustomSlider(
+                                    value = value,
+                                    onValueChange = {
+                                        value = it
+                                        registry.animationTime = value.roundToInt()
+                                    },
+                                    modifier = Modifier.padding(bottom = APP_HORIZONTAL_DP),
+                                    valueRange = 200f..1000f,
+                                    steps = 31,
+                                    showProcessText = true,
+                                    processText = value.roundToInt().toString()
+                                )
+                            }
+                        }
+                    }
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Surface(
+                            color = cardNormalColor(),
+                            shape = MaterialTheme.shapes.small,
+                            modifier = Modifier.padding(CARD_NORMAL_DP*2)
+                        ) {
+                            var value by remember { mutableStateOf(registry.tiltMaxValue) }
+                            Column {
+                                TransplantListItem(
+                                    headlineContent = {
+                                        Text("容器共享倾斜程度 ${value.roundToInt()}")
+                                    },
+                                )
+                                CustomSlider(
+                                    value = value,
+                                    onValueChange = {
+                                        value = it
+                                        registry.tiltMaxValue = value
+                                    },
+                                    modifier = Modifier.padding(bottom = APP_HORIZONTAL_DP),
+                                    valueRange = 0f..75f,
+                                    steps = 74,
+                                    showProcessText = true,
+                                    processText = value.roundToInt().toString()
+                                )
+                            }
+                        }
+                    }
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Surface(
+                            color = cardNormalColor(),
+                            shape = MaterialTheme.shapes.small,
+                            modifier = Modifier.padding(CARD_NORMAL_DP*2)
+                        ) {
+                            var value by remember { mutableStateOf(registry.speedUpRadio) }
+                            Column {
+                                TransplantListItem(
+                                    headlineContent = {
+                                        Text("容器共享渐变速率比 $value")
+                                    },
+                                )
+                                CustomSlider(
+                                    value = value,
+                                    onValueChange = {
+                                        value = it
+                                        registry.speedUpRadio = value
+                                    },
+                                    modifier = Modifier.padding(bottom = APP_HORIZONTAL_DP),
+                                    valueRange = 1f..5f,
+                                    steps = 15,
+                                    showProcessText = true,
+                                    processText = value.toString()
+                                )
+                            }
+                        }
+                    }
                     /*
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         Surface(
@@ -842,7 +929,9 @@ fun HomeScreen() {
                         }
                     }
                     item(span = { GridItemSpan(maxLineSpan) }) {
-                        Spacer(Modifier.navigationBarsPadding().height((APP_HORIZONTAL_DP+innerPadding.calculateBottomPadding())*3))
+                        Spacer(Modifier
+                            .navigationBarsPadding()
+                            .height((APP_HORIZONTAL_DP + innerPadding.calculateBottomPadding()) * 3))
                     }
                 }
                 CompositionLocalProvider(
@@ -1069,7 +1158,7 @@ fun CornerSettingsScreen(title : String) {
     ) { innerPadding ->
         Box(
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.surface,RoundedCornerShape(corner.dp))
+                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(corner.dp))
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
@@ -1081,7 +1170,9 @@ fun CornerSettingsScreen(title : String) {
                     },
                     valueRange = 0f..100f
                 )
-                Box(modifier = Modifier.fillMaxWidth().padding(horizontal = APP_HORIZONTAL_DP)) {
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = APP_HORIZONTAL_DP)) {
                     FilledTonalButton(
                         onClick = {
                             corner -= 0.5f

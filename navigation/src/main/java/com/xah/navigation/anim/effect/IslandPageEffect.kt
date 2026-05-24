@@ -32,8 +32,8 @@ data class IslandTransitionEffect(
     val rotation: Rotation = Rotation(),
     override val pageEffect : PageEffects = IslandPageEffects(position,rotation),
     override val predictiveMinValue: Float = NavigationController.DEFAULT_SHARED_MAX_PRECENT,
-    override val pushAnimation: AnimationSpec<Float> = tween(NavigationController.DEFAULT_SHARED_SPEC*6/5, easing = NavigationController.DEFAULT_EASING),
-    override val popAnimation: AnimationSpec<Float> = tween(NavigationController.DEFAULT_SHARED_SPEC*6/5, easing = NavigationController.DEFAULT_EASING)
+    override val pushAnimation: AnimationSpec<Float> = tween(NavigationController.DEFAULT_ANIMATION_TIME*6/5, easing = NavigationController.DEFAULT_EASING),
+    override val popAnimation: AnimationSpec<Float> = tween(NavigationController.DEFAULT_ANIMATION_TIME*6/5, easing = NavigationController.DEFAULT_EASING)
 ) : TransitionEffect
 
 

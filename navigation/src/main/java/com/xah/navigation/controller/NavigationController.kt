@@ -12,6 +12,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.geometry.Offset
+import com.sharednav.common.helper.DEFAULT_SHARED_SPEC
 import com.sharednav.common.util.LogUtil
 import com.sharednav.common.util.PredictiveUtil
 import com.xah.container.controller.SharedRegistry
@@ -70,13 +71,14 @@ class NavigationController(
 
     companion object {
         const val DEFAULT_SHARED_MAX_PRECENT = 0.875f
-        const val DEFAULT_SHARED_SPEC = 500
+        const val DEFAULT_ANIMATION_TIME = DEFAULT_SHARED_SPEC
         val DEFAULT_EASING = CubicBezierEasing(0.4f, 0.65f, 0.25f, 1.0f)
     }
     val defaultSpecWithTinyScale = tween<Float>(250)
 //    private val defaultSpec = tween<Float>(animationSpecSharedTween*13/10)
-    private val popAnimationWithShared = tween<Float>(DEFAULT_SHARED_SPEC*7/5)
-    private val pushAnimationWithShared = tween<Float>(DEFAULT_SHARED_SPEC)
+    private fun popAnimationWithShared() = tween<Float>(sharedRegistry!!.animationTime*7/5)
+    private fun pushAnimationWithShared() = tween<Float>(sharedRegistry!!.animationTime)
+
 //    private val popAnimation = tween<Float>(animationSpecSharedTween*6/5, easing = CubicBezierEasing(0.4f, 0.65f, 0.25f, 1.0f))
 //    private val pushAnimation = tween<Float>(animationSpecSharedTween*6/5, easing = CubicBezierEasing(0.4f, 0.65f, 0.25f, 1.0f))
 
@@ -85,8 +87,8 @@ class NavigationController(
     private fun getAnimation() =
         if (sharedRegistry?.isRunning == true) {
             when(transitionEntry!!.type) {
-                ActionType.POP -> popAnimationWithShared
-                ActionType.PUSH -> pushAnimationWithShared
+                ActionType.POP -> popAnimationWithShared()
+                ActionType.PUSH -> pushAnimationWithShared()
             }
         } else {
             if(transitionLevel == EffectLevel.NONE) {
@@ -119,7 +121,6 @@ class NavigationController(
         }
         return null
     }
-
 
     private fun pushInternal(
         destination: Destination,
