@@ -167,6 +167,9 @@ private fun NavHost(
                         val enableMirror = enableShader && effect.backgroundEffect.enableMirror
                         val backgroundColor = effect.backgroundEffect.backgroundColor
 
+                        LaunchedEffect(Unit) {
+                            navController.isTransitioning = true
+                        }
                         Box(
                             Modifier
                                 .fillMaxSize()

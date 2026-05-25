@@ -50,7 +50,7 @@ class NavigationController(
         private set
 
     var isTransitioning by mutableStateOf(false)
-        private set
+//        private set
 
     var transitionLevel by mutableStateOf(EffectLevel.FULL)
 
@@ -285,7 +285,7 @@ class NavigationController(
         }
 
         // 设置标志位，开始动画
-        isTransitioning = true
+//        isTransitioning = true
         transitionProgress.animateTo(targetValue = target, animationSpec = getAnimation())
 
         // 移除栈，置状态
@@ -335,6 +335,9 @@ class NavigationController(
         }
     }
 
+    /**
+     * 延迟等动画结束后再加载内容，适合例如Bitmap、Video等
+     */
     suspend fun awaitTransition() = snapshotFlow { isTransitioning }.filter { !it }.first()
 
     fun current() : StackEntry = _stack.last()
@@ -390,7 +393,7 @@ class NavigationController(
                 effect = from.transitionMode
             )
             inPredictive = true
-            isTransitioning = true
+//            isTransitioning = true
         }
     }
 
