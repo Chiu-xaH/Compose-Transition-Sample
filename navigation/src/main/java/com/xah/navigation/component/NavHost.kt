@@ -93,12 +93,12 @@ private fun NavHost(
     ) {
         backHandler()
 
-        val transition = navController.transitionEntry
+        val transitionEntry = navController.transitionEntry
         val progress = navController.transitionProgress
 
         // 当 transition 变化时启动动画
         LaunchedEffect(
-            transition,
+            transitionEntry,
             registry.isRunning,
             registry.isWaitingFrame
         ) {
@@ -106,10 +106,10 @@ private fun NavHost(
         }
 
         val visibleEntries = if (navController.enableKeepAlive) {
-            remember(navController.stack.size, transition) {
-                val expectedStack = when (transition?.type) {
-                    ActionType.POP -> listOf(transition.to, transition.from)
-                    ActionType.PUSH -> listOf(transition.from, transition.to)
+            remember(navController.stack.size, transitionEntry) {
+                val expectedStack = when (transitionEntry?.type) {
+                    ActionType.POP -> listOf(transitionEntry.to, transitionEntry.from)
+                    ActionType.PUSH -> listOf(transitionEntry.from, transitionEntry.to)
                     else -> null
                 }
                 val actualStack = navController.stack.takeLast(2)
@@ -120,10 +120,10 @@ private fun NavHost(
                 }
             }
         } else {
-            remember(transition) {
-                when (transition?.type) {
-                    ActionType.POP -> listOf(transition.to, transition.from)
-                    ActionType.PUSH -> listOf(transition.from, transition.to)
+            remember(transitionEntry) {
+                when (transitionEntry?.type) {
+                    ActionType.POP -> listOf(transitionEntry.to, transitionEntry.from)
+                    ActionType.PUSH -> listOf(transitionEntry.from, transitionEntry.to)
                     else -> listOf(navController.stack.last())
                 }
             }
@@ -139,19 +139,19 @@ private fun NavHost(
             visibleEntries.forEachIndexed { _, entry ->
                 key(entry.id) {
                     saveableStateHolder.SaveableStateProvider(entry.id) {
-                        val isFrom = transition?.from == entry
-                        val isTo = transition?.to == entry
+                        val isFrom = transitionEntry?.from == entry
+                        val isTo = transitionEntry?.to == entry
 
                         val animatedProgress = progress.value
 
-                        val finalTransitionMode = transition?.effect ?: navController.defaultTransitionEffect
+                        val finalTransitionMode = transitionEntry?.effect ?: navController.defaultTransitionEffect
                         val effect = finalTransitionMode.pageEffect
 
                         val backgroundEffect = remember(animatedProgress,level) { effect.background(animatedProgress,level) }
                         val foregroundEffect = remember(animatedProgress,level) { effect.foreground(animatedProgress, level) }
 
                         // 当返回时，禁用前景；当前进时，禁用背景；当非动画态，启用
-                        val (enableTouch,interceptTouch) = when(transition?.type) {
+                        val (enableTouch,interceptTouch) = when(transitionEntry?.type) {
                             ActionType.POP -> {
                                 Pair(isTo,false)
                             }
@@ -167,16 +167,22 @@ private fun NavHost(
                         val enableMirror = enableShader && effect.backgroundEffect.enableMirror
                         val backgroundColor = effect.backgroundEffect.backgroundColor
 
+                        // 为保证界面创建的时候，isTransitioning马上为true，完成后置为false，供开发者监听
                         LaunchedEffect(Unit) {
+                            // 无动效时无需，例如第一个页面创建
+                            if(transitionEntry == null) {
+                                return@LaunchedEffect
+                            }
                             navController.isTransitioning = true
                         }
+
                         Box(
                             Modifier
                                 .fillMaxSize()
                                 .let {
                                     // 容器等帧测量时，禁用所有动效，测量容器的真实位置
-                                    if (transition != null) {
-                                        when (transition.type) {
+                                    if (transitionEntry != null) {
+                                        when (transitionEntry.type) {
                                             ActionType.PUSH -> {
                                                 if (isFrom) {
                                                     // 背景
@@ -232,7 +238,7 @@ private fun NavHost(
                                 // NONE等级动效不需要遮罩
                                 val enableSplashScreen = needDisplaySplashScreen && entry.destination.PlaceHolder != null
                                 // 动画过程中且为前景
-                                val inTransiting = (transition?.type == ActionType.POP && isFrom && navController.isTransitioning) || (transition?.type == ActionType.PUSH && isTo)
+                                val inTransiting = (transitionEntry?.type == ActionType.POP && isFrom && navController.isTransitioning) || (transitionEntry?.type == ActionType.PUSH && isTo)
 
                                 if(enableSplashScreen && inTransiting && !navController.inPredictive) {
                                     // SplashScreen

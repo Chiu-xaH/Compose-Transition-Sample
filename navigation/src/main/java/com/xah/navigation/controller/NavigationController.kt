@@ -285,7 +285,7 @@ class NavigationController(
         }
 
         // 设置标志位，开始动画
-//        isTransitioning = true
+        isTransitioning = true
         transitionProgress.animateTo(targetValue = target, animationSpec = getAnimation())
 
         // 移除栈，置状态
@@ -393,7 +393,7 @@ class NavigationController(
                 effect = from.transitionMode
             )
             inPredictive = true
-//            isTransitioning = true
+            isTransitioning = true
         }
     }
 
