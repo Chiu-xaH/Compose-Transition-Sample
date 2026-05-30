@@ -50,7 +50,7 @@ class NavigationController(
         private set
 
     var isTransitioning by mutableStateOf(false)
-//        private set
+        private set
 
     var transitionLevel by mutableStateOf(EffectLevel.FULL)
 
@@ -66,6 +66,11 @@ class NavigationController(
      * 是否保留页面真正的不被销毁,这个栈一般是应用的主页面，承载的业务比较多，如果为true页面还在，只不过被盖住了,可节省POP的性能开销（!!!多页面卡顿OOM警告,不建议启用）
      */
     var enableKeepAlive by mutableStateOf(false)
+
+    /**
+     * 是否允许在预测式手势时，背景也跟随手指进行进度变化，否则将恒为1f直到松手才开始变化
+     */
+    var enablePredictiveBackBackgroundFollow by mutableStateOf(false)
 
     val transitionProgress = Animatable(0f)
 
@@ -422,7 +427,9 @@ class NavigationController(
             launch {
                 updatePredictiveBack(
                     // 有容器的时候背景不动
-                    if(canShared) 1f else easedContainer
+                    if(enablePredictiveBackBackgroundFollow) easedContainer else 1f
+//                    if(canShared) 1f
+//                    else easedContainer
                 )
             }
         }
@@ -494,6 +501,17 @@ class NavigationController(
             }
             launch { cancelPredictiveBack() }
         }
+    }
+
+    /**
+     * 为保证界面创建的时候，isTransitioning马上为true，完成后置为false，供开发者监听
+     */
+    internal fun setTransiting() {
+        // 无动效时无需，例如第一个页面创建
+        if(transitionEntry == null) {
+            return
+        }
+        isTransitioning = true
     }
 
 

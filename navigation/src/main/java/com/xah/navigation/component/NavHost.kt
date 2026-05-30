@@ -169,11 +169,7 @@ private fun NavHost(
 
                         // 为保证界面创建的时候，isTransitioning马上为true，完成后置为false，供开发者监听
                         LaunchedEffect(Unit) {
-                            // 无动效时无需，例如第一个页面创建
-                            if(transitionEntry == null) {
-                                return@LaunchedEffect
-                            }
-                            navController.isTransitioning = true
+                            navController.setTransiting()
                         }
 
                         Box(

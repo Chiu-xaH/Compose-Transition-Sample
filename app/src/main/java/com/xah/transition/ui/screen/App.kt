@@ -726,6 +726,28 @@ fun HomeScreen() {
                         }
                     }
                     item(span = { GridItemSpan(maxLineSpan) }) {
+                        Surface(
+                            color = cardNormalColor(),
+                            shape = MaterialTheme.shapes.small,
+                            modifier = Modifier.padding(CARD_NORMAL_DP*2)
+                        ) {
+                            TransplantListItem(
+                                headlineContent = {
+                                    Text("预测式返回背景固定")
+                                },
+                                leadingContent = {
+                                    Icon(painterResource(R.drawable.ic_texture),null)
+                                },
+                                trailingContent = {
+                                    Switch(!navController.enablePredictiveBackBackgroundFollow, onCheckedChange = { navController.enablePredictiveBackBackgroundFollow = !navController.enablePredictiveBackBackgroundFollow })
+                                },
+                                modifier = Modifier.clickable {
+                                    navController.enablePredictiveBackBackgroundFollow = !navController.enablePredictiveBackBackgroundFollow
+                                },
+                            )
+                        }
+                    }
+                    item(span = { GridItemSpan(maxLineSpan) }) {
                         LaunchedEffect(UiHolder.enablePredictiveBack) {
                             navController.enablePredictiveBack = UiHolder.enablePredictiveBack
                             registry.enablePredictiveBack = UiHolder.enablePredictiveBack
