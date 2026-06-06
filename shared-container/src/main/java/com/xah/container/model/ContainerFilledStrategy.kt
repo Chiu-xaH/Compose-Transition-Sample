@@ -48,4 +48,8 @@ sealed interface ContainerFilledStrategy {
                 else -> this
             }
     }
+
+    companion object {
+        val Transparent = Color(androidx.compose.ui.graphics.Color.Transparent)
+    }
 }

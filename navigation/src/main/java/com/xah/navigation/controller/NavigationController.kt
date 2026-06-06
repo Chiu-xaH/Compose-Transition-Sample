@@ -68,9 +68,9 @@ class NavigationController(
     var enableKeepAlive by mutableStateOf(false)
 
     /**
-     * 是否允许在预测式手势时，背景也跟随手指进行进度变化，否则将恒为1f直到松手才开始变化
+     * 暂未上线 是否允许在预测式手势时，背景也跟随手指进行进度变化，否则将恒为1f直到松手才开始变化
      */
-    var enablePredictiveBackBackgroundFollow by mutableStateOf(false)
+    internal var enablePredictiveBackBackgroundFollow by mutableStateOf(false)
 
     val transitionProgress = Animatable(0f)
 
@@ -427,9 +427,9 @@ class NavigationController(
             launch {
                 updatePredictiveBack(
                     // 有容器的时候背景不动
-                    if(enablePredictiveBackBackgroundFollow) easedContainer else 1f
-//                    if(canShared) 1f
-//                    else easedContainer
+//                    if(enablePredictiveBackBackgroundFollow) easedContainer else 1f
+                    if(canShared) 1f
+                    else easedContainer
                 )
             }
         }

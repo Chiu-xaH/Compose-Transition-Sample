@@ -79,6 +79,7 @@ internal fun Modifier.backgroundEffect(
 
 internal fun Modifier.foregroundEffect(
     enableBlur : Boolean,
+    enableShader: Boolean,
     effect: PageEffectFrame,
 ) : Modifier = this
     // 模糊
@@ -89,8 +90,10 @@ internal fun Modifier.foregroundEffect(
         shape = effect.corner
 
         // 大小
-        scaleX = effect.scale
-        scaleY = effect.scale
+        if(!enableShader) {
+            scaleX = effect.scale
+            scaleY = effect.scale
+        }
 
         // 透明度
         alpha = effect.alpha
@@ -104,6 +107,14 @@ internal fun Modifier.foregroundEffect(
         rotationX = effect.rotate.x
         rotationY = effect.rotate.y
         rotationZ = effect.rotate.z
+    }
+    // 大小
+    .let {
+        if(enableShader) {
+            it.scale(true,effect)
+        } else {
+            it
+        }
     }
     // 压暗
     .mask(effect)

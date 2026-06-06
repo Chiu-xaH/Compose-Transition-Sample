@@ -5,5 +5,6 @@ import com.xah.navigation.model.anim.effect.PageEffect
 
 @Immutable
 data class ForegroundPageEffectState(
-    override val effect: PageEffect
+    override val effect: PageEffect,
+    val enableMirror : Boolean = false,
 ) : BasePageEffectState(effect)

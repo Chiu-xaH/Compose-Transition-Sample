@@ -3,7 +3,6 @@ package com.xah.transition.ui.component
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,13 +26,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.changedToUp
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.window.Dialog
-import com.xah.container.model.SharedContainerState
 import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.util.LocalNavController
 import com.xah.transition.R
@@ -66,7 +61,7 @@ fun TopBarNavigationIcon(
                     // 去掉水波纹
                     interactionSource = null,
                     indication = null
-                ){
+                ) {
                     displayDialog = false
                 }
             ) {
@@ -132,7 +127,6 @@ fun TopBarNavigationIcon(
                         activity?.finish()
                     }
                 },
-                // TODO 预留唤出启动台
                 onDoubleClick = null,
                 onLongClick = {
                     displayDialog = true
@@ -156,104 +150,3 @@ fun TopBarNavigationIcon(
         }
     }
 }
-/*
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TopBarNavigationIcon2(
-    modifier: Modifier = Modifier
-) {
-    val navController = LocalNavController.current
-    val activity = LocalActivity.current
-    val enabled = navController.canPop()
-    var dragging by remember { mutableStateOf(false) }
-
-    Box(
-        modifier = modifier
-            .padding(horizontal = CARD_NORMAL_DP / 2)
-            .clip(CircleShape)
-            .pointerInput(enabled) {
-                if (!enabled) return@pointerInput
-
-                awaitPointerEventScope {
-                    while (true) {
-                        var totalDx = 0f
-                        var started = false
-                        var state: SharedContainerState? = null
-
-                        while (true) {
-                            val event = awaitPointerEvent()
-                            val change = event.changes.first()
-
-                            val dx = change.position.x
-                            totalDx += dx
-
-                            // 👉 只有真的开始右滑才 start（关键优化点）
-                            if (!started && totalDx > 10f) {
-                                navController.startPredictiveBackSharedAsync {
-                                    state = it
-                                    started = true
-                                }
-                            }
-
-                            if (started) {
-                                val progress = (totalDx / size.width)
-                                    .coerceIn(0f, 1f)
-
-                                navController.updatePredictiveBackShared(
-                                    progress = progress,
-                                    offset = Offset(totalDx, 0f),
-                                    state = state
-                                )
-                            }
-
-                            if (change.changedToUp()) {
-                                break
-                            }
-
-                            change.consume()
-                        }
-
-                        // 👉 手势结束
-                        if (started) {
-                            val progress = (totalDx / size.width)
-
-                            if (progress > 0.3f) {
-                                navController.confirmPredictiveBackShared(state)
-                            } else {
-                                navController.cancelPredictiveBackShared(state)
-                            }
-                        }
-                    }
-                }
-            }
-            .clickable {
-                if (!dragging) {
-                    if (enabled) {
-                        navController.pop()
-                    } else {
-                        activity?.finish()
-                    }
-                }
-            }
-    ) {
-        Box(
-            modifier = Modifier.padding(DIVIDER_TEXT_VERTICAL_PADDING)
-        ) {
-            Icon(
-                painterResource(
-                    if (enabled) {
-                        R.drawable.ic_arrow_back
-                    } else {
-                        R.drawable.ic_close
-                    }
-                ),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
-    }
-}
-
- */
-
-

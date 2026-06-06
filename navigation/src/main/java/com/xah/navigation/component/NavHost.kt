@@ -164,7 +164,8 @@ private fun NavHost(
                         }
 
 
-                        val enableMirror = enableShader && effect.backgroundEffect.enableMirror
+                        val enableMirrorForBg = enableShader && effect.backgroundEffect.enableMirror
+                        val enableMirrorForFg = enableShader && effect.foregroundEffect.enableMirror
                         val backgroundColor = effect.backgroundEffect.backgroundColor
 
                         // 为保证界面创建的时候，isTransitioning马上为true，完成后置为false，供开发者监听
@@ -183,7 +184,7 @@ private fun NavHost(
                                                 if (isFrom) {
                                                     // 背景
                                                     return@let it.backgroundEffect(
-                                                        enableMirror,
+                                                        enableMirrorForBg,
                                                         enableBlur,
                                                         backgroundColor,
                                                         backgroundEffect
@@ -194,6 +195,7 @@ private fun NavHost(
                                                     if(!registry.isRunning) {
                                                         return@let it.foregroundEffect(
                                                             enableBlur,
+                                                            enableMirrorForFg,
                                                             foregroundEffect,
                                                         )
                                                     }
@@ -203,7 +205,7 @@ private fun NavHost(
                                                 if (isTo) {
                                                     // 背景
                                                     return@let it.backgroundEffect(
-                                                        enableMirror,
+                                                        enableMirrorForBg,
                                                         enableBlur,
                                                         backgroundColor,
                                                         backgroundEffect
@@ -214,6 +216,7 @@ private fun NavHost(
                                                     if(!registry.isRunning) {
                                                         return@let it.foregroundEffect(
                                                             enableBlur,
+                                                            enableMirrorForFg,
                                                             foregroundEffect,
                                                         )
                                                     }

@@ -22,4 +22,5 @@ data class EffectValue<T>(
             progress
         }
     }
+    fun reserved() = EffectValue(this.end,this.start,this.reserved)
 }

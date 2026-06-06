@@ -78,9 +78,11 @@ import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.floating.util.LocalFloatingController
 import com.xah.navigation.anim.effect.Direction
+import com.xah.navigation.anim.effect.FadeTransitionEffect
 import com.xah.navigation.anim.effect.FlipTransitionEffect
 import com.xah.navigation.anim.effect.IslandTransitionEffect
 import com.xah.navigation.anim.effect.JumpTransitionEffect
+import com.xah.navigation.anim.effect.ScaleTransitionEffect
 import com.xah.navigation.anim.effect.SlideTransitionEffect
 import com.xah.navigation.component.SharedNavHost
 import com.xah.navigation.component.rememberNavController
@@ -402,7 +404,90 @@ fun HomeScreen() {
                             }
                         }
                     }
-
+                    item {
+                        val dest = SecondDestination(888,false)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            Card(
+                                shape = MaterialTheme.shapes.small,
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                TransplantListItem(
+                                    overlineContent = { Text("屏幕内") },
+                                    headlineContent = { Text("缩放动效") },
+                                    modifier = Modifier.clickable {
+                                        navController.push(dest, effect = ScaleTransitionEffect(true,false))
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        val dest = SecondDestination(888,false)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            Card(
+                                shape = MaterialTheme.shapes.small,
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                TransplantListItem(
+                                    overlineContent = { Text("屏幕内 弱化版") },
+                                    headlineContent = { Text("缩放动效") },
+                                    modifier = Modifier.clickable {
+                                        navController.push(dest, effect = ScaleTransitionEffect(false,false))
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        val dest = SecondDestination(888,false)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            Card(
+                                shape = MaterialTheme.shapes.small,
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                TransplantListItem(
+                                    overlineContent = { Text("屏幕外") },
+                                    headlineContent = { Text("缩放动效(屏幕外)") },
+                                    modifier = Modifier.clickable {
+                                        navController.push(dest, effect = ScaleTransitionEffect(true,true))
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        val dest = SecondDestination(888,false)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            Card(
+                                shape = MaterialTheme.shapes.small,
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                TransplantListItem(
+                                    overlineContent = { Text("屏幕外 弱化版") },
+                                    headlineContent = { Text("缩放动效") },
+                                    modifier = Modifier.clickable {
+                                        navController.push(dest, effect = ScaleTransitionEffect(false,true))
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        val dest = SecondDestination(888,false)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            Card(
+                                shape = MaterialTheme.shapes.small,
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                TransplantListItem(
+                                    headlineContent = { Text("透明度动效") },
+                                    modifier = Modifier.clickable {
+                                        navController.push(dest, effect = FadeTransitionEffect())
+                                    }
+                                )
+                            }
+                        }
+                    }
                     item {
                         val dest = SecondDestination(888,false)
                         Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
@@ -725,6 +810,7 @@ fun HomeScreen() {
                             )
                         }
                     }
+                    /*
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         Surface(
                             color = cardNormalColor(),
@@ -747,6 +833,7 @@ fun HomeScreen() {
                             )
                         }
                     }
+                     */
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         LaunchedEffect(UiHolder.enablePredictiveBack) {
                             navController.enablePredictiveBack = UiHolder.enablePredictiveBack
@@ -899,8 +986,8 @@ fun HomeScreen() {
                                         registry.speedUpRadio = value
                                     },
                                     modifier = Modifier.padding(bottom = APP_HORIZONTAL_DP),
-                                    valueRange = 1f..5f,
-                                    steps = 15,
+                                    valueRange = 1f..10f,
+                                    steps = 35,
                                     showProcessText = true,
                                     processText = value.toString()
                                 )
