@@ -140,7 +140,6 @@ fun HomeScreen() {
 
 ## 后续计划
 3. 大屏适配         [P1]
-4. 支持更自由的自定义
 4. 浮窗并行动画            [P1]
 8. Kotlin Multiplatform         [P4]
 

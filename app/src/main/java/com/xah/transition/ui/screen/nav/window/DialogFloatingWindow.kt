@@ -1,4 +1,4 @@
-package com.xah.transition.ui.screen.window
+package com.xah.transition.ui.screen.nav.window
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope

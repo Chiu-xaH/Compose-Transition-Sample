@@ -161,7 +161,6 @@ fun HomeScreen() {
 | `common`           | 两个模块共用的工具代码                                 |
 | `app`              | 示例应用                                        |
 
-
 ## 3. 导航 API — `navigation` 模块
 
 ### 3.1 `Destination`
@@ -736,7 +735,73 @@ navController.enableKeepAlive = true
 
 ---
 
-## 10. 注意事项与常见问题
+## 10. DeepLink
+
+1. 为首Activity配置：
+```xml
+<intent-filter>
+    <action android:name="android.intent.action.VIEW"/>
+    <category android:name="android.intent.category.DEFAULT"/>
+    <category android:name="android.intent.category.BROWSABLE"/>
+    <data android:scheme="your_app"/>
+</intent-filter>
+```
+
+2. 为首 Activity 的`onCreate`函数中接收 DeepLink 并处理：
+```Kotlin
+val startDestination = intent?.data?.let { deeplink ->
+    DeepLinkRegistry.parse(deeplink)
+}
+
+val navController = rememberNavigationController(
+    startDestination = startDestination ?: HomeDestination
+)
+```
+
+3. 在 Application.onCreate 中统一注册需要暴露的 DeepLink：
+> 可放心在 Application 初始化时使用,此函数逻辑简单,仅仅是存储一个 HashMap<String,DeepLink> ,数据结构较简单,不会很耗时
+```Kotlin
+DeepLinkRegistry.init(
+    listOf(SecondDeepLnk, BezierSettingsDeepLink)
+)
+
+// 带参数的Destination
+private val SecondDeepLink by lazy {
+    // 可以拿Destination的key作为host，方便管理,也可以自己指定传入
+    DeepLink(SecondDestination.KEY) { uri ->
+        val userId = uri.getQueryParameter("id")?.toIntOrNull() ?: return@DeepLink null
+        SecondDestination(userId = userId)
+    }
+}
+// 不带参数的Destination
+private val BezierSettingsDeepLink by lazy {
+    DeepLink(BezierSettingsDestination.key) { BezierSettingsDestination }
+}
+```
+
+使用ADB指令测试：
+```bash
+adb shell am start -a android.intent.action.VIEW -d "your_app://second?id=999"
+adb shell am start -a android.intent.action.VIEW -d "your_app://settings_bezier"
+```
+
+使用网页测试：
+```html
+<!DOCTYPE html>
+<html>
+<body>
+
+<p>
+    <a href="intent://second?id=999#Intent;scheme=your_app;end">
+        打开 App
+    </a>
+</p>
+
+</body>
+</html>
+```
+
+## 11. 注意事项与常见问题
 
 ### 10.1 核心限制
 

@@ -90,6 +90,7 @@ import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.model.anim.EffectLevel
 import com.xah.navigation.model.anim.effect.sub.Rotation
+import com.xah.navigation.model.dest.Destination
 import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavDependencies
 import com.xah.navigation.util.rememberNavDependencies
@@ -103,17 +104,17 @@ import com.xah.transition.ui.component.DividerTextExpandedWithShared
 import com.xah.transition.ui.component.TopBarNavigationIcon
 import com.xah.transition.ui.component.TransplantListItem
 import com.xah.transition.ui.component.cardNormalColor
-import com.xah.transition.ui.screen.destination.AppIconDestination
-import com.xah.transition.ui.screen.destination.BezierSettingsDestination
-import com.xah.transition.ui.screen.destination.CornerSettingsDestination
-import com.xah.transition.ui.screen.destination.HomeDestination
-import com.xah.transition.ui.screen.destination.SecondDestination
-import com.xah.transition.ui.screen.destination.ThirdDestination
+import com.xah.transition.ui.screen.nav.destination.AppIconDestination
+import com.xah.transition.ui.screen.nav.destination.BezierSettingsDestination
+import com.xah.transition.ui.screen.nav.destination.CornerSettingsDestination
+import com.xah.transition.ui.screen.nav.destination.HomeDestination
+import com.xah.transition.ui.screen.nav.destination.SecondDestination
+import com.xah.transition.ui.screen.nav.destination.ThirdDestination
 import com.xah.transition.ui.screen.test.CubicBezierEditor
-import com.xah.transition.ui.screen.window.BottomDialogWindow
-import com.xah.transition.ui.screen.window.BottomSheetWindow
-import com.xah.transition.ui.screen.window.CenterDialogWindow
-import com.xah.transition.ui.screen.window.DialogFloatingWindow
+import com.xah.transition.ui.screen.nav.window.BottomDialogWindow
+import com.xah.transition.ui.screen.nav.window.BottomSheetWindow
+import com.xah.transition.ui.screen.nav.window.CenterDialogWindow
+import com.xah.transition.ui.screen.nav.window.DialogFloatingWindow
 import com.xah.transition.ui.style.topBarTransplantColor
 import com.xah.transition.ui.util.PermissionSet.checkAndRequestStoragePermission
 import com.xah.transition.ui.util.UiHolder
@@ -149,13 +150,15 @@ private fun Modifier.backgroundEffect(
 
 
 @Composable
-fun App() {
+fun App(
+    firstPage : Destination? = null
+) {
     var arg1 by remember { mutableStateOf(1) }
     val dependencies = rememberNavDependencies(arg1) {
         put(arg1, tag = "args1")
         put("1", tag = "args2")
     }
-    val navigationController = rememberNavController(HomeDestination)
+    val navigationController = rememberNavController(firstPage ?: HomeDestination)
     val inHomeDest = navigationController.current.destination == navigationController.startDestination || navigationController.transitionEntry?.to?.destination == navigationController.startDestination || navigationController.transitionEntry?.from?.destination == navigationController.startDestination
     val displayWallpaper = UiHolder.imageBitmap != null
     Box(modifier = Modifier.fillMaxSize()) {

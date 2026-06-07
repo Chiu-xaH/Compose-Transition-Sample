@@ -1,4 +1,4 @@
-package com.xah.transition.ui.screen.window
+package com.xah.transition.ui.screen.nav.window
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -17,7 +17,7 @@ import com.xah.floating.model.componment.BottomSheet
 import com.xah.floating.model.componment.CenterDialog
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 
-object CenterDialogWindow : CenterDialog() {
+object BottomDialogWindow : BottomDialog() {
 
     override val modifier = Modifier.padding(APP_HORIZONTAL_DP)
 

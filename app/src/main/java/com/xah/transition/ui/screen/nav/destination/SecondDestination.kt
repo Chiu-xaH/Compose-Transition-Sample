@@ -1,4 +1,4 @@
-package com.xah.transition.ui.screen.destination
+package com.xah.transition.ui.screen.nav.destination
 
 import androidx.compose.runtime.Composable
 import com.xah.transition.ui.screen.SecondScreen
@@ -10,7 +10,11 @@ data class SecondDestination(
 ) : NavDestination() {
 
     override val title: String = "二级界面"
-    override val key = "second_${userId}_$isLong"
+    override val key = "KEY_${userId}_$isLong"
+
+    companion object {
+        const val KEY = "second"
+    }
 
     @Composable
     override fun Content() {
