@@ -1,11 +1,10 @@
-package com.xah.transition.ui.screen.window
+package com.xah.transition.ui.screen.nav.window
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -18,13 +17,16 @@ import com.xah.floating.model.componment.BottomSheet
 import com.xah.floating.model.componment.CenterDialog
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 
-object BottomSheetWindow : BottomSheet() {
+object CenterDialogWindow : CenterDialog() {
+
+    override val modifier = Modifier.padding(APP_HORIZONTAL_DP)
+
     @Composable
     override fun BoxScope.Content() {
         Surface(
             modifier = Modifier.fillMaxWidth(),
             color = MaterialTheme.colorScheme.surface,
-            shape = MaterialTheme.shapes.large.copy(bottomStart = CornerSize(0.dp), bottomEnd = CornerSize(0.dp))
+            shape = MaterialTheme.shapes.large
         ) {
             Box(modifier = Modifier.height(height = 200.dp)) {
                 Text("key", modifier = Modifier.align(Alignment.Center))

@@ -1,4 +1,4 @@
-package com.xah.transition.ui.screen.destination
+package com.xah.transition.ui.screen.nav.destination
 
 import androidx.compose.runtime.Composable
 import com.xah.transition.model.AppIconBean
