@@ -71,6 +71,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
+import com.sharednav.common.helper.AnimationSpecManager
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.sharednav.common.util.NoneRoundShape
 import com.xah.container.component.base.SharedContainer
@@ -150,7 +151,7 @@ private fun Modifier.backgroundEffect(
 
 
 @Composable
-fun App(
+fun Main(
     firstPage : Destination? = null
 ) {
     var arg1 by remember { mutableStateOf(1) }
@@ -919,24 +920,22 @@ fun HomeScreen() {
                             shape = MaterialTheme.shapes.small,
                             modifier = Modifier.padding(CARD_NORMAL_DP*2)
                         ) {
-                            var value by remember { mutableStateOf(registry.animationTime.toFloat()) }
                             Column {
                                 TransplantListItem(
                                     headlineContent = {
-                                        Text("容器共享动画速率 ${value.roundToInt()}ms")
+                                        Text("动画速率倍数 x${AnimationSpecManager.speedRadio}")
                                     },
                                 )
                                 CustomSlider(
-                                    value = value,
+                                    value = AnimationSpecManager.speedRadio,
                                     onValueChange = {
-                                        value = it
-                                        registry.animationTime = value.roundToInt()
+                                        AnimationSpecManager.speedRadio = it
                                     },
                                     modifier = Modifier.padding(bottom = APP_HORIZONTAL_DP),
-                                    valueRange = 200f..1000f,
-                                    steps = 31,
+                                    valueRange = 0.5f..3f,
+                                    steps = 49,
                                     showProcessText = true,
-                                    processText = value.roundToInt().toString()
+                                    processText = AnimationSpecManager.speedRadio.toString()
                                 )
                             }
                         }

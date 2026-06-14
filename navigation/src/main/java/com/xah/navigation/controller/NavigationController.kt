@@ -2,7 +2,9 @@ package com.xah.navigation.controller
 
 import android.os.Build
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -12,7 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.geometry.Offset
-import com.sharednav.common.helper.DEFAULT_SHARED_SPEC
+import com.sharednav.common.helper.AnimationSpecManager
 import com.sharednav.common.util.LogUtil
 import com.sharednav.common.util.PredictiveUtil
 import com.xah.container.controller.SharedRegistry
@@ -76,13 +78,12 @@ class NavigationController(
 
     companion object {
         const val DEFAULT_SHARED_MAX_PRECENT = 0.875f
-        const val DEFAULT_ANIMATION_TIME = DEFAULT_SHARED_SPEC
         val DEFAULT_EASING = CubicBezierEasing(0.4f, 0.65f, 0.25f, 1.0f)
     }
     val defaultSpecWithTinyScale = tween<Float>(250)
 //    private val defaultSpec = tween<Float>(animationSpecSharedTween*13/10)
-    private fun popAnimationWithShared() = tween<Float>(sharedRegistry!!.animationTime*7/5)
-    private fun pushAnimationWithShared() = tween<Float>(sharedRegistry!!.animationTime)
+    private fun popAnimationWithShared() = tween<Float>(AnimationSpecManager.getSharedTween()*7/5)
+    private fun pushAnimationWithShared() = tween<Float>(AnimationSpecManager.getSharedTween())
 
 //    private val popAnimation = tween<Float>(animationSpecSharedTween*6/5, easing = CubicBezierEasing(0.4f, 0.65f, 0.25f, 1.0f))
 //    private val pushAnimation = tween<Float>(animationSpecSharedTween*6/5, easing = CubicBezierEasing(0.4f, 0.65f, 0.25f, 1.0f))
@@ -100,9 +101,25 @@ class NavigationController(
                 defaultSpecWithTinyScale
             } else {
                 val transitionMode = current().transitionMode
+
+                val newPopAnimation = (transitionMode.popAnimation as? TweenSpec<Float>)?.let {
+                    tween(
+                        durationMillis = AnimationSpecManager.getTween(it.durationMillis),
+                        delayMillis = it.delay,
+                        easing = it.easing
+                    )
+                } ?: transitionMode.popAnimation
+                val newPushAnimation = (transitionMode.pushAnimation as? TweenSpec<Float>)?.let {
+                    tween(
+                        durationMillis = AnimationSpecManager.getTween(it.durationMillis),
+                        delayMillis = it.delay,
+                        easing = it.easing
+                    )
+                } ?: transitionMode.pushAnimation
+
                 when(transitionEntry!!.type) {
-                    ActionType.POP -> transitionMode.popAnimation
-                    ActionType.PUSH -> transitionMode.pushAnimation
+                    ActionType.POP -> newPopAnimation
+                    ActionType.PUSH -> newPushAnimation
                 }
             }
         }

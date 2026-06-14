@@ -3,7 +3,6 @@ package com.xah.container.controller
 import android.os.Build
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.derivedStateOf
@@ -16,7 +15,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import com.sharednav.common.helper.DEFAULT_SHARED_SPEC
+import com.sharednav.common.helper.AnimationSpecManager
+import com.sharednav.common.helper.AnimationSpecManager.DEFAULT_SHARED_SPEC
 import com.sharednav.common.util.LogUtil
 import com.sharednav.common.util.PredictiveUtil
 import com.xah.container.anim.LinearRectInterpolator
@@ -32,7 +32,6 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Required
 
 class SharedRegistry(
     private val scope: CoroutineScope,
@@ -53,8 +52,6 @@ class SharedRegistry(
     private fun SharedContainerState.isRunning() = currentState == StatePause.TRANSITING && containerRect != null && contentRect != null
 
     var enabled by mutableStateOf(true)
-
-    var animationTime by mutableIntStateOf(DEFAULT_SHARED_SPEC)
 
     /**
      * 强制使用某种填充方式,null为不强制
@@ -80,8 +77,8 @@ class SharedRegistry(
     var popY2 by mutableFloatStateOf(1.0f)
 
 
-    fun <T> getPushAnimation() = tween<T>(animationTime, easing = CubicBezierEasing(pushX1,pushY1,pushX2,pushY2))
-    fun <T> getPopAnimation() = tween<T>(animationTime, easing = CubicBezierEasing(popX1,popY1,popX2,popY2))
+    fun <T> getPushAnimation() = tween<T>(AnimationSpecManager.getSharedTween(), easing = CubicBezierEasing(pushX1,pushY1,pushX2,pushY2))
+    fun <T> getPopAnimation() = tween<T>(AnimationSpecManager.getSharedTween(), easing = CubicBezierEasing(popX1,popY1,popX2,popY2))
 
     var FullScreenRectInterpolator: RectInterpolator = LinearRectInterpolator
         private set

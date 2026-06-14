@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.sharednav.common.helper.AnimationSpecManager
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.sharednav.common.modifier.defaultMask
 import com.sharednav.common.modifier.noneMask
@@ -32,8 +33,8 @@ import com.xah.navigation.model.anim.TransitionEffect
 data class DefaultTransitionEffect(
     override val pageEffect : PageEffects = DefaultPageEffects(),
     override val predictiveMinValue: Float = NavigationController.DEFAULT_SHARED_MAX_PRECENT,
-    override val pushAnimation: AnimationSpec<Float> = tween(NavigationController.DEFAULT_ANIMATION_TIME*6/5, easing = NavigationController.DEFAULT_EASING),
-    override val popAnimation: AnimationSpec<Float> = tween(NavigationController.DEFAULT_ANIMATION_TIME*6/5, easing = NavigationController.DEFAULT_EASING)
+    override val pushAnimation: AnimationSpec<Float> = tween(AnimationSpecManager.DEFAULT_SHARED_SPEC*6/5, easing = NavigationController.DEFAULT_EASING),
+    override val popAnimation: AnimationSpec<Float> = tween(AnimationSpecManager.DEFAULT_SHARED_SPEC*6/5, easing = NavigationController.DEFAULT_EASING)
 ) : TransitionEffect
 
 @Composable

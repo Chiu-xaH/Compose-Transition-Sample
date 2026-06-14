@@ -4,9 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.view.WindowCompat
-import com.sharednav.common.util.LogUtil
 import com.xah.navigation.registry.DeepLinkRegistry
-import com.xah.transition.ui.screen.App
+import com.xah.transition.ui.screen.Main
 import com.xah.transition.ui.theme.TransitionTheme
 
 class MainActivity : ComponentActivity() {
@@ -15,7 +14,7 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             TransitionTheme {
-                App(
+                Main(
                     firstPage = intent?.data?.let { deeplink ->
                         DeepLinkRegistry.parse(deeplink)
                     }
