@@ -33,22 +33,29 @@ import com.xah.navigation.model.anim.TransitionEffect
  */
 data class SlideTransitionEffect(
     val direction: Direction = Direction.BOTTOM,
-    override val pageEffect : PageEffects = SlidePageEffects(direction),
+    val clip : Boolean = true,
+    override val pageEffect : PageEffects = SlidePageEffects(direction,clip),
     override val predictiveMinValue: Float = NavigationController.DEFAULT_SHARED_MAX_PRECENT,
     override val pushAnimation: AnimationSpec<Float> = tween(400, easing = NavigationController.DEFAULT_EASING),
     override val popAnimation: AnimationSpec<Float> = tween(400, easing = NavigationController.DEFAULT_EASING)
 ) : TransitionEffect
 
 @Composable
-fun rememberSlidePageEffects(direction : Direction): PageEffects {
+fun rememberSlidePageEffects(
+    direction : Direction = Direction.BOTTOM,
+    clip : Boolean = true
+): PageEffects {
     val view = LocalView.current
     val corner = ScreenCornerHelper(view).getCornerDp()
-    return remember(corner) {
-        SlidePageEffects(corner,direction)
+    return remember(corner,direction,clip) {
+        SlidePageEffects(corner,direction,clip)
     }
 }
 
-fun SlidePageEffects(direction : Direction) = SlidePageEffects(ScreenCornerHelper.corner,direction)
+fun SlidePageEffects(
+    direction : Direction = Direction.BOTTOM,
+    clip : Boolean = true
+) = SlidePageEffects(ScreenCornerHelper.corner,direction,clip)
 
 enum class Direction {
     TOP,
@@ -57,7 +64,7 @@ enum class Direction {
     END
 }
 
-private fun SlidePageEffects(corner : Dp,direction : Direction) : PageEffects {
+private fun SlidePageEffects(corner : Dp,direction : Direction,clip : Boolean) : PageEffects {
     val from = when(direction) {
         Direction.TOP -> Offset(0f,-1f)
         Direction.BOTTOM -> Offset(0f,1f)
@@ -85,7 +92,12 @@ private fun SlidePageEffects(corner : Dp,direction : Direction) : PageEffects {
         ),
         foregroundEffect = ForegroundPageEffectState(
             effect = PageEffect(
-                corner = EffectValue.const(RoundedCornerShape(corner)),
+                corner = EffectValue.const(
+                    if(clip)
+                        RoundedCornerShape(corner)
+                    else
+                        NoneRoundShape
+                ),
                 translationPercent = EffectValue(
                     start = from,
                     end = Offset.Zero

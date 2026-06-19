@@ -31,24 +31,25 @@ import com.xah.navigation.model.anim.TransitionEffect
  * 预测式返回手势阈值：0.8f
  */
 data class FlipTransitionEffect(
-    override val pageEffect : PageEffects = FlipPageEffects(),
+    val clip : Boolean = true,
+    override val pageEffect : PageEffects = FlipPageEffects(clip),
     override val predictiveMinValue: Float = 0.8f,
     override val pushAnimation: AnimationSpec<Float> = tween(450, easing = NavigationController.DEFAULT_EASING),
     override val popAnimation: AnimationSpec<Float> = tween(450, easing = NavigationController.DEFAULT_EASING)
 ) : TransitionEffect
 
 @Composable
-fun rememberFlipPageEffects(): PageEffects {
+fun rememberFlipPageEffects(clip : Boolean = true): PageEffects {
     val view = LocalView.current
     val corner = ScreenCornerHelper(view).getCornerDp()
-    return remember(corner) {
-        FlipPageEffects(corner)
+    return remember(corner,clip) {
+        FlipPageEffects(corner,clip)
     }
 }
 
-fun FlipPageEffects() = FlipPageEffects(ScreenCornerHelper.corner)
+fun FlipPageEffects(clip : Boolean = true) = FlipPageEffects(ScreenCornerHelper.corner,clip)
 
-private fun FlipPageEffects(corner : Dp) : PageEffects {
+private fun FlipPageEffects(corner : Dp,clip : Boolean) : PageEffects {
     return PageEffects(
         backgroundEffect = BackgroundPageEffectState(
             enableMirror = true,
@@ -66,7 +67,12 @@ private fun FlipPageEffects(corner : Dp) : PageEffects {
         ),
         foregroundEffect = ForegroundPageEffectState(
             effect = PageEffect(
-                corner = EffectValue.const(RoundedCornerShape(corner)),
+                corner = EffectValue.const(
+                    if(clip)
+                        RoundedCornerShape(corner)
+                    else
+                        NoneRoundShape
+                ),
                 translationPercent = EffectValue(
                     start = Offset(1f,0f),
                     end = Offset.Zero

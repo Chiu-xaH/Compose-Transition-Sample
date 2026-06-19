@@ -39,15 +39,21 @@ data class IslandTransitionEffect(
 
 
 @Composable
-fun rememberIslandPageEffects(position: TransformOrigin = TransformOrigin(0.5f, 0f),rotation: Rotation = Rotation()): PageEffects {
+fun rememberIslandPageEffects(
+    position: TransformOrigin = TransformOrigin(0.5f, 0f),
+    rotation: Rotation = Rotation()
+): PageEffects {
     val view = LocalView.current
     val corner = ScreenCornerHelper(view).getCornerDp()
-    return remember(corner) {
+    return remember(corner,position,rotation) {
         IslandPageEffects(corner,position,rotation)
     }
 }
 
-fun IslandPageEffects(position: TransformOrigin = TransformOrigin(0.5f, 0f),rotation: Rotation = Rotation()) = IslandPageEffects(ScreenCornerHelper.corner,position,rotation)
+fun IslandPageEffects(
+    position: TransformOrigin = TransformOrigin(0.5f, 0f),
+    rotation: Rotation = Rotation()
+) = IslandPageEffects(ScreenCornerHelper.corner,position,rotation)
 
 private fun IslandPageEffects(corner : Dp,position : TransformOrigin,rotation: Rotation) : PageEffects {
     return PageEffects(

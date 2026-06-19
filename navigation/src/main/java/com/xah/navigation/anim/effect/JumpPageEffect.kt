@@ -45,7 +45,10 @@ data class JumpTransitionEffect(
 ) : TransitionEffect
 
 @Composable
-fun rememberJumpPageEffects(background: BgEffectBackground = defaultJumpBackground,enableAlpha : Boolean = false): PageEffects {
+fun rememberJumpPageEffects(
+    background: BgEffectBackground = defaultJumpBackground,
+    enableAlpha : Boolean = false
+): PageEffects {
     val view = LocalView.current
     val corner = ScreenCornerHelper(view).getCornerDp()
     return remember(corner) {
@@ -54,14 +57,20 @@ fun rememberJumpPageEffects(background: BgEffectBackground = defaultJumpBackgrou
 }
 
 @RequiresPermission(anyOf = ["android.permission.READ_WALLPAPER_INTERNAL", Manifest.permission.MANAGE_EXTERNAL_STORAGE])
-fun JumpTransitionEffect(context : Context,alphaStyle : Boolean = false) = JumpTransitionEffect(
+fun JumpTransitionEffect(
+    context : Context,
+    alphaStyle : Boolean = false
+) = JumpTransitionEffect(
     getWallpaper(context)?.let { bitmap ->
         BgEffectBackground.Image(bitmap)
     } ?: defaultJumpBackground,
     alphaStyle
 )
 
-fun JumpPageEffects(background: BgEffectBackground = defaultJumpBackground, alphaStyle : Boolean) = JumpPageEffects(ScreenCornerHelper.corner,background, alphaStyle)
+fun JumpPageEffects(
+    background: BgEffectBackground = defaultJumpBackground,
+    alphaStyle : Boolean = false
+) = JumpPageEffects(ScreenCornerHelper.corner,background, alphaStyle)
 
 private fun JumpPageEffects(corner : Dp, background: BgEffectBackground, alphaStyle: Boolean) : PageEffects {
     val maxScaleValue = NavigationController.DEFAULT_SHARED_MAX_PRECENT
