@@ -1,15 +1,9 @@
 package com.xah.navigation.anim.effect
 
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.unit.Dp
-import com.sharednav.common.helper.ScreenCornerHelper
+import androidx.compose.ui.unit.dp
 import com.sharednav.common.util.NoneRoundShape
 import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.model.anim.TransitionEffect
@@ -29,15 +23,18 @@ import com.xah.navigation.model.anim.effect.PageEffects
  * 预测式返回手势阈值：0.875f
  */
 data class ScaleTransitionEffect(
-    val enableBgScale : Boolean = true,
-    val reservedFgScale : Boolean = false,
-    override val pageEffect : PageEffects = ScalePageEffects(enableBgScale,reservedFgScale),
+    val reservedFgScale : Boolean? = false,
+    val reservedBgScale : Boolean? = false,
+    override val pageEffect : PageEffects = ScalePageEffects(reservedFgScale,reservedBgScale),
     override val predictiveMinValue: Float = 0.625f,
     override val pushAnimation: AnimationSpec<Float> = tween(400, easing = FastOutSlowInEasing),
     override val popAnimation: AnimationSpec<Float> = tween(400, easing = FastOutSlowInEasing)
 ) : TransitionEffect
 
-fun ScalePageEffects(enableBgScale : Boolean,reservedFgScale : Boolean) : PageEffects {
+fun ScalePageEffects(
+    reservedFgScale : Boolean? = false,
+    reservedBgScale : Boolean? = false,
+) : PageEffects {
     return PageEffects(
         backgroundEffect = BackgroundPageEffectState(
             enableMirror = true,
@@ -49,10 +46,16 @@ fun ScalePageEffects(enableBgScale : Boolean,reservedFgScale : Boolean) : PageEf
                 ),
                 scale = EffectValue(
                     start = 1f,
-                    end =
-
-                        if(enableBgScale) NavigationController.DEFAULT_SHARED_MAX_PRECENT else 1f
+                    end = when(reservedBgScale) {
+                        true -> 2-NavigationController.DEFAULT_SHARED_MAX_PRECENT
+                        false -> NavigationController.DEFAULT_SHARED_MAX_PRECENT
+                        null -> 1f
+                    }
                 ),
+                blur = EffectValue(
+                    start = 0.dp,
+                    end = 10.dp
+                )
             )
         ),
         foregroundEffect = ForegroundPageEffectState(
@@ -64,8 +67,16 @@ fun ScalePageEffects(enableBgScale : Boolean,reservedFgScale : Boolean) : PageEf
                     end = 1f
                 ),
                 scale = EffectValue(
-                    start = if(reservedFgScale) 2-NavigationController.DEFAULT_SHARED_MAX_PRECENT else NavigationController.DEFAULT_SHARED_MAX_PRECENT,
+                    start = when(reservedFgScale) {
+                        true -> 2-NavigationController.DEFAULT_SHARED_MAX_PRECENT
+                        false -> NavigationController.DEFAULT_SHARED_MAX_PRECENT
+                        null -> 1f
+                    },
                     end = 1f
+                ),
+                blur = EffectValue(
+                    start = 10.dp,
+                    end = 0.dp
                 )
             )
         )

@@ -368,22 +368,6 @@ fun HomeScreen() {
                                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                             ) {
                                 TransplantListItem(
-                                    headlineContent = { Text("侧方岛动效") },
-                                    modifier = Modifier.clickable {
-                                        navController.push(dest, effect = IslandTransitionEffect(position = TransformOrigin(1f,0.5f)))
-                                    }
-                                )
-                            }
-                        }
-                    }
-                    item {
-                        val dest = SecondDestination(888,false)
-                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
-                            Card(
-                                shape = MaterialTheme.shapes.small,
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-                            ) {
-                                TransplantListItem(
                                     headlineContent = { Text("对角岛动效") },
                                     modifier = Modifier.clickable {
                                         navController.push(dest, effect = IslandTransitionEffect(position = TransformOrigin(1f,0f), rotation = Rotation(z = 30f)))
@@ -416,8 +400,23 @@ fun HomeScreen() {
                                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                             ) {
                                 TransplantListItem(
-                                    overlineContent = { Text("屏幕内") },
-                                    headlineContent = { Text("缩放动效") },
+                                    headlineContent = { Text("翻页动效") },
+                                    modifier = Modifier.clickable {
+                                        navController.push(dest, effect = FlipTransitionEffect())
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        val dest = SecondDestination(888,false)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            Card(
+                                shape = MaterialTheme.shapes.small,
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                TransplantListItem(
+                                    headlineContent = { Text("缩放动效1") },
                                     modifier = Modifier.clickable {
                                         navController.push(dest, effect = ScaleTransitionEffect(true,false))
                                     }
@@ -433,42 +432,7 @@ fun HomeScreen() {
                                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                             ) {
                                 TransplantListItem(
-                                    overlineContent = { Text("屏幕内 弱化版") },
-                                    headlineContent = { Text("缩放动效") },
-                                    modifier = Modifier.clickable {
-                                        navController.push(dest, effect = ScaleTransitionEffect(false,false))
-                                    }
-                                )
-                            }
-                        }
-                    }
-                    item {
-                        val dest = SecondDestination(888,false)
-                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
-                            Card(
-                                shape = MaterialTheme.shapes.small,
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-                            ) {
-                                TransplantListItem(
-                                    overlineContent = { Text("屏幕外") },
-                                    headlineContent = { Text("缩放动效(屏幕外)") },
-                                    modifier = Modifier.clickable {
-                                        navController.push(dest, effect = ScaleTransitionEffect(true,true))
-                                    }
-                                )
-                            }
-                        }
-                    }
-                    item {
-                        val dest = SecondDestination(888,false)
-                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
-                            Card(
-                                shape = MaterialTheme.shapes.small,
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-                            ) {
-                                TransplantListItem(
-                                    overlineContent = { Text("屏幕外 弱化版") },
-                                    headlineContent = { Text("缩放动效") },
+                                    headlineContent = { Text("缩放动效2") },
                                     modifier = Modifier.clickable {
                                         navController.push(dest, effect = ScaleTransitionEffect(false,true))
                                     }
@@ -476,39 +440,6 @@ fun HomeScreen() {
                             }
                         }
                     }
-                    item {
-                        val dest = SecondDestination(888,false)
-                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
-                            Card(
-                                shape = MaterialTheme.shapes.small,
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-                            ) {
-                                TransplantListItem(
-                                    headlineContent = { Text("透明度动效") },
-                                    modifier = Modifier.clickable {
-                                        navController.push(dest, effect = FadeTransitionEffect())
-                                    }
-                                )
-                            }
-                        }
-                    }
-                    item {
-                        val dest = SecondDestination(888,false)
-                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
-                            Card(
-                                shape = MaterialTheme.shapes.small,
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-                            ) {
-                                TransplantListItem(
-                                    headlineContent = { Text("推入动效(左侧)") },
-                                    modifier = Modifier.clickable {
-                                        navController.push(dest, effect = SlideTransitionEffect(Direction.START))
-                                    }
-                                )
-                            }
-                        }
-                    }
-
                     item {
                         LaunchedEffect(activity) {
                             activity?.let { checkAndRequestStoragePermission(it) }
@@ -520,7 +451,7 @@ fun HomeScreen() {
                                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                             ) {
                                 TransplantListItem(
-                                    headlineContent = { Text("跳转动效") },
+                                    headlineContent = { Text("跳转动效1") },
                                     modifier = Modifier.clickable {
                                         navController.push(
                                             dest,
@@ -546,24 +477,8 @@ fun HomeScreen() {
                                     modifier = Modifier.clickable {
                                         navController.push(
                                             dest,
-                                            effect = JumpTransitionEffect(context,true)
+                                            effect = JumpTransitionEffect(alphaStyle = true)
                                         )
-                                    }
-                                )
-                            }
-                        }
-                    }
-                    item {
-                        val dest = SecondDestination(888,false)
-                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
-                            Card(
-                                shape = MaterialTheme.shapes.small,
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-                            ) {
-                                TransplantListItem(
-                                    headlineContent = { Text("翻页动效") },
-                                    modifier = Modifier.clickable {
-                                        navController.push(dest, effect = FlipTransitionEffect())
                                     }
                                 )
                             }
