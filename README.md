@@ -139,6 +139,7 @@ fun HomeScreen() {
 ```
 
 ## 后续计划
+1. 拖拽适配 -> 跟手
 3. 大屏适配         [P1]
 4. 浮窗并行动画            [P1]
 8. Kotlin Multiplatform         [P4]

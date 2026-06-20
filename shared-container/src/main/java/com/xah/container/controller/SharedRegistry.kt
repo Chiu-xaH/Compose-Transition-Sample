@@ -16,14 +16,15 @@ import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import com.sharednav.common.helper.AnimationSpecManager
-import com.sharednav.common.helper.AnimationSpecManager.DEFAULT_SHARED_SPEC
 import com.sharednav.common.util.LogUtil
 import com.sharednav.common.util.PredictiveUtil
 import com.xah.container.anim.LinearRectInterpolator
+import com.xah.container.anim.QuadraticBezierRectInterpolator
 import com.xah.container.anim.RectInterpolator
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.model.ContentStrategy
 import com.xah.container.model.SharedContainerState
+import com.xah.container.model.SpeedUpRadio
 import com.xah.container.model.StatePause
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.awaitFrame
@@ -85,8 +86,10 @@ class SharedRegistry(
 
     var screenRect : Rect? = null
 
-    // 渐隐、圆角变化比容器变化时长
-    var speedUpRadio by mutableFloatStateOf(1.5f)
+    // 渐隐、圆角、倾斜变化比容器变化时长
+    var speedUpRadioAlpha by mutableFloatStateOf(SpeedUpRadio.default.alpha)
+    var speedUpRadioCorner by mutableFloatStateOf(SpeedUpRadio.default.corner)
+    var speedUpRadioTilt by mutableFloatStateOf(SpeedUpRadio.default.tilt)
 
     // 倾斜效果
     var enableTilt by mutableStateOf(true)
@@ -98,8 +101,25 @@ class SharedRegistry(
 
     var enableShader by mutableStateOf(Build.VERSION.SDK_INT >= 33)
 
-    fun initFullScreenRectInterpolator(interpolator: RectInterpolator) {
-        FullScreenRectInterpolator = interpolator
+    var quadraticBezierRectInterpolatorVerticalRadio by mutableFloatStateOf(2f)
+    var quadraticBezierRectInterpolatorHorizontalRadio by mutableFloatStateOf(3f)
+
+    fun initQuadraticBezierRectInterpolator() {
+        require(
+            quadraticBezierRectInterpolatorVerticalRadio >= 0 && quadraticBezierRectInterpolatorHorizontalRadio >= 0
+        ) {
+            error("Radio must >= 0")
+        }
+        if(quadraticBezierRectInterpolatorVerticalRadio == 0f || quadraticBezierRectInterpolatorHorizontalRadio == 0f) {
+            FullScreenRectInterpolator = LinearRectInterpolator
+            return
+        }
+        FullScreenRectInterpolator = QuadraticBezierRectInterpolator(
+            screenRect!!.height,
+            screenRect!!.width,
+            screenRect!!.height / quadraticBezierRectInterpolatorVerticalRadio,
+            screenRect!!.width / quadraticBezierRectInterpolatorHorizontalRadio
+        )
     }
 
     fun register(

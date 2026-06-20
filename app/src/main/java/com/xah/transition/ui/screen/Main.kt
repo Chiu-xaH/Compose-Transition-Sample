@@ -53,7 +53,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -78,8 +77,6 @@ import com.xah.container.component.base.SharedContainer
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.floating.util.LocalFloatingController
-import com.xah.navigation.anim.effect.Direction
-import com.xah.navigation.anim.effect.FadeTransitionEffect
 import com.xah.navigation.anim.effect.FlipTransitionEffect
 import com.xah.navigation.anim.effect.IslandTransitionEffect
 import com.xah.navigation.anim.effect.JumpTransitionEffect
@@ -93,8 +90,6 @@ import com.xah.navigation.model.anim.EffectLevel
 import com.xah.navigation.model.anim.effect.sub.Rotation
 import com.xah.navigation.model.dest.Destination
 import com.xah.navigation.util.LocalNavController
-import com.xah.navigation.util.LocalNavDependencies
-import com.xah.navigation.util.rememberNavDependencies
 import com.xah.transition.R
 import com.xah.transition.model.AppIconBean
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
@@ -102,6 +97,7 @@ import com.xah.transition.ui.component.CARD_NORMAL_DP
 import com.xah.transition.ui.component.CustomCard
 import com.xah.transition.ui.component.CustomSlider
 import com.xah.transition.ui.component.DividerTextExpandedWithShared
+import com.xah.transition.ui.component.PaddingHorizontalDivider
 import com.xah.transition.ui.component.TopBarNavigationIcon
 import com.xah.transition.ui.component.TransplantListItem
 import com.xah.transition.ui.component.cardNormalColor
@@ -111,11 +107,11 @@ import com.xah.transition.ui.screen.nav.destination.CornerSettingsDestination
 import com.xah.transition.ui.screen.nav.destination.HomeDestination
 import com.xah.transition.ui.screen.nav.destination.SecondDestination
 import com.xah.transition.ui.screen.nav.destination.ThirdDestination
-import com.xah.transition.ui.screen.test.CubicBezierEditor
 import com.xah.transition.ui.screen.nav.window.BottomDialogWindow
 import com.xah.transition.ui.screen.nav.window.BottomSheetWindow
 import com.xah.transition.ui.screen.nav.window.CenterDialogWindow
 import com.xah.transition.ui.screen.nav.window.DialogFloatingWindow
+import com.xah.transition.ui.screen.test.CubicBezierEditor
 import com.xah.transition.ui.style.topBarTransplantColor
 import com.xah.transition.ui.util.PermissionSet.checkAndRequestStoragePermission
 import com.xah.transition.ui.util.UiHolder
@@ -154,11 +150,6 @@ private fun Modifier.backgroundEffect(
 fun Main(
     firstPage : Destination? = null
 ) {
-    var arg1 by remember { mutableStateOf(1) }
-    val dependencies = rememberNavDependencies(arg1) {
-        put(arg1, tag = "args1")
-        put("1", tag = "args2")
-    }
     val navigationController = rememberNavController(firstPage ?: HomeDestination)
     val inHomeDest = navigationController.current.destination == navigationController.startDestination || navigationController.transitionEntry?.to?.destination == navigationController.startDestination || navigationController.transitionEntry?.from?.destination == navigationController.startDestination
     val displayWallpaper = UiHolder.imageBitmap != null
@@ -194,7 +185,6 @@ fun Main(
                     it.background(MaterialTheme.colorScheme.surface)
                 }
             },
-            dependencies = dependencies,
         )
     }
 }
@@ -211,9 +201,6 @@ private val appList = listOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen() {
-    val q = LocalNavDependencies.current.get<Int>("args1")
-    val q2 = LocalNavDependencies.current.get<String>("args2")
-
     val navController = LocalNavController.current
     val scrollState = rememberLazyGridState()
     val registry = LocalSharedRegistry.current
@@ -418,7 +405,7 @@ fun HomeScreen() {
                                 TransplantListItem(
                                     headlineContent = { Text("缩放动效1") },
                                     modifier = Modifier.clickable {
-                                        navController.push(dest, effect = ScaleTransitionEffect(true,false))
+                                        navController.push(dest, effect = ScaleTransitionEffect(reservedFgScale = true, reservedBgScale = false))
                                     }
                                 )
                             }
@@ -434,7 +421,7 @@ fun HomeScreen() {
                                 TransplantListItem(
                                     headlineContent = { Text("缩放动效2") },
                                     modifier = Modifier.clickable {
-                                        navController.push(dest, effect = ScaleTransitionEffect(false,true))
+                                        navController.push(dest, effect = ScaleTransitionEffect(reservedFgScale = false, reservedBgScale = true))
                                     }
                                 )
                             }
@@ -497,7 +484,7 @@ fun HomeScreen() {
                                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                                 ) {
                                     TransplantListItem(
-                                        headlineContent = { Text(window.key ?: "Empty") },
+                                        headlineContent = { Text(window.key) },
                                         modifier = Modifier.clickable {
                                             floatingController.push(window)
                                         }
@@ -682,28 +669,6 @@ fun HomeScreen() {
                         }
                     }
                     item(span = { GridItemSpan(maxLineSpan) }) {
-                        Surface(
-                            color = cardNormalColor(),
-                            shape = MaterialTheme.shapes.small,
-                            modifier = Modifier.padding(CARD_NORMAL_DP*2)
-                        ) {
-                            TransplantListItem(
-                                headlineContent = {
-                                    Text("倾斜效果")
-                                },
-                                leadingContent = {
-                                    Icon(painterResource(R.drawable.ic_texture),null)
-                                },
-                                trailingContent = {
-                                    Switch(registry.enableTilt, onCheckedChange = { registry.enableTilt = it })
-                                },
-                                modifier = Modifier.clickable {
-                                    registry.enableTilt = !registry.enableTilt
-                                },
-                            )
-                        }
-                    }
-                    item(span = { GridItemSpan(maxLineSpan) }) {
                         LaunchedEffect(UiHolder.enablePredictiveBack) {
                             navController.enablePredictiveBack = UiHolder.enablePredictiveBack
                             registry.enablePredictiveBack = UiHolder.enablePredictiveBack
@@ -861,24 +826,43 @@ fun HomeScreen() {
                             shape = MaterialTheme.shapes.small,
                             modifier = Modifier.padding(CARD_NORMAL_DP*2)
                         ) {
-                            var value by remember { mutableStateOf(registry.tiltMaxValue) }
                             Column {
+                                var valueQuadraticBezierRectInterpolatorHorizontalRadio by remember { mutableFloatStateOf(registry.quadraticBezierRectInterpolatorHorizontalRadio) }
                                 TransplantListItem(
                                     headlineContent = {
-                                        Text("容器共享倾斜程度 ${value.roundToInt()}")
+                                        Text("路径曲线X轴向心系数 $valueQuadraticBezierRectInterpolatorHorizontalRadio")
                                     },
                                 )
                                 CustomSlider(
-                                    value = value,
+                                    value = valueQuadraticBezierRectInterpolatorHorizontalRadio,
                                     onValueChange = {
-                                        value = it
-                                        registry.tiltMaxValue = value
+                                        valueQuadraticBezierRectInterpolatorHorizontalRadio = it
+                                        registry.quadraticBezierRectInterpolatorHorizontalRadio = valueQuadraticBezierRectInterpolatorHorizontalRadio
                                     },
                                     modifier = Modifier.padding(bottom = APP_HORIZONTAL_DP),
-                                    valueRange = 0f..75f,
-                                    steps = 74,
+                                    valueRange = 0f..10f,
                                     showProcessText = true,
-                                    processText = value.roundToInt().toString()
+                                    processText = valueQuadraticBezierRectInterpolatorHorizontalRadio.toString()
+                                )
+
+                                var valueQuadraticBezierRectInterpolatorVerticalRadio by remember { mutableFloatStateOf(registry.quadraticBezierRectInterpolatorVerticalRadio) }
+
+                                PaddingHorizontalDivider()
+                                TransplantListItem(
+                                    headlineContent = {
+                                        Text("路径曲线Y轴向心系数 $valueQuadraticBezierRectInterpolatorVerticalRadio")
+                                    },
+                                )
+                                CustomSlider(
+                                    value = valueQuadraticBezierRectInterpolatorVerticalRadio,
+                                    onValueChange = {
+                                        valueQuadraticBezierRectInterpolatorVerticalRadio = it
+                                        registry.quadraticBezierRectInterpolatorVerticalRadio = valueQuadraticBezierRectInterpolatorVerticalRadio
+                                    },
+                                    modifier = Modifier.padding(bottom = APP_HORIZONTAL_DP),
+                                    valueRange = 0f..10f,
+                                    showProcessText = true,
+                                    processText = valueQuadraticBezierRectInterpolatorVerticalRadio.toString()
                                 )
                             }
                         }
@@ -889,25 +873,114 @@ fun HomeScreen() {
                             shape = MaterialTheme.shapes.small,
                             modifier = Modifier.padding(CARD_NORMAL_DP*2)
                         ) {
-                            var value by remember { mutableStateOf(registry.speedUpRadio) }
                             Column {
+                                var valueSpeedUpRadioAlpha by remember { mutableFloatStateOf(registry.speedUpRadioAlpha) }
                                 TransplantListItem(
                                     headlineContent = {
-                                        Text("容器共享渐变速率比 $value")
+                                        Text("容器共享透明度速率比 $valueSpeedUpRadioAlpha")
                                     },
                                 )
                                 CustomSlider(
-                                    value = value,
+                                    value = valueSpeedUpRadioAlpha,
                                     onValueChange = {
-                                        value = it
-                                        registry.speedUpRadio = value
+                                        valueSpeedUpRadioAlpha = it
+                                        registry.speedUpRadioAlpha = valueSpeedUpRadioAlpha
                                     },
                                     modifier = Modifier.padding(bottom = APP_HORIZONTAL_DP),
                                     valueRange = 1f..10f,
                                     steps = 35,
                                     showProcessText = true,
-                                    processText = value.toString()
+                                    processText = valueSpeedUpRadioAlpha.toString()
                                 )
+
+                                var valueSpeedUpRadioCorner by remember { mutableFloatStateOf(registry.speedUpRadioCorner) }
+
+                                PaddingHorizontalDivider()
+                                TransplantListItem(
+                                    headlineContent = {
+                                        Text("容器共享圆角速率比 $valueSpeedUpRadioCorner")
+                                    },
+                                )
+                                CustomSlider(
+                                    value = valueSpeedUpRadioCorner,
+                                    onValueChange = {
+                                        valueSpeedUpRadioCorner = it
+                                        registry.speedUpRadioCorner = valueSpeedUpRadioCorner
+                                    },
+                                    modifier = Modifier.padding(bottom = APP_HORIZONTAL_DP),
+                                    valueRange = 1f..10f,
+                                    steps = 35,
+                                    showProcessText = true,
+                                    processText = valueSpeedUpRadioCorner.toString()
+                                )
+                            }
+                        }
+                    }
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Surface(
+                            color = cardNormalColor(),
+                            shape = MaterialTheme.shapes.small,
+                            modifier = Modifier.padding(CARD_NORMAL_DP*2)
+                        ) {
+                            Column {
+                                TransplantListItem(
+                                    headlineContent = {
+                                        Text("倾斜效果")
+                                    },
+                                    leadingContent = {
+                                        Icon(painterResource(R.drawable.ic_texture),null)
+                                    },
+                                    trailingContent = {
+                                        Switch(registry.enableTilt, onCheckedChange = { registry.enableTilt = it })
+                                    },
+                                    modifier = Modifier.clickable {
+                                        registry.enableTilt = !registry.enableTilt
+                                    },
+                                )
+                                if(registry.enableTilt) {
+
+                                    var valueTiltMaxValue by remember { mutableFloatStateOf(registry.tiltMaxValue) }
+
+                                    PaddingHorizontalDivider()
+                                    TransplantListItem(
+                                        headlineContent = {
+                                            Text("容器共享倾斜程度 ${valueTiltMaxValue.roundToInt()}")
+                                        },
+                                    )
+                                    CustomSlider(
+                                        value = valueTiltMaxValue,
+                                        onValueChange = {
+                                            valueTiltMaxValue = it
+                                            registry.tiltMaxValue = valueTiltMaxValue
+                                        },
+                                        modifier = Modifier.padding(bottom = APP_HORIZONTAL_DP),
+                                        valueRange = 0f..75f,
+                                        steps = 74,
+                                        showProcessText = true,
+                                        processText = valueTiltMaxValue.roundToInt().toString()
+                                    )
+
+                                    var valueSpeedUpRadioTilt by remember { mutableFloatStateOf(registry.speedUpRadioTilt) }
+
+                                    PaddingHorizontalDivider()
+                                    TransplantListItem(
+                                        headlineContent = {
+                                            Text("容器共享倾斜速率比 $valueSpeedUpRadioTilt")
+                                        },
+                                    )
+                                    CustomSlider(
+                                        value = valueSpeedUpRadioTilt,
+                                        onValueChange = {
+                                            valueSpeedUpRadioTilt = it
+                                            registry.speedUpRadioTilt = valueSpeedUpRadioTilt
+                                        },
+                                        modifier = Modifier.padding(bottom = APP_HORIZONTAL_DP),
+                                        valueRange = 1f..10f,
+                                        steps = 35,
+                                        showProcessText = true,
+                                        processText = valueSpeedUpRadioTilt.toString()
+                                    )
+                                }
                             }
                         }
                     }
@@ -1036,92 +1109,6 @@ fun SecondScreen() {
 }
 
 @Composable
-fun AppIconScreen(app : AppIconBean) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
-    ) {
-        val navController = LocalNavController.current
-        val scope = rememberCoroutineScope()
-
-        Text("${app.name}", modifier = Modifier.align(Alignment.Center))
-
-//        Box(
-//            modifier = Modifier
-//                .align(Alignment.BottomCenter)
-//                .navigationBarsPadding()
-//                .padding(APP_HORIZONTAL_DP)
-//                .size(150.dp,CARD_NORMAL_DP*2)
-//                .background(MaterialTheme.colorScheme.onSurface, MaterialTheme.shapes.extraSmall)
-//                .pointerInput(Unit) {
-//                    awaitPointerEventScope {
-//
-//                        var totalOffset = Offset.Zero
-//                        var isDragging = false
-//
-//                        while (true) {
-//                            var state : SharedContainerState? = null
-//                            val event = awaitPointerEvent()
-//                            val pan = event.calculatePan()
-//                            val anyPressed = event.changes.any { it.pressed }
-//
-//                            if (anyPressed) {
-//
-//                                // 第一次按下
-//                                if (!isDragging) {
-//                                    isDragging = true
-//                                    totalOffset = Offset.Zero
-//
-//                                    scope.launch {
-//                                        state = navController.startPredictiveBackShared()
-//                                    }
-//                                }
-//
-//                                // 累计位移（只取Y，模拟上滑返回）
-//                                totalOffset += Offset(0f, pan.y)
-//
-//                                // 限制只能“向上滑”
-//                                if (totalOffset.y > 0f) {
-//                                    totalOffset = Offset(0f, 0f)
-//                                }
-//
-//                                // 计算进度（你可以调这个值）
-//                                val progress = (-totalOffset.y / 600f)
-//                                    .coerceIn(0f, 1f)
-//
-//                                // 更新动画
-//                                navController.updatePredictiveBackShared(
-//                                    progress,
-//                                    totalOffset,
-//                                    state
-//                                )
-//
-//                            } else if (isDragging) {
-//
-//                                // 松手
-//                                val progress = (-totalOffset.y / 600f)
-//
-//                                if (progress > 0.3f) {
-//                                    // 触发返回
-//                                    navController.confirmPredictiveBackShared(state)
-//                                } else {
-//                                    // 取消
-//                                    navController.cancelPredictiveBackShared(state)
-//                                }
-//
-//                                state = null
-//                                isDragging = false
-//                                totalOffset = Offset.Zero
-//                            }
-//                        }
-//                    }
-//                }
-//        )
-    }
-}
-
-@Composable
 fun ThirdScreen() {
     val navController = LocalNavController.current
     Box(
@@ -1147,7 +1134,6 @@ fun ThirdScreen() {
 @Composable
 fun CornerSettingsScreen(title : String) {
     val navController = LocalNavController.current
-    val registry = LocalSharedRegistry.current
     val view = LocalView.current
 
     var corner by remember { mutableFloatStateOf(0f) }

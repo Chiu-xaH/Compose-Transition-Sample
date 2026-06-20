@@ -1,5 +1,5 @@
 [versions]
-libraryVersionName = "1.0.0-dev06160010"
+libraryVersionName = "1.0.0-dev06210146"
 libraryPackageName = "com.xah.sharednav"
 agp = "8.9.3"
 kotlin = "2.0.21"

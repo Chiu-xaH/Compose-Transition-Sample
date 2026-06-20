@@ -50,15 +50,14 @@ fun SharedContainerRoot(
         configuration.screenWidthDp.dp.toPx()
     }
 
-    LaunchedEffect(screenWidthPx, screenHeightPx) {
-        LogUtil.debug("init FullScreenRectInterpolator")
+    LaunchedEffect(
+        screenWidthPx,
+        screenHeightPx,
+        registry.quadraticBezierRectInterpolatorVerticalRadio,
+        registry.quadraticBezierRectInterpolatorHorizontalRadio
+    ) {
         registry.screenRect = Rect(0f,0f,screenWidthPx,screenHeightPx)
-        registry.initFullScreenRectInterpolator(
-            QuadraticBezierRectInterpolator(
-                screenHeightPx,
-                screenWidthPx
-            )
-        )
+        registry.initQuadraticBezierRectInterpolator()
     }
 
     LaunchedEffect(registry.enabled) {

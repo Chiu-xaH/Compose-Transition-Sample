@@ -50,7 +50,6 @@ fun SharedContainerOverlay() {
 
             // 进度
             val progress = state.animation.value
-            val safelyProgress = (progress * registry.speedUpRadio * if(useContainer) 1f else 2f).coerceIn(0f,1f)
 
             // 路径曲线
             val parent = (
@@ -61,12 +60,17 @@ fun SharedContainerOverlay() {
                 }
             ).invoke(progress, container, content)
 
-            val contentAlpha = lerp(0f,1f,safelyProgress)
-            val corner = lerp(state.containerCorner,state.contentCorner,safelyProgress)
+            val progressOfAlpha = (progress * registry.speedUpRadioAlpha * if(useContainer) 1f else 2f).coerceIn(0f,1f)
+            val contentAlpha = lerp(0f,1f,progressOfAlpha)
+
+            val progressOfCorner = (progress * registry.speedUpRadioCorner * if(useContainer) 1f else 2f).coerceIn(0f,1f)
+            val corner = lerp(state.containerCorner,state.contentCorner,progressOfCorner)
 
             // 倾斜计算
             val maxTilt = registry.tiltMaxValue
-            val (roX, roY) = if (registry.enableTilt && !useLinear) {
+            val actuallyUseTilt = registry.enableTilt && maxTilt > 0
+            val (roX, roY) = if (actuallyUseTilt && !useLinear) {
+                val progressOfTilt = (progress * registry.speedUpRadioTilt * if(useContainer) 1f else 2f).coerceIn(0f,1f)
 
                 val cCenterX = container.left + container.width / 2f
                 val cCenterY = container.top + container.height / 2f
@@ -107,7 +111,7 @@ fun SharedContainerOverlay() {
                 val tiltStrengthX = minOf(tiltStrengthX1, tiltStrengthX2)
                 val tiltStrengthY = minOf(tiltStrengthY1, tiltStrengthY2)
 
-                val currentTilt = 1f - abs(2f * safelyProgress - 1f)
+                val currentTilt = 1f - abs(2f * progressOfTilt - 1f)
 
                 Pair(
                     dirX * currentTilt * tiltStrengthX,
