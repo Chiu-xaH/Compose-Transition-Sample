@@ -48,12 +48,8 @@ fun QuadraticBezierRectInterpolator(
     val oneMinusT = 1f - t
 
     val center = Offset(
-        x = oneMinusT * oneMinusT * startCenter.x +
-                2 * oneMinusT * t * control.x +
-                t * t * endCenter.x,
-        y = oneMinusT * oneMinusT * startCenter.y +
-                2 * oneMinusT * t * control.y +
-                t * t * endCenter.y
+        x = oneMinusT * oneMinusT * startCenter.x + 2 * oneMinusT * t * control.x + t * t * endCenter.x,
+        y = oneMinusT * oneMinusT * startCenter.y + 2 * oneMinusT * t * control.y + t * t * endCenter.y
     )
 
     val width = lerp(from.width, to.width, t)
