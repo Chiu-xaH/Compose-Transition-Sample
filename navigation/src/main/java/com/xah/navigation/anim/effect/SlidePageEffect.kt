@@ -8,7 +8,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.sharednav.common.modifier.defaultMask
 import com.sharednav.common.modifier.noneMask
@@ -74,14 +73,6 @@ private fun SlidePageEffects(corner : Dp,direction : Direction,clip : Boolean) :
         backgroundEffect = BackgroundPageEffectState(
             enableMirror = true,
             effect = PageEffect(
-                scale = EffectValue(
-                    start = 1f,
-                    end = NavigationController.DEFAULT_SHARED_MAX_PRECENT
-                ),
-                blur = EffectValue(
-                    start = 0.dp,
-                    end = 15.dp
-                ),
                 mask = EffectValue(
                     start = noneMask,
                     end = defaultMask
