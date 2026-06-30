@@ -116,6 +116,7 @@ import com.xah.transition.ui.style.topBarTransplantColor
 import com.xah.transition.ui.util.PermissionSet.checkAndRequestStoragePermission
 import com.xah.transition.ui.util.UiHolder
 import com.xah.transition.util.Starter
+import com.xah.transition.util.roundOffString
 import kotlin.math.roundToInt
 
 private fun Modifier.blur(enableBlur : Boolean,radius : Dp) : Modifier {
@@ -940,11 +941,12 @@ fun HomeScreen() {
                                 if(registry.enableTilt) {
 
                                     var valueTiltMaxValue by remember { mutableFloatStateOf(registry.tiltMaxValue) }
+                                    val valueTiltMaxValueText = remember(valueTiltMaxValue) { valueTiltMaxValue.roundOffString(2) }
 
                                     PaddingHorizontalDivider()
                                     TransplantListItem(
                                         headlineContent = {
-                                            Text("容器共享倾斜程度 ${valueTiltMaxValue.roundToInt()}")
+                                            Text("容器共享倾斜程度 $valueTiltMaxValueText")
                                         },
                                     )
                                     CustomSlider(
@@ -954,18 +956,19 @@ fun HomeScreen() {
                                             registry.tiltMaxValue = valueTiltMaxValue
                                         },
                                         modifier = Modifier.padding(bottom = APP_HORIZONTAL_DP),
-                                        valueRange = 0f..75f,
-                                        steps = 74,
+                                        valueRange = 0f..50f,
+                                        steps = 39,
                                         showProcessText = true,
-                                        processText = valueTiltMaxValue.roundToInt().toString()
+                                        processText = valueTiltMaxValueText
                                     )
 
                                     var valueSpeedUpRadioTilt by remember { mutableFloatStateOf(registry.speedUpRadioTilt) }
+                                    val valueSpeedUpRadioTiltText = remember(valueSpeedUpRadioTilt) { valueSpeedUpRadioTilt.roundOffString(2) }
 
                                     PaddingHorizontalDivider()
                                     TransplantListItem(
                                         headlineContent = {
-                                            Text("容器共享倾斜速率比 $valueSpeedUpRadioTilt")
+                                            Text("容器共享倾斜速率比 $valueSpeedUpRadioTiltText")
                                         },
                                     )
                                     CustomSlider(
@@ -978,7 +981,7 @@ fun HomeScreen() {
                                         valueRange = 1f..10f,
                                         steps = 35,
                                         showProcessText = true,
-                                        processText = valueSpeedUpRadioTilt.toString()
+                                        processText = valueSpeedUpRadioTiltText
                                     )
                                 }
                             }
@@ -1089,7 +1092,7 @@ fun SecondScreen() {
                         CustomCard(
                             color = cardNormalColor(),
                             modifier = Modifier.clickable {
-                                navController.push(ThirdDestination)
+                                navController.push(ThirdDestination, launchMode = LaunchMode.Replace())
                             }
                         ) {
                             repeat(3) { r ->

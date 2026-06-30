@@ -156,6 +156,7 @@ class NavigationController(
                 val reuse =
                     (launchMode is LaunchMode.Push && launchMode.reuse) ||
                     (launchMode is LaunchMode.Single && launchMode.reuse) ||
+                    (launchMode is LaunchMode.Replace && launchMode.reuse) ||
                     (launchMode is LaunchMode.PopToExisting && launchMode.actionType == ActionType.PUSH)
 
                 if(reuse && isCurrentDestination(destination)) {
@@ -236,6 +237,31 @@ class NavigationController(
                     } else {
                         LogUtil.debug("PopToExisting : not found destination ${destination.key}")
                         launchMode.actionType = ActionType.PUSH
+                        createAndPush(destination,effect)
+                    }
+                }
+                is LaunchMode.Replace -> {
+                    if(launchMode.reuse) {
+                        // 如果栈顶是目标项目，则复用
+                        if (isCurrentDestination(destination)) {
+                            LogUtil.debug("Replace(reuse=true) : current is target destination ${destination.key}")
+                            // 如果栈顶就是目标，保持栈顶不变
+                            return@launch
+                        } else {
+                            if(cachedEntry != null) {
+                                LogUtil.debug("Replace(reuse=true) : reuse destination ${destination.key}")
+                                removeAndPop()
+                                _stack.add(cachedEntry)
+                            } else {
+                                LogUtil.debug("Replace(reuse=true) : create destination ${destination.key}")
+                                removeAndPop()
+                                createAndPush(destination,effect)
+                            }
+                        }
+                    } else {
+                        LogUtil.debug("Replace(reuse=false) : create destination ${destination.key}")
+                        // 将栈顶替换为新的实例
+                        removeAndPop()
                         createAndPush(destination,effect)
                     }
                 }

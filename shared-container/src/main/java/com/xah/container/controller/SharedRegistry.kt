@@ -94,7 +94,7 @@ class SharedRegistry(
     // 倾斜效果
     var enableTilt by mutableStateOf(true)
     // 最大变化值
-    var tiltMaxValue by mutableFloatStateOf(20f)
+    var tiltMaxValue by mutableFloatStateOf(17.25f)
 
     // 单边填充or双边填充
     var extensionDouble by mutableStateOf(false)
