@@ -1,9 +1,11 @@
 package com.xah.container.component.overlay
 
+import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
@@ -22,6 +24,7 @@ import com.xah.container.anim.LinearRectInterpolator
 import com.xah.container.util.pixelExtension
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.model.ContentStrategy
+import com.xah.container.model.StatePause
 import com.xah.container.util.LocalSharedRegistry
 import kotlin.math.abs
 import kotlin.math.sign
@@ -59,12 +62,26 @@ fun SharedContainerOverlay() {
                     registry.FullScreenRectInterpolator
                 }
             ).invoke(progress, container, content)
-
             val progressOfAlpha = (progress * registry.speedUpRadioAlpha * if(useContainer) 1f else 2f).coerceIn(0f,1f)
             val contentAlpha = lerp(0f,1f,progressOfAlpha)
 
             val progressOfCorner = (progress * registry.speedUpRadioCorner * if(useContainer) 1f else 2f).coerceIn(0f,1f)
-            val corner = lerp(state.containerCorner,state.contentCorner,progressOfCorner)
+            val factor = 1f - registry.quadraticCornerLerpFactor
+            val firstEnd = factor / 2f
+            val corner = when {
+                !registry.enforceQuadraticCornerLerp && !state.enableQuadraticCorner -> {
+                    lerp(state.containerCorner, state.contentCorner, progressOfCorner)
+                }
+                progressOfCorner < firstEnd -> {
+                    lerp(state.containerCorner, CircleShape, progressOfCorner / firstEnd)
+                }
+                progressOfCorner < factor -> {
+                    CircleShape
+                }
+                else -> {
+                    lerp(CircleShape, state.contentCorner, (progressOfCorner - factor) / (1f - factor))
+                }
+            }
 
             // 倾斜计算
             val maxTilt = registry.tiltMaxValue
@@ -276,7 +293,7 @@ fun SharedContainerOverlay() {
                                     modifier = Modifier
                                         .zIndex(-1f)
                                         .graphicsLayer {
-                                            val scale = if(!isHorizontal) {
+                                            val scale = if (!isHorizontal) {
                                                 parent.width / container.width
                                             } else {
                                                 parent.height / container.height
@@ -284,7 +301,12 @@ fun SharedContainerOverlay() {
                                             scaleX = scale
                                             scaleY = scale
                                         }
-                                        .pixelExtension(layer,container,isHorizontal,extensionDouble)
+                                        .pixelExtension(
+                                            layer,
+                                            container,
+                                            isHorizontal,
+                                            extensionDouble
+                                        )
                                 )
                             }
                         }

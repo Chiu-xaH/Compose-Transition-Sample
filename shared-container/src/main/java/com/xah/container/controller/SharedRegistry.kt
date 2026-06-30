@@ -91,10 +91,14 @@ class SharedRegistry(
     var speedUpRadioCorner by mutableFloatStateOf(SpeedUpRadio.default.corner)
     var speedUpRadioTilt by mutableFloatStateOf(SpeedUpRadio.default.tilt)
 
+    // 形变时插入一个中间态（圆形）
+    var enforceQuadraticCornerLerp by mutableStateOf(false)
+    var quadraticCornerLerpFactor by mutableFloatStateOf(0.5f)
+
     // 倾斜效果
     var enableTilt by mutableStateOf(true)
     // 最大变化值
-    var tiltMaxValue by mutableFloatStateOf(17.25f)
+    var tiltMaxValue by mutableFloatStateOf(17.5f)
 
     // 单边填充or双边填充
     var extensionDouble by mutableStateOf(false)

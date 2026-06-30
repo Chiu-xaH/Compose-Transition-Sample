@@ -32,6 +32,7 @@ fun Modifier.sharedContainer(
     shape : CornerBasedShape,
     containerColor : Color?,
     shadow : Dp = 0.dp,
+    enableQuadraticCorner : Boolean = false,
 ): Modifier {
     return this
         .shadow(shadow,shape)
@@ -43,7 +44,8 @@ fun Modifier.sharedContainer(
             } else {
                 ContainerFilledStrategy.Pixel(ContainerFilledStrategy.Color(containerColor))
             },
-            shape
+            shape,
+            enableQuadraticCorner
         )
 }
 
@@ -53,17 +55,19 @@ fun Modifier.sharedContainer(
     shape : CornerBasedShape,
     shadow : Dp = 0.dp,
     containerFilledStrategy : ContainerFilledStrategy = ContainerFilledStrategy.Pixel(),
+    enableQuadraticCorner : Boolean = false,
 ): Modifier {
     return this
         .shadow(shadow,shape)
         .clip(shape)
-        .sharedContainer(key,containerFilledStrategy,shape)
+        .sharedContainer(key,containerFilledStrategy,shape,enableQuadraticCorner)
 }
 
 private fun Modifier.sharedContainer(
     key : String?,
     containerFilledStrategy : ContainerFilledStrategy,
     shape : CornerBasedShape,
+    enableQuadraticCorner : Boolean
 ): Modifier = composed {
     if(key == null) {
         return@composed this
@@ -87,6 +91,10 @@ private fun Modifier.sharedContainer(
         rememberGraphicsLayer()
     } else {
         null
+    }
+
+    LaunchedEffect(enableQuadraticCorner) {
+        state.enableQuadraticCorner = enableQuadraticCorner
     }
 
     LaunchedEffect(shape) {
@@ -312,6 +320,7 @@ fun SharedContainer(
     modifier : Modifier = Modifier,
     shadow : Dp = 0.dp,
     containerFilledStrategy : ContainerFilledStrategy = ContainerFilledStrategy.Pixel(),
+    enableQuadraticCorner : Boolean = false,
     content : @Composable () -> Unit
 ) {
     Box(
@@ -320,7 +329,7 @@ fun SharedContainer(
             .clip(shape)
     ) {
         Box(
-            modifier = Modifier.sharedContainer(key, containerFilledStrategy, shape)
+            modifier = Modifier.sharedContainer(key, containerFilledStrategy, shape,enableQuadraticCorner)
         ) {
             content()
         }
@@ -336,9 +345,10 @@ fun SharedContainer(
 fun SharedContainer(
     key : String?,
     shape : CornerBasedShape,
+    containerColor : Color?,
     modifier : Modifier = Modifier,
     shadow : Dp = 0.dp,
-    containerColor : Color?,
+    enableQuadraticCorner : Boolean = false,
     content : @Composable () -> Unit
 ) = SharedContainer(
     key,
@@ -350,5 +360,6 @@ fun SharedContainer(
     } else {
         ContainerFilledStrategy.Pixel(ContainerFilledStrategy.Color(containerColor))
     },
-    content
+    enableQuadraticCorner,
+    content,
 )

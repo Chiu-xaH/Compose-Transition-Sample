@@ -28,6 +28,8 @@ class SharedContainerState(
     // 容器圆角
     var containerCorner: CornerBasedShape = NoneRoundShape
     var contentCorner: CornerBasedShape = RoundedCornerShape(ScreenCornerHelper.corner)
+    // 形变时插入一个中间态（圆形）
+    var enableQuadraticCorner = false
     // 容器填充策略
     var containerFilledStrategy : ContainerFilledStrategy = ContainerFilledStrategy.Pixel()
     var contentStrategy : ContentStrategy = ContentStrategy.Navigation

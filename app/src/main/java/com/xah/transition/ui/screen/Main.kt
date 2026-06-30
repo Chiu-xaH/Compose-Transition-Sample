@@ -655,6 +655,28 @@ fun HomeScreen() {
                         ) {
                             TransplantListItem(
                                 headlineContent = {
+                                    Text("二次圆角插值")
+                                },
+                                leadingContent = {
+                                    Icon(painterResource(R.drawable.ic_texture),null)
+                                },
+                                trailingContent = {
+                                    Switch(checked = registry.enforceQuadraticCornerLerp, onCheckedChange = { registry.enforceQuadraticCornerLerp = it })
+                                },
+                                modifier = Modifier.clickable {
+                                    registry.enforceQuadraticCornerLerp = !registry.enforceQuadraticCornerLerp
+                                },
+                            )
+                        }
+                    }
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Surface(
+                            color = cardNormalColor(),
+                            shape = MaterialTheme.shapes.small,
+                            modifier = Modifier.padding(CARD_NORMAL_DP*2)
+                        ) {
+                            TransplantListItem(
+                                headlineContent = {
                                     Text("双向填充")
                                 },
                                 leadingContent = {
@@ -987,30 +1009,6 @@ fun HomeScreen() {
                             }
                         }
                     }
-                    /*
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        Surface(
-                            color = cardNormalColor(),
-                            shape = MaterialTheme.shapes.small,
-                            modifier = Modifier.padding(CARD_NORMAL_DP*2)
-                        ) {
-                            TransplantListItem(
-                                headlineContent = {
-                                    Text("着色器")
-                                },
-                                leadingContent = {
-                                    Icon(painterResource(R.drawable.ic_texture),null)
-                                },
-                                trailingContent = {
-                                    Switch(checked = navController.enableShader, onCheckedChange = { navController.enableShader = it })
-                                },
-                                modifier = Modifier.clickable {
-                                    navController.enableShader = !navController.enableShader
-                                },
-                            )
-                        }
-                    }
-                     */
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         Surface(
                             color = cardNormalColor(),
