@@ -152,7 +152,7 @@ fun Main(
     firstPage : Destination? = null
 ) {
     val navigationController = rememberNavController(firstPage ?: HomeDestination)
-    val inHomeDest = navigationController.current.destination == navigationController.startDestination || navigationController.transitionEntry?.to?.destination == navigationController.startDestination || navigationController.transitionEntry?.from?.destination == navigationController.startDestination
+    val inHomeDest = navigationController.currentDestination == navigationController.startDestination || navigationController.transitionEntry?.to?.destination == navigationController.startDestination || navigationController.transitionEntry?.from?.destination == navigationController.startDestination
     val displayWallpaper = UiHolder.imageBitmap != null
     Box(modifier = Modifier.fillMaxSize()) {
        if(UiHolder.enableWallpaper && displayWallpaper && inHomeDest) {

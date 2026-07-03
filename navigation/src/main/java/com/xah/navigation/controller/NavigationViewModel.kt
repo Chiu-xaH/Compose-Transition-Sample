@@ -8,7 +8,6 @@ import com.xah.navigation.model.dest.StackEntry
 
 class NavigationViewModel : ViewModel() {
     val stack = mutableStateListOf<StackEntry>()
-    val historyQueue = mutableStateListOf<Destination>()
 
     class Factory : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")

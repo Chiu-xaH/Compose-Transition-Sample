@@ -41,7 +41,7 @@ fun rememberNavController(
     val scope = rememberCoroutineScope()
     val navViewModel: NavigationViewModel = viewModel(factory = NavigationViewModel.Factory())
     val navController = remember(navViewModel) {
-        NavigationController(scope, startDestination, navViewModel.stack,navViewModel.historyQueue,defaultTransitionEffect,null)
+        NavigationController(scope, startDestination, navViewModel.stack,defaultTransitionEffect,null)
     }
     return navController
 }

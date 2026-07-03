@@ -96,7 +96,7 @@ fun TopBarNavigationIcon(
                                             displayDialog = false
                                         } else {
                                             scope.launch {
-                                                navController.push(item.destination, LaunchMode.PopToExisting)
+                                                navController.push(item.destination, LaunchMode.PopToExisting())
                                                 displayDialog = false
                                             }
                                         }

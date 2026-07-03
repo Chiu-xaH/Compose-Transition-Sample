@@ -12,6 +12,7 @@ composeBom = "2026.02.01"
 accompanistSystemuicontroller = "0.31.0-alpha"
 maxAndroidVersion = "36"
 minAndroidVersion = "24"
+graphicsShapes = "1.1.0"
 
 [libraries]
 androidx-material3-window-size-class1 = { module = "androidx.compose.material3:material3-window-size-class" }
@@ -31,6 +32,7 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanistSystemuicontroller" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
+androidx-graphics-shapes = { group = "androidx.graphics", name = "graphics-shapes", version.ref = "graphicsShapes" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
