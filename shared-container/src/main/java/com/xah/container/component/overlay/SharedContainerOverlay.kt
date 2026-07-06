@@ -1,6 +1,5 @@
 package com.xah.container.component.overlay
 
-import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,11 +20,10 @@ import androidx.compose.ui.util.lerp
 import androidx.compose.ui.zIndex
 import com.sharednav.common.util.lerp
 import com.xah.container.anim.LinearRectInterpolator
-import com.xah.container.util.pixelExtension
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.model.ContentStrategy
-import com.xah.container.model.StatePause
 import com.xah.container.util.LocalSharedRegistry
+import com.xah.container.util.pixelExtension
 import kotlin.math.abs
 import kotlin.math.sign
 

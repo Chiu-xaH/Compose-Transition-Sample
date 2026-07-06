@@ -196,7 +196,7 @@ private fun morphShapePath(
 
 @Preview
 @Composable
-fun FusionDemo() {
+fun ShapeLerpDemo() {
     var forward by remember { mutableStateOf(true) }
     var replayKey by remember { mutableIntStateOf(0) }
     val progress = remember { Animatable(0f) }
