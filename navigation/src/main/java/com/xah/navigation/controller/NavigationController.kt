@@ -18,6 +18,7 @@ import com.sharednav.common.util.LogUtil
 import com.sharednav.common.util.PredictiveUtil
 import com.xah.container.controller.SharedRegistry
 import com.xah.container.model.SharedContainerState
+import com.xah.navigation.anim.effect.DefaultLevelNoneTransitionEffect
 import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.model.anim.EffectLevel
@@ -30,14 +31,13 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.util.UUID
 import kotlin.math.pow
 
 class NavigationController(
     private val scope: CoroutineScope,
     val startDestination: Destination,
     private val _stack: SnapshotStateList<StackEntry> = mutableStateListOf(),
-    val defaultTransitionEffect: TransitionEffect,
+    val sharedTransitionEffect: TransitionEffect,
     var sharedRegistry : SharedRegistry? = null,
 ) {
     val stack: List<StackEntry> get() = _stack
@@ -47,7 +47,9 @@ class NavigationController(
     var isTransitioning by mutableStateOf(false)
         private set
 
-    var transitionLevel by mutableStateOf(EffectLevel.FULL)
+    var transitionLevel by mutableStateOf(EffectLevel.HIGH)
+    var levelNoneTransitionEffect by mutableStateOf(DefaultLevelNoneTransitionEffect)
+    var defaultTransitionEffect by mutableStateOf(sharedTransitionEffect)
 
     var enableBlur by mutableStateOf(Build.VERSION.SDK_INT >= 31)
     var enableShader by mutableStateOf(Build.VERSION.SDK_INT >= 33)
@@ -73,43 +75,39 @@ class NavigationController(
         const val DEFAULT_SHARED_MAX_PRECENT = 0.875f
         val DEFAULT_EASING = CubicBezierEasing(0.4f, 0.65f, 0.25f, 1.0f)
     }
-    val defaultSpecWithTinyScale = tween<Float>(250)
+
     private fun popAnimationWithShared() = tween<Float>(AnimationSpecManager.getSharedTween()*7/5)
     private fun pushAnimationWithShared() = tween<Float>(AnimationSpecManager.getSharedTween())
 
     internal var inPredictive by mutableStateOf(false)
 
     private fun getAnimation() =
-        if(sharedRegistry?.isRunning == true) {
+        if(transitionLevel != EffectLevel.NONE && sharedRegistry?.isRunning == true) {
             when(transitionEntry!!.type) {
                 ActionType.POP -> popAnimationWithShared()
                 ActionType.PUSH -> pushAnimationWithShared()
             }
         } else {
-            if(transitionLevel == EffectLevel.NONE) {
-                defaultSpecWithTinyScale
-            } else {
-                val transitionMode = current().transitionMode
+            val transitionMode = current().transitionMode
 
-                val newPopAnimation = (transitionMode.popAnimation as? TweenSpec<Float>)?.let {
-                    tween(
-                        durationMillis = AnimationSpecManager.getTween(it.durationMillis),
-                        delayMillis = it.delay,
-                        easing = it.easing
-                    )
-                } ?: transitionMode.popAnimation
-                val newPushAnimation = (transitionMode.pushAnimation as? TweenSpec<Float>)?.let {
-                    tween(
-                        durationMillis = AnimationSpecManager.getTween(it.durationMillis),
-                        delayMillis = it.delay,
-                        easing = it.easing
-                    )
-                } ?: transitionMode.pushAnimation
+            val newPopAnimation = (transitionMode.popAnimation as? TweenSpec<Float>)?.let {
+                tween(
+                    durationMillis = AnimationSpecManager.getTween(it.durationMillis),
+                    delayMillis = it.delay,
+                    easing = it.easing
+                )
+            } ?: transitionMode.popAnimation
+            val newPushAnimation = (transitionMode.pushAnimation as? TweenSpec<Float>)?.let {
+                tween(
+                    durationMillis = AnimationSpecManager.getTween(it.durationMillis),
+                    delayMillis = it.delay,
+                    easing = it.easing
+                )
+            } ?: transitionMode.pushAnimation
 
-                when(transitionEntry!!.type) {
-                    ActionType.POP -> newPopAnimation
-                    ActionType.PUSH -> newPushAnimation
-                }
+            when(transitionEntry!!.type) {
+                ActionType.POP -> newPopAnimation
+                ActionType.PUSH -> newPushAnimation
             }
         }
 
@@ -355,10 +353,28 @@ class NavigationController(
 
     private fun canShared() = transitionLevel != EffectLevel.NONE && sharedRegistry != null
 
+    /**
+     * @param destination 目标页面
+     * @param launchMode 启动模式。默认为栈顶复用
+     */
     fun push(
         destination: Destination,
         launchMode: LaunchMode = LaunchMode.Push(reuse = true),
-        effect: TransitionEffect = defaultTransitionEffect,
+    ) = push(
+        destination,
+        launchMode,
+        defaultTransitionEffect
+    )
+
+    /**
+     * @param destination 目标页面
+     * @param launchMode 启动模式。默认为栈顶复用
+     * @param effect 转场动效。当effectLevel为NONE时，强制使用levelNoneTransitionEffect，传参无效。当可容器共享时，强制使用sharedTransitionEffect，传参无效；
+     */
+    fun push(
+        destination: Destination,
+        launchMode: LaunchMode = LaunchMode.Push(reuse = true),
+        effect: TransitionEffect
     ) {
         if(
             canShared() &&
@@ -369,10 +385,15 @@ class NavigationController(
                 destination.key,
                 onAnimatedFinished = { awaitTransition() },
             ) {
-                pushInternal(destination,launchMode,defaultTransitionEffect)
+                pushInternal(destination,launchMode,sharedTransitionEffect)
             }
         } else {
-            pushInternal(destination,launchMode,effect)
+            val finalEffect = if(transitionLevel == EffectLevel.NONE) {
+                levelNoneTransitionEffect
+            } else {
+                effect ?: defaultTransitionEffect
+            }
+            pushInternal(destination,launchMode,finalEffect)
         }
     }
 
@@ -513,11 +534,7 @@ class NavigationController(
     fun getPredictiveMaxValue(
         progress : Float
     ) : Float {
-        val minValue = if(transitionLevel == EffectLevel.NONE) {
-            0.6f
-        } else {
-            current().transitionMode.predictiveMinValue
-        }
+        val minValue = current().transitionMode.predictiveMinValue
         val easedContainer = 1f - ((1f - minValue) * progress.pow(0.5f))
         return easedContainer
     }

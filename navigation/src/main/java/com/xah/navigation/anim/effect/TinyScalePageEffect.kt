@@ -22,18 +22,18 @@ import com.xah.navigation.model.anim.effect.PageEffects
  * 参数：透明度，缩放
  * 预测式返回手势阈值：0.875f
  */
-data class ScaleTransitionEffect(
+data class TinyScaleTransitionEffect(
     val reservedFgScale : Boolean? = false,
     val reservedBgScale : Boolean? = false,
-    override val pageEffect : PageEffects = ScalePageEffects(reservedFgScale,reservedBgScale),
+    override val pageEffect : PageEffects = TinyScalePageEffects(reservedFgScale,reservedBgScale),
     override val predictiveMinValue: Float = 0.625f,
     override val pushAnimation: AnimationSpec<Float> = tween(400, easing = FastOutSlowInEasing),
     override val popAnimation: AnimationSpec<Float> = tween(400, easing = FastOutSlowInEasing)
 ) : TransitionEffect
 
-fun ScalePageEffects(
+fun TinyScalePageEffects(
     reservedFgScale : Boolean? = false,
-    reservedBgScale : Boolean? = false,
+    reservedBgScale : Boolean? = true,
 ) : PageEffects {
     return PageEffects(
         backgroundEffect = BackgroundPageEffectState(
@@ -82,3 +82,21 @@ fun ScalePageEffects(
         )
     )
 }
+
+val DefaultLevelNoneTransitionEffect = TinyScaleTransitionEffect(
+    pageEffect = TinyScalePageEffects().let { effects ->
+        PageEffects(
+            backgroundEffect = effects.backgroundEffect.copy(
+                effect = effects.backgroundEffect.effect.copy(
+                    blur = EffectValue.const(0.dp),
+                    scale = EffectValue.const(1f)
+                )
+            ),
+            foregroundEffect = effects.foregroundEffect.copy(
+                effect = effects.foregroundEffect.effect.copy(
+                    blur = EffectValue.const(0.dp),
+                )
+            ),
+        )
+    }
+)

@@ -206,7 +206,7 @@ class SharedRegistry(
             return
         }
         // container destroy的时候不启用动画
-        if(state.isActive()) {
+        if(state.isInActive()) {
             onSwap()
             unregister(state)
             LogUtil.debug("push without shared ${state.key}")
@@ -353,30 +353,6 @@ class SharedRegistry(
                 return false
             }
         }
-    }
-
-    private suspend fun waitFrameForPush(
-        state: SharedContainerState,
-    ): Boolean {
-        require(waitFrameMaxValue >= 1) {
-            error("waitFrameMaxValue must >= 1")
-        }
-
-        var frameCount = 0
-        while (state.isActive()) {
-            awaitFrame()
-            frameCount++
-            if (state.isActive()) {
-                LogUtil.info("Push : waiting for $frameCount frame")
-                return true
-            }
-            if (frameCount >= waitFrameMaxValue) {
-                unregister(state)
-                LogUtil.warn("Pop : rendering timeout after $frameCount frame")
-                return false
-            }
-        }
-        return true
     }
 
     private suspend fun findState(

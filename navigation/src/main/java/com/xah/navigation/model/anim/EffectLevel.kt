@@ -2,19 +2,19 @@ package com.xah.navigation.model.anim
 
 enum class EffectLevel(val levelNum : Int) {
     /**
-     * 背景模糊、压暗、缩放；前景模糊、缩放
+     * 满效果
      */
-    FULL(3),
+    HIGH(3),
     /**
-     * 背景缩放、压暗；前景缩放
+     * 去掉模糊，可自行重写
      */
-    NO_BLUR(2),
+    MEDIUM(2),
     /**
-     * 背景压暗；前景缩放
+     * 去掉模糊与缩放，可自行重写
      */
-    NO_SCALE(1),
+    LOW(1),
     /**
-     * 背景无；前景轻缩放、透明度淡入
+     * 走NavigationController里最低级的统一效果
      */
     NONE(0)
 }

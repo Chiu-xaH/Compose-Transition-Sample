@@ -30,25 +30,25 @@ import com.xah.navigation.model.anim.TransitionEffect
  * 参数：若干
  * 预测式返回手势阈值：0.875f
  */
-data class DefaultTransitionEffect(
-    override val pageEffect : PageEffects = DefaultPageEffects(),
+data class ScaleTransitionEffect(
+    override val pageEffect : PageEffects = ScalePageEffects(),
     override val predictiveMinValue: Float = NavigationController.DEFAULT_SHARED_MAX_PRECENT,
     override val pushAnimation: AnimationSpec<Float> = tween(AnimationSpecManager.DEFAULT_SHARED_SPEC*6/5, easing = NavigationController.DEFAULT_EASING),
     override val popAnimation: AnimationSpec<Float> = tween(AnimationSpecManager.DEFAULT_SHARED_SPEC*6/5, easing = NavigationController.DEFAULT_EASING)
 ) : TransitionEffect
 
 @Composable
-fun rememberDefaultPageEffects(): PageEffects {
+fun rememberScalePageEffects(): PageEffects {
     val view = LocalView.current
     val corner = ScreenCornerHelper(view).getCornerDp()
     return remember(corner) {
-        DefaultPageEffects(corner)
+        ScalePageEffects(corner)
     }
 }
 
-fun DefaultPageEffects() = DefaultPageEffects(ScreenCornerHelper.corner)
+fun ScalePageEffects() = ScalePageEffects(ScreenCornerHelper.corner)
 
-fun DefaultPageEffects(corner : Dp) : PageEffects {
+fun ScalePageEffects(corner : Dp) : PageEffects {
     return PageEffects(
         backgroundEffect = BackgroundPageEffectState(
             enableMirror = true,

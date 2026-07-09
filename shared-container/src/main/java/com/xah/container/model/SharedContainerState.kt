@@ -40,7 +40,7 @@ class SharedContainerState(
 
     // 被标注为不活跃的将会在合适的时机解除注册 引用计数法
     var isActive : Int = 0
-    fun isActive() = isActive <= 0
+    fun isInActive() = isActive <= 0
     // 跟手Offset
     var contentOffset by mutableStateOf(Offset.Zero)
 }

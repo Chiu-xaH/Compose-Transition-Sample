@@ -18,13 +18,12 @@ import com.xah.container.controller.SharedRegistry
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.floating.component.FloatingRoot
 import com.xah.navigation.anim.backgroundEffect
-import com.xah.navigation.anim.effect.DefaultTransitionEffect
+import com.xah.navigation.anim.effect.ScaleTransitionEffect
+import com.xah.navigation.anim.effect.rememberScalePageEffects
 import com.xah.navigation.anim.foregroundEffect
-import com.xah.navigation.anim.effect.rememberDefaultPageEffects
 import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.controller.NavigationViewModel
 import com.xah.navigation.model.action.ActionType
-import com.xah.navigation.model.anim.EffectLevel
 import com.xah.navigation.model.anim.TransitionEffect
 import com.xah.navigation.model.dest.Dependencies
 import com.xah.navigation.model.dest.Destination
@@ -36,12 +35,18 @@ import com.xah.navigation.util.LocalNavDependencies
 @Composable
 fun rememberNavController(
     startDestination : Destination,
-    defaultTransitionEffect: TransitionEffect = DefaultTransitionEffect(rememberDefaultPageEffects()),
+    sharedTransitionEffect: TransitionEffect = ScaleTransitionEffect(rememberScalePageEffects())
 ): NavigationController {
     val scope = rememberCoroutineScope()
     val navViewModel: NavigationViewModel = viewModel(factory = NavigationViewModel.Factory())
     val navController = remember(navViewModel) {
-        NavigationController(scope, startDestination, navViewModel.stack,defaultTransitionEffect,null)
+        NavigationController(
+            scope,
+            startDestination,
+            navViewModel.stack,
+            sharedTransitionEffect,
+            null
+        )
     }
     return navController
 }
@@ -233,7 +238,7 @@ private fun NavHost(
                             SharedContent(
                                 key = entry.destination.key,
                             ) {
-                                val needDisplaySplashScreen = entry.destination.enforcePlaceHolder || (navController.enableSplashScreen && navController.transitionLevel != EffectLevel.NONE)
+                                val needDisplaySplashScreen = entry.destination.enforcePlaceHolder || (navController.enableSplashScreen)
                                 // NONE等级动效不需要遮罩
                                 val enableSplashScreen = needDisplaySplashScreen && entry.destination.PlaceHolder != null
                                 // 动画过程中且为前景

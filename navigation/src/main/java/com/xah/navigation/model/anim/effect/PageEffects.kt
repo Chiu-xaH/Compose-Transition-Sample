@@ -1,9 +1,8 @@
 package com.xah.navigation.model.anim.effect
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.lerp
+import com.xah.navigation.anim.effect.DefaultLevelNoneTransitionEffect
 import com.xah.navigation.model.anim.EffectLevel
 
 @Immutable
@@ -13,52 +12,40 @@ open class PageEffects(
 ) {
 
     /**
-     * 动画分级，自定义效果时可重写
+     * 动画分级，自定义效果时可重写，无需处理NONE的情况
      */
     open fun background(progress : Float,level: EffectLevel) =
         backgroundEffect
             .lerp(progress)
             .let {
                 when(level) {
-                    EffectLevel.FULL -> {
-                        it
-                    }
-                    EffectLevel.NO_BLUR -> {
+                    EffectLevel.MEDIUM -> {
                         it.copy(blur = 0.dp)
                     }
-                    EffectLevel.NO_SCALE -> {
+                    EffectLevel.LOW -> {
                         it.copy(blur = 0.dp, scale = 1f)
                     }
-                    EffectLevel.NONE -> {
-                        it.copy(blur = 0.dp, scale = 1f)
+                    else -> {
+                        it
                     }
                 }
             }
 
     /**
-     * 动画分级，自定义效果时可重写
+     * 动画分级，自定义效果时可重写，无需处理NONE的情况
      */
     open fun foreground(progress : Float,level: EffectLevel) =
         foregroundEffect
             .let {
                 when(level) {
-                    EffectLevel.FULL -> {
+                    EffectLevel.MEDIUM -> {
+                        it.lerp(progress).copy(blur = 0.dp)
+                    }
+                    EffectLevel.LOW -> {
+                        it.lerp(progress).copy(blur = 0.dp)
+                    }
+                    else -> {
                         it.lerp(progress)
-                    }
-                    EffectLevel.NO_BLUR -> {
-                        it.lerp(progress).copy(blur = 0.dp)
-                    }
-                    EffectLevel.NO_SCALE -> {
-                        it.lerp(progress).copy(blur = 0.dp)
-                    }
-                    EffectLevel.NONE -> {
-                        PageEffectFrame(
-                            scale = lerp(backgroundEffect.effect.scale.end, 1f, progress),
-                            blur = 0.dp,
-                            mask = lerp(it.effect.mask.start, it.effect.mask.end, progress),
-                            corner = it.effect.corner.end,
-                            alpha = lerp(0f, 1f, progress),
-                        )
                     }
                 }
             }

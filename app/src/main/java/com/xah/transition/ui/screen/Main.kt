@@ -77,11 +77,13 @@ import com.xah.container.component.base.SharedContainer
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.floating.util.LocalFloatingController
-import com.xah.navigation.anim.effect.FlipTransitionEffect
+import com.xah.navigation.anim.effect.PushTransitionEffect
 import com.xah.navigation.anim.effect.IslandTransitionEffect
 import com.xah.navigation.anim.effect.JumpTransitionEffect
 import com.xah.navigation.anim.effect.ScaleTransitionEffect
+import com.xah.navigation.anim.effect.TinyScaleTransitionEffect
 import com.xah.navigation.anim.effect.SlideTransitionEffect
+import com.xah.navigation.anim.effect.rememberScalePageEffects
 import com.xah.navigation.component.SharedNavHost
 import com.xah.navigation.component.rememberNavController
 import com.xah.navigation.model.action.ActionType
@@ -117,7 +119,6 @@ import com.xah.transition.ui.util.PermissionSet.checkAndRequestStoragePermission
 import com.xah.transition.ui.util.UiHolder
 import com.xah.transition.util.Starter
 import com.xah.transition.util.roundOffString
-import kotlin.math.roundToInt
 
 private fun Modifier.blur(enableBlur : Boolean,radius : Dp) : Modifier {
     return if(enableBlur) {
@@ -151,21 +152,23 @@ private fun Modifier.backgroundEffect(
 fun Main(
     firstPage : Destination? = null
 ) {
-    val navigationController = rememberNavController(firstPage ?: HomeDestination)
+    val navigationController = rememberNavController(
+        firstPage ?: HomeDestination,
+    )
     val inHomeDest = navigationController.currentDestination == navigationController.startDestination || navigationController.transitionEntry?.to?.destination == navigationController.startDestination || navigationController.transitionEntry?.from?.destination == navigationController.startDestination
     val displayWallpaper = UiHolder.imageBitmap != null
     Box(modifier = Modifier.fillMaxSize()) {
        if(UiHolder.enableWallpaper && displayWallpaper && inHomeDest) {
            val progress = navigationController.transitionProgress.value
            val blurRadius = when(navigationController.transitionLevel) {
-               EffectLevel.FULL -> lerp(navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.effect.blur.start,navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.effect.blur.end,progress)
-               else -> navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.effect.blur.start
+               EffectLevel.HIGH -> lerp(navigationController.sharedTransitionEffect.pageEffect.backgroundEffect.effect.blur.start,navigationController.sharedTransitionEffect.pageEffect.backgroundEffect.effect.blur.end,progress)
+               else -> navigationController.sharedTransitionEffect.pageEffect.backgroundEffect.effect.blur.start
            }
            val scale = when(navigationController.transitionLevel) {
-               EffectLevel.NO_BLUR -> lerp(navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.effect.scale.start,2 - navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.effect.scale.end,progress)
-               EffectLevel.FULL -> lerp(navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.effect.scale.start,2 - navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.effect.scale.end,progress)
-               EffectLevel.NO_SCALE -> navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.effect.scale.start
-               EffectLevel.NONE -> navigationController.defaultTransitionEffect.pageEffect.backgroundEffect.effect.scale.start
+               EffectLevel.MEDIUM -> lerp(navigationController.sharedTransitionEffect.pageEffect.backgroundEffect.effect.scale.start,2 - navigationController.sharedTransitionEffect.pageEffect.backgroundEffect.effect.scale.end,progress)
+               EffectLevel.HIGH -> lerp(navigationController.sharedTransitionEffect.pageEffect.backgroundEffect.effect.scale.start,2 - navigationController.sharedTransitionEffect.pageEffect.backgroundEffect.effect.scale.end,progress)
+               EffectLevel.LOW -> navigationController.sharedTransitionEffect.pageEffect.backgroundEffect.effect.scale.start
+               EffectLevel.NONE -> navigationController.sharedTransitionEffect.pageEffect.backgroundEffect.effect.scale.start
            }
 
            Image(
@@ -223,6 +226,15 @@ fun HomeScreen() {
             Pair(ContainerFilledStrategy.Clip,"裁切"),
             Pair(ContainerFilledStrategy.Stretch,"拉伸"),
             Pair(ContainerFilledStrategy.Color(Color.Black),"色彩"),
+        )
+    }
+    val defaultEffect = ScaleTransitionEffect(rememberScalePageEffects())
+    val effectList = remember(defaultEffect) {
+        listOf(
+            Pair(defaultEffect,"默认"),
+            Pair(TinyScaleTransitionEffect(false,true),"缩放"),
+            Pair(PushTransitionEffect(),"推入"),
+            Pair(SlideTransitionEffect(),"上推"),
         )
     }
     val activity = LocalActivity.current
@@ -390,7 +402,7 @@ fun HomeScreen() {
                                 TransplantListItem(
                                     headlineContent = { Text("翻页动效") },
                                     modifier = Modifier.clickable {
-                                        navController.push(dest, effect = FlipTransitionEffect())
+                                        navController.push(dest, effect = PushTransitionEffect())
                                     }
                                 )
                             }
@@ -404,9 +416,9 @@ fun HomeScreen() {
                                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                             ) {
                                 TransplantListItem(
-                                    headlineContent = { Text("缩放动效1") },
+                                    headlineContent = { Text("从外缩放动效") },
                                     modifier = Modifier.clickable {
-                                        navController.push(dest, effect = ScaleTransitionEffect(reservedFgScale = true, reservedBgScale = false))
+                                        navController.push(dest, effect = TinyScaleTransitionEffect(reservedFgScale = true, reservedBgScale = false))
                                     }
                                 )
                             }
@@ -420,9 +432,9 @@ fun HomeScreen() {
                                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                             ) {
                                 TransplantListItem(
-                                    headlineContent = { Text("缩放动效2") },
+                                    headlineContent = { Text("从内缩放动效") },
                                     modifier = Modifier.clickable {
-                                        navController.push(dest, effect = ScaleTransitionEffect(reservedFgScale = false, reservedBgScale = true))
+                                        navController.push(dest, effect = TinyScaleTransitionEffect(reservedFgScale = false, reservedBgScale = true))
                                     }
                                 )
                             }
@@ -643,6 +655,30 @@ fun HomeScreen() {
                                 },
                                 modifier = Modifier.clickable {
                                     registry.enabled = !registry.enabled
+                                },
+                            )
+                        }
+                    }
+                    items(effectList.size, key = { effectList[it].second }) { index ->
+                        val item = effectList[index]
+                        val selected = navController.defaultTransitionEffect == item.first
+
+                        val color = if(selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer
+
+                        Surface(
+                            color = color,
+                            shape = MaterialTheme.shapes.small,
+                            modifier = Modifier.padding(CARD_NORMAL_DP*2)
+                        ) {
+                            TransplantListItem(
+                                headlineContent = {
+                                    Text(item.second, color = contentColorFor(color))
+                                },
+                                overlineContent = {
+                                    Text("非容器共享时的动效", color = contentColorFor(color))
+                                },
+                                modifier = Modifier.clickable {
+                                    navController.defaultTransitionEffect = item.first
                                 },
                             )
                         }
@@ -1090,7 +1126,7 @@ fun SecondScreen() {
                         CustomCard(
                             color = cardNormalColor(),
                             modifier = Modifier.clickable {
-                                navController.push(ThirdDestination, launchMode = LaunchMode.Replace())
+                                navController.push(ThirdDestination)
                             }
                         ) {
                             repeat(3) { r ->

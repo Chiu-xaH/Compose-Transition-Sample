@@ -29,26 +29,26 @@ import com.xah.navigation.model.anim.TransitionEffect
  * 参数：位移程度、压暗程度
  * 预测式返回手势阈值：0.8f
  */
-data class FlipTransitionEffect(
+data class PushTransitionEffect(
     val clip : Boolean = true,
-    override val pageEffect : PageEffects = FlipPageEffects(clip),
+    override val pageEffect : PageEffects = PushPageEffects(clip),
     override val predictiveMinValue: Float = 0.8f,
     override val pushAnimation: AnimationSpec<Float> = tween(450, easing = NavigationController.DEFAULT_EASING),
     override val popAnimation: AnimationSpec<Float> = tween(450, easing = NavigationController.DEFAULT_EASING)
 ) : TransitionEffect
 
 @Composable
-fun rememberFlipPageEffects(clip : Boolean = true): PageEffects {
+fun rememberPushPageEffects(clip : Boolean = true): PageEffects {
     val view = LocalView.current
     val corner = ScreenCornerHelper(view).getCornerDp()
     return remember(corner,clip) {
-        FlipPageEffects(corner,clip)
+        PushPageEffects(corner,clip)
     }
 }
 
-fun FlipPageEffects(clip : Boolean = true) = FlipPageEffects(ScreenCornerHelper.corner,clip)
+fun PushPageEffects(clip : Boolean = true) = PushPageEffects(ScreenCornerHelper.corner,clip)
 
-private fun FlipPageEffects(corner : Dp,clip : Boolean) : PageEffects {
+private fun PushPageEffects(corner : Dp, clip : Boolean) : PageEffects {
     return PageEffects(
         backgroundEffect = BackgroundPageEffectState(
             enableMirror = true,
