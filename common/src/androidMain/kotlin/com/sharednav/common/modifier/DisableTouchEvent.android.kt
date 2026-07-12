@@ -1,18 +1,10 @@
 package com.sharednav.common.modifier
 
-import android.view.MotionEvent
 import androidx.compose.ui.Modifier
+import android.view.MotionEvent
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 
-/**
- * 只能拦截点击事件
- */
-fun Modifier.touchEvent(enable : Boolean,intercept : Boolean = true,onDisabledClick : (() -> Unit)? = null)  = if(enable) this else this.disableTouchEvent(intercept,onDisabledClick)
-
-/**
- * 只能拦截点击事件
- */
-fun Modifier.disableTouchEvent(intercept : Boolean = true,onDisabledClick : (() -> Unit)? = null)  = this.pointerInteropFilter { event ->
+actual fun Modifier.disableTouchEvent(intercept : Boolean,onDisabledClick : (() -> Unit)?) = this.pointerInteropFilter { event ->
     if(intercept) {
         // 点击onDisabledClick
         when (event.action) {

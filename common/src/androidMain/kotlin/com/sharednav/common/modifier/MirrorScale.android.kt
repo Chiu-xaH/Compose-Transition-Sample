@@ -16,7 +16,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import org.intellij.lang.annotations.Language
 
-fun Modifier.scaleMirror(
+actual fun Modifier.scaleMirror(
     scale: Float,
     enabled : Boolean,
 ): Modifier =
@@ -53,33 +53,6 @@ fun Modifier.scaleMirror(
                 }
         }
     }
-
-/*
-@Language("agsl")
-private const val SHADER_CODE = """
-    uniform shader content;
-    uniform float2 size;   // 原始画面宽高
-    uniform float scale;   // 缩放比例，
-        
-    half4 main(float2 fragCoord) {
-        float2 center = size * 0.5;
-        float2 offset = fragCoord - center;
-        
-        // 缩放
-        float2 scaled = offset / scale;
-        float2 sampleCoord = center + scaled;
-        
-        // 镜面反射逻辑
-        if(sampleCoord.x < 0.0) sampleCoord.x = -sampleCoord.x;
-        if(sampleCoord.x > size.x) sampleCoord.x = 2.0*size.x - sampleCoord.x;
-        
-        if(sampleCoord.y < 0.0) sampleCoord.y = -sampleCoord.y;
-        if(sampleCoord.y > size.y) sampleCoord.y = 2.0*size.y - sampleCoord.y;
-        
-        return content.eval(sampleCoord);
-    }
-"""
- */
 
 // 改进版 by Claude，无缝隙
 @Language("agsl")
@@ -118,3 +91,29 @@ private const val SHADER_CODE = """
     }
 """
 
+/*
+@Language("agsl")
+private const val SHADER_CODE = """
+    uniform shader content;
+    uniform float2 size;   // 原始画面宽高
+    uniform float scale;   // 缩放比例，
+
+    half4 main(float2 fragCoord) {
+        float2 center = size * 0.5;
+        float2 offset = fragCoord - center;
+
+        // 缩放
+        float2 scaled = offset / scale;
+        float2 sampleCoord = center + scaled;
+
+        // 镜面反射逻辑
+        if(sampleCoord.x < 0.0) sampleCoord.x = -sampleCoord.x;
+        if(sampleCoord.x > size.x) sampleCoord.x = 2.0*size.x - sampleCoord.x;
+
+        if(sampleCoord.y < 0.0) sampleCoord.y = -sampleCoord.y;
+        if(sampleCoord.y > size.y) sampleCoord.y = 2.0*size.y - sampleCoord.y;
+
+        return content.eval(sampleCoord);
+    }
+"""
+ */

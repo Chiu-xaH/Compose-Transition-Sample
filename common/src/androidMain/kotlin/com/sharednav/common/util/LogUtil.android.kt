@@ -3,8 +3,9 @@ package com.sharednav.common.util
 import android.util.Log
 import com.xah.sharednav.common.BuildConfig
 
-object LogUtil {
-    private var tag: String = this::class.java.name
+
+actual object LogUtil {
+    private var tag: String = "SharedNav"
     // 找到后为stackIndex赋值，以后再用就不用遍历了
     private var stackIndex : Int? = null
 
@@ -17,7 +18,7 @@ object LogUtil {
         ERROR(4)
     }
 
-    fun init(tagName : String,debug : Boolean = BuildConfig.DEBUG) {
+    actual fun init(tagName : String, debug : Boolean) {
         tag = tagName
         if(debug) {
             minLevel = Level.VERBOSE
@@ -28,12 +29,12 @@ object LogUtil {
 
     private var minLevel: Level = if (BuildConfig.DEBUG) Level.VERBOSE else Level.WARN
 
-    fun verbose(msg : String = "") = baseLog(Level.VERBOSE,msg)
-    fun info(msg : String = "") = baseLog(Level.INFO,msg)
-    fun debug(msg : String = "") = baseLog(Level.DEBUG,msg)
-    fun warn(msg : String = "") = baseLog(Level.WARN,msg)
-    fun error(throwable: Throwable,msg : String = "") = baseLog(Level.ERROR,msg,throwable)
-    fun error(msg : String = "") = baseLog(Level.ERROR,msg)
+    actual fun verbose(msg : String) = baseLog(Level.VERBOSE,msg)
+    actual fun info(msg : String) = baseLog(Level.INFO,msg)
+    actual fun debug(msg : String) = baseLog(Level.DEBUG,msg)
+    actual fun warn(msg : String) = baseLog(Level.WARN,msg)
+    actual fun error(throwable: Throwable,msg : String) = baseLog(Level.ERROR,msg,throwable)
+    actual fun error(msg : String) = baseLog(Level.ERROR,msg)
 
     private fun findCaller(): StackTraceElement? {
         val stack = Thread.currentThread().stackTrace
