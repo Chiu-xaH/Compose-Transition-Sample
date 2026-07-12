@@ -1,7 +1,7 @@
 package com.xah.container.model
 
+import com.sharednav.common.util.EnableHelper
 import com.xah.container.controller.SharedRegistry
-import com.xah.container.util.canShader
 
 sealed interface ContainerFilledStrategy {
     /**
@@ -39,7 +39,7 @@ sealed interface ContainerFilledStrategy {
             ?:
             when(this) {
                 is Pixel -> {
-                    if(sharedRegistry.enableShader && canShader) {
+                    if(sharedRegistry.enableShader && EnableHelper.canShader) {
                         this
                     } else {
                         this.spareStrategy

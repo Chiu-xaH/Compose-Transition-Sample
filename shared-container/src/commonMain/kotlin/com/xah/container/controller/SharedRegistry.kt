@@ -16,6 +16,7 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import com.sharednav.common.helper.AnimationSpecManager
+import com.sharednav.common.util.EnableHelper
 import com.sharednav.common.util.LogUtil
 import com.sharednav.common.util.PredictiveUtil
 import com.xah.container.anim.LinearRectInterpolator
@@ -26,7 +27,6 @@ import com.xah.container.model.ContentStrategy
 import com.xah.container.model.SharedContainerState
 import com.xah.container.model.SpeedUpRadio
 import com.xah.container.model.StatePause
-import com.xah.container.util.canShader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.filter
@@ -48,7 +48,7 @@ class SharedRegistry(
         states.values.any { it.currentState == StatePause.MEASURING_CONTAINER || it.currentState == StatePause.MEASURING_CONTENT }
     }
 
-    var enablePredictiveBack by mutableStateOf(canShader)
+    var enablePredictiveBack by mutableStateOf(EnableHelper.canShader)
 
     private fun SharedContainerState.isRunning() = currentState == StatePause.TRANSITING && containerRect != null && contentRect != null
 
@@ -103,7 +103,7 @@ class SharedRegistry(
     // 单边填充or双边填充
     var extensionDouble by mutableStateOf(false)
 
-    var enableShader by mutableStateOf(canShader)
+    var enableShader by mutableStateOf(EnableHelper.canShader)
 
     var quadraticBezierRectInterpolatorVerticalRadio by mutableFloatStateOf(2f)
     var quadraticBezierRectInterpolatorHorizontalRadio by mutableFloatStateOf(3f)

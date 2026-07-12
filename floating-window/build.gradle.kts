@@ -1,8 +1,48 @@
+import org.gradle.kotlin.dsl.implementation
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.compose.multiplatform)
+    alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.compose)
-    id("maven-publish")
+//    id("maven-publish")
+}
+
+configurations.all {
+    resolutionStrategy {
+        force(
+            "org.jetbrains.compose.foundation:foundation:1.11.0",
+            "org.jetbrains.compose.foundation:foundation-desktop:1.11.0"
+        )
+    }
+}
+
+kotlin {
+    androidTarget {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+        }
+    }
+
+    jvm()
+
+    sourceSets {
+        commonMain.dependencies {
+            implementation(compose.material3)
+            implementation(libs.lifecycle.viewmodel)
+            implementation(libs.lifecycle.viewmodel.compose)
+            api(project(":common"))
+            api(project(":shared-container"))
+        }
+        androidMain.dependencies {
+            implementation(libs.accompanist.systemuicontroller)
+            implementation(libs.androidx.activity.compose)
+        }
+        jvmMain.dependencies {
+
+        }
+    }
 }
 
 android {
@@ -26,27 +66,13 @@ android {
         }
     }
     buildFeatures {
-        compose = true
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
 }
-
-dependencies {
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.material3)
-    implementation(libs.accompanist.systemuicontroller)
-    api(project(":common"))
-    api(project(":shared-container"))
-}
-
+/*
 afterEvaluate {
     publishing {
         publications {
@@ -59,3 +85,4 @@ afterEvaluate {
         }
     }
 }
+ */

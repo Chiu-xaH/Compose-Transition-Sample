@@ -92,6 +92,7 @@ import com.xah.navigation.model.anim.EffectLevel
 import com.xah.navigation.model.anim.effect.sub.Rotation
 import com.xah.navigation.model.dest.Destination
 import com.xah.navigation.util.LocalNavController
+import com.xah.navigation.util.PlatformContext
 import com.xah.transition.R
 import com.xah.transition.model.AppIconBean
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
@@ -455,7 +456,7 @@ fun HomeScreen() {
                                     modifier = Modifier.clickable {
                                         navController.push(
                                             dest,
-                                            effect = JumpTransitionEffect(context)
+                                            effect = JumpTransitionEffect(PlatformContext(context))
                                         )
                                     }
                                 )
