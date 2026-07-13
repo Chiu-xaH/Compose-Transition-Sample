@@ -26,6 +26,10 @@ kotlin {
 
     jvm()
 
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+
     sourceSets {
         commonMain.dependencies {
             implementation(compose.material3)
@@ -34,6 +38,9 @@ kotlin {
             implementation(libs.androidx.activity.compose)
         }
         jvmMain.dependencies {
+
+        }
+        iosMain.dependencies {
 
         }
     }
