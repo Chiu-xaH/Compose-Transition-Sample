@@ -1,4 +1,4 @@
-package com.sharednav.common.util
+package com.sharednav.common.helper
 
 expect object EnableHelper {
     val canShader : Boolean

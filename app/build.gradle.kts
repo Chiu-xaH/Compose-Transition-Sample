@@ -18,6 +18,16 @@ kotlin {
 
     jvm()
 
+    listOf(
+        iosArm64(),
+        iosSimulatorArm64()
+    ).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "SharedNav"
+            isStatic = true
+        }
+    }
+
     sourceSets {
 
         commonMain.dependencies {
@@ -39,6 +49,9 @@ kotlin {
 
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
+        }
+        iosMain.dependencies {
+
         }
     }
 }

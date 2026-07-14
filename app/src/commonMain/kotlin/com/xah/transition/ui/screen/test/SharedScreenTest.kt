@@ -27,7 +27,7 @@ import com.xah.container.component.base.SharedContainer
 import com.xah.container.component.base.SharedContent
 import com.xah.container.component.overlay.SharedContainerRoot
 import com.xah.container.util.LocalSharedRegistry
-import com.sharednav.common.util.NoneRoundShape
+import com.sharednav.common.helper.NoneRoundShape
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CARD_NORMAL_DP
 import com.xah.transition.ui.component.SmallCard

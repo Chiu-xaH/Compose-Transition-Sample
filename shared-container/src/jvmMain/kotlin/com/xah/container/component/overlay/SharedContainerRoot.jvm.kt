@@ -8,9 +8,3 @@ import com.xah.container.controller.SharedRegistry
 @Composable
 actual fun ScreenCornerInit() {
 }
-
-@Composable
-actual fun QuadraticBezierRectInterpolatorInit(
-    registry : SharedRegistry
-) {
-}

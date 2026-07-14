@@ -1,5 +1,4 @@
-package com.sharednav.common.util
-
+package com.sharednav.common.helper
 
 actual object EnableHelper {
     actual val canShader: Boolean = false

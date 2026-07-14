@@ -12,8 +12,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.geometry.Offset
-import com.sharednav.common.helper.AnimationSpecManager
-import com.sharednav.common.util.EnableHelper
+import com.sharednav.common.manager.AnimationSpecManager
+import com.sharednav.common.helper.EnableHelper
 import com.sharednav.common.util.LogUtil
 import com.sharednav.common.util.PredictiveUtil
 import com.xah.container.controller.SharedRegistry
@@ -47,7 +47,7 @@ class NavigationController(
     var isTransitioning by mutableStateOf(false)
         private set
 
-    var transitionLevel by mutableStateOf(EffectLevel.HIGH)
+    var transitionLevel by mutableStateOf(EffectLevel.LOW)
     var levelNoneTransitionEffect by mutableStateOf(DefaultLevelNoneTransitionEffect)
     var defaultTransitionEffect by mutableStateOf(sharedTransitionEffect)
 

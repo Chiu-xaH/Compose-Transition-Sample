@@ -19,14 +19,10 @@ object DeepLinkRegistry {
         val deepLink = parsers[path]
         if(deepLink == null) {
             LogUtil.error("Unfound deeplink: $uri")
-        } else {
-            LogUtil.debug("Found deeplink: $uri")
         }
         val result = deepLink?.parse(uri)
         if(result == null) {
             LogUtil.error("Unparsed deeplink: $uri")
-        } else {
-            LogUtil.debug("Parsed deeplink: ${result.javaClass.simpleName}")
         }
         return result
     }

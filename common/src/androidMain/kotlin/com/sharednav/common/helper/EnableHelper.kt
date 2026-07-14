@@ -1,4 +1,4 @@
-package com.sharednav.common.util
+package com.sharednav.common.helper
 
 import android.os.Build
 

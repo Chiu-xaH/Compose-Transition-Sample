@@ -34,7 +34,7 @@ import com.xah.container.component.base.SharedContainer
 import com.xah.container.component.base.SharedContent
 import com.xah.container.model.ContentStrategy
 import com.xah.container.util.LocalSharedRegistry
-import com.sharednav.common.util.NoneRoundShape
+import com.sharednav.common.helper.NoneRoundShape
 
 val ANIMATION_SPEED = 400
 val DIVIDER_TEXT_VERTICAL_PADDING = 9.dp

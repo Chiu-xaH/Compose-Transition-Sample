@@ -12,8 +12,8 @@ plugins {
 configurations.all {
     resolutionStrategy {
         force(
-            "org.jetbrains.compose.foundation:foundation:1.11.0",
-            "org.jetbrains.compose.foundation:foundation-desktop:1.11.0"
+            "org.jetbrains.compose.foundation:foundation:${libs.versions.composeMultiplatform.get()}",
+            "org.jetbrains.compose.foundation:foundation-desktop:${libs.versions.composeMultiplatform.get()}"
         )
     }
 }

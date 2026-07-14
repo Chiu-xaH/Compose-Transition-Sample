@@ -4,7 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
-import com.sharednav.common.util.EnableHelper
+import com.sharednav.common.helper.EnableHelper
 
 object UiHolder {
     var imageBitmap by mutableStateOf<ImageBitmap?>(null)

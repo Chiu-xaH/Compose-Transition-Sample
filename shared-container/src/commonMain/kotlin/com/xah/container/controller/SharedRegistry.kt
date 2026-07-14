@@ -15,8 +15,8 @@ import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import com.sharednav.common.helper.AnimationSpecManager
-import com.sharednav.common.util.EnableHelper
+import com.sharednav.common.manager.AnimationSpecManager
+import com.sharednav.common.helper.EnableHelper
 import com.sharednav.common.util.LogUtil
 import com.sharednav.common.util.PredictiveUtil
 import com.xah.container.anim.LinearRectInterpolator

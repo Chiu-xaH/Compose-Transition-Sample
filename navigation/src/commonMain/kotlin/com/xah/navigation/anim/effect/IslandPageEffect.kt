@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.sharednav.common.helper.AnimationSpecManager
+import com.sharednav.common.manager.AnimationSpecManager
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.model.anim.TransitionEffect

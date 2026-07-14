@@ -62,9 +62,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
-import com.sharednav.common.helper.AnimationSpecManager
+import com.sharednav.common.manager.AnimationSpecManager
 import com.sharednav.common.helper.ScreenCornerHelper
-import com.sharednav.common.util.NoneRoundShape
+import com.sharednav.common.helper.NoneRoundShape
 import com.xah.container.component.base.SharedContainer
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.util.LocalSharedRegistry

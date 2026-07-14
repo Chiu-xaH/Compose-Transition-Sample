@@ -4,7 +4,7 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.unit.dp
-import com.sharednav.common.util.NoneRoundShape
+import com.sharednav.common.helper.NoneRoundShape
 import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.model.anim.TransitionEffect
 import com.xah.navigation.model.anim.effect.BackgroundPageEffectState

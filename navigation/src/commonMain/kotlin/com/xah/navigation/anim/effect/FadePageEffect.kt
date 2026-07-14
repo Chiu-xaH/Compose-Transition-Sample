@@ -2,7 +2,7 @@ package com.xah.navigation.anim.effect
 
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.tween
-import com.sharednav.common.util.NoneRoundShape
+import com.sharednav.common.helper.NoneRoundShape
 import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.model.anim.TransitionEffect
 import com.xah.navigation.model.anim.effect.BackgroundPageEffectState

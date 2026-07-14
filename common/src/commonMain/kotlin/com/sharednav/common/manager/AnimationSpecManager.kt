@@ -1,4 +1,4 @@
-package com.sharednav.common.helper
+package com.sharednav.common.manager
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf

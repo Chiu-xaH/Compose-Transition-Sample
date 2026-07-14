@@ -146,7 +146,7 @@ private fun SliderItem2(
     onChange: (Float) -> Unit
 ) {
     Column {
-        Text("$label: ${"%.2f".format(value)}")
+        Text("$label: ${(value)}")
         Slider(
             value = value,
             onValueChange = onChange,
@@ -161,7 +161,7 @@ private fun SliderItem(
     onChange: (Float) -> Unit
 ) {
     Column {
-        Text("$label: ${"%.2f".format(value)}", modifier = Modifier.padding(horizontal = APP_HORIZONTAL_DP))
+        Text("$label: ${(value)}", modifier = Modifier.padding(horizontal = APP_HORIZONTAL_DP))
         CustomSlider(
             value = value,
             onValueChange = onChange,

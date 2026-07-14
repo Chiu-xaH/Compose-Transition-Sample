@@ -9,7 +9,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.geometry.Offset
-import com.sharednav.common.util.EnableHelper
+import com.sharednav.common.helper.EnableHelper
+import com.sharednav.common.helper.randomUUID
 import com.xah.container.controller.SharedRegistry
 import com.xah.container.model.SharedContainerState
 import com.xah.floating.anim.DefaultBackgroundEffect
@@ -21,7 +22,6 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.util.UUID
 import kotlin.math.pow
 
 class FloatingController(
@@ -50,7 +50,7 @@ class FloatingController(
     private fun pushInternal(window: Window) {
         scope.launch(start = CoroutineStart.UNDISPATCHED) {
             val entry = WindowEntry(
-                id = UUID.randomUUID().toString(),
+                id = randomUUID(),
                 window = window,
             )
             // 检查是否栈顶已有相同的window

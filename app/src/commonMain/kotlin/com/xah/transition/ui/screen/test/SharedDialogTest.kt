@@ -21,7 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.sharednav.common.util.NoneRoundShape
+import com.sharednav.common.helper.NoneRoundShape
 import com.xah.container.component.base.SharedContainer
 import com.xah.container.component.base.SharedContent
 import com.xah.container.component.overlay.SharedContainerRoot

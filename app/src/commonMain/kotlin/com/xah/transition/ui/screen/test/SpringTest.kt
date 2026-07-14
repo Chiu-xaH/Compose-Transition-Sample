@@ -85,7 +85,7 @@ private fun SpringTestContent() {
         ) {
 
             Text(
-                text = "DampingRatio: ${"%.2f".format(damping)}",
+                text = "DampingRatio: ${(damping)}",
                 modifier = Modifier.padding(APP_HORIZONTAL_DP),
                 style = MaterialTheme.typography.bodyMedium
             )

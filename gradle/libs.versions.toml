@@ -13,7 +13,7 @@ accompanistSystemuicontroller = "0.31.0-alpha"
 maxAndroidVersion = "36"
 minAndroidVersion = "24"
 graphicsShapes = "1.1.0"
-composeMultiplatform = "1.11.0"
+composeMultiplatform = "1.10.0"
 
 [libraries]
 androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel" }

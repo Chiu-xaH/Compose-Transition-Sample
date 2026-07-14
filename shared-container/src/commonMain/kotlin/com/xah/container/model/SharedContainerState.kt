@@ -10,7 +10,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import com.sharednav.common.helper.ScreenCornerHelper
-import com.sharednav.common.util.NoneRoundShape
+import com.sharednav.common.helper.NoneRoundShape
 
 class SharedContainerState(
     val key : String
