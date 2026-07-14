@@ -3,8 +3,8 @@ package com.xah.transition.util
 import android.app.Activity
 import android.content.Intent
 import androidx.core.net.toUri
+import com.sharednav.common.kmp.PlatformContext
 import com.sharednav.common.util.LogUtil
-import com.xah.navigation.util.PlatformContext
 import com.xah.transition.util.ToastUtil.showToast
 
 actual object Starter {

@@ -1,6 +1,6 @@
 package com.xah.transition.util
 
-import com.xah.navigation.util.PlatformContext
+import com.sharednav.common.kmp.PlatformContext
 
 actual object Starter {
     @JvmStatic

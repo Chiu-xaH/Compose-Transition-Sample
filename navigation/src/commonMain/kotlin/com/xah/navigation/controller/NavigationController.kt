@@ -47,7 +47,7 @@ class NavigationController(
     var isTransitioning by mutableStateOf(false)
         private set
 
-    var transitionLevel by mutableStateOf(EffectLevel.LOW)
+    var transitionLevel by mutableStateOf(EffectLevel.HIGH)
     var levelNoneTransitionEffect by mutableStateOf(DefaultLevelNoneTransitionEffect)
     var defaultTransitionEffect by mutableStateOf(sharedTransitionEffect)
 

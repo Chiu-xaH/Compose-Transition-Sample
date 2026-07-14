@@ -33,6 +33,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(compose.material3)
+            implementation(project(":shader"))
         }
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)

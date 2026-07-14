@@ -1,16 +1,16 @@
 package com.xah.container.util
 
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.layer.GraphicsLayer
+import androidx.compose.ui.graphics.layer.drawLayer
+import com.sharednav.common.helper.EnableHelper
 import com.xah.container.model.ExtensionDirection
-
-
-expect fun Modifier.pixelExtension(
-    parentGraphicsLayer: GraphicsLayer,
-    parentRect: Rect?,
-    direction : ExtensionDirection
-): Modifier
+import com.xah.shader.RuntimeShader
+import com.xah.shader.RuntimeShaderEffect
 
 /**
  * @param isLandscape 是否是横屏，为true则取右侧1像素，否则取底部1像素
@@ -38,3 +38,117 @@ fun Modifier.pixelExtension(
         }
     }
 )
+
+fun Modifier.pixelExtension(
+    parentGraphicsLayer: GraphicsLayer,
+    parentRect: Rect?,
+    direction: ExtensionDirection
+): Modifier {
+    if(parentRect == null) {
+        return this
+    }
+    return composed {
+        if (!EnableHelper.canShader) {
+            this
+        } else {
+            val customRenderEffect = remember(parentRect) {
+                val runtimeShader = RuntimeShader(
+                    when(direction) {
+                        ExtensionDirection.END -> END_SHADER_CODE
+                        ExtensionDirection.TOP -> TOP_SHADER_CODE
+                        ExtensionDirection.START -> START_SHADER_CODE
+                        ExtensionDirection.BOTTOM -> BOTTOM_SHADER_CODE
+                        ExtensionDirection.VERTICAL -> VERTICAL_SHADER_CODE
+                        ExtensionDirection.HORIZONTAL -> HORIZONTAL_SHADER_CODE
+                    }.trimIndent()
+                )
+                runtimeShader.setFloatUniform("size", parentRect.width, parentRect.height)
+
+                RuntimeShaderEffect(runtimeShader, "content")
+            }
+
+            this.drawWithCache {
+                onDrawWithContent {
+                    parentGraphicsLayer.renderEffect = customRenderEffect
+                    drawLayer(parentGraphicsLayer)
+                }
+            }
+        }
+    }
+}
+
+
+
+private const val BOTTOM_SHADER_CODE = """
+    uniform shader content;
+    uniform float2 size;          
+
+    half4 main(float2 fragCoord) {
+        // 采样底部1像素行
+        float2 bottomCoord = float2(fragCoord.x, size.y - 1.0);
+        return content.eval(bottomCoord);
+    }
+"""
+
+private const val END_SHADER_CODE = """
+    uniform shader content;
+    uniform float2 size;          
+
+    half4 main(float2 fragCoord) {
+        // 采样右侧1像素列
+        float2 endCoord = float2(size.x - 1.0, fragCoord.y);
+        return content.eval(endCoord);
+    }
+"""
+
+private const val START_SHADER_CODE = """
+    uniform shader content;
+    uniform float2 size;          
+
+    half4 main(float2 fragCoord) {
+        // 采样左侧1像素行
+        float2 leftCoord = float2(1.0, fragCoord.y);
+        return content.eval(leftCoord);
+    }
+"""
+
+private const val TOP_SHADER_CODE = """
+    uniform shader content;
+    uniform float2 size;          
+
+    half4 main(float2 fragCoord) {
+        // 采样顶部1像素行
+        float2 topCoord = float2(fragCoord.x, 1.0);
+        return content.eval(topCoord);
+    }
+"""
+
+private const val HORIZONTAL_SHADER_CODE = """
+    uniform shader content;
+    uniform float2 size;          
+
+    half4 main(float2 fragCoord) {
+
+        float x = fragCoord.x < size.x * 0.5
+            ? 1.0
+            : size.x - 1.0;
+
+        float2 coord = float2(x, fragCoord.y);
+        return content.eval(coord);
+    }
+"""
+
+private const val VERTICAL_SHADER_CODE = """
+    uniform shader content;
+    uniform float2 size;          
+
+    half4 main(float2 fragCoord) {
+
+        float y = fragCoord.y < size.y * 0.5
+            ? 1.0
+            : size.y - 1.0;
+
+        float2 coord = float2(fragCoord.x, y);
+        return content.eval(coord);
+    }
+"""

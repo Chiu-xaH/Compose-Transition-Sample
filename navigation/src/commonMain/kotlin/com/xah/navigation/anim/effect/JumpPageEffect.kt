@@ -8,6 +8,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import com.sharednav.common.helper.ScreenCornerHelper
+import com.sharednav.common.kmp.PlatformContext
 import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.model.anim.EffectLevel
 import com.xah.navigation.model.anim.TransitionEffect
@@ -17,7 +18,6 @@ import com.xah.navigation.model.anim.effect.ForegroundPageEffectState
 import com.xah.navigation.model.anim.effect.PageEffect
 import com.xah.navigation.model.anim.effect.PageEffects
 import com.xah.navigation.model.anim.effect.sub.BgEffectBackground
-import com.xah.navigation.util.PlatformContext
 import com.xah.navigation.util.getWallpaper
 
 val defaultJumpBackground =  BgEffectBackground.Color(Color.Black)

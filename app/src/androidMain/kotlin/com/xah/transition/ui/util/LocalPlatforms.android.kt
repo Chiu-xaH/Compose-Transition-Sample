@@ -4,7 +4,7 @@ import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
-import com.xah.navigation.util.PlatformContext
+import com.sharednav.common.kmp.PlatformContext
 import com.xah.transition.util.PlatformActivity
 import com.xah.transition.util.PlatformView
 

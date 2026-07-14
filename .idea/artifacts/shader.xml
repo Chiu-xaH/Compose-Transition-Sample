@@ -1,0 +1,6 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="shader">
+    <output-path>$PROJECT_DIR$/shader/build/libs</output-path>
+    <root id="archive" name="shader.jar" />
+  </artifact>
+</component>
