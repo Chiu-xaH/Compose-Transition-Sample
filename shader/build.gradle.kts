@@ -48,7 +48,15 @@ kotlin {
             dependsOn(skiaMain)
         }
 
-        val iosMain by creating {
+        val iosX64Main by getting {
+            dependsOn(skiaMain)
+        }
+
+        val iosArm64Main by getting {
+            dependsOn(skiaMain)
+        }
+        
+        val iosSimulatorArm64Main by getting {
             dependsOn(skiaMain)
         }
 

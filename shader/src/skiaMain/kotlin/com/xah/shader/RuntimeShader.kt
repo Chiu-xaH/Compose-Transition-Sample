@@ -3,12 +3,10 @@ package com.xah.shader
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shader
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
-import org.intellij.lang.annotations.Language
 import org.jetbrains.skia.RuntimeEffect
 import org.jetbrains.skia.RuntimeShaderBuilder
 
 actual fun RuntimeShader(
-    @Language("AGSL")
     shaderString: String
 ): RuntimeShader {
     val shader = RuntimeShaderBuilder(RuntimeEffect.makeForShader(shaderString))
