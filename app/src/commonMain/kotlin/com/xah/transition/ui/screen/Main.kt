@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -62,11 +63,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
+import com.sharednav.common.helper.EnableHelper
 import com.sharednav.common.manager.AnimationSpecManager
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.sharednav.common.helper.NoneRoundShape
 import com.xah.container.component.base.SharedContainer
 import com.xah.container.model.ContainerFilledStrategy
+import com.xah.container.model.TiltEffect
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.floating.util.LocalFloatingController
 import com.xah.navigation.anim.effect.IslandTransitionEffect
@@ -986,20 +989,50 @@ fun HomeScreen() {
                             Column {
                                 TransplantListItem(
                                     headlineContent = {
-                                        Text("倾斜效果")
+                                        Text("容器形变效果")
                                     },
                                     leadingContent = {
                                         Icon(painterResource(Res.drawable.ic_texture),null)
                                     },
-                                    trailingContent = {
-                                        Switch(registry.enableTilt, onCheckedChange = { registry.enableTilt = it })
-                                    },
-                                    modifier = Modifier.clickable {
-                                        registry.enableTilt = !registry.enableTilt
-                                    },
                                 )
-                                if(registry.enableTilt) {
-
+                                Row {
+                                    TiltEffect.entries.forEach { item ->
+                                        val bgColor = if(registry.tiltEffect == item) {
+                                            MaterialTheme.colorScheme.primary
+                                        } else {
+                                            cardNormalColor()
+                                        }
+                                        TransplantListItem(
+                                            headlineContent = {
+                                                Text(
+                                                    when(item) {
+                                                        TiltEffect.NONE -> "无"
+                                                        TiltEffect.SHADER_2 -> "拉伸(单)"
+                                                        TiltEffect.SHADER_4 -> "拉伸(双)"
+                                                        TiltEffect.ROTATION -> "倾斜"
+                                                    }
+                                                    , color = contentColorFor(bgColor)
+                                                )
+                                            },
+                                            overlineContent =
+                                                if(!EnableHelper.canShader) {
+                                                    { Text("Android 13+") }
+                                                } else {
+                                                    null
+                                                },
+                                            modifier = Modifier
+                                                .weight(1/3f)
+                                                .clickable {
+                                                    if(!EnableHelper.canShader) {
+                                                        return@clickable
+                                                    }
+                                                    registry.tiltEffect = item
+                                                },
+                                            colors = bgColor
+                                        )
+                                    }
+                                }
+                                if(registry.tiltEffect != TiltEffect.NONE) {
                                     var valueTiltMaxValue by remember { mutableFloatStateOf(registry.tiltMaxValue) }
                                     val valueTiltMaxValueText = remember(valueTiltMaxValue) { valueTiltMaxValue.roundOffString(2) }
 

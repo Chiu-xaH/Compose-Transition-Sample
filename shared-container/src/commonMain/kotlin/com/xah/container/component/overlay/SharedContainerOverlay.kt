@@ -21,8 +21,10 @@ import com.sharednav.common.util.lerp
 import com.xah.container.anim.LinearRectInterpolator
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.model.ContentStrategy
+import com.xah.container.model.TiltEffect
 import com.xah.container.util.LocalSharedRegistry
-import com.xah.container.util.pixelExtension
+import com.xah.container.util.shader.genieWarpEffect
+import com.xah.container.util.shader.pixelExtension
 import kotlin.math.abs
 import kotlin.math.sign
 
@@ -83,7 +85,7 @@ fun SharedContainerOverlay() {
 
             // 倾斜计算
             val maxTilt = registry.tiltMaxValue
-            val actuallyUseTilt = registry.enableTilt && maxTilt > 0
+            val actuallyUseTilt = (registry.tiltEffect != TiltEffect.NONE) && maxTilt > 0
             val (roX, roY) = if (actuallyUseTilt && !useLinear) {
                 val progressOfTilt = (progress * registry.speedUpRadioTilt * if(useContainer) 1f else 2f).coerceIn(0f,1f)
 
@@ -159,8 +161,21 @@ fun SharedContainerOverlay() {
                         translationX = parent.left
                         translationY = parent.top
 
-                        rotationX = roX
-                        rotationY = roY
+                        val is2 = registry.tiltEffect == TiltEffect.SHADER_2
+                        val is4 = registry.tiltEffect == TiltEffect.SHADER_4
+
+                        if(registry.enableShader && (is2 || is4)) {
+                            renderEffect = genieWarpEffect(
+                                roX,
+                                roY,
+                                parent.width,
+                                parent.height,
+                                if(is2) isHorizontal else null,
+                            )
+                        } else {
+                            rotationX = roX
+                            rotationY = roY
+                        }
                     }
                     .size(
                         with(density) { parent.width.toDp() },

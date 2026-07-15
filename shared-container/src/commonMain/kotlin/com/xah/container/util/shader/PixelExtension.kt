@@ -1,4 +1,4 @@
-package com.xah.container.util
+package com.xah.container.util.shader
 
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier

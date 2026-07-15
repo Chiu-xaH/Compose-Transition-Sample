@@ -17,7 +17,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.zIndex
 import com.xah.container.model.ExtensionDirection
-import com.xah.container.util.pixelExtension
+import com.xah.container.util.shader.pixelExtension
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import sharednav.app.generated.resources.Res

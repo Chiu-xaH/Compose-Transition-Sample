@@ -27,6 +27,7 @@ import com.xah.container.model.ContentStrategy
 import com.xah.container.model.SharedContainerState
 import com.xah.container.model.SpeedUpRadio
 import com.xah.container.model.StatePause
+import com.xah.container.model.TiltEffect
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.filter
@@ -96,7 +97,7 @@ class SharedRegistry(
     var quadraticCornerLerpFactor by mutableFloatStateOf(0.5f)
 
     // 倾斜效果
-    var enableTilt by mutableStateOf(true)
+    var tiltEffect by mutableStateOf(TiltEffect.ROTATION)
     // 最大变化值
     var tiltMaxValue by mutableFloatStateOf(17.5f)
 
