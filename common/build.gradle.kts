@@ -76,5 +76,5 @@ android {
         buildConfig = true
     }
 }
-group = libs.versions.libraryPackageName.get()
-version = libs.versions.libraryVersionName.get()
+group = project.findProperty("group") as? String ?: libs.versions.libraryPackageName.get()
+version = project.findProperty("version") as? String ?: libs.versions.libraryVersionName.get()

@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="navigation-jvm-1.0.0-dev07121153">
+    <output-path>$PROJECT_DIR$/navigation/build/libs</output-path>
+    <root id="archive" name="navigation-jvm-1.0.0-dev07121153.jar">
+      <element id="module-output" name="SharedNav.navigation.jvmMain" />
+    </root>
+  </artifact>
+</component>

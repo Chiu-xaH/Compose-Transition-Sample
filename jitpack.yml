@@ -1,2 +1,5 @@
 jdk:
   - openjdk17
+
+install:
+  - ./gradlew :shader:publishToMavenLocal :common:publishToMavenLocal :shared-container:publishToMavenLocal :floating-window:publishToMavenLocal :navigation:publishToMavenLocal -xtest -xlint

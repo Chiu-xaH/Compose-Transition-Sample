@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="shared-container-jvm-1.0.0-dev07171049">
+    <output-path>$PROJECT_DIR$/shared-container/build/libs</output-path>
+    <root id="archive" name="shared-container-jvm-1.0.0-dev07171049.jar">
+      <element id="module-output" name="SharedNav.shared-container.jvmMain" />
+    </root>
+  </artifact>
+</component>

@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="floating-window-jvm-1.0.0-dev07121153">
+    <output-path>$PROJECT_DIR$/floating-window/build/libs</output-path>
+    <root id="archive" name="floating-window-jvm-1.0.0-dev07121153.jar">
+      <element id="module-output" name="SharedNav.floating-window.jvmMain" />
+    </root>
+  </artifact>
+</component>
