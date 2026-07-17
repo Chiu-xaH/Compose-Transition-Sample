@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.compose)
-//    id("maven-publish")
+    id("maven-publish")
 }
 
 configurations.all {
@@ -23,6 +23,7 @@ kotlin {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
         }
+        publishLibraryVariants("release")
     }
 
     jvm()
@@ -79,17 +80,5 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 }
-/*
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-                groupId = libs.versions.libraryPackageName.get()
-                version = libs.versions.libraryVersionName.get()
-                artifactId = "navigation"
-                from(components["release"])
-            }
-        }
-    }
-}
- */
+group = libs.versions.libraryPackageName.get()
+version = libs.versions.libraryVersionName.get()
