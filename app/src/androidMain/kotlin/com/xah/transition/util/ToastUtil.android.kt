@@ -1,0 +1,21 @@
+package com.xah.transition.util
+
+import android.content.Context
+import android.os.Handler
+import android.os.Looper
+import android.widget.Toast
+import com.xah.transition.App
+
+actual object ToastUtil {
+    actual fun showToast(msg: String) = showToast(App.context,msg)
+
+    private var toast : Toast? = null
+
+    fun showToast(context : Context, msg : String) {
+        Handler(Looper.getMainLooper()).post {
+            toast?.cancel()
+            toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT)
+            toast?.show()
+        }
+    }
+}

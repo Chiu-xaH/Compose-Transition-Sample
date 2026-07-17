@@ -1,8 +1,51 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.compose.multiplatform)
+    alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.compose)
     id("maven-publish")
+}
+
+configurations.all {
+    resolutionStrategy {
+        force(
+            "org.jetbrains.compose.foundation:foundation:${libs.versions.composeMultiplatform.get()}",
+            "org.jetbrains.compose.foundation:foundation-desktop:${libs.versions.composeMultiplatform.get()}"
+        )
+    }
+}
+
+kotlin {
+    androidTarget {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+        }
+        publishLibraryVariants("release")
+    }
+
+    jvm()
+
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+
+    sourceSets {
+        commonMain.dependencies {
+            implementation(compose.material3)
+            implementation(project(":shader"))
+        }
+        androidMain.dependencies {
+            implementation(libs.androidx.activity.compose)
+        }
+        jvmMain.dependencies {
+
+        }
+        iosMain.dependencies {
+
+        }
+    }
 }
 
 android {
@@ -30,29 +73,8 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
     buildFeatures {
-        compose = true
         buildConfig = true
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
 }
-
-dependencies {
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.material3)
-}
-
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-                groupId = libs.versions.libraryPackageName.get()
-                version = libs.versions.libraryVersionName.get()
-                artifactId = "shared"
-                from(components["release"])
-            }
-        }
-    }
-}
+group = libs.versions.libraryPackageName.get()
+version = libs.versions.libraryVersionName.get()

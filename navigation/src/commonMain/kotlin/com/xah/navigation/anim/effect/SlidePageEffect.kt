@@ -1,0 +1,90 @@
+package com.xah.navigation.anim.effect
+
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.Dp
+import com.sharednav.common.helper.ScreenCornerHelper
+import com.sharednav.common.modifier.defaultMask
+import com.sharednav.common.modifier.noneMask
+import com.sharednav.common.helper.NoneRoundShape
+import com.xah.navigation.controller.NavigationController
+import com.xah.navigation.model.anim.TransitionEffect
+import com.xah.navigation.model.anim.effect.BackgroundPageEffectState
+import com.xah.navigation.model.anim.effect.EffectValue
+import com.xah.navigation.model.anim.effect.ForegroundPageEffectState
+import com.xah.navigation.model.anim.effect.PageEffect
+import com.xah.navigation.model.anim.effect.PageEffects
+
+/**
+ * 从四周滑入
+ * eg: 微信支付完成弹窗
+ * PUSH -> 起始界面压暗，目标界面从底部推入直到完全覆盖
+ * POP -> 方向反向，其余不变
+ *
+ * 参数：压暗程度
+ * 预测式返回手势阈值：0.875f
+ */
+data class SlideTransitionEffect(
+    val direction: Direction = Direction.BOTTOM,
+    val clip : Boolean = true,
+    override val pageEffect : PageEffects = SlidePageEffects(direction,clip),
+    override val predictiveMinValue: Float = NavigationController.DEFAULT_SHARED_MAX_PRECENT,
+    override val pushAnimation: AnimationSpec<Float> = tween(400, easing = NavigationController.DEFAULT_EASING),
+    override val popAnimation: AnimationSpec<Float> = tween(400, easing = NavigationController.DEFAULT_EASING)
+) : TransitionEffect
+
+@Composable
+expect fun rememberSlidePageEffects(
+    direction : Direction = Direction.BOTTOM,
+    clip : Boolean = true
+): PageEffects
+
+fun SlidePageEffects(
+    direction : Direction = Direction.BOTTOM,
+    clip : Boolean = true
+) = SlidePageEffects(ScreenCornerHelper.corner,direction,clip)
+
+enum class Direction {
+    TOP,
+    BOTTOM,
+    START,
+    END
+}
+
+fun SlidePageEffects(corner : Dp,direction : Direction,clip : Boolean) : PageEffects {
+    val from = when(direction) {
+        Direction.TOP -> Offset(0f,-1f)
+        Direction.BOTTOM -> Offset(0f,1f)
+        Direction.START -> Offset(-1f,0f)
+        Direction.END -> Offset(1f,0f)
+    }
+    return PageEffects(
+        backgroundEffect = BackgroundPageEffectState(
+            enableMirror = true,
+            effect = PageEffect(
+                mask = EffectValue(
+                    start = noneMask,
+                    end = defaultMask
+                ),
+                corner = EffectValue.const(NoneRoundShape),
+            )
+        ),
+        foregroundEffect = ForegroundPageEffectState(
+            effect = PageEffect(
+                corner = EffectValue.const(
+                    if(clip)
+                        RoundedCornerShape(corner)
+                    else
+                        NoneRoundShape
+                ),
+                translationPercent = EffectValue(
+                    start = from,
+                    end = Offset.Zero
+                )
+            )
+        )
+    )
+}
