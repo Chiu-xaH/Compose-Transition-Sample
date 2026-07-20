@@ -7,9 +7,11 @@ sealed class LaunchMode(
     /**
      * 压入到栈顶，如果reuse则检查栈顶是否已有实例，有则复用
      * @param reuse 复用
+     * @param aliveStrategy 保持上一个Destination仍活跃
      */
     data class Push(
-        override val reuse : Boolean = true
+        override val reuse : Boolean = true,
+        val aliveStrategy : AliveStrategy = AliveStrategy.SAVE_STATE
     ) : LaunchMode(ActionType.PUSH,reuse)
     /**
      * # 检查栈内是否已有实例

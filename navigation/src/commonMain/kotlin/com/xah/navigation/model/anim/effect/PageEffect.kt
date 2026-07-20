@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.xah.navigation.model.anim.effect.EffectValue
+import com.xah.navigation.model.anim.effect.sub.Roll
 import com.xah.navigation.model.anim.effect.sub.Rotation
 
 @Immutable
@@ -20,4 +20,5 @@ data class PageEffect(
     val position: EffectValue<TransformOrigin> = EffectValue.const(TransformOrigin.Center),
     val translationPercent: EffectValue<Offset> = EffectValue.const(Offset.Zero),
     val rotate: EffectValue<Rotation> = EffectValue.const(Rotation()),
+    val roll: EffectValue<Roll> = EffectValue.const(Roll.None),
 )

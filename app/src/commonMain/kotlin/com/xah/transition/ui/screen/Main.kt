@@ -75,6 +75,7 @@ import com.xah.floating.util.LocalFloatingController
 import com.xah.navigation.anim.effect.IslandTransitionEffect
 import com.xah.navigation.anim.effect.JumpTransitionEffect
 import com.xah.navigation.anim.effect.PushTransitionEffect
+import com.xah.navigation.anim.effect.RollTransitionEffect
 import com.xah.navigation.anim.effect.ScaleTransitionEffect
 import com.xah.navigation.anim.effect.SlideTransitionEffect
 import com.xah.navigation.anim.effect.TinyScaleTransitionEffect
@@ -440,6 +441,22 @@ fun HomeScreen() {
                                     headlineContent = { Text("从内缩放动效") },
                                     modifier = Modifier.clickable {
                                         navController.push(dest, effect = TinyScaleTransitionEffect(reservedFgScale = false, reservedBgScale = true))
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        val dest = SecondDestination(888,false)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            Card(
+                                shape = MaterialTheme.shapes.small,
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                TransplantListItem(
+                                    headlineContent = { Text("卷起特效") },
+                                    modifier = Modifier.clickable {
+                                        navController.push(dest, effect = RollTransitionEffect())
                                     }
                                 )
                             }

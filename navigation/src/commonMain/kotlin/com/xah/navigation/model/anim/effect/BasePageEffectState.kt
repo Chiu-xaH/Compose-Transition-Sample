@@ -3,8 +3,7 @@ package com.xah.navigation.model.anim.effect
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.TransformOrigin
-import com.xah.navigation.model.anim.effect.PageEffect
-import com.xah.navigation.model.anim.effect.PageEffectFrame
+import com.xah.navigation.model.anim.effect.sub.Roll
 import com.xah.navigation.model.anim.effect.sub.Rotation
 
 @Immutable
@@ -58,6 +57,16 @@ abstract class BasePageEffectState(
                         x = androidx.compose.ui.util.lerp(start.x, end.x, finalProgress),
                         y = androidx.compose.ui.util.lerp(start.y, end.y, finalProgress),
                         z = androidx.compose.ui.util.lerp(start.z, end.z, finalProgress),
+                    )
+                }
+            },
+            roll = with(roll) {
+                getFinalProgress(progress).let { finalProgress ->
+                    Roll(
+                        top = androidx.compose.ui.util.lerp(start.top, end.top, finalProgress),
+                        bottom = androidx.compose.ui.util.lerp(start.bottom, end.bottom, finalProgress),
+                        left = androidx.compose.ui.util.lerp(start.left, end.left, finalProgress),
+                        right = androidx.compose.ui.util.lerp(start.right, end.right, finalProgress),
                     )
                 }
             }

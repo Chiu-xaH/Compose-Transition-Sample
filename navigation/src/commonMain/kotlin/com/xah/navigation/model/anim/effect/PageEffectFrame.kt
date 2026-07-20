@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.ScreenCornerHelper
+import com.xah.navigation.model.anim.effect.sub.Roll
 import com.xah.navigation.model.anim.effect.sub.Rotation
 
 /** lerp
@@ -34,5 +35,6 @@ data class PageEffectFrame(
     val position: TransformOrigin = TransformOrigin.Center,
     val translationPercent: Offset = Offset.Zero,
     val rotate: Rotation = Rotation(),
+    val roll: Roll = Roll.None,
     // TODO RenderEffect
 )

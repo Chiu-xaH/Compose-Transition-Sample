@@ -12,6 +12,8 @@ import com.sharednav.common.modifier.mask
 import com.sharednav.common.modifier.scaleMirror
 import com.xah.navigation.model.anim.effect.PageEffectFrame
 import com.xah.navigation.model.anim.effect.sub.BgEffectBackground
+import com.xah.navigation.model.anim.effect.sub.Roll
+import com.xah.navigation.model.anim.effect.sub.RollShape
 
 private fun Modifier.mask(effect: PageEffectFrame) : Modifier = this.mask(effect.mask)
 
@@ -84,9 +86,13 @@ internal fun Modifier.foregroundEffect(
     // 模糊
     .blur(enableBlur,effect)
     .graphicsLayer {
-        // 圆角
+        // 圆角 + Reveal 裁剪：当 clipReveal 激活时，corner 跟随裁剪边界移动
         clip = true
-        shape = effect.corner
+        shape = if (effect.roll != Roll.None) {
+            RollShape(effect.roll, effect.corner)
+        } else {
+            effect.corner
+        }
 
         // 大小
         if(!enableShader) {

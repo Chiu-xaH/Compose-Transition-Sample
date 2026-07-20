@@ -165,13 +165,13 @@ fun SharedContainerOverlay() {
                         val is4 = registry.tiltEffect == TiltEffect.SHADER_4
 
                         if(registry.enableShader && (is2 || is4)) {
-                            renderEffect = genieWarpEffect(
-                                roX,
-                                roY,
-                                parent.width,
-                                parent.height,
-                                if(is2) isHorizontal else null,
-                            )
+//                            renderEffect = genieWarpEffect(
+//                                roX,
+//                                roY,
+//                                parent.width,
+//                                parent.height,
+//                                if(is2) isHorizontal else null,
+//                            )
                         } else {
                             rotationX = roX
                             rotationY = roY

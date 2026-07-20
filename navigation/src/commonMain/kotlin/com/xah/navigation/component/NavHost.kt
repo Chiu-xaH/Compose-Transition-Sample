@@ -24,6 +24,7 @@ import com.xah.navigation.anim.foregroundEffect
 import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.controller.NavigationViewModel
 import com.xah.navigation.model.action.ActionType
+import com.xah.navigation.model.action.AliveStrategy
 import com.xah.navigation.model.anim.TransitionEffect
 import com.xah.navigation.model.dest.Dependencies
 import com.xah.navigation.model.dest.Destination
@@ -110,18 +111,12 @@ private fun NavHost(
             navController.animate()
         }
 
-        val visibleEntries = if (navController.enableKeepAlive) {
+        val visibleEntries = if (navController.aliveStrategy == AliveStrategy.KEEP_ALIVE) {
             remember(navController.stack.size, transitionEntry) {
-                val expectedStack = when (transitionEntry?.type) {
+                when (transitionEntry?.type) {
                     ActionType.POP -> listOf(transitionEntry.to, transitionEntry.from)
                     ActionType.PUSH -> listOf(transitionEntry.from, transitionEntry.to)
-                    else -> null
-                }
-                val actualStack = navController.stack.takeLast(2)
-                if(expectedStack == null || expectedStack == actualStack) {
-                    actualStack
-                } else {
-                    expectedStack
+                    else -> navController.stack
                 }
             }
         } else {
