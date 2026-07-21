@@ -14,6 +14,6 @@ data class AppIconDestination(
 
     @Composable
     override fun Content() {
-        SecondScreen()
+        SecondScreen(null,888)
     }
 }

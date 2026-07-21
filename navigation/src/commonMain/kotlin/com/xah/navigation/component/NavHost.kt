@@ -111,7 +111,7 @@ private fun NavHost(
             navController.animate()
         }
 
-        val visibleEntries = if (navController.aliveStrategy == AliveStrategy.KEEP_ALIVE) {
+        val visibleEntries = if (navController.aliveStrategy != AliveStrategy.SAVE_STATE) {
             remember(navController.stack.size, transitionEntry) {
                 when (transitionEntry?.type) {
                     ActionType.POP -> listOf(transitionEntry.to, transitionEntry.from)

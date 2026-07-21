@@ -15,6 +15,7 @@ import com.xah.navigation.model.anim.effect.PageEffect
 import com.xah.navigation.model.anim.effect.PageEffects
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.xah.navigation.model.anim.effect.sub.Roll
 
@@ -27,6 +28,7 @@ import com.xah.navigation.model.anim.effect.sub.Roll
  *
  * 参数：压暗程度、是否圆角裁剪
  * 预测式返回手势阈值：0.875f
+ * 可以用Haze或BackDrop捕获背后画面，实现液态玻璃或模糊
  */
 data class RollTransitionEffect(
     val direction: Direction = Direction.TOP,
@@ -88,7 +90,14 @@ fun RollPageEffects(
                     start = clipRevealStart,
                     end = Roll.None
                 ),
-                // 微位移：内容随方向移动 1/3，reveal 裁剪边界移动剩余 2/3
+//                alpha = EffectValue(
+//                    start = 0.75f,
+//                    end = 1f
+//                ),
+//                blur = EffectValue(
+//                    start = 25.dp,
+//                    end = 0.dp
+//                ),
                 translationPercent = EffectValue(
                     start =
                         if(offset) {

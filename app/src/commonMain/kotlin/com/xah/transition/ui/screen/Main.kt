@@ -53,6 +53,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
@@ -109,6 +110,11 @@ import com.xah.transition.ui.screen.nav.window.BottomSheetWindow
 import com.xah.transition.ui.screen.nav.window.CenterDialogWindow
 import com.xah.transition.ui.screen.nav.window.DialogFloatingWindow
 import com.xah.transition.ui.screen.test.CubicBezierEditor
+import com.xah.transition.ui.style.shader.ShaderState
+import com.xah.transition.ui.style.shader.blurLayer
+import com.xah.transition.ui.style.shader.blurSource
+import com.xah.transition.ui.style.shader.enterAnimation
+import com.xah.transition.ui.style.shader.rememberShaderState
 import com.xah.transition.ui.style.topBarTransplantColor
 import com.xah.transition.ui.util.LocalPlatformActivity
 import com.xah.transition.ui.util.LocalPlatformContext
@@ -118,6 +124,7 @@ import com.xah.transition.util.PermissionSet
 import com.xah.transition.util.PlatformView
 import com.xah.transition.util.Starter
 import com.xah.transition.util.roundOffString
+import kotlinx.coroutines.GlobalScope
 import org.jetbrains.compose.resources.painterResource
 import sharednav.app.generated.resources.Res
 import sharednav.app.generated.resources.ic_amap
@@ -248,7 +255,29 @@ fun HomeScreen() {
     val displayWallpaper = UiHolder.imageBitmap != null
     val d = !UiHolder.enableWallpaper && displayWallpaper
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    var showAnimation by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(showAnimation) {
+        showAnimation = true
+    }
+
+    val shaderState = rememberShaderState()
+    var uId by remember { mutableStateOf(888) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .enterAnimation(showAnimation)
+            .blurSource(
+                shaderState,
+                if(uId == 999) {
+                    ((1-navController.transitionProgress.value)*25f).dp
+                } else if(uId == 777) {
+                    (navController.transitionProgress.value * 25f).dp
+                } else {
+                    20.dp
+                }
+            )
+    ) {
         if(d) {
             Image(
                 bitmap = UiHolder.imageBitmap!!,
@@ -326,6 +355,74 @@ fun HomeScreen() {
                                     imagePicker.launch()
                                 }
                             )
+                        }
+                    }
+                    item {
+                        val dest = SecondDestination(888,false,shaderState)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            Card(
+                                shape = MaterialTheme.shapes.small,
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                TransplantListItem(
+                                    headlineContent = { Text("卷起动效1") },
+                                    modifier = Modifier.clickable {
+                                        uId = 888
+                                        navController.push(dest, effect = RollTransitionEffect(offset = false,clip = false,))
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        val dest = SecondDestination(888,false,shaderState)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            Card(
+                                shape = MaterialTheme.shapes.small,
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                TransplantListItem(
+                                    headlineContent = { Text("卷起动效2") },
+                                    modifier = Modifier.clickable {
+                                        uId = 888
+                                        navController.push(dest, effect = RollTransitionEffect(offset = true,clip = false))
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        val dest = SecondDestination(999,false,shaderState)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            Card(
+                                shape = MaterialTheme.shapes.small,
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                TransplantListItem(
+                                    headlineContent = { Text("卷起动效3") },
+                                    modifier = Modifier.clickable {
+                                        uId = 999
+                                        navController.push(dest, effect = RollTransitionEffect(offset = false,clip = false,))
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        val dest = SecondDestination(999,false,shaderState)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            Card(
+                                shape = MaterialTheme.shapes.small,
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                TransplantListItem(
+                                    headlineContent = { Text("卷起动效4") },
+                                    modifier = Modifier.clickable {
+                                        uId = 777
+                                        navController.push(dest, effect = RollTransitionEffect(offset = true,clip = false))
+                                    }
+                                )
+                            }
                         }
                     }
                     items(30) { index ->
@@ -909,8 +1006,8 @@ fun HomeScreen() {
                                         AnimationSpecManager.speedRadio = it
                                     },
                                     modifier = Modifier.padding(bottom = APP_HORIZONTAL_DP),
-                                    valueRange = 0.5f..3f,
-                                    steps = 49,
+                                    valueRange = 0.5f..5f,
+                                    steps = 90,
                                     showProcessText = true,
                                     processText = AnimationSpecManager.speedRadio.toString()
                                 )
@@ -1169,9 +1266,45 @@ fun HomeScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SecondScreen() {
+fun SecondScreen(
+    shaderState : ShaderState? = null,
+    userId : Int
+) {
     val navController = LocalNavController.current
+    shaderState?.let {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .blurLayer(it)
+        )
+    }
+    if(userId == 999) {
+        Scaffold(
+            containerColor = Color.Transparent,
+            topBar = {
+                MediumTopAppBar(
+                    colors = topBarTransplantColor(),
+                    title = { Text("二级界面") },
+                    navigationIcon = {
+                        TopBarNavigationIcon()
+                    }
+                )
+            },
+        ) {}
+        return
+    }
     Scaffold(
+        modifier = Modifier
+            .let {
+                if(shaderState != null) {
+                    it
+                        .blur(((1-navController.transitionProgress.value) * 25f).dp)
+                        .alpha(navController.transitionProgress.value)
+                } else {
+                    it
+                }
+            }
+        ,
         topBar = {
             MediumTopAppBar(
                 colors = topBarTransplantColor(),
@@ -1182,6 +1315,7 @@ fun SecondScreen() {
             )
         },
     ) { innerPadding ->
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -1208,6 +1342,16 @@ fun SecondScreen() {
                     }
                 }
                 item { Spacer(Modifier.height(innerPadding.calculateBottomPadding())) }
+            }
+        }
+        if(shaderState != null) {
+            UiHolder.imageBitmap?.let {
+                Image(
+                    it,
+                    null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
             }
         }
     }
