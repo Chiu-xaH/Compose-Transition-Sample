@@ -86,7 +86,7 @@ internal fun Modifier.foregroundEffect(
     // 模糊
     .blur(enableBlur,effect)
     .graphicsLayer {
-        // 圆角 + Reveal 裁剪：当 clipReveal 激活时，corner 跟随裁剪边界移动
+        // 形状裁剪
         clip = true
         shape = if (effect.roll != Roll.None) {
             RollShape(effect.roll, effect.corner)

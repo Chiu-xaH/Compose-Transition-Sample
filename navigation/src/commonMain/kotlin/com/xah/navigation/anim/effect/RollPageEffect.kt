@@ -19,8 +19,8 @@ import com.sharednav.common.helper.ScreenCornerHelper
 import com.xah.navigation.model.anim.effect.sub.Roll
 
 /**
- * 从四周揭示（Reveal）效果
- * eg: 底部弹出面板、底部弹窗
+ * 幕布效果
+ * eg: iOS下拉通知中心
  * PUSH -> 起始界面压暗，目标界面从对应方向逐步揭示直到完全覆盖
  *         与 Slide 不同，内容不移动，只有边界移动（类似舞台幕布拉开）
  * POP -> 方向反向，其余不变
@@ -31,7 +31,8 @@ import com.xah.navigation.model.anim.effect.sub.Roll
 data class RollTransitionEffect(
     val direction: Direction = Direction.TOP,
     val clip : Boolean = true,
-    override val pageEffect : PageEffects = RollPageEffects(direction,clip),
+    val offset : Boolean = true,
+    override val pageEffect : PageEffects = RollPageEffects(direction,clip,offset),
     override val predictiveMinValue: Float = NavigationController.DEFAULT_SHARED_MAX_PRECENT,
     override val pushAnimation: AnimationSpec<Float> = tween(400, easing = NavigationController.DEFAULT_EASING),
     override val popAnimation: AnimationSpec<Float> = tween(400, easing = NavigationController.DEFAULT_EASING)
@@ -40,18 +41,21 @@ data class RollTransitionEffect(
 @Composable
 expect fun rememberRevealPageEffects(
     direction : Direction = Direction.TOP,
-    clip : Boolean = true
+    clip : Boolean = true,
+    offset : Boolean = true
 ): PageEffects
 
 fun RollPageEffects(
     direction : Direction = Direction.TOP,
-    clip : Boolean = true
-) = RollPageEffects(ScreenCornerHelper.corner, direction, clip)
+    clip : Boolean = true,
+    offset : Boolean = true
+) = RollPageEffects(ScreenCornerHelper.corner, direction, clip,offset)
 
 fun RollPageEffects(
     corner : Dp,
     direction : Direction,
-    clip : Boolean
+    clip : Boolean,
+    offset : Boolean
 ) : PageEffects {
     val clipRevealStart = when(direction) {
         Direction.TOP -> Roll(bottom = 1f)
@@ -59,6 +63,7 @@ fun RollPageEffects(
         Direction.START -> Roll(right = 1f)
         Direction.END -> Roll(left = 1f)
     }
+    val offsetValue = 1/3f
 
     return PageEffects(
         backgroundEffect = BackgroundPageEffectState(
@@ -85,12 +90,17 @@ fun RollPageEffects(
                 ),
                 // 微位移：内容随方向移动 1/3，reveal 裁剪边界移动剩余 2/3
                 translationPercent = EffectValue(
-                    start = when(direction) {
-                        Direction.TOP -> Offset(0f, -1/3f)
-                        Direction.BOTTOM -> Offset(0f, 1/3f)
-                        Direction.START -> Offset(-1/3f, 0f)
-                        Direction.END -> Offset(1/3f, 0f)
-                    },
+                    start =
+                        if(offset) {
+                            when(direction) {
+                                Direction.TOP -> Offset(0f, -offsetValue)
+                                Direction.BOTTOM -> Offset(0f, offsetValue)
+                                Direction.START -> Offset(-offsetValue, 0f)
+                                Direction.END -> Offset(offsetValue, 0f)
+                            }
+                        } else {
+                            Offset.Zero
+                        },
                     end = Offset.Zero
                 )
             )

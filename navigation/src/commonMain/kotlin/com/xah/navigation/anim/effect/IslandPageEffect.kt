@@ -49,7 +49,7 @@ fun IslandPageEffects(
 
 fun IslandPageEffects(corner : Dp,position : TransformOrigin,rotation: Rotation) : PageEffects {
     return PageEffects(
-        backgroundEffect = ScalePageEffects(corner).backgroundEffect,
+        backgroundEffect = DefaultPageEffects(corner).backgroundEffect,
         foregroundEffect = ForegroundPageEffectState(
             effect = PageEffect(
                 scale = EffectValue(

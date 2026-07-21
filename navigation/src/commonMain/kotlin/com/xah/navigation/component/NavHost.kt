@@ -18,8 +18,8 @@ import com.xah.container.controller.SharedRegistry
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.floating.component.FloatingRoot
 import com.xah.navigation.anim.backgroundEffect
-import com.xah.navigation.anim.effect.ScaleTransitionEffect
-import com.xah.navigation.anim.effect.rememberScalePageEffects
+import com.xah.navigation.anim.effect.DefaultTransitionEffect
+import com.xah.navigation.anim.effect.rememberDefaultPageEffects
 import com.xah.navigation.anim.foregroundEffect
 import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.controller.NavigationViewModel
@@ -36,7 +36,7 @@ import com.xah.navigation.util.LocalNavDependencies
 @Composable
 fun rememberNavController(
     startDestination : Destination,
-    sharedTransitionEffect: TransitionEffect = ScaleTransitionEffect(rememberScalePageEffects())
+    sharedTransitionEffect: TransitionEffect = DefaultTransitionEffect(rememberDefaultPageEffects())
 ): NavigationController {
     val scope = rememberCoroutineScope()
     val navViewModel: NavigationViewModel = viewModel(factory = NavigationViewModel.Factory())

@@ -76,10 +76,10 @@ import com.xah.navigation.anim.effect.IslandTransitionEffect
 import com.xah.navigation.anim.effect.JumpTransitionEffect
 import com.xah.navigation.anim.effect.PushTransitionEffect
 import com.xah.navigation.anim.effect.RollTransitionEffect
-import com.xah.navigation.anim.effect.ScaleTransitionEffect
+import com.xah.navigation.anim.effect.DefaultTransitionEffect
 import com.xah.navigation.anim.effect.SlideTransitionEffect
-import com.xah.navigation.anim.effect.TinyScaleTransitionEffect
-import com.xah.navigation.anim.effect.rememberScalePageEffects
+import com.xah.navigation.anim.effect.ScaleTransitionEffect
+import com.xah.navigation.anim.effect.rememberDefaultPageEffects
 import com.xah.navigation.component.SharedNavHost
 import com.xah.navigation.component.rememberNavController
 import com.xah.navigation.model.action.ActionType
@@ -234,11 +234,11 @@ fun HomeScreen() {
             Pair(ContainerFilledStrategy.Color(Color.Black),"色彩"),
         )
     }
-    val defaultEffect = ScaleTransitionEffect(rememberScalePageEffects())
+    val defaultEffect = DefaultTransitionEffect(rememberDefaultPageEffects())
     val effectList = remember(defaultEffect) {
         listOf(
             Pair(defaultEffect,"默认"),
-            Pair(TinyScaleTransitionEffect(false,true),"缩放"),
+            Pair(ScaleTransitionEffect(false,true),"缩放"),
             Pair(PushTransitionEffect(),"推入"),
             Pair(SlideTransitionEffect(),"上推"),
         )
@@ -424,7 +424,7 @@ fun HomeScreen() {
                                 TransplantListItem(
                                     headlineContent = { Text("从外缩放动效") },
                                     modifier = Modifier.clickable {
-                                        navController.push(dest, effect = TinyScaleTransitionEffect(reservedFgScale = true, reservedBgScale = false))
+                                        navController.push(dest, effect = ScaleTransitionEffect(reservedFgScale = true, reservedBgScale = false))
                                     }
                                 )
                             }
@@ -440,7 +440,7 @@ fun HomeScreen() {
                                 TransplantListItem(
                                     headlineContent = { Text("从内缩放动效") },
                                     modifier = Modifier.clickable {
-                                        navController.push(dest, effect = TinyScaleTransitionEffect(reservedFgScale = false, reservedBgScale = true))
+                                        navController.push(dest, effect = ScaleTransitionEffect(reservedFgScale = false, reservedBgScale = true))
                                     }
                                 )
                             }
@@ -454,9 +454,25 @@ fun HomeScreen() {
                                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                             ) {
                                 TransplantListItem(
-                                    headlineContent = { Text("卷起特效") },
+                                    headlineContent = { Text("卷起动效1") },
                                     modifier = Modifier.clickable {
-                                        navController.push(dest, effect = RollTransitionEffect())
+                                        navController.push(dest, effect = RollTransitionEffect(offset = false))
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        val dest = SecondDestination(888,false)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            Card(
+                                shape = MaterialTheme.shapes.small,
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                TransplantListItem(
+                                    headlineContent = { Text("卷起动效2") },
+                                    modifier = Modifier.clickable {
+                                        navController.push(dest, effect = RollTransitionEffect(offset = true))
                                     }
                                 )
                             }

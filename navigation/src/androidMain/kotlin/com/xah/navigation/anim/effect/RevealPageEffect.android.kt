@@ -9,11 +9,12 @@ import com.xah.navigation.model.anim.effect.PageEffects
 @Composable
 actual fun rememberRevealPageEffects(
     direction: Direction,
-    clip: Boolean
+    clip: Boolean,
+    offset : Boolean
 ): PageEffects {
     val view = LocalView.current
     val corner = ScreenCornerHelper(view).getCornerDp()
     return remember(corner, direction, clip) {
-        RollPageEffects(corner, direction, clip)
+        RollPageEffects(corner, direction, clip,offset)
     }
 }

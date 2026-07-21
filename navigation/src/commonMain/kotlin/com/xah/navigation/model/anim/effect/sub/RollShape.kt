@@ -9,12 +9,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 
-/**
- * 根据 [Roll] 的四边遮挡比例，计算出可见区域的矩形 Shape。
- *
- * 例如 ClipReveal(top=0.5f) 表示顶部 50% 被遮挡，
- * 可见区域为下半部分的矩形。
- */
 internal class RollShape(
     private val roll: Roll,
     private val corner: CornerBasedShape,

@@ -7,10 +7,10 @@ import com.sharednav.common.helper.ScreenCornerHelper
 import com.xah.navigation.model.anim.effect.PageEffects
 
 @Composable
-actual fun rememberScalePageEffects(): PageEffects {
+actual fun rememberDefaultPageEffects(): PageEffects {
     val view = LocalView.current
     val corner = ScreenCornerHelper(view).getCornerDp()
     return remember(corner) {
-        ScalePageEffects(corner)
+        DefaultPageEffects(corner)
     }
 }

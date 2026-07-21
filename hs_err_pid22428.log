@@ -1,0 +1,34 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  SIGSEGV (0xb) at pc=0x0000000334984c08, pid=22428, tid=57883
+#
+# JRE version: OpenJDK Runtime Environment Zulu17.66+19-CA (17.0.19+10) (build 17.0.19+10-LTS)
+# Java VM: OpenJDK 64-Bit Server VM Zulu17.66+19-CA (17.0.19+10-LTS, mixed mode, sharing, tiered, compressed oops, compressed class ptrs, g1 gc, bsd-aarch64)
+# Problematic frame:
+# C  [libllvmstubs.dylib+0x1984c08]  llvm::BranchProbabilityInfo::calculate(llvm::Function const&, llvm::LoopInfo const&, llvm::TargetLibraryInfo const*, llvm::DominatorTree*, llvm::PostDominatorTree*)+0x3e4
+#
+# No core dump will be written. Core dumps have been disabled. To enable core dumping, try "ulimit -c unlimited" before starting Java again
+#
+# If you would like to submit a bug report, please visit:
+#   http://www.azul.com/support/
+# The crash happened outside the Java Virtual Machine in native code.
+# See problematic frame for where to report the bug.
+#
+
+---------------  S U M M A R Y ------------
+
+Command Line: --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-opens=java.base/java.nio.charset=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.xml/javax.xml.namespace=ALL-UNNAMED -Xmx6144m -Dfile.encoding=UTF-8 -Duser.country=CN -Duser.language=zh -Duser.variant -javaagent:/Users/sihan.zhao/.gradle/wrapper/dists/gradle-8.11.1-bin/bpt9gzteqjrbo1mjrsomdt32c/gradle-8.11.1/lib/agents/gradle-instrumentation-agent-8.11.1.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon 8.11.1
+
+Host: "MacBookPro18,1" arm64, 10 cores, 16G, Darwin 24.6.0, macOS 15.6.1 (24G90)
+Time: Tue Jul 21 14:25:12 2026 CST elapsed time: 1390.658243 seconds (0d 0h 23m 10s)
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x000000033a32b200):  JavaThread "Execution worker Thread 6" [_thread_in_native, id=57883, stack(0x0000000326a74000,0x0000000326c77000)]
+
+Stack: [0x0000000326a74000,0x0000000326c77000],  sp=0x0000000326c6dd80,  free space=2023k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+C  [libllvmstubs.dylib+0x1984c08]  llvm::BranchProbabilityInfo::calculate(llvm::Function const&, llvm::LoopInfo const&, llvm::TargetLibraryInfo const*, llvm::DominatorTree*, llvm::PostDominatorTree*)+0x3e4
+C  [libllvmstubs.dylib+0xacd0cc]  llvm::detail::AnalysisPassModel<llvm::Function, llvm::BranchProbabilityAnalysis, llvm::AnalysisManager<llvm::Function>::Invalidator>::run(llvm::Function&, llvm::AnalysisManager<llvm::Function>&)+0x34
+C  [libllvmstubs.dylib+0x20a0b04]
