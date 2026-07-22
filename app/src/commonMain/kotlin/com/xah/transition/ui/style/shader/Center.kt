@@ -13,8 +13,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.graphicsLayer
 import com.sharednav.common.helper.EnableHelper
-import com.xah.shader.RuntimeShader
-import com.xah.shader.RuntimeShaderEffect
+import com.xah.shader.skia.RuntimeShader
+import com.xah.shader.skia.RuntimeShaderEffect
+import com.xah.shader.state.recordPosition
 import kotlin.math.abs
 
 

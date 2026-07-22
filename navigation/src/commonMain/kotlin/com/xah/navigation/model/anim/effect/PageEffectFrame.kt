@@ -36,5 +36,6 @@ data class PageEffectFrame(
     val translationPercent: Offset = Offset.Zero,
     val rotate: Rotation = Rotation(),
     val roll: Roll = Roll.None,
+    val innerBlur : Dp = 0.dp,
     // TODO RenderEffect
 )

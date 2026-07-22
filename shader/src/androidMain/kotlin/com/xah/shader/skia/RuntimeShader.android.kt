@@ -1,4 +1,4 @@
-package com.xah.shader
+package com.xah.shader.skia
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -72,3 +72,5 @@ internal class AndroidRuntimeShader(
         shader.setColorUniform(name, color.toArgb())
     }
 }
+
+actual val canUseRuntimeShader = Build.VERSION.SDK_INT >= 33

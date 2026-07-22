@@ -90,14 +90,10 @@ fun RollPageEffects(
                     start = clipRevealStart,
                     end = Roll.None
                 ),
-//                alpha = EffectValue(
-//                    start = 0.75f,
-//                    end = 1f
-//                ),
-//                blur = EffectValue(
-//                    start = 25.dp,
-//                    end = 0.dp
-//                ),
+                innerBlur = EffectValue(
+                    start = 25.dp,
+                    end = 0.dp
+                ),
                 translationPercent = EffectValue(
                     start =
                         if(offset) {

@@ -21,4 +21,5 @@ data class PageEffect(
     val translationPercent: EffectValue<Offset> = EffectValue.const(Offset.Zero),
     val rotate: EffectValue<Rotation> = EffectValue.const(Rotation()),
     val roll: EffectValue<Roll> = EffectValue.const(Roll.None),
+    val innerBlur: EffectValue<Dp> = EffectValue.const(0.dp),
 )

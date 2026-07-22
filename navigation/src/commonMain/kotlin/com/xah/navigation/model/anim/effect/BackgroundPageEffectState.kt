@@ -6,6 +6,6 @@ import com.xah.navigation.model.anim.effect.sub.BgEffectBackground
 @Immutable
 data class BackgroundPageEffectState(
     val enableMirror : Boolean,
+    override val effect: PageEffect,
     val backgroundColor : BgEffectBackground? = null,
-    override val effect: PageEffect
 ) : BasePageEffectState(effect)

@@ -11,8 +11,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import com.sharednav.common.helper.EnableHelper
-import com.xah.shader.RuntimeShader
-import com.xah.shader.RuntimeShaderEffect
+import com.xah.shader.skia.RuntimeShader
+import com.xah.shader.skia.RuntimeShaderEffect
 
 fun Modifier.scaleMirror(
     scale: Float,

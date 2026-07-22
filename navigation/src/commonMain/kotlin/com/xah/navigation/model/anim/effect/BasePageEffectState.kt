@@ -8,7 +8,7 @@ import com.xah.navigation.model.anim.effect.sub.Rotation
 
 @Immutable
 abstract class BasePageEffectState(
-    open val effect: PageEffect
+    open val effect: PageEffect,
 ) {
     fun lerp(progress : Float): PageEffectFrame = with(effect) {
         PageEffectFrame(
@@ -69,7 +69,10 @@ abstract class BasePageEffectState(
                         right = androidx.compose.ui.util.lerp(start.right, end.right, finalProgress),
                     )
                 }
-            }
+            },
+            innerBlur = with(innerBlur) {
+                androidx.compose.ui.unit.lerp(start, end, getFinalProgress(progress))
+            },
         )
     }
 }

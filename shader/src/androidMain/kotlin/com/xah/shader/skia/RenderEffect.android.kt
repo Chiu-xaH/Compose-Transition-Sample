@@ -1,4 +1,4 @@
-package com.xah.shader
+package com.xah.shader.skia
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -27,3 +27,5 @@ actual fun RuntimeShaderEffect(
         uniformShaderName
     ).asComposeRenderEffect()
 }
+
+actual val canUseBlurRenderEffect = Build.VERSION.SDK_INT >= 31

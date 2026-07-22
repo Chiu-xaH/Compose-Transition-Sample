@@ -1,8 +1,8 @@
 package com.xah.container.util.shader
 
 import androidx.compose.ui.graphics.RenderEffect
-import com.xah.shader.RuntimeShader
-import com.xah.shader.RuntimeShaderEffect
+import com.xah.shader.skia.RuntimeShader
+import com.xah.shader.skia.RuntimeShaderEffect
 
 /**
  * 开发中，目前这个效果不对

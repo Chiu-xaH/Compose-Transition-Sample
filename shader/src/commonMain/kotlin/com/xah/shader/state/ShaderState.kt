@@ -1,4 +1,4 @@
-package com.xah.transition.ui.style.shader
+package com.xah.shader.state
 
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
-import com.sharednav.common.helper.EnableHelper
+import com.xah.shader.skia.canUseRuntimeShader
 
 @Composable
 fun rememberShaderState(): ShaderState {
@@ -72,6 +72,7 @@ fun Modifier.recordPosition(
         pos.y + size.height
     ))
 }
+
 // 自定义效果
 fun Modifier.shaderLayer(
     state: ShaderState,
@@ -81,7 +82,7 @@ fun Modifier.shaderLayer(
     enabled : Boolean = true,
     onRect : (Rect) -> Unit,
 ) : Modifier =
-    if(!enabled || overlayColor.alpha == 1f || !EnableHelper.canShader) {
+    if(!enabled || overlayColor.alpha == 1f || !canUseRuntimeShader) {
         // 只有蒙版
         this.background(overlayColor)
     } else {

@@ -9,8 +9,8 @@ import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import com.sharednav.common.helper.EnableHelper
 import com.xah.container.model.ExtensionDirection
-import com.xah.shader.RuntimeShader
-import com.xah.shader.RuntimeShaderEffect
+import com.xah.shader.skia.RuntimeShader
+import com.xah.shader.skia.RuntimeShaderEffect
 
 /**
  * @param isLandscape 是否是横屏，为true则取右侧1像素，否则取底部1像素

@@ -110,11 +110,11 @@ import com.xah.transition.ui.screen.nav.window.BottomSheetWindow
 import com.xah.transition.ui.screen.nav.window.CenterDialogWindow
 import com.xah.transition.ui.screen.nav.window.DialogFloatingWindow
 import com.xah.transition.ui.screen.test.CubicBezierEditor
-import com.xah.transition.ui.style.shader.ShaderState
-import com.xah.transition.ui.style.shader.blurLayer
-import com.xah.transition.ui.style.shader.blurSource
+import com.xah.shader.state.ShaderState
+import com.xah.shader.style.blurLayer
+import com.xah.shader.style.blurSource
 import com.xah.transition.ui.style.shader.enterAnimation
-import com.xah.transition.ui.style.shader.rememberShaderState
+import com.xah.shader.state.rememberShaderState
 import com.xah.transition.ui.style.topBarTransplantColor
 import com.xah.transition.ui.util.LocalPlatformActivity
 import com.xah.transition.ui.util.LocalPlatformContext
@@ -124,7 +124,6 @@ import com.xah.transition.util.PermissionSet
 import com.xah.transition.util.PlatformView
 import com.xah.transition.util.Starter
 import com.xah.transition.util.roundOffString
-import kotlinx.coroutines.GlobalScope
 import org.jetbrains.compose.resources.painterResource
 import sharednav.app.generated.resources.Res
 import sharednav.app.generated.resources.ic_amap
@@ -267,16 +266,7 @@ fun HomeScreen() {
         modifier = Modifier
             .fillMaxSize()
             .enterAnimation(showAnimation)
-            .blurSource(
-                shaderState,
-                if(uId == 999) {
-                    ((1-navController.transitionProgress.value)*25f).dp
-                } else if(uId == 777) {
-                    (navController.transitionProgress.value * 25f).dp
-                } else {
-                    20.dp
-                }
-            )
+            .blurSource(shaderState)
     ) {
         if(d) {
             Image(
@@ -374,6 +364,7 @@ fun HomeScreen() {
                             }
                         }
                     }
+                    /*
                     item {
                         val dest = SecondDestination(888,false,shaderState)
                         Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
@@ -391,6 +382,7 @@ fun HomeScreen() {
                             }
                         }
                     }
+                     */
                     item {
                         val dest = SecondDestination(999,false,shaderState)
                         Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
@@ -399,7 +391,7 @@ fun HomeScreen() {
                                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                             ) {
                                 TransplantListItem(
-                                    headlineContent = { Text("卷起动效3") },
+                                    headlineContent = { Text("卷起动效2") },
                                     modifier = Modifier.clickable {
                                         uId = 999
                                         navController.push(dest, effect = RollTransitionEffect(offset = false,clip = false,))
@@ -408,6 +400,7 @@ fun HomeScreen() {
                             }
                         }
                     }
+                    /*
                     item {
                         val dest = SecondDestination(999,false,shaderState)
                         Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
@@ -425,6 +418,7 @@ fun HomeScreen() {
                             }
                         }
                     }
+                     */
                     items(30) { index ->
                         val destination = SecondDestination(userId = index,false)
                         Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
@@ -1275,7 +1269,16 @@ fun SecondScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .blurLayer(it)
+                .blurLayer(
+                    it,
+                    if(userId == 999) {
+                        ((1-navController.transitionProgress.value)*25f).dp
+                    } else if(userId == 777) {
+                        (navController.transitionProgress.value * 25f).dp
+                    } else {
+                        20.dp
+                    }
+                )
         )
     }
     if(userId == 999) {
@@ -1297,9 +1300,7 @@ fun SecondScreen(
         modifier = Modifier
             .let {
                 if(shaderState != null) {
-                    it
-                        .blur(((1-navController.transitionProgress.value) * 25f).dp)
-                        .alpha(navController.transitionProgress.value)
+                    it.alpha(navController.transitionProgress.value)
                 } else {
                     it
                 }

@@ -1,4 +1,4 @@
-package com.xah.shader
+package com.xah.shader.skia
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shader
@@ -69,3 +69,5 @@ internal class SkiaRuntimeShader(val shader: RuntimeShaderBuilder) : RuntimeShad
         shader.uniform(name, srgb.red * a, srgb.green * a, srgb.blue * a, a)
     }
 }
+
+actual val canUseRuntimeShader: Boolean = true

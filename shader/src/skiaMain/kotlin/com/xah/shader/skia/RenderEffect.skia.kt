@@ -1,4 +1,4 @@
-package com.xah.shader
+package com.xah.shader.skia
 
 import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.asComposeRenderEffect
@@ -25,3 +25,5 @@ actual fun RuntimeShaderEffect(
         null
     ).asComposeRenderEffect()
 }
+
+actual val canUseBlurRenderEffect = true

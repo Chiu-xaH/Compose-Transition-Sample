@@ -1,4 +1,4 @@
-package com.xah.shader
+package com.xah.shader.skia
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shader
@@ -23,3 +23,5 @@ interface RuntimeShader {
 expect fun RuntimeShader(shaderString: String): RuntimeShader
 
 expect fun RuntimeShader.asComposeShader(): Shader
+
+expect val canUseRuntimeShader : Boolean

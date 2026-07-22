@@ -21,6 +21,7 @@ import com.xah.navigation.anim.backgroundEffect
 import com.xah.navigation.anim.effect.DefaultTransitionEffect
 import com.xah.navigation.anim.effect.rememberDefaultPageEffects
 import com.xah.navigation.anim.foregroundEffect
+import com.xah.navigation.anim.innerEffect
 import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.controller.NavigationViewModel
 import com.xah.navigation.model.action.ActionType
@@ -232,6 +233,55 @@ private fun NavHost(
                         ) {
                             SharedContent(
                                 key = entry.destination.key,
+                                modifier = Modifier
+                                    .let {
+                                        // 容器等帧测量时，禁用所有动效，测量容器的真实位置
+                                        if (transitionEntry != null) {
+                                            when (transitionEntry.type) {
+                                                ActionType.PUSH -> {
+                                                    if (isFrom) {
+                                                        // 背景
+                                                        return@let it.innerEffect(
+                                                            enableMirrorForBg,
+                                                            enableBlur,
+                                                            backgroundEffect
+                                                        )
+                                                    }
+                                                    if (isTo) {
+                                                        // 目标屏幕
+                                                        if(!registry.isRunning) {
+                                                            return@let it.innerEffect(
+                                                                enableBlur,
+                                                                enableMirrorForFg,
+                                                                foregroundEffect,
+                                                            )
+                                                        }
+                                                    }
+                                                }
+                                                ActionType.POP -> {
+                                                    if (isTo) {
+                                                        // 背景
+                                                        return@let it.innerEffect(
+                                                            enableMirrorForBg,
+                                                            enableBlur,
+                                                            backgroundEffect
+                                                        )
+                                                    }
+                                                    if (isFrom) {
+                                                        // 退出屏幕
+                                                        if(!registry.isRunning) {
+                                                            return@let it.innerEffect(
+                                                                enableBlur,
+                                                                enableMirrorForFg,
+                                                                foregroundEffect,
+                                                            )
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        return@let it
+                                    }
                             ) {
                                 val needDisplaySplashScreen = entry.destination.enforcePlaceHolder || (navController.enableSplashScreen)
                                 // NONE等级动效不需要遮罩

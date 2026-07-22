@@ -25,6 +25,15 @@ private fun Modifier.blur(enableBlur : Boolean,effect : PageEffectFrame) : Modif
     }
 }
 
+private fun Modifier.innerBlur(enableBlur : Boolean,effect : PageEffectFrame) : Modifier {
+    return if(enableBlur) {
+        this.blur(effect.innerBlur)
+    } else {
+        this
+    }
+}
+
+
 private fun Modifier.scale(
     enableShader : Boolean,
     effect: PageEffectFrame
@@ -123,3 +132,13 @@ internal fun Modifier.foregroundEffect(
     }
     // 压暗
     .mask(effect)
+
+internal fun Modifier.innerEffect(
+    enableBlur : Boolean,
+    enableShader: Boolean,
+    effect: PageEffectFrame,
+) : Modifier = this
+    // 模糊
+    .innerBlur(enableBlur,effect)
+
+typealias CustomEffectModifier = (progress: Float) -> Modifier

@@ -1,8 +1,8 @@
 package com.xah.transition.ui.style.shader
 
 import androidx.compose.ui.graphics.RenderEffect
-import com.xah.shader.RuntimeShader
-import com.xah.shader.RuntimeShaderEffect
+import com.xah.shader.skia.RuntimeShader
+import com.xah.shader.skia.RuntimeShaderEffect
 
 fun enhanceColorShader(
     enabled : Boolean
