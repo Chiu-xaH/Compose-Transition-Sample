@@ -44,6 +44,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -65,21 +66,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
 import com.sharednav.common.helper.EnableHelper
-import com.sharednav.common.manager.AnimationSpecManager
-import com.sharednav.common.helper.ScreenCornerHelper
 import com.sharednav.common.helper.NoneRoundShape
+import com.sharednav.common.helper.ScreenCornerHelper
+import com.sharednav.common.manager.AnimationSpecManager
+import com.sharednav.common.util.LogUtil
 import com.xah.container.component.base.SharedContainer
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.model.TiltEffect
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.floating.util.LocalFloatingController
+import com.xah.navigation.anim.effect.DefaultTransitionEffect
 import com.xah.navigation.anim.effect.IslandTransitionEffect
 import com.xah.navigation.anim.effect.JumpTransitionEffect
 import com.xah.navigation.anim.effect.PushTransitionEffect
 import com.xah.navigation.anim.effect.RollTransitionEffect
-import com.xah.navigation.anim.effect.DefaultTransitionEffect
-import com.xah.navigation.anim.effect.SlideTransitionEffect
 import com.xah.navigation.anim.effect.ScaleTransitionEffect
+import com.xah.navigation.anim.effect.SlideTransitionEffect
 import com.xah.navigation.anim.effect.rememberDefaultPageEffects
 import com.xah.navigation.component.SharedNavHost
 import com.xah.navigation.component.rememberNavController
@@ -89,9 +91,12 @@ import com.xah.navigation.model.anim.EffectLevel
 import com.xah.navigation.model.anim.effect.sub.Rotation
 import com.xah.navigation.model.dest.Destination
 import com.xah.navigation.util.LocalNavController
+import com.xah.shader.style.blurLayer
+import com.xah.shader.style.blurSource
 import com.xah.transition.model.AppIconBean
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CARD_NORMAL_DP
+import com.xah.transition.ui.component.CardListItem
 import com.xah.transition.ui.component.CustomCard
 import com.xah.transition.ui.component.CustomSlider
 import com.xah.transition.ui.component.DividerTextExpandedWithShared
@@ -110,12 +115,9 @@ import com.xah.transition.ui.screen.nav.window.BottomSheetWindow
 import com.xah.transition.ui.screen.nav.window.CenterDialogWindow
 import com.xah.transition.ui.screen.nav.window.DialogFloatingWindow
 import com.xah.transition.ui.screen.test.CubicBezierEditor
-import com.xah.shader.state.ShaderState
-import com.xah.shader.style.blurLayer
-import com.xah.shader.style.blurSource
-import com.xah.transition.ui.style.shader.enterAnimation
-import com.xah.shader.state.rememberShaderState
 import com.xah.transition.ui.style.topBarTransplantColor
+import com.xah.transition.ui.util.GlobalShaderState
+import com.xah.transition.ui.util.GlobalShaderStateInit
 import com.xah.transition.ui.util.LocalPlatformActivity
 import com.xah.transition.ui.util.LocalPlatformContext
 import com.xah.transition.ui.util.LocalPlatformView
@@ -170,6 +172,11 @@ fun Main(
     val navigationController = rememberNavController(
         firstPage ?: HomeDestination,
     )
+    LaunchedEffect(Unit) {
+        navigationController.enableKeepAlive = true
+    }
+    GlobalShaderStateInit()
+
     val inHomeDest = navigationController.currentDestination == navigationController.startDestination || navigationController.transitionEntry?.to?.destination == navigationController.startDestination || navigationController.transitionEntry?.from?.destination == navigationController.startDestination
     val displayWallpaper = UiHolder.imageBitmap != null
     Box(modifier = Modifier.fillMaxSize()) {
@@ -230,6 +237,7 @@ fun HomeScreen() {
             UiHolder.imageBitmap = it
         }
     }
+    var savedInt by rememberSaveable { mutableStateOf(1) }
 
     val levelList = remember { EffectLevel.entries }
     val filedList = remember {
@@ -259,14 +267,17 @@ fun HomeScreen() {
         showAnimation = true
     }
 
-    val shaderState = rememberShaderState()
     var uId by remember { mutableStateOf(888) }
+    val shaderState = GlobalShaderState.shaderState
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .enterAnimation(showAnimation)
-            .blurSource(shaderState)
+            .let {
+                shaderState?.let { state ->
+                    it.blurSource(state)
+                } ?: it
+            }
     ) {
         if(d) {
             Image(
@@ -348,14 +359,14 @@ fun HomeScreen() {
                         }
                     }
                     item {
-                        val dest = SecondDestination(888,false,shaderState)
+                        val dest = SecondDestination(888,false,true)
                         Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
                             Card(
                                 shape = MaterialTheme.shapes.small,
                                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                             ) {
                                 TransplantListItem(
-                                    headlineContent = { Text("卷起动效1") },
+                                    headlineContent = { Text("卷起动效(iOS)") },
                                     modifier = Modifier.clickable {
                                         uId = 888
                                         navController.push(dest, effect = RollTransitionEffect(offset = false,clip = false,))
@@ -364,34 +375,15 @@ fun HomeScreen() {
                             }
                         }
                     }
-                    /*
                     item {
-                        val dest = SecondDestination(888,false,shaderState)
+                        val dest = SecondDestination(999,false,true)
                         Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
                             Card(
                                 shape = MaterialTheme.shapes.small,
                                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                             ) {
                                 TransplantListItem(
-                                    headlineContent = { Text("卷起动效2") },
-                                    modifier = Modifier.clickable {
-                                        uId = 888
-                                        navController.push(dest, effect = RollTransitionEffect(offset = true,clip = false))
-                                    }
-                                )
-                            }
-                        }
-                    }
-                     */
-                    item {
-                        val dest = SecondDestination(999,false,shaderState)
-                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
-                            Card(
-                                shape = MaterialTheme.shapes.small,
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-                            ) {
-                                TransplantListItem(
-                                    headlineContent = { Text("卷起动效2") },
+                                    headlineContent = { Text("卷起动效(透明)") },
                                     modifier = Modifier.clickable {
                                         uId = 999
                                         navController.push(dest, effect = RollTransitionEffect(offset = false,clip = false,))
@@ -400,25 +392,6 @@ fun HomeScreen() {
                             }
                         }
                     }
-                    /*
-                    item {
-                        val dest = SecondDestination(999,false,shaderState)
-                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
-                            Card(
-                                shape = MaterialTheme.shapes.small,
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-                            ) {
-                                TransplantListItem(
-                                    headlineContent = { Text("卷起动效4") },
-                                    modifier = Modifier.clickable {
-                                        uId = 777
-                                        navController.push(dest, effect = RollTransitionEffect(offset = true,clip = false))
-                                    }
-                                )
-                            }
-                        }
-                    }
-                     */
                     items(30) { index ->
                         val destination = SecondDestination(userId = index,false)
                         Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
@@ -545,25 +518,9 @@ fun HomeScreen() {
                                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                             ) {
                                 TransplantListItem(
-                                    headlineContent = { Text("卷起动效1") },
+                                    headlineContent = { Text("卷起动效") },
                                     modifier = Modifier.clickable {
                                         navController.push(dest, effect = RollTransitionEffect(offset = false))
-                                    }
-                                )
-                            }
-                        }
-                    }
-                    item {
-                        val dest = SecondDestination(888,false)
-                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
-                            Card(
-                                shape = MaterialTheme.shapes.small,
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-                            ) {
-                                TransplantListItem(
-                                    headlineContent = { Text("卷起动效2") },
-                                    modifier = Modifier.clickable {
-                                        navController.push(dest, effect = RollTransitionEffect(offset = true))
                                     }
                                 )
                             }
@@ -1228,6 +1185,14 @@ fun HomeScreen() {
                             .navigationBarsPadding()
                             .height((APP_HORIZONTAL_DP + innerPadding.calculateBottomPadding()) * 3))
                     }
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        CardListItem(
+                            headlineContent = { Text("保存数据 ${savedInt}")},
+                            modifier = Modifier.clickable {
+                                savedInt++
+                            }
+                        )
+                    }
                 }
                 CompositionLocalProvider(
                     LocalMinimumInteractiveComponentSize provides 0.dp
@@ -1261,16 +1226,22 @@ fun HomeScreen() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SecondScreen(
-    shaderState : ShaderState? = null,
-    userId : Int
+    userId : Int,
+    useShader : Boolean = false
 ) {
     val navController = LocalNavController.current
-    shaderState?.let {
+    val shaderState = GlobalShaderState.shaderState
+    val useShaderFinal = shaderState != null && useShader && (
+            (navController.transitionEntry?.from?.destination is HomeDestination && navController.transitionEntry?.to?.destination is SecondDestination) ||
+                    (navController.transitionEntry?.from?.destination is SecondDestination && navController.transitionEntry?.to?.destination is HomeDestination)
+            )
+
+    if(useShaderFinal) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .blurLayer(
-                    it,
+                    shaderState,
                     if(userId == 999) {
                         ((1-navController.transitionProgress.value)*25f).dp
                     } else if(userId == 777) {
@@ -1299,7 +1270,7 @@ fun SecondScreen(
     Scaffold(
         modifier = Modifier
             .let {
-                if(shaderState != null) {
+                if(useShaderFinal) {
                     it.alpha(navController.transitionProgress.value)
                 } else {
                     it
@@ -1343,16 +1314,6 @@ fun SecondScreen(
                     }
                 }
                 item { Spacer(Modifier.height(innerPadding.calculateBottomPadding())) }
-            }
-        }
-        if(shaderState != null) {
-            UiHolder.imageBitmap?.let {
-                Image(
-                    it,
-                    null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
             }
         }
     }

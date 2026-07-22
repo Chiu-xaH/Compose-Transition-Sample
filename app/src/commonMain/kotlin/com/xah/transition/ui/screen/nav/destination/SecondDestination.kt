@@ -8,7 +8,7 @@ import com.xah.transition.ui.util.NavDestination
 data class SecondDestination(
     val userId: Int,
     val isLong : Boolean,
-    val shaderState: ShaderState? = null
+    val useShader : Boolean = false
 ) : NavDestination() {
 
     override val title: String = "二级界面"
@@ -20,6 +20,6 @@ data class SecondDestination(
 
     @Composable
     override fun Content() {
-        SecondScreen(shaderState,userId)
+        SecondScreen(userId,useShader)
     }
 }

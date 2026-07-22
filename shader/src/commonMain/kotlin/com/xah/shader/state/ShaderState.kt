@@ -26,6 +26,13 @@ import com.xah.shader.skia.canUseRuntimeShader
 @Composable
 fun rememberShaderState(): ShaderState {
     val graphicsLayer = rememberGraphicsLayer()
+    return rememberShaderState(graphicsLayer)
+}
+
+@Composable
+fun rememberShaderState(
+    graphicsLayer : GraphicsLayer
+): ShaderState {
     return remember(graphicsLayer) {
         ShaderState(graphicsLayer)
     }

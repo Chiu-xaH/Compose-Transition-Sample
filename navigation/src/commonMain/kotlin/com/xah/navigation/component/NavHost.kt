@@ -5,13 +5,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sharednav.common.modifier.touchEvent
+import com.sharednav.common.util.LogUtil
 import com.xah.container.component.base.SharedContent
 import com.xah.container.component.overlay.SharedContainerRoot
 import com.xah.container.controller.SharedRegistry
@@ -29,6 +33,7 @@ import com.xah.navigation.model.action.AliveStrategy
 import com.xah.navigation.model.anim.TransitionEffect
 import com.xah.navigation.model.dest.Dependencies
 import com.xah.navigation.model.dest.Destination
+import com.xah.navigation.model.dest.StackEntry
 import com.xah.navigation.util.DefaultBackHandler
 import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavControllerSafely
@@ -87,7 +92,11 @@ private fun NavHost(
     dependencies: Dependencies = Dependencies(),
     backHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
-    val saveableStateHolder = rememberSaveableStateHolder()
+    val saveableStateHolder = if(!navController.enableKeepAlive) {
+        rememberSaveableStateHolder()
+    } else {
+        null
+    }
 
     LaunchedEffect(registry) {
         navController.sharedRegistry = registry
@@ -112,21 +121,41 @@ private fun NavHost(
             navController.animate()
         }
 
-        val visibleEntries = if (navController.aliveStrategy != AliveStrategy.SAVE_STATE) {
-            remember(navController.stack.size, transitionEntry) {
-                when (transitionEntry?.type) {
-                    ActionType.POP -> listOf(transitionEntry.to, transitionEntry.from)
-                    ActionType.PUSH -> listOf(transitionEntry.from, transitionEntry.to)
-                    else -> navController.stack
+        val visibleEntries = if (navController.enableKeepAlive) {
+            // 全栈模式 KEEP_ALIVE
+            val result = mutableListOf<StackEntry>()
+            for(item in navController.stack) {
+                if(transitionEntry?.to?.id == item.id) {
+                    continue
                 }
+                if(transitionEntry?.from?.id == item.id) {
+                    continue
+                }
+                result.add(item)
+            }
+            when (transitionEntry?.type) {
+                ActionType.POP -> result + listOf(transitionEntry.to, transitionEntry.from)
+                ActionType.PUSH -> result + listOf(transitionEntry.from, transitionEntry.to)
+                else -> navController.stack
             }
         } else {
-            remember(transitionEntry) {
-                when (transitionEntry?.type) {
-                    ActionType.POP -> listOf(transitionEntry.to, transitionEntry.from)
-                    ActionType.PUSH -> listOf(transitionEntry.from, transitionEntry.to)
-                    else -> listOf(navController.stack.last())
-                }
+//            val saved = navController.keepAliveEntries
+//            val result = mutableListOf<StackEntry>()
+//            for(item in saved) {
+//                if(transitionEntry?.to?.id == item.id) {
+//                    continue
+//                }
+//                if(transitionEntry?.from?.id == item.id) {
+//                    continue
+//                }
+//                result.add(item)
+//            }
+//            LogUtil.debug("result=${result.joinToString(",") { it.id }},saved=${saved.joinToString(",") { it.id }}")
+            // 单栈模式 SAVE_STATE //NONE
+            when (transitionEntry?.type) {
+                ActionType.POP -> listOf(transitionEntry.to, transitionEntry.from)
+                ActionType.PUSH -> listOf(transitionEntry.from, transitionEntry.to)
+                else -> listOf(navController.stack.last())
             }
         }
 
@@ -134,170 +163,177 @@ private fun NavHost(
         val enableBlur = navController.enableBlur
         val enableShader = navController.enableShader
 
+        @Composable
+        fun Content(entry: StackEntry) {
+            val isFrom = transitionEntry?.from == entry
+            val isTo = transitionEntry?.to == entry
+
+            val animatedProgress = progress.value
+
+            val finalTransitionMode = transitionEntry?.effect ?: navController.defaultTransitionEffect
+            val effect = finalTransitionMode.pageEffect
+
+            val backgroundEffect = remember(animatedProgress,level) { effect.background(animatedProgress,level) }
+            val foregroundEffect = remember(animatedProgress,level) { effect.foreground(animatedProgress, level) }
+
+            // 当返回时，禁用前景；当前进时，禁用背景；当非动画态，启用
+            val (enableTouch,interceptTouch) = when(transitionEntry?.type) {
+                ActionType.POP -> {
+                    Pair(isTo,false)
+                }
+                ActionType.PUSH -> {
+                    Pair(false,true)
+                }
+                null -> {
+                    Pair(true,true)
+                }
+            }
+
+
+            val enableMirrorForBg = enableShader && effect.backgroundEffect.enableMirror
+            val enableMirrorForFg = enableShader && effect.foregroundEffect.enableMirror
+            val backgroundColor = effect.backgroundEffect.backgroundColor
+
+            // 为保证界面创建的时候，isTransitioning马上为true，完成后置为false，供开发者监听
+            LaunchedEffect(Unit) {
+                navController.setTransiting()
+            }
+
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .let {
+                        // 容器等帧测量时，禁用所有动效，测量容器的真实位置
+                        if (transitionEntry != null) {
+                            when (transitionEntry.type) {
+                                ActionType.PUSH -> {
+                                    if (isFrom) {
+                                        // 背景
+                                        return@let it.backgroundEffect(
+                                            enableMirrorForBg,
+                                            enableBlur,
+                                            backgroundColor,
+                                            backgroundEffect
+                                        )
+                                    }
+                                    if (isTo) {
+                                        // 目标屏幕
+                                        if(!registry.isRunning) {
+                                            return@let it.foregroundEffect(
+                                                enableBlur,
+                                                enableMirrorForFg,
+                                                foregroundEffect,
+                                            )
+                                        }
+                                    }
+                                }
+                                ActionType.POP -> {
+                                    if (isTo) {
+                                        // 背景
+                                        return@let it.backgroundEffect(
+                                            enableMirrorForBg,
+                                            enableBlur,
+                                            backgroundColor,
+                                            backgroundEffect
+                                        )
+                                    }
+                                    if (isFrom) {
+                                        // 退出屏幕
+                                        if(!registry.isRunning) {
+                                            return@let it.foregroundEffect(
+                                                enableBlur,
+                                                enableMirrorForFg,
+                                                foregroundEffect,
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        return@let it
+                    }
+                    .touchEvent(
+                        enableTouch,interceptTouch
+                    )
+            ) {
+                SharedContent(
+                    key = entry.destination.key,
+                    modifier = Modifier
+                        .let {
+                            // 容器等帧测量时，禁用所有动效，测量容器的真实位置
+                            if (transitionEntry != null) {
+                                when (transitionEntry.type) {
+                                    ActionType.PUSH -> {
+                                        if (isFrom) {
+                                            // 背景
+                                            return@let it.innerEffect(
+                                                enableMirrorForBg,
+                                                enableBlur,
+                                                backgroundEffect
+                                            )
+                                        }
+                                        if (isTo) {
+                                            // 目标屏幕
+                                            if(!registry.isRunning) {
+                                                return@let it.innerEffect(
+                                                    enableBlur,
+                                                    enableMirrorForFg,
+                                                    foregroundEffect,
+                                                )
+                                            }
+                                        }
+                                    }
+                                    ActionType.POP -> {
+                                        if (isTo) {
+                                            // 背景
+                                            return@let it.innerEffect(
+                                                enableMirrorForBg,
+                                                enableBlur,
+                                                backgroundEffect
+                                            )
+                                        }
+                                        if (isFrom) {
+                                            // 退出屏幕
+                                            if(!registry.isRunning) {
+                                                return@let it.innerEffect(
+                                                    enableBlur,
+                                                    enableMirrorForFg,
+                                                    foregroundEffect,
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            return@let it
+                        }
+                ) {
+                    val needDisplaySplashScreen = entry.destination.enforcePlaceHolder || (navController.enableSplashScreen)
+                    // NONE等级动效不需要遮罩
+                    val enableSplashScreen = needDisplaySplashScreen && entry.destination.PlaceHolder != null
+                    // 动画过程中且为前景
+                    val inTransiting = (transitionEntry?.type == ActionType.POP && isFrom && navController.isTransitioning) || (transitionEntry?.type == ActionType.PUSH && isTo)
+
+                    if(enableSplashScreen && inTransiting && !navController.inPredictive) {
+                        // SplashScreen
+                        entry.destination.PlaceHolder!!.invoke()
+                    } else {
+                        entry.destination.Content()
+                    }
+                }
+            }
+        }
+
         Box(
             modifier = modifier.fillMaxSize()
         ) {
             visibleEntries.forEachIndexed { _, entry ->
                 key(entry.id) {
-                    saveableStateHolder.SaveableStateProvider(entry.id) {
-                        val isFrom = transitionEntry?.from == entry
-                        val isTo = transitionEntry?.to == entry
-
-                        val animatedProgress = progress.value
-
-                        val finalTransitionMode = transitionEntry?.effect ?: navController.defaultTransitionEffect
-                        val effect = finalTransitionMode.pageEffect
-
-                        val backgroundEffect = remember(animatedProgress,level) { effect.background(animatedProgress,level) }
-                        val foregroundEffect = remember(animatedProgress,level) { effect.foreground(animatedProgress, level) }
-
-                        // 当返回时，禁用前景；当前进时，禁用背景；当非动画态，启用
-                        val (enableTouch,interceptTouch) = when(transitionEntry?.type) {
-                            ActionType.POP -> {
-                                Pair(isTo,false)
-                            }
-                            ActionType.PUSH -> {
-                                Pair(false,true)
-                            }
-                            null -> {
-                                Pair(true,true)
-                            }
-                        }
-
-
-                        val enableMirrorForBg = enableShader && effect.backgroundEffect.enableMirror
-                        val enableMirrorForFg = enableShader && effect.foregroundEffect.enableMirror
-                        val backgroundColor = effect.backgroundEffect.backgroundColor
-
-                        // 为保证界面创建的时候，isTransitioning马上为true，完成后置为false，供开发者监听
-                        LaunchedEffect(Unit) {
-                            navController.setTransiting()
-                        }
-
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .let {
-                                    // 容器等帧测量时，禁用所有动效，测量容器的真实位置
-                                    if (transitionEntry != null) {
-                                        when (transitionEntry.type) {
-                                            ActionType.PUSH -> {
-                                                if (isFrom) {
-                                                    // 背景
-                                                    return@let it.backgroundEffect(
-                                                        enableMirrorForBg,
-                                                        enableBlur,
-                                                        backgroundColor,
-                                                        backgroundEffect
-                                                    )
-                                                }
-                                                if (isTo) {
-                                                    // 目标屏幕
-                                                    if(!registry.isRunning) {
-                                                        return@let it.foregroundEffect(
-                                                            enableBlur,
-                                                            enableMirrorForFg,
-                                                            foregroundEffect,
-                                                        )
-                                                    }
-                                                }
-                                            }
-                                            ActionType.POP -> {
-                                                if (isTo) {
-                                                    // 背景
-                                                    return@let it.backgroundEffect(
-                                                        enableMirrorForBg,
-                                                        enableBlur,
-                                                        backgroundColor,
-                                                        backgroundEffect
-                                                    )
-                                                }
-                                                if (isFrom) {
-                                                    // 退出屏幕
-                                                    if(!registry.isRunning) {
-                                                        return@let it.foregroundEffect(
-                                                            enableBlur,
-                                                            enableMirrorForFg,
-                                                            foregroundEffect,
-                                                        )
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    return@let it
-                                }
-                                .touchEvent(
-                                    enableTouch,interceptTouch
-                                )
-                        ) {
-                            SharedContent(
-                                key = entry.destination.key,
-                                modifier = Modifier
-                                    .let {
-                                        // 容器等帧测量时，禁用所有动效，测量容器的真实位置
-                                        if (transitionEntry != null) {
-                                            when (transitionEntry.type) {
-                                                ActionType.PUSH -> {
-                                                    if (isFrom) {
-                                                        // 背景
-                                                        return@let it.innerEffect(
-                                                            enableMirrorForBg,
-                                                            enableBlur,
-                                                            backgroundEffect
-                                                        )
-                                                    }
-                                                    if (isTo) {
-                                                        // 目标屏幕
-                                                        if(!registry.isRunning) {
-                                                            return@let it.innerEffect(
-                                                                enableBlur,
-                                                                enableMirrorForFg,
-                                                                foregroundEffect,
-                                                            )
-                                                        }
-                                                    }
-                                                }
-                                                ActionType.POP -> {
-                                                    if (isTo) {
-                                                        // 背景
-                                                        return@let it.innerEffect(
-                                                            enableMirrorForBg,
-                                                            enableBlur,
-                                                            backgroundEffect
-                                                        )
-                                                    }
-                                                    if (isFrom) {
-                                                        // 退出屏幕
-                                                        if(!registry.isRunning) {
-                                                            return@let it.innerEffect(
-                                                                enableBlur,
-                                                                enableMirrorForFg,
-                                                                foregroundEffect,
-                                                            )
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        return@let it
-                                    }
-                            ) {
-                                val needDisplaySplashScreen = entry.destination.enforcePlaceHolder || (navController.enableSplashScreen)
-                                // NONE等级动效不需要遮罩
-                                val enableSplashScreen = needDisplaySplashScreen && entry.destination.PlaceHolder != null
-                                // 动画过程中且为前景
-                                val inTransiting = (transitionEntry?.type == ActionType.POP && isFrom && navController.isTransitioning) || (transitionEntry?.type == ActionType.PUSH && isTo)
-
-                                if(enableSplashScreen && inTransiting && !navController.inPredictive) {
-                                    // SplashScreen
-                                    entry.destination.PlaceHolder!!.invoke()
-                                } else {
-                                    entry.destination.Content()
-                                }
-                            }
-                        }
+                    // saveableStateHolder 变化时必须重建页面Content
+                    saveableStateHolder?.SaveableStateProvider(entry.id) {
+                        Content(entry)
                     }
+                        ?: Content(entry)
                 }
             }
         }

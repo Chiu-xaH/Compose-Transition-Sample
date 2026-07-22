@@ -62,9 +62,8 @@ class NavigationController(
 
     /**
      * 是否保留非栈顶页面不被销毁
-     * TODO 暂未上线 没写完
      */
-    internal var aliveStrategy by mutableStateOf(AliveStrategy.KEEP_ALIVE)
+    var enableKeepAlive by mutableStateOf(false)
 
     /**
      * TODO 暂未上线 没写完
@@ -84,7 +83,7 @@ class NavigationController(
 
     internal var inPredictive by mutableStateOf(false)
 
-//    internal val keepAliveEntries = mutableListOf<StackEntry>()
+//    internal val keepAliveEntries = mutableStateListOf<StackEntry>()
 
     private fun getAnimation() =
         if(transitionLevel != EffectLevel.NONE && sharedRegistry?.isRunning == true) {
@@ -175,15 +174,22 @@ class NavigationController(
                                 LogUtil.debug("Push(reuse=true) : reuse destination ${destination.key}")
                                 _stack.add(cachedEntry)
                             } else {
-                                LogUtil.debug("Push(reuse=true) : create destination ${destination.key}")
-//                                keepAliveEntries.add(from)
+                                LogUtil.debug("Push(reuse=true,aliveStrategy=${launchMode.alive}) : create destination ${destination.key}")
+                                if(launchMode.alive) {
+                                    // 在栈底底下渲染UI，以保持存活
+                                    LogUtil.debug("keepAliveEntries.add(${from.id})")
+//                                    keepAliveEntries.add(from)
+                                }
                                 createAndPush(destination,effect)
                             }
                         }
                     } else {
                         LogUtil.debug("Push(reuse=false) : create destination ${destination.key}")
                         // 每次都创建新的并加入栈
-//                        keepAliveEntries.add(from)
+                        if(launchMode.alive) {
+                            // 在栈底底下渲染UI，以保持存活
+//                            keepAliveEntries.add(from)
+                        }
                         createAndPush(destination,effect)
                     }
                 }
@@ -386,7 +392,7 @@ class NavigationController(
         destination: Destination,
         launchMode: LaunchMode = LaunchMode.Push(
             reuse = true,
-            aliveStrategy = aliveStrategy
+            alive = enableKeepAlive
         ),
         effect: TransitionEffect
     ) {
