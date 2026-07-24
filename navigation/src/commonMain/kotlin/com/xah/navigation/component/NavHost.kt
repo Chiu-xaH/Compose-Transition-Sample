@@ -5,17 +5,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sharednav.common.modifier.touchEvent
-import com.sharednav.common.util.LogUtil
 import com.xah.container.component.base.SharedContent
 import com.xah.container.component.overlay.SharedContainerRoot
 import com.xah.container.controller.SharedRegistry
@@ -29,7 +25,6 @@ import com.xah.navigation.anim.innerEffect
 import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.controller.NavigationViewModel
 import com.xah.navigation.model.action.ActionType
-import com.xah.navigation.model.action.AliveStrategy
 import com.xah.navigation.model.anim.TransitionEffect
 import com.xah.navigation.model.dest.Dependencies
 import com.xah.navigation.model.dest.Destination
@@ -38,6 +33,7 @@ import com.xah.navigation.util.DefaultBackHandler
 import com.xah.navigation.util.LocalNavController
 import com.xah.navigation.util.LocalNavControllerSafely
 import com.xah.navigation.util.LocalNavDependencies
+import kotlin.collections.associateBy
 
 @Composable
 fun rememberNavController(
@@ -123,34 +119,13 @@ private fun NavHost(
 
         val visibleEntries = if (navController.enableKeepAlive) {
             // 全栈模式 KEEP_ALIVE
-            val result = mutableListOf<StackEntry>()
-            for(item in navController.stack) {
-                if(transitionEntry?.to?.id == item.id) {
-                    continue
-                }
-                if(transitionEntry?.from?.id == item.id) {
-                    continue
-                }
-                result.add(item)
-            }
+            val result = navController.stack
             when (transitionEntry?.type) {
                 ActionType.POP -> result + listOf(transitionEntry.to, transitionEntry.from)
                 ActionType.PUSH -> result + listOf(transitionEntry.from, transitionEntry.to)
                 else -> navController.stack
             }
         } else {
-//            val saved = navController.keepAliveEntries
-//            val result = mutableListOf<StackEntry>()
-//            for(item in saved) {
-//                if(transitionEntry?.to?.id == item.id) {
-//                    continue
-//                }
-//                if(transitionEntry?.from?.id == item.id) {
-//                    continue
-//                }
-//                result.add(item)
-//            }
-//            LogUtil.debug("result=${result.joinToString(",") { it.id }},saved=${saved.joinToString(",") { it.id }}")
             // 单栈模式 SAVE_STATE //NONE
             when (transitionEntry?.type) {
                 ActionType.POP -> listOf(transitionEntry.to, transitionEntry.from)
@@ -158,6 +133,8 @@ private fun NavHost(
                 else -> listOf(navController.stack.last())
             }
         }
+            // 去重兜底
+            .distincted()
 
         val level = navController.transitionLevel
         val enableBlur = navController.enableBlur
@@ -339,3 +316,5 @@ private fun NavHost(
         }
     }
 }
+
+private fun List<StackEntry>.distincted() = this.associateBy { it.id }.values.toList()

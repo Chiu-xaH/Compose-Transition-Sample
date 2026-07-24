@@ -20,7 +20,6 @@ import com.xah.container.controller.SharedRegistry
 import com.xah.container.model.SharedContainerState
 import com.xah.navigation.anim.effect.DefaultLevelNoneTransitionEffect
 import com.xah.navigation.model.action.ActionType
-import com.xah.navigation.model.action.AliveStrategy
 import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.model.anim.EffectLevel
 import com.xah.navigation.model.anim.TransitionEffect
@@ -128,9 +127,10 @@ class NavigationController(
     }
 
     private fun removeAndPop() : StackEntry? {
-        LogUtil.debug("_stack3=${_stack.map { it.destination.key }}")
         if(canPop()) {
-            LogUtil.debug("_stack4=${_stack.map { it.destination.key }}")
+//            if( _stack.last() == keepAliveEntries.lastOrNull()) {
+//                keepAliveEntries.removeAt(keepAliveEntries.size-1)
+//            }
             return _stack.removeAt(_stack.size-1)
         }
         return null
@@ -174,26 +174,27 @@ class NavigationController(
                                 LogUtil.debug("Push(reuse=true) : reuse destination ${destination.key}")
                                 _stack.add(cachedEntry)
                             } else {
-                                LogUtil.debug("Push(reuse=true,aliveStrategy=${launchMode.alive}) : create destination ${destination.key}")
-                                if(launchMode.alive) {
+                                LogUtil.debug("Push(reuse=true) : create destination ${destination.key}")
+//                                if(!enableKeepAlive && launchMode.alive) {
                                     // 在栈底底下渲染UI，以保持存活
-                                    LogUtil.debug("keepAliveEntries.add(${from.id})")
+//                                    LogUtil.debug("keepAliveEntries.add(${from.id},${from.destination.key})")
 //                                    keepAliveEntries.add(from)
-                                }
+//                                }
                                 createAndPush(destination,effect)
                             }
                         }
                     } else {
                         LogUtil.debug("Push(reuse=false) : create destination ${destination.key}")
                         // 每次都创建新的并加入栈
-                        if(launchMode.alive) {
+//                        if(!enableKeepAlive && launchMode.alive) {
                             // 在栈底底下渲染UI，以保持存活
+//                            LogUtil.debug("keepAliveEntries.add(${from.id},${from.destination.key})")
 //                            keepAliveEntries.add(from)
-                        }
+//                        }
                         createAndPush(destination,effect)
                     }
                 }
-                is LaunchMode.Single -> {
+                is LaunchMode.Clear -> {
                     if(launchMode.reuse) {
                         // 栈内存在则复用并清空其余项，没有则直接CLEAR_STACK
                         // 从栈底（索引0）开始寻找
@@ -307,10 +308,6 @@ class NavigationController(
             val from = current()
             val to = previous() ?: return@launch
 
-//            if(to == keepAliveEntries.last()) {
-//                keepAliveEntries.removeAt(keepAliveEntries.size-1)
-//            }
-
             val type = ActionType.POP
 
             snap(type)
@@ -376,7 +373,10 @@ class NavigationController(
      */
     fun push(
         destination: Destination,
-        launchMode: LaunchMode = LaunchMode.Push(reuse = true),
+        launchMode: LaunchMode = LaunchMode.Push(
+            reuse = true,
+//            alive = enableKeepAlive
+        ),
     ) = push(
         destination,
         launchMode,
@@ -392,7 +392,7 @@ class NavigationController(
         destination: Destination,
         launchMode: LaunchMode = LaunchMode.Push(
             reuse = true,
-            alive = enableKeepAlive
+//            alive = enableKeepAlive
         ),
         effect: TransitionEffect
     ) {
@@ -411,7 +411,7 @@ class NavigationController(
             val finalEffect = if(transitionLevel == EffectLevel.NONE) {
                 levelNoneTransitionEffect
             } else {
-                effect ?: defaultTransitionEffect
+                effect
             }
             pushInternal(destination,launchMode,finalEffect)
         }

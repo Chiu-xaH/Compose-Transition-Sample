@@ -44,7 +44,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -69,7 +68,6 @@ import com.sharednav.common.helper.EnableHelper
 import com.sharednav.common.helper.NoneRoundShape
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.sharednav.common.manager.AnimationSpecManager
-import com.sharednav.common.util.LogUtil
 import com.xah.container.component.base.SharedContainer
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.model.TiltEffect
@@ -85,7 +83,6 @@ import com.xah.navigation.anim.effect.SlideTransitionEffect
 import com.xah.navigation.anim.effect.rememberDefaultPageEffects
 import com.xah.navigation.component.SharedNavHost
 import com.xah.navigation.component.rememberNavController
-import com.xah.navigation.model.action.ActionType
 import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.model.anim.EffectLevel
 import com.xah.navigation.model.anim.effect.sub.Rotation
@@ -1332,7 +1329,7 @@ fun ThirdScreen() {
     ) {
         Button(
             onClick = {
-                navController.push(HomeDestination, LaunchMode.Single(reuse = true, actionType = ActionType.POP))
+                navController.push(HomeDestination, LaunchMode.Clear())
             },
             modifier = Modifier.align(Alignment.Center)
         ) {
