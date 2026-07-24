@@ -2,6 +2,7 @@ package com.xah.navigation.anim.effect
 
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import com.sharednav.common.modifier.defaultMask
 import com.sharednav.common.modifier.noneMask
@@ -13,7 +14,6 @@ import com.xah.navigation.model.anim.effect.EffectValue
 import com.xah.navigation.model.anim.effect.ForegroundPageEffectState
 import com.xah.navigation.model.anim.effect.PageEffect
 import com.xah.navigation.model.anim.effect.PageEffects
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.ScreenCornerHelper
@@ -33,31 +33,27 @@ import com.xah.navigation.model.anim.effect.sub.Roll
 data class RollTransitionEffect(
     val direction: Direction = Direction.TOP,
     val clip : Boolean = true,
-    val offset : Boolean = true,
-    override val pageEffect : PageEffects = RollPageEffects(direction,clip,offset),
+    override val pageEffect : PageEffects = RollPageEffects(direction,clip),
     override val predictiveMinValue: Float = NavigationController.DEFAULT_SHARED_MAX_PRECENT,
     override val pushAnimation: AnimationSpec<Float> = tween(400, easing = NavigationController.DEFAULT_EASING),
     override val popAnimation: AnimationSpec<Float> = tween(400, easing = NavigationController.DEFAULT_EASING)
 ) : TransitionEffect
 
 @Composable
-expect fun rememberRevealPageEffects(
+expect fun rememberRollPageEffects(
     direction : Direction = Direction.TOP,
     clip : Boolean = true,
-    offset : Boolean = true
 ): PageEffects
 
 fun RollPageEffects(
     direction : Direction = Direction.TOP,
     clip : Boolean = true,
-    offset : Boolean = true
-) = RollPageEffects(ScreenCornerHelper.corner, direction, clip,offset)
+) = RollPageEffects(ScreenCornerHelper.corner, direction, clip)
 
 fun RollPageEffects(
     corner : Dp,
     direction : Direction,
     clip : Boolean,
-    offset : Boolean
 ) : PageEffects {
     val clipRevealStart = when(direction) {
         Direction.TOP -> Roll(bottom = 1f)
@@ -65,7 +61,6 @@ fun RollPageEffects(
         Direction.START -> Roll(right = 1f)
         Direction.END -> Roll(left = 1f)
     }
-    val offsetValue = 1/3f
 
     return PageEffects(
         backgroundEffect = BackgroundPageEffectState(
@@ -81,10 +76,11 @@ fun RollPageEffects(
         foregroundEffect = ForegroundPageEffectState(
             effect = PageEffect(
                 corner = EffectValue.const(
-                    if(clip)
-                        androidx.compose.foundation.shape.RoundedCornerShape(corner)
-                    else
+                    if(clip) {
+                        RoundedCornerShape(corner)
+                    } else {
                         NoneRoundShape
+                    }
                 ),
                 roll = EffectValue(
                     start = clipRevealStart,
@@ -93,20 +89,6 @@ fun RollPageEffects(
                 innerBlur = EffectValue(
                     start = 25.dp,
                     end = 0.dp
-                ),
-                translationPercent = EffectValue(
-                    start =
-                        if(offset) {
-                            when(direction) {
-                                Direction.TOP -> Offset(0f, -offsetValue)
-                                Direction.BOTTOM -> Offset(0f, offsetValue)
-                                Direction.START -> Offset(-offsetValue, 0f)
-                                Direction.END -> Offset(offsetValue, 0f)
-                            }
-                        } else {
-                            Offset.Zero
-                        },
-                    end = Offset.Zero
                 )
             )
         )

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
@@ -12,6 +13,7 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sharednav.common.modifier.touchEvent
+import com.sharednav.common.util.LogUtil
 import com.xah.container.component.base.SharedContent
 import com.xah.container.component.overlay.SharedContainerRoot
 import com.xah.container.controller.SharedRegistry
@@ -88,7 +90,8 @@ private fun NavHost(
     dependencies: Dependencies = Dependencies(),
     backHandler: (@Composable () -> Unit) = { DefaultBackHandler() },
 ) {
-    val saveableStateHolder = if(!navController.enableKeepAlive) {
+    val enableKeepAlive = navController.enableKeepAlive
+    val saveableStateHolder = if(!enableKeepAlive) {
         rememberSaveableStateHolder()
     } else {
         null
@@ -117,7 +120,7 @@ private fun NavHost(
             navController.animate()
         }
 
-        val visibleEntries = if (navController.enableKeepAlive) {
+        val visibleEntries = if (enableKeepAlive) {
             // 全栈模式 KEEP_ALIVE
             val result = navController.stack
             when (transitionEntry?.type) {
@@ -126,11 +129,43 @@ private fun NavHost(
                 else -> navController.stack
             }
         } else {
-            // 单栈模式 SAVE_STATE //NONE
+            // 单栈模式 SAVE_STATE
+            /*
             when (transitionEntry?.type) {
                 ActionType.POP -> listOf(transitionEntry.to, transitionEntry.from)
                 ActionType.PUSH -> listOf(transitionEntry.from, transitionEntry.to)
                 else -> listOf(navController.stack.last())
+            }
+             */
+            val compositedEntries = navController.stack
+                .filter { it.keepPreviousAlive }
+                .mapNotNull { entry ->
+                    navController.stack.getOrNull(navController.stack.indexOf(entry) - 1)
+                }
+
+            when (transitionEntry?.type) {
+                ActionType.POP -> {
+                    val base = mutableListOf(transitionEntry.to, transitionEntry.from)
+                    compositedEntries
+                        .filter { it !in base }
+                        .forEach { base.add(0, it) }
+                    base
+                }
+                ActionType.PUSH -> {
+                    val base = mutableListOf(transitionEntry.from, transitionEntry.to)
+                    compositedEntries
+                        .filter { it !in base }
+                        .forEach { base.add(0, it) }
+                    base
+                }
+                else -> {
+                    val top = navController.stack.last()
+                    val base = mutableListOf(top)
+                    compositedEntries
+                        .filter { it != top }
+                        .forEach { base.add(0, it) }
+                    base
+                }
             }
         }
             // 去重兜底
@@ -166,14 +201,19 @@ private fun NavHost(
                 }
             }
 
-
             val enableMirrorForBg = enableShader && effect.backgroundEffect.enableMirror
             val enableMirrorForFg = enableShader && effect.foregroundEffect.enableMirror
             val backgroundColor = effect.backgroundEffect.backgroundColor
 
-            // 为保证界面创建的时候，isTransitioning马上为true，完成后置为false，供开发者监听
-            LaunchedEffect(Unit) {
+            DisposableEffect(Unit) {
+                // 为保证界面创建的时候，isTransitioning马上为true，完成后置为false，供开发者监听
                 navController.setTransiting()
+                LogUtil.debug("viewCreate: $entry; stack=${navController.stack.joinToString(",")}")
+
+                onDispose {
+                    // 界面销毁，一般不需要提供给开发者，开发者自己在自己的页面就可以监听，这里只给个日志供调试
+                    LogUtil.debug("viewDestroy: $entry; stack=${navController.stack.joinToString(",")}")
+                }
             }
 
             Box(

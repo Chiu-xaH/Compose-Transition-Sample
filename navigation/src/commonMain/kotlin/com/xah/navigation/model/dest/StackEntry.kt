@@ -5,7 +5,11 @@ import com.xah.navigation.model.anim.TransitionEffect
 
 class StackEntry(
     val destination: Destination,
-    val transitionMode: TransitionEffect
+    val transitionMode: TransitionEffect,
+    /**
+     * 要求前一个页面保留UI不被销毁，仅enableKeepAlive=false时生效
+     */
+    var keepPreviousAlive : Boolean
 ) {
     var id : String = initId()
         private set
@@ -17,6 +21,6 @@ class StackEntry(
     private fun initId() = randomUUID()
 
     override fun toString(): String {
-        return "StackEntry(id=$id, destination_key=${destination.key})"
+        return "StackEntry(id=$id, destination_key=${destination.key}, keepPreviousAlive=$keepPreviousAlive)"
     }
 }

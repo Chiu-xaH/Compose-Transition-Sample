@@ -55,6 +55,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.TransformOrigin
@@ -68,6 +69,8 @@ import com.sharednav.common.helper.EnableHelper
 import com.sharednav.common.helper.NoneRoundShape
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.sharednav.common.manager.AnimationSpecManager
+import com.sharednav.common.modifier.defaultMask
+import com.sharednav.common.modifier.noneMask
 import com.xah.container.component.base.SharedContainer
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.model.TiltEffect
@@ -85,6 +88,11 @@ import com.xah.navigation.component.SharedNavHost
 import com.xah.navigation.component.rememberNavController
 import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.model.anim.EffectLevel
+import com.xah.navigation.model.anim.effect.BackgroundPageEffectState
+import com.xah.navigation.model.anim.effect.EffectValue
+import com.xah.navigation.model.anim.effect.ForegroundPageEffectState
+import com.xah.navigation.model.anim.effect.PageEffect
+import com.xah.navigation.model.anim.effect.PageEffects
 import com.xah.navigation.model.anim.effect.sub.Rotation
 import com.xah.navigation.model.dest.Destination
 import com.xah.navigation.util.LocalNavController
@@ -169,9 +177,6 @@ fun Main(
     val navigationController = rememberNavController(
         firstPage ?: HomeDestination,
     )
-    LaunchedEffect(Unit) {
-        navigationController.enableKeepAlive = true
-    }
     GlobalShaderStateInit()
 
     val inHomeDest = navigationController.currentDestination == navigationController.startDestination || navigationController.transitionEntry?.to?.destination == navigationController.startDestination || navigationController.transitionEntry?.from?.destination == navigationController.startDestination
@@ -366,7 +371,10 @@ fun HomeScreen() {
                                     headlineContent = { Text("卷起动效(iOS)") },
                                     modifier = Modifier.clickable {
                                         uId = 888
-                                        navController.push(dest, effect = RollTransitionEffect(offset = false,clip = false,))
+                                        navController.push(
+                                            dest,
+                                            effect = RollTransitionEffect(clip = false)
+                                        )
                                     }
                                 )
                             }
@@ -383,7 +391,11 @@ fun HomeScreen() {
                                     headlineContent = { Text("卷起动效(透明)") },
                                     modifier = Modifier.clickable {
                                         uId = 999
-                                        navController.push(dest, effect = RollTransitionEffect(offset = false,clip = false,))
+                                        navController.push(
+                                            dest,
+                                            effect = RollTransitionEffect(clip = false),
+                                            launchMode = LaunchMode.Push(keepPreviousAlive = true)
+                                        )
                                     }
                                 )
                             }
@@ -517,7 +529,7 @@ fun HomeScreen() {
                                 TransplantListItem(
                                     headlineContent = { Text("卷起动效") },
                                     modifier = Modifier.clickable {
-                                        navController.push(dest, effect = RollTransitionEffect(offset = false))
+                                        navController.push(dest, effect = RollTransitionEffect(clip = true))
                                     }
                                 )
                             }
@@ -561,6 +573,28 @@ fun HomeScreen() {
                                         navController.push(
                                             dest,
                                             effect = JumpTransitionEffect(alphaStyle = true)
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        LaunchedEffect(activity) {
+                            activity.let { PermissionSet.checkAndRequestStoragePermission(it) }
+                        }
+                        val dest = SecondDestination(888,false)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            Card(
+                                shape = MaterialTheme.shapes.small,
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                TransplantListItem(
+                                    headlineContent = { Text("不销毁上一个项目") },
+                                    modifier = Modifier.clickable {
+                                        navController.push(
+                                            dest,
+                                            launchMode = LaunchMode.Push(keepPreviousAlive = true)
                                         )
                                     }
                                 )

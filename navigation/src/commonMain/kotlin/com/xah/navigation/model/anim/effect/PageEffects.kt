@@ -20,10 +20,10 @@ open class PageEffects(
             .let {
                 when(level) {
                     EffectLevel.MEDIUM -> {
-                        it.copy(blur = 0.dp)
+                        it.copy(blur = 0.dp, innerBlur = 0.dp)
                     }
                     EffectLevel.LOW -> {
-                        it.copy(blur = 0.dp, scale = 1f)
+                        it.copy(blur = 0.dp, innerBlur = 0.dp, scale = 1f)
                     }
                     else -> {
                         it
@@ -39,10 +39,10 @@ open class PageEffects(
             .let {
                 when(level) {
                     EffectLevel.MEDIUM -> {
-                        it.lerp(progress).copy(blur = 0.dp)
+                        it.lerp(progress).copy(blur = 0.dp, innerBlur = 0.dp)
                     }
                     EffectLevel.LOW -> {
-                        it.lerp(progress).copy(blur = 0.dp)
+                        it.lerp(progress).copy(blur = 0.dp, innerBlur = 0.dp)
                     }
                     else -> {
                         it.lerp(progress)

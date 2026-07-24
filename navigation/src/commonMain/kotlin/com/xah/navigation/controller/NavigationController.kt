@@ -39,6 +39,17 @@ class NavigationController(
     private val _stack: SnapshotStateList<StackEntry> = mutableStateListOf(),
     val sharedTransitionEffect: TransitionEffect,
     var sharedRegistry : SharedRegistry? = null,
+    /**
+     * 全局工作模式
+     * - 为true则所有栈内页面都UI存活，只是被盖住了。优点：不需要手动保持State，代码管理简单。缺点：页面过多时会卡顿甚至OOM。
+     * - 为false则在非动画时只保持栈顶单页面存活，动画时只保持双页面存活，其余页面均被销毁，通过SaveableStateHolder对状态进行保存，缺点：POP时如果上一个页面太重，会影响动画；需要手动使用rememberSaveable等方式保持State，代码管理复杂。优点：内存占用低，不会OOM。
+     *
+     * 即使为false的时候，也可以通过在Push时传入keepPreviousAlive=true，保活上一个页面，UI不会被销毁，所以推荐使用全局false，需要时在Push借助keepPreviousAlive单独豁免。
+     *
+     * 没有放置在 by mutableStateOf()，因为切换全局工作模式是一个非常不常用的操作，应该在初始化的时候就指定好，如确实有这个实时切换的需求可提issue。
+     *
+     */
+    var enableKeepAlive : Boolean = false
 ) {
     val stack: List<StackEntry> get() = _stack
     var transitionEntry by mutableStateOf<TransitionEntry?>(null)
@@ -60,11 +71,6 @@ class NavigationController(
     var enableSplashScreen by mutableStateOf(false)
 
     /**
-     * 是否保留非栈顶页面不被销毁
-     */
-    var enableKeepAlive by mutableStateOf(false)
-
-    /**
      * TODO 暂未上线 没写完
      * 是否允许在预测式手势时，背景也跟随手指进行进度变化，否则将恒为1f直到松手才开始变化
      */
@@ -81,8 +87,6 @@ class NavigationController(
     private fun pushAnimationWithShared() = tween<Float>(AnimationSpecManager.getSharedTween())
 
     internal var inPredictive by mutableStateOf(false)
-
-//    internal val keepAliveEntries = mutableStateListOf<StackEntry>()
 
     private fun getAnimation() =
         if(transitionLevel != EffectLevel.NONE && sharedRegistry?.isRunning == true) {
@@ -116,11 +120,13 @@ class NavigationController(
 
     private fun createAndPush(
         destination : Destination,
-        effect : TransitionEffect
+        effect : TransitionEffect,
+        keepPreviousAlive : Boolean = enableKeepAlive
     ) : StackEntry {
         val newEntry = StackEntry(
             destination = destination,
-            transitionMode = effect
+            transitionMode = effect,
+            keepPreviousAlive = keepPreviousAlive
         )
         _stack += newEntry
         return newEntry
@@ -128,9 +134,6 @@ class NavigationController(
 
     private fun removeAndPop() : StackEntry? {
         if(canPop()) {
-//            if( _stack.last() == keepAliveEntries.lastOrNull()) {
-//                keepAliveEntries.removeAt(keepAliveEntries.size-1)
-//            }
             return _stack.removeAt(_stack.size-1)
         }
         return null
@@ -163,6 +166,9 @@ class NavigationController(
 
             when (launchMode) {
                 is LaunchMode.Push -> {
+                    // 解析 keepPreviousAlive：null 时跟随 from.keepAlive，若栈空则跟随 enableKeepAlive
+                    val keepPreviousAlive = launchMode.keepPreviousAlive ?: from.keepPreviousAlive
+
                     if(launchMode.reuse) {
                         // 如果栈顶是目标项目，则复用
                         if(isCurrentDestination(destination)) {
@@ -175,23 +181,13 @@ class NavigationController(
                                 _stack.add(cachedEntry)
                             } else {
                                 LogUtil.debug("Push(reuse=true) : create destination ${destination.key}")
-//                                if(!enableKeepAlive && launchMode.alive) {
-                                    // 在栈底底下渲染UI，以保持存活
-//                                    LogUtil.debug("keepAliveEntries.add(${from.id},${from.destination.key})")
-//                                    keepAliveEntries.add(from)
-//                                }
-                                createAndPush(destination,effect)
+                                createAndPush(destination,effect,keepPreviousAlive)
                             }
                         }
                     } else {
                         LogUtil.debug("Push(reuse=false) : create destination ${destination.key}")
                         // 每次都创建新的并加入栈
-//                        if(!enableKeepAlive && launchMode.alive) {
-                            // 在栈底底下渲染UI，以保持存活
-//                            LogUtil.debug("keepAliveEntries.add(${from.id},${from.destination.key})")
-//                            keepAliveEntries.add(from)
-//                        }
-                        createAndPush(destination,effect)
+                        createAndPush(destination,effect,keepPreviousAlive)
                     }
                 }
                 is LaunchMode.Clear -> {
@@ -373,10 +369,7 @@ class NavigationController(
      */
     fun push(
         destination: Destination,
-        launchMode: LaunchMode = LaunchMode.Push(
-            reuse = true,
-//            alive = enableKeepAlive
-        ),
+        launchMode: LaunchMode = LaunchMode.Push(),
     ) = push(
         destination,
         launchMode,
@@ -390,10 +383,7 @@ class NavigationController(
      */
     fun push(
         destination: Destination,
-        launchMode: LaunchMode = LaunchMode.Push(
-            reuse = true,
-//            alive = enableKeepAlive
-        ),
+        launchMode: LaunchMode = LaunchMode.Push(),
         effect: TransitionEffect
     ) {
         if(
