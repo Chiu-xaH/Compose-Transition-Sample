@@ -45,7 +45,7 @@ fun PushPageEffects(corner : Dp, clip : Boolean) : PageEffects {
         backgroundEffect = BackgroundPageEffectState(
             enableMirror = true,
             effect = PageEffect(
-                mask = EffectValue(
+                maskLight = EffectValue(
                     start = noneMask,
                     end = defaultMask
                 ),

@@ -4,15 +4,20 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -25,10 +30,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.util.LocalNavController
+import com.xah.transition.ui.screen.nav.destination.ControlCenterDestination
+import com.xah.transition.ui.style.effect.ControlCenterTransitionEffect
 import com.xah.transition.ui.util.LocalPlatformActivity
 import com.xah.transition.ui.util.NavDestination
 import com.xah.transition.util.PlatformActivity
@@ -48,8 +57,10 @@ TODO
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBarNavigationIcon(
+    tint : Color = MaterialTheme.colorScheme.primary,
     modifier : Modifier = Modifier
 ) {
+    val surfaceColor = MaterialTheme.colorScheme.surface
     val navController = LocalNavController.current
     val activity = LocalPlatformActivity()
     val scope = rememberCoroutineScope()
@@ -90,6 +101,12 @@ fun TopBarNavigationIcon(
                                 TransplantListItem(
                                     headlineContent = {
                                         Text(title ,fontWeight = if(isCurrent) FontWeight.Bold else FontWeight.Normal)
+                                    },
+                                    leadingContent = {
+                                        Icon(
+                                            painterResource(dest.icon),
+                                            null
+                                        )
                                     },
                                     trailingContent = {
                                         if(isCurrent) {
@@ -132,7 +149,13 @@ fun TopBarNavigationIcon(
                         activity.finishCurrentActivity()
                     }
                 },
-                onDoubleClick = null,
+                onDoubleClick = {
+                    navController.push(
+                        destination = ControlCenterDestination,
+                        effect = ControlCenterTransitionEffect(compositeOverColor = surfaceColor),
+                        launchMode = LaunchMode.Push(keepPreviousAlive = true)
+                    )
+                },
                 onLongClick = {
                     displayDialog = true
                 }
@@ -150,8 +173,32 @@ fun TopBarNavigationIcon(
                     }
                 ),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = tint
             )
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopBarNavigationIconForControlCenter(
+    tint : Color = MaterialTheme.colorScheme.surface,
+    modifier : Modifier = Modifier
+) {
+    val navController = LocalNavController.current
+
+    IconButton (
+        modifier = modifier.padding(start = APP_HORIZONTAL_DP-8.dp),
+        onClick = {
+            navController.pop()
+        },
+        colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor =  MaterialTheme.colorScheme.surface.copy(.6f))
+    ) {
+        Icon(
+            painterResource(Res.drawable.ic_arrow_back),
+            null,
+            tint = tint,
+            modifier = Modifier.size(25.5.dp)
+        )
     }
 }

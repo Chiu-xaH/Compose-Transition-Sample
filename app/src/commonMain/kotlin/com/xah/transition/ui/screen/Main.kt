@@ -3,6 +3,7 @@ package com.xah.transition.ui.screen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -33,14 +35,17 @@ import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -55,13 +60,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
-import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.RenderEffect
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
@@ -85,14 +92,12 @@ import com.xah.navigation.anim.effect.SlideTransitionEffect
 import com.xah.navigation.anim.effect.rememberDefaultPageEffects
 import com.xah.navigation.component.SharedNavHost
 import com.xah.navigation.component.rememberNavController
+import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.model.anim.EffectLevel
 import com.xah.navigation.model.anim.effect.sub.Rotation
 import com.xah.navigation.model.dest.Destination
 import com.xah.navigation.util.LocalNavController
-import com.xah.shader.skia.RuntimeShader
-import com.xah.shader.skia.RuntimeShaderEffect
-import com.xah.shader.state.shaderLayer
 import com.xah.shader.state.shaderSource
 import com.xah.shader.style.blurLayer
 import com.xah.transition.model.AppIconBean
@@ -101,13 +106,16 @@ import com.xah.transition.ui.component.CARD_NORMAL_DP
 import com.xah.transition.ui.component.CardListItem
 import com.xah.transition.ui.component.CustomCard
 import com.xah.transition.ui.component.CustomSlider
+import com.xah.transition.ui.component.DividerText
 import com.xah.transition.ui.component.DividerTextExpandedWithShared
 import com.xah.transition.ui.component.PaddingHorizontalDivider
 import com.xah.transition.ui.component.TopBarNavigationIcon
+import com.xah.transition.ui.component.TopBarNavigationIconForControlCenter
 import com.xah.transition.ui.component.TransplantListItem
 import com.xah.transition.ui.component.cardNormalColor
 import com.xah.transition.ui.screen.nav.destination.AppIconDestination
 import com.xah.transition.ui.screen.nav.destination.BezierSettingsDestination
+import com.xah.transition.ui.screen.nav.destination.ControlCenterDestination
 import com.xah.transition.ui.screen.nav.destination.CornerSettingsDestination
 import com.xah.transition.ui.screen.nav.destination.HomeDestination
 import com.xah.transition.ui.screen.nav.destination.SecondDestination
@@ -117,22 +125,31 @@ import com.xah.transition.ui.screen.nav.window.BottomSheetWindow
 import com.xah.transition.ui.screen.nav.window.CenterDialogWindow
 import com.xah.transition.ui.screen.nav.window.DialogFloatingWindow
 import com.xah.transition.ui.screen.test.CubicBezierEditor
+import com.xah.transition.ui.style.effect.CONTROL_CENTER_ALPHA
+import com.xah.transition.ui.style.effect.ControlCenterTransitionEffect
 import com.xah.transition.ui.style.topBarTransplantColor
 import com.xah.transition.ui.util.GlobalShaderState
 import com.xah.transition.ui.util.GlobalShaderStateInit
 import com.xah.transition.ui.util.LocalPlatformActivity
 import com.xah.transition.ui.util.LocalPlatformContext
 import com.xah.transition.ui.util.LocalPlatformView
+import com.xah.transition.ui.util.NavDestination
 import com.xah.transition.ui.util.UiHolder
 import com.xah.transition.util.PermissionSet
 import com.xah.transition.util.PlatformView
 import com.xah.transition.util.Starter
+import com.xah.transition.util.ToastUtil
 import com.xah.transition.util.roundOffString
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import sharednav.app.generated.resources.Res
 import sharednav.app.generated.resources.ic_amap
+import sharednav.app.generated.resources.ic_arrow_back
 import sharednav.app.generated.resources.ic_candy
 import sharednav.app.generated.resources.ic_github
+import sharednav.app.generated.resources.ic_home
 import sharednav.app.generated.resources.ic_iqiyi
 import sharednav.app.generated.resources.ic_jd
 import sharednav.app.generated.resources.ic_qweather
@@ -398,6 +415,29 @@ fun HomeScreen() {
                             }
                         }
                     }
+                    item {
+                        LaunchedEffect(activity) {
+                            activity.let { PermissionSet.checkAndRequestStoragePermission(it) }
+                        }
+                        val surfaceColor = MaterialTheme.colorScheme.surface
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            Card(
+                                shape = MaterialTheme.shapes.small,
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                TransplantListItem(
+                                    headlineContent = { Text("启动台") },
+                                    modifier = Modifier.clickable {
+                                        navController.push(
+                                            destination = ControlCenterDestination,
+                                            effect = ControlCenterTransitionEffect(compositeOverColor = surfaceColor),
+                                            launchMode = LaunchMode.Push(keepPreviousAlive = true)
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                    }
                     items(30) { index ->
                         val destination = SecondDestination(userId = index,false)
                         Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
@@ -570,28 +610,6 @@ fun HomeScreen() {
                                         navController.push(
                                             dest,
                                             effect = JumpTransitionEffect(alphaStyle = true)
-                                        )
-                                    }
-                                )
-                            }
-                        }
-                    }
-                    item {
-                        LaunchedEffect(activity) {
-                            activity.let { PermissionSet.checkAndRequestStoragePermission(it) }
-                        }
-                        val dest = SecondDestination(888,false)
-                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
-                            Card(
-                                shape = MaterialTheme.shapes.small,
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-                            ) {
-                                TransplantListItem(
-                                    headlineContent = { Text("不销毁上一个项目") },
-                                    modifier = Modifier.clickable {
-                                        navController.push(
-                                            dest,
-                                            launchMode = LaunchMode.Push(keepPreviousAlive = true)
                                         )
                                     }
                                 )
@@ -1355,24 +1373,32 @@ fun SecondScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThirdScreen() {
     val navController = LocalNavController.current
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
-            .clickable {
-                navController.pop()
-            }
-    ) {
-        Button(
-            onClick = {
-                navController.push(HomeDestination, LaunchMode.Clear())
-            },
-            modifier = Modifier.align(Alignment.Center)
+    Scaffold(
+        topBar = {
+            MediumTopAppBar(
+                colors = topBarTransplantColor(),
+                title = { Text("Third") },
+                navigationIcon = {
+                    TopBarNavigationIcon()
+                }
+            )
+        },
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier.fillMaxSize()
         ) {
-            Text("To Home")
+            Button(
+                onClick = {
+                    navController.backToHome()
+                },
+                modifier = Modifier.align(Alignment.Center)
+            ) {
+                Text("To Home")
+            }
         }
     }
 }
@@ -1543,63 +1569,198 @@ fun BezierSettingsScreen(title: String) {
 }
 
 
-// 初版 无拉伸 有离心
-private const val GLASS_SHADER_CODE_VERSION_1 = """
-uniform shader content;
-uniform float2 size;
-uniform float border;   // 折射边缘宽度 
-uniform float dispersion; // 色散强度
-uniform float distortFactor; // 离心系数，越大扭曲越明显 (0.0~1.0)
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ControlCenterScreen() {
+    val navController = LocalNavController.current
+    val stack = navController.stack.reversed().drop(1)
+    val contentColor = MaterialTheme.colorScheme.onSurface
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
-half4 main(float2 fragCoord) {
-    float2 innerMin = float2(border, border);
-    float2 innerMax = size - innerMin;
+    Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        containerColor = Color.Transparent,
+        topBar = {
+            MediumTopAppBar(
+                scrollBehavior = scrollBehavior,
+                colors = topBarTransplantColor(),
+                title = {
+                    Text(
+                        "启动台",
+                        color = contentColor,
+                        style =  LocalTextStyle.current.copy(
+                            shadow = Shadow(
+                                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                                offset = Offset(0f, 0f),
+                                blurRadius = 20f
+                            )
+                        ),
+                    )
+                },
+                navigationIcon = {
+                    TopBarNavigationIconForControlCenter(contentColor)
+                },
+                actions = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if(navController.previousDestination() != navController.startDestination){
+                            IconButton (
+                                onClick = {
+                                    GlobalScope.launch {
+                                        navController.pop()
+                                        delay(50)
+                                        navController.awaitTransition()
+                                        navController.backToHome()
+                                        ToastUtil.showToast("已回到首页")
+                                    }
+                                },
+                                colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor =  MaterialTheme.colorScheme.errorContainer.copy(.75f))
+                            ) {
+                                Icon(
+                                    painterResource(Res.drawable.ic_home),
+                                    null,
+                                    tint = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier.size(25.5.dp)
+                                )
+                            }
+                        }
+                        Spacer(Modifier.width(APP_HORIZONTAL_DP-8.dp))
+                    }
+                },
+            )
+        },
+    ) { innerPadding ->
+        Box(Modifier.fillMaxSize()) {
+            Box(
+                Modifier
+                    .matchParentSize()
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) {
+                        navController.pop()
+                    }
+            )
+            LazyColumn {
+                item { Spacer(Modifier.height(innerPadding.calculateTopPadding())) }
+                item {
+                    DividerText(
+                        "栈内页面",
+                        contentColor = contentColor,
+                        style =  LocalTextStyle.current.copy(
+                            shadow = Shadow(
+                                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                                offset = Offset(0f, 0f),
+                                blurRadius = 20f
+                            )
+                        ),
+                    )
+                }
+                items(stack.size,key = { stack[it].id }) { index ->
+                    val item = stack[index]
+                    val dest = item.destination as NavDestination
+                    val title = dest.title
+                    val isCurrent = index == 0
 
-    // 主体区域：完全不变
-    if (fragCoord.x >= innerMin.x && fragCoord.x <= innerMax.x &&
-        fragCoord.y >= innerMin.y && fragCoord.y <= innerMax.y) {
-        return content.eval(fragCoord);
+                    CardListItem(
+                        headlineContent = {
+                            Text(title ,fontWeight = if(isCurrent) FontWeight.Bold else FontWeight.Normal)
+                        },
+                        leadingContent = {
+                            Icon(
+                                painterResource(dest.icon),
+                                null
+                            )
+                        },
+                        trailingContent = {
+                            if(isCurrent) {
+                                Icon(painterResource(Res.drawable.ic_arrow_back),null)
+                            }
+                        },
+                        modifier = Modifier.clickable {
+                            if(isCurrent) {
+                                navController.pop()
+                            } else {
+                                GlobalScope.launch {
+                                    navController.pop()
+                                    delay(50)
+                                    navController.awaitTransition()
+                                    navController.push(
+                                        item.destination,
+                                        LaunchMode.PopToExisting()
+                                    )
+                                }
+                            }
+                        },
+                        color = MaterialTheme.colorScheme.surface.copy(1-CONTROL_CENTER_ALPHA)
+                    )
+                }
+                item {
+                    DividerText(
+                        "历史记录",
+                        contentColor = contentColor,
+                        style =  LocalTextStyle.current.copy(
+                            shadow = Shadow(
+                                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                                offset = Offset(0f, 0f),
+                                blurRadius = 20f
+                            )
+                        ),
+                    )
+                }
+                item {
+                    CardListItem(
+                        headlineContent = { Text("正在开发") },
+                        leadingContent = {
+                            Icon(painterResource(Res.drawable.ic_texture),null)
+                        },
+                        modifier = Modifier.clickable {
+
+                        },
+                        color = MaterialTheme.colorScheme.surface.copy(1-CONTROL_CENTER_ALPHA)
+                    )
+                }
+                /*
+                item {
+                    DividerTextExpandedWithShared("快速打开",contentColor = contentColor) {
+                        CardListItem(
+                            headlineContent = { Text("正在开发") },
+                            leadingContent = {
+                                Icon(painterResource(Res.drawable.ic_texture),null)
+                            },
+                            modifier = Modifier.clickable {
+
+                            },
+                            color = MaterialTheme.colorScheme.surface.copy(1-CONTROL_CENTER_ALPHA)
+                        )
+                    }
+                }
+                 */
+                item { Spacer(Modifier.height(innerPadding.calculateBottomPadding())) }
+            }
+        }
     }
-
-    // 最近的内区点（在 innerRect 边上）
-    float2 nearest = clamp(fragCoord, innerMin, innerMax);
-
-    // 到内区边缘的距离（0..border）
-    float dist = distance(fragCoord, nearest);
-    float edgeFactor = clamp(dist / border, 0.0, 1.0);
-
-    // --- 镜面对称采样点 ---
-    float2 mirrored = 2.0 * nearest - fragCoord;
-
-    // 中心点
-    float2 center = size * 0.5;
-
-    // 离心扭曲向量：越靠外，向四角拉伸
-    float2 radial = (center - fragCoord) * distortFactor * edgeFactor; // 反向
-
-    // 镜面采样加上离心扭曲
-    float2 distorted = mirrored + radial;
-
-    // 方向向量：从内区边缘指向当前像素，用于色散
-    float2 dir = normalize(fragCoord - nearest);
-    if (dir.x == 0.0 && dir.y == 0.0) dir = float2(0.0, 0.0);
-
-    // 色散偏移
-    float2 redOffset   = distorted + dir * dispersion * 0.5;
-    float2 greenOffset = distorted;
-    float2 blueOffset  = distorted - dir * dispersion * 0.5;
-
-    // 保证采样点在内区
-    redOffset   = clamp(redOffset, innerMin, innerMax);
-    greenOffset = clamp(greenOffset, innerMin, innerMax);
-    blueOffset  = clamp(blueOffset, innerMin, innerMax);
-
-    // 分通道采样
-    half r = content.eval(redOffset).r;
-    half g = content.eval(greenOffset).g;
-    half b = content.eval(blueOffset).b;
-    half a = content.eval(distorted).a; // alpha 保持原样
-
-    return half4(r, g, b, a);
 }
-"""
+
+private fun NavigationController.backToHome(
+    reuse : Boolean = true
+) {
+    if(reuse) {
+        if(containsDestination(startDestination)) {
+            push(
+                startDestination,
+                LaunchMode.PopToExisting()
+            )
+        } else {
+            push(
+                startDestination,
+                LaunchMode.Clear()
+            )
+        }
+    } else {
+        push(
+            startDestination,
+            LaunchMode.Clear(reuse = false)
+        )
+    }
+}
+

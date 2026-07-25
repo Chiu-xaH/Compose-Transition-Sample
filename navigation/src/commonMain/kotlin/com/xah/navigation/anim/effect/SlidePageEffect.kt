@@ -65,7 +65,7 @@ fun SlidePageEffects(corner : Dp,direction : Direction,clip : Boolean) : PageEff
         backgroundEffect = BackgroundPageEffectState(
             enableMirror = true,
             effect = PageEffect(
-                mask = EffectValue(
+                maskLight = EffectValue(
                     start = noneMask,
                     end = defaultMask
                 ),

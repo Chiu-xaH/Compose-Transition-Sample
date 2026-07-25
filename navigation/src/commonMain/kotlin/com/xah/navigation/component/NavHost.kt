@@ -266,6 +266,14 @@ private fun NavHost(
                                     }
                                 }
                             }
+                        } else if(navController.stack.last() != entry) {
+                            // 仍生效背景效果
+                            return@let it.backgroundEffect(
+                                enableMirrorForBg,
+                                enableBlur,
+                                backgroundColor,
+                                backgroundEffect
+                            )
                         }
                         return@let it
                     }
@@ -321,6 +329,13 @@ private fun NavHost(
                                         }
                                     }
                                 }
+                            } else if(navController.stack.last() != entry) {
+                                // 仍生效背景效果
+                                return@let it.innerEffect(
+                                    enableMirrorForBg,
+                                    enableBlur,
+                                    backgroundEffect
+                                )
                             }
                             return@let it
                         }

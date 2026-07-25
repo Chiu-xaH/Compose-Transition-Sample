@@ -23,4 +23,6 @@ class StackEntry(
     override fun toString(): String {
         return "StackEntry(id=$id, destination_key=${destination.key}, keepPreviousAlive=$keepPreviousAlive)"
     }
+
+    override fun equals(other: Any?): Boolean = (other as? StackEntry)?.id == this.id
 }

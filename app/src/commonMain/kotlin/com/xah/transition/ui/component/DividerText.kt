@@ -16,6 +16,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.xah.container.component.base.SharedContainer
 import com.xah.container.component.base.SharedContent
@@ -42,6 +44,7 @@ val DIVIDER_TEXT_VERTICAL_PADDING = 9.dp
 @Composable
 fun DividerText(
     text: String,
+    style : TextStyle = LocalTextStyle.current,
     contentColor : Color = MaterialTheme.colorScheme.primary,
     onClick: (() -> Unit?)? = null
 ) {
@@ -58,6 +61,7 @@ fun DividerText(
 
     Text(
         text = text,
+        style = style,
         color = color,
         modifier = Modifier
             .padding(horizontal = APP_HORIZONTAL_DP , vertical = DIVIDER_TEXT_VERTICAL_PADDING)
@@ -83,6 +87,7 @@ fun DividerText(
 @Composable
 fun DividerTextExpandedWithShared(
     text : String,
+    style : TextStyle = LocalTextStyle.current,
     shape : RoundedCornerShape = NoneRoundShape,
     contentColor : Color = MaterialTheme.colorScheme.primary,
     content: @Composable () -> Unit
@@ -108,7 +113,7 @@ fun DividerTextExpandedWithShared(
         key = key,
         shape = NoneRoundShape,
     ) {
-        DividerText(text,contentColor, onClick = {
+        DividerText(text,style,contentColor, onClick = {
             set()
         })
     }

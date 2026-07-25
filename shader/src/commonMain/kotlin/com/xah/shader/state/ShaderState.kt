@@ -1,7 +1,6 @@
 package com.xah.shader.state
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,8 +18,6 @@ import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
-import com.xah.shader.skia.RuntimeShader
-import com.xah.shader.skia.RuntimeShaderEffect
 
 @Composable
 fun rememberShaderState(): ShaderState {
@@ -82,7 +79,7 @@ fun Modifier.recordPosition(
 // 自定义效果
 fun Modifier.shaderLayer(
     state: ShaderState,
-    renderEffect : RenderEffect?,
+    renderEffect : RenderEffect? = null,
 ) : Modifier = composed {
     val localLayer = rememberGraphicsLayer()
     var rect by remember { mutableStateOf<Rect?>(null) }

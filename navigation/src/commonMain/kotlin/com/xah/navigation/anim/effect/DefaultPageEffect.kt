@@ -53,7 +53,7 @@ fun DefaultPageEffects(corner : Dp) : PageEffects {
                     start = 0.dp,
                     end = 25.dp
                 ),
-                mask = EffectValue(
+                maskLight = EffectValue(
                     start = noneMask,
                     end = defaultMask
                 ),

@@ -29,7 +29,8 @@ import com.xah.navigation.model.anim.effect.sub.Rotation
 data class PageEffectFrame(
     val scale: Float = 1f,
     val blur: Dp = 0.dp,
-    val mask: Color = Color.Transparent,
+    val maskLight: Color = Color.Transparent,
+    val maskDark: Color = maskLight,
     val corner: CornerBasedShape = RoundedCornerShape(ScreenCornerHelper.corner),
     val alpha: Float = 1f,
     val position: TransformOrigin = TransformOrigin.Center,

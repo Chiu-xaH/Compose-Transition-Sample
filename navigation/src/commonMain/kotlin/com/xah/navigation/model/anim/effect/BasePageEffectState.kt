@@ -18,7 +18,10 @@ abstract class BasePageEffectState(
             blur = with(blur) {
                 androidx.compose.ui.unit.lerp(start, end, getFinalProgress(progress))
             },
-            mask = with(mask) {
+            maskLight = with(maskLight) {
+                androidx.compose.ui.graphics.lerp(start, end, getFinalProgress(progress))
+            },
+            maskDark = with(maskDark) {
                 androidx.compose.ui.graphics.lerp(start, end, getFinalProgress(progress))
             },
             corner = with(corner) {

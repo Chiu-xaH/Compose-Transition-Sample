@@ -1,7 +1,9 @@
 package com.xah.navigation.anim
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.paint
@@ -15,7 +17,15 @@ import com.xah.navigation.model.anim.effect.sub.BgEffectBackground
 import com.xah.navigation.model.anim.effect.sub.Roll
 import com.xah.navigation.model.anim.effect.sub.RollShape
 
-private fun Modifier.mask(effect: PageEffectFrame) : Modifier = this.mask(effect.mask)
+private fun Modifier.mask(effect: PageEffectFrame) : Modifier = composed {
+    this.mask(
+        if(isSystemInDarkTheme()) {
+            effect.maskDark
+        } else {
+            effect.maskLight
+        }
+    )
+}
 
 private fun Modifier.blur(enableBlur : Boolean,effect : PageEffectFrame) : Modifier {
     return if(enableBlur) {
