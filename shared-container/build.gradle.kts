@@ -37,7 +37,7 @@ kotlin {
             implementation(libs.lifecycle.viewmodel)
             implementation(libs.lifecycle.viewmodel.compose)
             api(project(":common"))
-            implementation(project(":shader"))
+            api(project(":shader"))
         }
         androidMain.dependencies {
         }

@@ -1,14 +1,18 @@
 package com.xah.transition.ui.style.effect
 
 import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.NoneRoundShape
+import com.xah.navigation.controller.NavigationController
 import com.xah.navigation.model.anim.EffectLevel
 import com.xah.navigation.model.anim.TransitionEffect
 import com.xah.navigation.model.anim.effect.BackgroundPageEffectState
@@ -19,15 +23,15 @@ import com.xah.navigation.model.anim.effect.PageEffectFrame
 import com.xah.navigation.model.anim.effect.PageEffects
 
 const val CONTROL_CENTER_ALPHA = 0.125f
-private val CONTROL_CENTER_BLUR = 42.5.dp
 private const val CONTROL_CENTER_SCALE = 0.85f
+private const val CONTROL_CENTER_TWEEN = 550
 
 data class ControlCenterTransitionEffect(
     val compositeOverColor : Color? = null,
     override val pageEffect : PageEffects = ControlCenterEffects(compositeOverColor),
-    override val predictiveMinValue: Float = 0.85f,
-    override val pushAnimation: AnimationSpec<Float> = tween(400),
-    override val popAnimation: AnimationSpec<Float> = tween(400)
+    override val predictiveMinValue: Float = CONTROL_CENTER_SCALE,
+    override val pushAnimation: AnimationSpec<Float> = tween(CONTROL_CENTER_TWEEN),
+    override val popAnimation: AnimationSpec<Float> = tween(CONTROL_CENTER_TWEEN)
 ) : TransitionEffect
 
 @Composable
@@ -36,7 +40,8 @@ fun rememberControlCenterEffects(): PageEffects = ControlCenterEffects(MaterialT
 fun ControlCenterEffects(
     compositeOverColor : Color? = null
 ) : PageEffects {
-
+    val fgScale = 0.9f
+    val blur = 42.5.dp
     return object : PageEffects(
         backgroundEffect = BackgroundPageEffectState(
             enableMirror = true,
@@ -56,25 +61,29 @@ fun ControlCenterEffects(
                 ),
                 blur = EffectValue(
                     start = 0.dp,
-                    end = CONTROL_CENTER_BLUR
+                    end = blur
                 )
             )
         ),
         foregroundEffect = ForegroundPageEffectState(
-            enableMirror = true,
+            enableMirror = false,
             effect = PageEffect(
                 corner = EffectValue.const(NoneRoundShape),
                 scale = EffectValue(
-                    start = CONTROL_CENTER_SCALE,
+                    start = fgScale,
                     end = 1f
                 ),
                 blur = EffectValue(
-                    start = CONTROL_CENTER_BLUR,
+                    start = blur,
                     end = 0.dp
                 ),
                 alpha = EffectValue(
                     start = 0f,
                     end = 1f
+                ),
+                translationPercent = EffectValue(
+                    start = Offset(0f,fgScale-1f),
+                    end = Offset(0f,0f)
                 )
             )
         )

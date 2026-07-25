@@ -20,8 +20,11 @@ maven {
 }
 ```
 添加依赖，版本以 Release 的 Tag 为准
-```Groovy
-implementation("com.github.Chiu-xaH:SharedNav:<version>")
+```Kotlin
+implementation("com.github.Chiu-xaH.SharedNav:navigation-android:<version>")
+implementation("com.github.Chiu-xaH.SharedNav:navigation-jvm:<version>")
+implementation("com.github.Chiu-xaH.SharedNav:navigation-ios:<version>")
+implementation("com.github.Chiu-xaH.SharedNav:navigation:<version>")
 ```
 
 ---

@@ -340,7 +340,7 @@ private fun NavHost(
                             return@let it
                         }
                 ) {
-                    val needDisplaySplashScreen = entry.destination.enforcePlaceHolder || (navController.enableSplashScreen)
+                    val needDisplaySplashScreen = entry.destination.enforcePlaceHolder ?: navController.enableSplashScreen
                     // NONE等级动效不需要遮罩
                     val enableSplashScreen = needDisplaySplashScreen && entry.destination.PlaceHolder != null
                     // 动画过程中且为前景

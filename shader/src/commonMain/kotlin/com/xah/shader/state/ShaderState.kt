@@ -35,10 +35,10 @@ fun rememberShaderState(
 }
 
 class ShaderState internal constructor(
-    internal val graphicsLayer: GraphicsLayer,
+    val graphicsLayer: GraphicsLayer,
 ) {
     // 裁剪形状
-    internal var rect: Rect? by mutableStateOf(null)
+    var rect: Rect? by mutableStateOf(null)
 }
 
 // 记录内容

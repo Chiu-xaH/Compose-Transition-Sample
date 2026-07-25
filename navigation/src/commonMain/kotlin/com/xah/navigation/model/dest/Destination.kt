@@ -9,9 +9,9 @@ abstract class Destination {
     abstract val key: String
 
     /**
-     * 突破Controller的enableSplashScreen限制
+     * 突破Controller的enableSplashScreen限制，自主决定是否使用PlaceHolder，为空时跟随全局
      */
-    open val enforcePlaceHolder : Boolean = false
+    open val enforcePlaceHolder : Boolean? = null
 
     /**
      * 是否等PUSH动画完成后再加载，如果是则需要传一个PlaceHolder(Splash Screen)先显示，比如初始化相机时如果不延迟加载动效就会卡顿

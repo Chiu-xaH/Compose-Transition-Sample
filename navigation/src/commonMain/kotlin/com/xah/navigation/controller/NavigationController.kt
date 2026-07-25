@@ -429,17 +429,68 @@ class NavigationController(
     suspend fun awaitTransition() = snapshotFlow { isTransitioning }.filter { !it }.first()
 
     fun current() : StackEntry = _stack.last()
+
+    val current by derivedStateOf { _stack.last() }
+
     fun currentDestination() : Destination = current().destination
 
     val currentDestination by derivedStateOf { _stack.last().destination }
 
     fun isCurrentDestination(destination : Destination) : Boolean = currentDestination() == destination
 
-    private fun previous() : StackEntry? = _stack.getOrNull(_stack.lastIndex - 1)
+    /**
+     * n=1时为上一个
+     * n=2时为上上个
+     * ...
+     */
+    fun previous(n : Int = 1) : StackEntry? = _stack.getOrNull(_stack.lastIndex - n)
 
-    fun previousDestination() : Destination? = previous()?.destination
+    val previous by derivedStateOf { _stack.getOrNull(_stack.lastIndex - 1) }
+
+    /**
+     * n=1时为上一个
+     * n=2时为上上个
+     * ...
+     */
+    fun previousDestination(n : Int = 1) : Destination? = previous(n)?.destination
 
     val previousDestination by derivedStateOf { _stack.getOrNull(_stack.lastIndex - 1)?.destination }
+
+    /**
+     * 寻找上一个非存活态导航
+     * 从后向前找，直到器keepAlive=false返回
+     */
+    fun previousNotAlive(): StackEntry? {
+        for (i in _stack.lastIndex - 1 downTo 1) {
+            val entry = _stack[i]
+            if (!entry.keepPreviousAlive) {
+                return _stack[i-1]
+            }
+        }
+        return null
+    }
+
+    val previousNotAlive by derivedStateOf {
+        for (i in _stack.lastIndex - 1 downTo 1) {
+            val entry = _stack[i]
+            if (!entry.keepPreviousAlive) {
+                return@derivedStateOf _stack[i-1]
+            }
+        }
+        return@derivedStateOf null
+    }
+
+    fun previousNotAliveDestination() : Destination? = previousNotAlive()?.destination
+
+    val previousNotAliveDestination by derivedStateOf {
+        for (i in _stack.lastIndex - 1 downTo 1) {
+            val entry = _stack[i]
+            if (!entry.keepPreviousAlive) {
+                return@derivedStateOf _stack[i-1].destination
+            }
+        }
+        return@derivedStateOf null
+    }
 
     fun canPop() : Boolean = _stack.size > 1
 

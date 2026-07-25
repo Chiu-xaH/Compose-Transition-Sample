@@ -37,9 +37,7 @@ kotlin {
             implementation(compose.material3)
             implementation(libs.lifecycle.viewmodel)
             implementation(libs.lifecycle.viewmodel.compose)
-            api(project(":shared-container"))
             api(project(":floating-window"))
-            api(project(":common"))
         }
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)

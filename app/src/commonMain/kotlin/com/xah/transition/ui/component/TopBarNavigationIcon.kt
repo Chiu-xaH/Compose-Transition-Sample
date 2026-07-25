@@ -2,6 +2,7 @@ package com.xah.transition.ui.component
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -23,6 +24,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -31,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -136,11 +139,59 @@ fun TopBarNavigationIcon(
     }
 
     val enabled = navController.canPop()
+    var downDrag by remember { mutableFloatStateOf(0f) }
+    var rightDrag by remember { mutableFloatStateOf(0f) }
 
     Box(
         modifier = modifier
             .padding(horizontal = CARD_NORMAL_DP/2)
             .clip(CircleShape)
+            .pointerInput(Unit) {
+                detectDragGestures(
+                    onDrag = { _, dragAmount ->
+                        val dx = dragAmount.x
+                        val dy = dragAmount.y
+
+                        // 下滑唤醒启动台 TODO 后期做跟手
+                        if (dy > 0 && kotlin.math.abs(dy) > kotlin.math.abs(dx)) {
+                            downDrag += dy
+                            rightDrag = 0f
+
+                            if (downDrag >= 300f) {
+                                downDrag = 0f
+                                navController.push(
+                                    destination = ControlCenterDestination,
+                                    effect = ControlCenterTransitionEffect(compositeOverColor = surfaceColor),
+                                    launchMode = LaunchMode.Push(keepPreviousAlive = true)
+                                )
+                            }
+                        }
+                        // 向右
+                        else if (dx > 0 && kotlin.math.abs(dx) > kotlin.math.abs(dy)) {
+                            rightDrag += dx
+                            downDrag = 0f
+
+                            if (rightDrag >= 300f) {
+                                rightDrag = 0f
+                                // 右滑返回 TODO 后期做跟手
+//                                if(canPop) {
+//                                    navController.pop()
+//                                } else {
+//                                    activity?.finish()
+//                                }
+                            }
+                        }
+                    },
+                    onDragEnd = {
+                        downDrag = 0f
+                        rightDrag = 0f
+                    },
+                    onDragCancel = {
+                        downDrag = 0f
+                        rightDrag = 0f
+                    }
+                )
+            }
             .combinedClickable(
                 onClick = {
                     if(enabled) {
@@ -149,13 +200,7 @@ fun TopBarNavigationIcon(
                         activity.finishCurrentActivity()
                     }
                 },
-                onDoubleClick = {
-                    navController.push(
-                        destination = ControlCenterDestination,
-                        effect = ControlCenterTransitionEffect(compositeOverColor = surfaceColor),
-                        launchMode = LaunchMode.Push(keepPreviousAlive = true)
-                    )
-                },
+                onDoubleClick = null,
                 onLongClick = {
                     displayDialog = true
                 }

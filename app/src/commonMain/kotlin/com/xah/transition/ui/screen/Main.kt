@@ -3,6 +3,7 @@ package com.xah.transition.ui.screen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerBasedShape
@@ -66,7 +68,10 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -1576,6 +1581,39 @@ fun ControlCenterScreen() {
     val stack = navController.stack.reversed().drop(1)
     val contentColor = MaterialTheme.colorScheme.onSurface
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val threshold = remember { 120f }
+    val listState = rememberLazyListState()
+    var overscroll by remember { mutableFloatStateOf(0f) }
+    val listNestedScrollConnection = remember(navController) {
+        object : NestedScrollConnection {
+
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+                val layoutInfo = listState.layoutInfo
+                val lastVisible = layoutInfo.visibleItemsInfo.lastOrNull()
+
+                val atBottom =
+                    lastVisible != null &&
+                            lastVisible.index == layoutInfo.totalItemsCount - 1 &&
+                            lastVisible.offset + lastVisible.size <= layoutInfo.viewportEndOffset
+
+                if (atBottom && available.y < 0) {
+                    overscroll += -available.y
+                    if (overscroll >= threshold) {
+                        overscroll = 0f
+                        navController.pop()
+                    }
+                } else {
+                    overscroll = 0f
+                }
+
+                return Offset.Zero
+            }
+        }
+    }
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -1640,7 +1678,10 @@ fun ControlCenterScreen() {
                         navController.pop()
                     }
             )
-            LazyColumn {
+            LazyColumn(
+//                state = listState,
+//                modifier = Modifier.nestedScroll(listNestedScrollConnection)
+            ) {
                 item { Spacer(Modifier.height(innerPadding.calculateTopPadding())) }
                 item {
                     DividerText(
