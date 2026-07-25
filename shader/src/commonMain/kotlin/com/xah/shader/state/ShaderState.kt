@@ -1,7 +1,7 @@
 package com.xah.shader.state
 
-import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -11,8 +11,6 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.layer.GraphicsLayer
@@ -21,7 +19,8 @@ import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
-import com.xah.shader.skia.canUseRuntimeShader
+import com.xah.shader.skia.RuntimeShader
+import com.xah.shader.skia.RuntimeShaderEffect
 
 @Composable
 fun rememberShaderState(): ShaderState {
@@ -83,61 +82,42 @@ fun Modifier.recordPosition(
 // 自定义效果
 fun Modifier.shaderLayer(
     state: ShaderState,
-    overlayColor : Color,
-    renderEffect :  RenderEffect?,
-    rect : Rect?,
-    enabled : Boolean = true,
-    onRect : (Rect) -> Unit,
-) : Modifier =
-    if(!enabled || overlayColor.alpha == 1f || !canUseRuntimeShader) {
-        // 只有蒙版
-        this.background(overlayColor)
-    } else {
-        composed {
-            val localLayer = rememberGraphicsLayer()
+    renderEffect : RenderEffect?,
+) : Modifier = composed {
+    val localLayer = rememberGraphicsLayer()
+    var rect by remember { mutableStateOf<Rect?>(null) }
 
-            this
-                .drawWithCache {
-                    onDrawWithContent {
-                        localLayer.apply {
-                            val contentRect = state.rect ?: return@apply
-                            val surfaceRect = rect ?: return@apply
-                            val offset = surfaceRect.topLeft - contentRect.topLeft
+    this
+        .drawWithCache {
+            onDrawWithContent {
+                localLayer.apply {
+                    val contentRect = state.rect ?: return@apply
+                    val surfaceRect = rect ?: return@apply
+                    val offset = surfaceRect.topLeft - contentRect.topLeft
 
-                            record {
-                                withTransform({
-                                    translate(-offset.x, -offset.y)
-                                }) {
-                                    drawLayer(state.graphicsLayer)
-                                }
-                            }
+                    record {
+                        withTransform({
+                            translate(-offset.x, -offset.y)
+                        }) {
+                            drawLayer(state.graphicsLayer)
                         }
-                        localLayer.renderEffect = renderEffect
-                        rect?.let {
-                            withTransform({
-                                clipRect(0f, 0f, it.width, it.height)
-                            }) {
-                                // 裁切录制的内容
-                                drawLayer(localLayer)
-                                if (overlayColor.alpha > 0f) {
-                                    drawRect(
-                                        color = overlayColor,
-                                        size = Size(it.width, it.height),
-                                        alpha = overlayColor.alpha
-                                    )
-                                }
-                            }
-                        }
-                        // 原内容
-                        drawContent()
                     }
                 }
-                // 记录位置
-                .recordPosition {
-                    onRect(it)
+                localLayer.renderEffect = renderEffect
+                rect?.let {
+                    withTransform({
+                        clipRect(0f, 0f, it.width, it.height)
+                    }) {
+                        // 裁切录制的内容
+                        drawLayer(localLayer)
+                    }
                 }
+                // 原内容
+                drawContent()
+            }
         }
-    }
-
-
-
+        // 记录位置
+        .recordPosition {
+            rect = it
+        }
+}

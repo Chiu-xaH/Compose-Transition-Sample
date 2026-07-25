@@ -10,9 +10,12 @@ import androidx.compose.ui.unit.Dp
 
 expect fun RenderEffect?.chain(other: RenderEffect): RenderEffect
 
+/**
+ * @param uniformShaderName 传入AGSL中  uniform shader xxx; 定义的名字，一般为content
+ */
 expect fun RuntimeShaderEffect(
     runtimeShader: RuntimeShader,
-    uniformShaderName: String
+    uniformShaderName: String = "content"
 ): RenderEffect
 
 expect val canUseBlurRenderEffect : Boolean

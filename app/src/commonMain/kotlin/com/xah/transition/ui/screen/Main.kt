@@ -55,9 +55,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -69,8 +70,6 @@ import com.sharednav.common.helper.EnableHelper
 import com.sharednav.common.helper.NoneRoundShape
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.sharednav.common.manager.AnimationSpecManager
-import com.sharednav.common.modifier.defaultMask
-import com.sharednav.common.modifier.noneMask
 import com.xah.container.component.base.SharedContainer
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.model.TiltEffect
@@ -88,16 +87,14 @@ import com.xah.navigation.component.SharedNavHost
 import com.xah.navigation.component.rememberNavController
 import com.xah.navigation.model.action.LaunchMode
 import com.xah.navigation.model.anim.EffectLevel
-import com.xah.navigation.model.anim.effect.BackgroundPageEffectState
-import com.xah.navigation.model.anim.effect.EffectValue
-import com.xah.navigation.model.anim.effect.ForegroundPageEffectState
-import com.xah.navigation.model.anim.effect.PageEffect
-import com.xah.navigation.model.anim.effect.PageEffects
 import com.xah.navigation.model.anim.effect.sub.Rotation
 import com.xah.navigation.model.dest.Destination
 import com.xah.navigation.util.LocalNavController
+import com.xah.shader.skia.RuntimeShader
+import com.xah.shader.skia.RuntimeShaderEffect
+import com.xah.shader.state.shaderLayer
+import com.xah.shader.state.shaderSource
 import com.xah.shader.style.blurLayer
-import com.xah.shader.style.blurSource
 import com.xah.transition.model.AppIconBean
 import com.xah.transition.ui.component.APP_HORIZONTAL_DP
 import com.xah.transition.ui.component.CARD_NORMAL_DP
@@ -277,7 +274,7 @@ fun HomeScreen() {
             .fillMaxSize()
             .let {
                 shaderState?.let { state ->
-                    it.blurSource(state)
+                    it.shaderSource(state)
                 } ?: it
             }
     ) {
@@ -1268,17 +1265,25 @@ fun SecondScreen(
             )
 
     if(useShaderFinal) {
+        val progress = when (userId) {
+            999 -> 1f - navController.transitionProgress.value
+            777 -> navController.transitionProgress.value
+            else -> 1f
+        }
+        val maxValue = when (userId) {
+            999 -> 25.dp
+            777 -> 25.dp
+            else -> 20.dp
+        }
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .blurLayer(
                     shaderState,
-                    if(userId == 999) {
-                        ((1-navController.transitionProgress.value)*25f).dp
-                    } else if(userId == 777) {
-                        (navController.transitionProgress.value * 25f).dp
+                    if(navController.transitionLevel == EffectLevel.HIGH) {
+                        (progress*(maxValue.value)).dp
                     } else {
-                        20.dp
+                        0.dp
                     }
                 )
         )
@@ -1538,3 +1543,63 @@ fun BezierSettingsScreen(title: String) {
 }
 
 
+// 初版 无拉伸 有离心
+private const val GLASS_SHADER_CODE_VERSION_1 = """
+uniform shader content;
+uniform float2 size;
+uniform float border;   // 折射边缘宽度 
+uniform float dispersion; // 色散强度
+uniform float distortFactor; // 离心系数，越大扭曲越明显 (0.0~1.0)
+
+half4 main(float2 fragCoord) {
+    float2 innerMin = float2(border, border);
+    float2 innerMax = size - innerMin;
+
+    // 主体区域：完全不变
+    if (fragCoord.x >= innerMin.x && fragCoord.x <= innerMax.x &&
+        fragCoord.y >= innerMin.y && fragCoord.y <= innerMax.y) {
+        return content.eval(fragCoord);
+    }
+
+    // 最近的内区点（在 innerRect 边上）
+    float2 nearest = clamp(fragCoord, innerMin, innerMax);
+
+    // 到内区边缘的距离（0..border）
+    float dist = distance(fragCoord, nearest);
+    float edgeFactor = clamp(dist / border, 0.0, 1.0);
+
+    // --- 镜面对称采样点 ---
+    float2 mirrored = 2.0 * nearest - fragCoord;
+
+    // 中心点
+    float2 center = size * 0.5;
+
+    // 离心扭曲向量：越靠外，向四角拉伸
+    float2 radial = (center - fragCoord) * distortFactor * edgeFactor; // 反向
+
+    // 镜面采样加上离心扭曲
+    float2 distorted = mirrored + radial;
+
+    // 方向向量：从内区边缘指向当前像素，用于色散
+    float2 dir = normalize(fragCoord - nearest);
+    if (dir.x == 0.0 && dir.y == 0.0) dir = float2(0.0, 0.0);
+
+    // 色散偏移
+    float2 redOffset   = distorted + dir * dispersion * 0.5;
+    float2 greenOffset = distorted;
+    float2 blueOffset  = distorted - dir * dispersion * 0.5;
+
+    // 保证采样点在内区
+    redOffset   = clamp(redOffset, innerMin, innerMax);
+    greenOffset = clamp(greenOffset, innerMin, innerMax);
+    blueOffset  = clamp(blueOffset, innerMin, innerMax);
+
+    // 分通道采样
+    half r = content.eval(redOffset).r;
+    half g = content.eval(greenOffset).g;
+    half b = content.eval(blueOffset).b;
+    half a = content.eval(distorted).a; // alpha 保持原样
+
+    return half4(r, g, b, a);
+}
+"""
