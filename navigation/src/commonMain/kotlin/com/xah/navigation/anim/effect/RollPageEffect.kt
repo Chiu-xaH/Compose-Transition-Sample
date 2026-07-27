@@ -4,6 +4,7 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import com.sharednav.common.modifier.defaultMask
 import com.sharednav.common.modifier.noneMask
 import com.sharednav.common.helper.NoneRoundShape
@@ -17,6 +18,8 @@ import com.xah.navigation.model.anim.effect.PageEffects
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.ScreenCornerHelper
+import com.xah.navigation.model.anim.EffectLevel
+import com.xah.navigation.model.anim.effect.PageEffectFrame
 import com.xah.navigation.model.anim.effect.sub.Roll
 
 /**
@@ -62,13 +65,13 @@ fun RollPageEffects(
         Direction.END -> Roll(left = 1f)
     }
 
-    return PageEffects(
+    return object : PageEffects(
         backgroundEffect = BackgroundPageEffectState(
             enableMirror = true,
             effect = PageEffect(
                 maskLight = EffectValue(
                     start = noneMask,
-                    end = defaultMask
+                    end = defaultMask,
                 ),
                 corner = EffectValue.const(NoneRoundShape),
             )
@@ -92,5 +95,15 @@ fun RollPageEffects(
                 )
             )
         )
-    )
+    ) {
+        override fun background(progress: Float, level: EffectLevel): PageEffectFrame {
+            return super.background(progress, level).let {
+                if(progress != 1f) {
+                    it
+                } else {
+                    it.copy(maskLight = Color.Transparent, maskDark = Color.Transparent)
+                }
+            }
+        }
+    }
 }

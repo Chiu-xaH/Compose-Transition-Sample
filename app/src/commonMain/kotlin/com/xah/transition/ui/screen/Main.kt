@@ -1148,9 +1148,9 @@ fun HomeScreen() {
                                             },
                                             overlineContent =
                                                 if(!EnableHelper.canShader) {
-                                                    { Text("Android 13+") }
+                                                    { Text("Android 13+", color = contentColorFor(bgColor)) }
                                                 } else {
-                                                    null
+                                                    { Text("正在开发", color = contentColorFor(bgColor)) }
                                                 },
                                             modifier = Modifier
                                                 .weight(1/3f)
@@ -1222,6 +1222,9 @@ fun HomeScreen() {
                                 headlineContent = {
                                     Text("Github")
                                 },
+                                supportingContent = {
+                                    Text("引入本库在您的Android、KMP-iOS、KMP-Desktop、KMP-Web(待适配)项目上方便地实现此效果")
+                                },
                                 leadingContent = {
                                     Icon(painterResource(Res.drawable.ic_github),null)
                                 },
@@ -1236,14 +1239,14 @@ fun HomeScreen() {
                             .navigationBarsPadding()
                             .height((APP_HORIZONTAL_DP + innerPadding.calculateBottomPadding()) * 3))
                     }
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        CardListItem(
-                            headlineContent = { Text("保存数据 ${savedInt}")},
-                            modifier = Modifier.clickable {
-                                savedInt++
-                            }
-                        )
-                    }
+//                    item(span = { GridItemSpan(maxLineSpan) }) {
+//                        CardListItem(
+//                            headlineContent = { Text("保存数据 ${savedInt}")},
+//                            modifier = Modifier.clickable {
+//                                savedInt++
+//                            }
+//                        )
+//                    }
                 }
                 CompositionLocalProvider(
                     LocalMinimumInteractiveComponentSize provides 0.dp
@@ -1312,15 +1315,16 @@ fun SecondScreen(
         )
     }
     if(userId == 999) {
+//        ControlCenterScreen()
         Scaffold(
             containerColor = Color.Transparent,
             topBar = {
                 MediumTopAppBar(
                     colors = topBarTransplantColor(),
-                    title = { Text("二级界面") },
+                    title = { Text("") },
                     navigationIcon = {
-                        TopBarNavigationIcon()
-                    }
+                        TopBarNavigationIconForControlCenter()
+                    },
                 )
             },
         ) {}
