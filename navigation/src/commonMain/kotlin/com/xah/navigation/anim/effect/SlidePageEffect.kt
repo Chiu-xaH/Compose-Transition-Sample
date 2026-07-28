@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.sharednav.common.modifier.defaultMask
 import com.sharednav.common.modifier.noneMask
@@ -69,16 +70,26 @@ fun SlidePageEffects(corner : Dp,direction : Direction,clip : Boolean) : PageEff
                     start = noneMask,
                     end = defaultMask
                 ),
+                blur = EffectValue(
+                    start = 0.dp,
+                    end = 10.dp
+                ),
+                scale = EffectValue(
+                    start = 1f,
+                    end = 0.975f
+                ),
                 corner = EffectValue.const(NoneRoundShape),
             )
         ),
         foregroundEffect = ForegroundPageEffectState(
             effect = PageEffect(
                 corner = EffectValue.const(
-                    if(clip)
+                    if(clip) {
                         RoundedCornerShape(corner)
-                    else
+                    }
+                    else {
                         NoneRoundShape
+                    }
                 ),
                 translationPercent = EffectValue(
                     start = from,

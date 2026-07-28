@@ -80,6 +80,10 @@ class NavigationController(
 
     companion object {
         const val DEFAULT_SHARED_MAX_PRECENT = 0.875f
+
+        /**
+         * 前调快，后调慢。仅适合作为全屏页面的转场动画，显得不拖沓。其他场景可以先试试默认的FastOutSlowInEasing
+         */
         val DEFAULT_EASING = CubicBezierEasing(0.4f, 0.65f, 0.25f, 1.0f)
     }
 

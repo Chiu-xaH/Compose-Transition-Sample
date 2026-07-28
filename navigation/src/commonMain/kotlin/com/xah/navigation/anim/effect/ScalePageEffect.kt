@@ -27,14 +27,15 @@ data class ScaleTransitionEffect(
     val reservedBgScale : Boolean? = false,
     override val pageEffect : PageEffects = ScalePageEffects(reservedFgScale,reservedBgScale),
     override val predictiveMinValue: Float = 0.625f,
-    override val pushAnimation: AnimationSpec<Float> = tween(400, easing = FastOutSlowInEasing),
-    override val popAnimation: AnimationSpec<Float> = tween(400, easing = FastOutSlowInEasing)
+    override val pushAnimation: AnimationSpec<Float> = tween(400, easing = NavigationController.DEFAULT_EASING),
+    override val popAnimation: AnimationSpec<Float> = tween(400, easing = NavigationController.DEFAULT_EASING)
 ) : TransitionEffect
 
 fun ScalePageEffects(
     reservedFgScale : Boolean? = false,
     reservedBgScale : Boolean? = true,
 ) : PageEffects {
+    val blur = 10.dp
     return PageEffects(
         backgroundEffect = BackgroundPageEffectState(
             enableMirror = true,
@@ -54,7 +55,7 @@ fun ScalePageEffects(
                 ),
                 blur = EffectValue(
                     start = 0.dp,
-                    end = 10.dp
+                    end = blur
                 )
             )
         ),
@@ -75,7 +76,7 @@ fun ScalePageEffects(
                     end = 1f
                 ),
                 blur = EffectValue(
-                    start = 10.dp,
+                    start = blur,
                     end = 0.dp
                 )
             )
