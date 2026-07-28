@@ -1,4 +1,4 @@
-package com.xah.transition.ui.util
+package com.xah.transition.ui.screen.nav.destination.base
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -19,11 +19,11 @@ abstract class NavDestination : Destination() {
 
     override val PlaceHolder = @Composable {
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.Companion.fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
         ) {
             Box(
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.Companion.align(Alignment.Companion.Center)
             ) {
                 StatusIcon(icon, title, textColor = MaterialTheme.colorScheme.secondary)
             }

@@ -3,7 +3,7 @@ package com.xah.transition.ui.screen.nav.destination
 import androidx.compose.runtime.Composable
 import com.xah.transition.ui.screen.SecondScreen
 import com.xah.shader.state.ShaderState
-import com.xah.transition.ui.util.NavDestination
+import com.xah.transition.ui.screen.nav.destination.base.NavDestination
 
 data class SecondDestination(
     val userId: Int,

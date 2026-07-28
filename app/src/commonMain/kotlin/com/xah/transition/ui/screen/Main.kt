@@ -133,13 +133,12 @@ import com.xah.transition.ui.screen.test.CubicBezierEditor
 import com.xah.transition.ui.style.effect.CONTROL_CENTER_ALPHA
 import com.xah.transition.ui.style.effect.ControlCenterTransitionEffect
 import com.xah.transition.ui.style.topBarTransplantColor
-import com.xah.transition.ui.util.GlobalShaderState
 import com.xah.transition.ui.util.GlobalShaderStateInit
 import com.xah.transition.ui.util.LocalPlatformActivity
 import com.xah.transition.ui.util.LocalPlatformContext
 import com.xah.transition.ui.util.LocalPlatformView
-import com.xah.transition.ui.util.NavDestination
-import com.xah.transition.ui.util.UiHolder
+import com.xah.transition.ui.screen.nav.destination.base.NavDestination
+import com.xah.transition.ui.holder.GlobalUiStateHolder
 import com.xah.transition.util.PermissionSet
 import com.xah.transition.util.PlatformView
 import com.xah.transition.util.Starter
@@ -199,9 +198,9 @@ fun Main(
     GlobalShaderStateInit()
 
     val inHomeDest = navigationController.currentDestination == navigationController.startDestination || navigationController.transitionEntry?.to?.destination == navigationController.startDestination || navigationController.transitionEntry?.from?.destination == navigationController.startDestination
-    val displayWallpaper = UiHolder.imageBitmap != null
+    val displayWallpaper = GlobalUiStateHolder.imageBitmap != null
     Box(modifier = Modifier.fillMaxSize()) {
-       if(UiHolder.enableWallpaper && displayWallpaper && inHomeDest) {
+       if(GlobalUiStateHolder.enableWallpaper && displayWallpaper && inHomeDest) {
            val progress = navigationController.transitionProgress.value
            val blurRadius = when(navigationController.transitionLevel) {
                EffectLevel.HIGH -> lerp(navigationController.sharedTransitionEffect.pageEffect.backgroundEffect.effect.blur.start,navigationController.sharedTransitionEffect.pageEffect.backgroundEffect.effect.blur.end,progress)
@@ -215,7 +214,7 @@ fun Main(
            }
 
            Image(
-                bitmap = UiHolder.imageBitmap!!,
+                bitmap = GlobalUiStateHolder.imageBitmap!!,
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxSize()
@@ -226,7 +225,7 @@ fun Main(
         SharedNavHost(
             navController = navigationController,
             modifier = Modifier.let {
-                if(UiHolder.enableWallpaper && displayWallpaper) {
+                if(GlobalUiStateHolder.enableWallpaper && displayWallpaper) {
                     it
                 } else {
                     it.background(MaterialTheme.colorScheme.surface)
@@ -255,7 +254,7 @@ fun HomeScreen() {
     val floatingController = LocalFloatingController.current
     val imagePicker = rememberImagePicker { bitmap ->
         bitmap?.let {
-            UiHolder.imageBitmap = it
+            GlobalUiStateHolder.imageBitmap = it
         }
     }
     var savedInt by rememberSaveable { mutableStateOf(1) }
@@ -280,8 +279,8 @@ fun HomeScreen() {
     }
     val activity = LocalPlatformActivity()
 
-    val displayWallpaper = UiHolder.imageBitmap != null
-    val d = !UiHolder.enableWallpaper && displayWallpaper
+    val displayWallpaper = GlobalUiStateHolder.imageBitmap != null
+    val d = !GlobalUiStateHolder.enableWallpaper && displayWallpaper
 
     var showAnimation by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(showAnimation) {
@@ -289,7 +288,7 @@ fun HomeScreen() {
     }
 
     var uId by remember { mutableStateOf(888) }
-    val shaderState = GlobalShaderState.shaderState
+    val shaderState = GlobalUiStateHolder.shaderState
 
     Box(
         modifier = Modifier
@@ -302,7 +301,7 @@ fun HomeScreen() {
     ) {
         if(d) {
             Image(
-                bitmap = UiHolder.imageBitmap!!,
+                bitmap = GlobalUiStateHolder.imageBitmap!!,
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
@@ -865,9 +864,9 @@ fun HomeScreen() {
                         }
                     }
                     item(span = { GridItemSpan(maxLineSpan) }) {
-                        LaunchedEffect(UiHolder.enablePredictiveBack) {
-                            navController.enablePredictiveBack = UiHolder.enablePredictiveBack
-                            registry.enablePredictiveBack = UiHolder.enablePredictiveBack
+                        LaunchedEffect(GlobalUiStateHolder.enablePredictiveBack) {
+                            navController.enablePredictiveBack = GlobalUiStateHolder.enablePredictiveBack
+                            registry.enablePredictiveBack = GlobalUiStateHolder.enablePredictiveBack
                         }
                         Surface(
                             color = cardNormalColor(),
@@ -882,10 +881,10 @@ fun HomeScreen() {
                                     Icon(painterResource(Res.drawable.ic_texture),null)
                                 },
                                 trailingContent = {
-                                    Switch(UiHolder.enablePredictiveBack, onCheckedChange = { UiHolder.enablePredictiveBack = it })
+                                    Switch(GlobalUiStateHolder.enablePredictiveBack, onCheckedChange = { GlobalUiStateHolder.enablePredictiveBack = it })
                                 },
                                 modifier = Modifier.clickable {
-                                    UiHolder.enablePredictiveBack = !UiHolder.enablePredictiveBack
+                                    GlobalUiStateHolder.enablePredictiveBack = !GlobalUiStateHolder.enablePredictiveBack
                                 },
                             )
                         }
@@ -915,9 +914,9 @@ fun HomeScreen() {
                     }
                      */
                     item(span = { GridItemSpan(maxLineSpan) }) {
-                        LaunchedEffect(UiHolder.enablePredictiveBack) {
-                            navController.enablePredictiveBack = UiHolder.enablePredictiveBack
-                            registry.enablePredictiveBack = UiHolder.enablePredictiveBack
+                        LaunchedEffect(GlobalUiStateHolder.enablePredictiveBack) {
+                            navController.enablePredictiveBack = GlobalUiStateHolder.enablePredictiveBack
+                            registry.enablePredictiveBack = GlobalUiStateHolder.enablePredictiveBack
                         }
                         Surface(
                             color = cardNormalColor(),
@@ -941,9 +940,9 @@ fun HomeScreen() {
                         }
                     }
                     item(span = { GridItemSpan(maxLineSpan) }) {
-                        LaunchedEffect(UiHolder.enablePredictiveBack) {
-                            navController.enablePredictiveBack = UiHolder.enablePredictiveBack
-                            registry.enablePredictiveBack = UiHolder.enablePredictiveBack
+                        LaunchedEffect(GlobalUiStateHolder.enablePredictiveBack) {
+                            navController.enablePredictiveBack = GlobalUiStateHolder.enablePredictiveBack
+                            registry.enablePredictiveBack = GlobalUiStateHolder.enablePredictiveBack
                         }
                         Surface(
                             color = cardNormalColor(),
@@ -958,10 +957,10 @@ fun HomeScreen() {
                                     Icon(painterResource(Res.drawable.ic_texture),null)
                                 },
                                 trailingContent = {
-                                    Switch(enabled = displayWallpaper, checked = UiHolder.enableWallpaper, onCheckedChange = { UiHolder.enableWallpaper = it })
+                                    Switch(enabled = displayWallpaper, checked = GlobalUiStateHolder.enableWallpaper, onCheckedChange = { GlobalUiStateHolder.enableWallpaper = it })
                                 },
                                 modifier = Modifier.clickable(displayWallpaper) {
-                                    UiHolder.enableWallpaper = !UiHolder.enableWallpaper
+                                    GlobalUiStateHolder.enableWallpaper = !GlobalUiStateHolder.enableWallpaper
                                 },
                             )
                         }
@@ -1284,7 +1283,7 @@ fun SecondScreen(
     useShader : Boolean = false
 ) {
     val navController = LocalNavController.current
-    val shaderState = GlobalShaderState.shaderState
+    val shaderState = GlobalUiStateHolder.shaderState
     val useShaderFinal = shaderState != null && useShader && (
             (navController.transitionEntry?.from?.destination is HomeDestination && navController.transitionEntry?.to?.destination is SecondDestination) ||
                     (navController.transitionEntry?.from?.destination is SecondDestination && navController.transitionEntry?.to?.destination is HomeDestination)

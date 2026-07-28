@@ -42,7 +42,7 @@ import com.xah.navigation.util.LocalNavController
 import com.xah.transition.ui.screen.nav.destination.ControlCenterDestination
 import com.xah.transition.ui.style.effect.ControlCenterTransitionEffect
 import com.xah.transition.ui.util.LocalPlatformActivity
-import com.xah.transition.ui.util.NavDestination
+import com.xah.transition.ui.screen.nav.destination.base.NavDestination
 import com.xah.transition.util.PlatformActivity
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource

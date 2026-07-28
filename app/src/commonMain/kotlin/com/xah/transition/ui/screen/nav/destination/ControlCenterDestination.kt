@@ -2,7 +2,7 @@ package com.xah.transition.ui.screen.nav.destination
 
 import androidx.compose.runtime.Composable
 import com.xah.transition.ui.screen.ControlCenterScreen
-import com.xah.transition.ui.util.NavDestination
+import com.xah.transition.ui.screen.nav.destination.base.NavDestination
 import sharednav.app.generated.resources.Res
 import sharednav.app.generated.resources.ic_texture
 
