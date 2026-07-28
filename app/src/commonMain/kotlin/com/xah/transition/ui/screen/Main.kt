@@ -139,6 +139,7 @@ import com.xah.transition.ui.util.LocalPlatformContext
 import com.xah.transition.ui.util.LocalPlatformView
 import com.xah.transition.ui.screen.nav.destination.base.NavDestination
 import com.xah.transition.ui.holder.GlobalUiStateHolder
+import com.xah.transition.ui.style.TransitionTheme
 import com.xah.transition.util.PermissionSet
 import com.xah.transition.util.PlatformView
 import com.xah.transition.util.Starter
@@ -189,7 +190,14 @@ private fun Modifier.backgroundEffect(
 
 
 @Composable
-fun Main(
+fun AppThemeMain(
+    firstPage : Destination? = null
+) = TransitionTheme {
+    Main(firstPage)
+}
+
+@Composable
+private fun Main(
     firstPage : Destination? = null
 ) {
     val navigationController = rememberNavController(

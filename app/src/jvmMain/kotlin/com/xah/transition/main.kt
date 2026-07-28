@@ -2,7 +2,7 @@ package com.xah.transition
 
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import com.xah.transition.ui.screen.Main
+import com.xah.transition.ui.screen.AppThemeMain
 
 fun main() = application {
     Window(
@@ -10,6 +10,6 @@ fun main() = application {
         title = "Transition",
         alwaysOnTop = true
     ) {
-        Main()
+        AppThemeMain()
     }
 }
