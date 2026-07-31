@@ -3,7 +3,6 @@ package com.xah.transition.ui.screen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -71,7 +70,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -93,6 +91,7 @@ import com.xah.navigation.anim.effect.JumpTransitionEffect
 import com.xah.navigation.anim.effect.PushTransitionEffect
 import com.xah.navigation.anim.effect.RollTransitionEffect
 import com.xah.navigation.anim.effect.ScaleTransitionEffect
+import com.xah.navigation.anim.effect.SlideTransitionEffect2
 import com.xah.navigation.anim.effect.SlideTransitionEffect
 import com.xah.navigation.anim.effect.rememberDefaultPageEffects
 import com.xah.navigation.component.SharedNavHost
@@ -283,6 +282,7 @@ fun HomeScreen() {
             Pair(ScaleTransitionEffect(false,true),"缩放"),
             Pair(PushTransitionEffect(),"推入"),
             Pair(SlideTransitionEffect(),"上推"),
+            Pair(SlideTransitionEffect2(),"上推2"),
         )
     }
     val activity = LocalPlatformActivity()
@@ -515,6 +515,22 @@ fun HomeScreen() {
                                     headlineContent = { Text("推入动效") },
                                     modifier = Modifier.clickable {
                                         navController.push(dest, effect = SlideTransitionEffect())
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        val dest = SecondDestination(888,false)
+                        Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
+                            Card(
+                                shape = MaterialTheme.shapes.small,
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                TransplantListItem(
+                                    headlineContent = { Text("推入动效2") },
+                                    modifier = Modifier.clickable {
+                                        navController.push(dest, effect = SlideTransitionEffect2())
                                     }
                                 )
                             }
