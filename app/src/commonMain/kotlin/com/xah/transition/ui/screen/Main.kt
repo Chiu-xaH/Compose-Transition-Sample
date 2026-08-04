@@ -81,6 +81,7 @@ import com.sharednav.common.helper.NoneRoundShape
 import com.sharednav.common.helper.ScreenCornerHelper
 import com.sharednav.common.manager.AnimationSpecManager
 import com.xah.container.component.base.SharedContainer
+import com.xah.container.component.base.sharedContainer
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.model.TiltEffect
 import com.xah.container.util.LocalSharedRegistry
@@ -1381,13 +1382,17 @@ fun SecondScreen(
         ) {
             LazyColumn {
                 item { Spacer(Modifier.height(innerPadding.calculateTopPadding())) }
-                items(30) {
+                items(1) {
                     DividerTextExpandedWithShared("副标题$it") {
                         CustomCard(
                             color = cardNormalColor(),
                             modifier = Modifier.clickable {
                                 navController.push(ThirdDestination)
                             }
+                                .sharedContainer(
+                                    key = ThirdDestination.key,
+                                    shape = MaterialTheme.shapes.medium
+                                )
                         ) {
                             repeat(3) { r ->
                                 TransplantListItem(

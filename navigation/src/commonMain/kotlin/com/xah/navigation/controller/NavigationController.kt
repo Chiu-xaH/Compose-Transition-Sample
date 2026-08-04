@@ -361,8 +361,7 @@ class NavigationController(
         if(transitionEntry?.type == ActionType.POP) {
             removeAndPop()
         }
-        transitionEntry = null
-        isTransitioning = false
+        resetTransitionState()
     }
 
     private fun canShared() = transitionLevel != EffectLevel.NONE && sharedRegistry != null
@@ -412,12 +411,27 @@ class NavigationController(
     }
 
     fun pop() {
+        var key = getCurrentSharedKey()
+        // 并行动画
+        if(
+            isTransitioning &&
+            transitionEntry?.type == ActionType.POP &&
+            // 只剩一个页面了，再返回就退出应用了，没必要再执行并行动画了
+            _stack.size > 2
+        ) {
+            removeAndPop()
+            resetTransitionState()
+            if(sharedRegistry?.cancelPop() != null) {
+                key = getCurrentSharedKey()
+            }
+        }
+
         if(
             canShared() &&
             sharedRegistry!!.canPop()
         ) {
             sharedRegistry!!.pop(
-                current().destination.key,
+                key,
                 onAnimatedFinished = { awaitTransition() }
             ) {
                 popInternal()
@@ -426,6 +440,8 @@ class NavigationController(
             popInternal()
         }
     }
+
+    private fun getCurrentSharedKey() = current().destination.key
 
     /**
      * 延迟等动画结束后再加载内容，适合例如Bitmap、Video等
@@ -618,8 +634,7 @@ class NavigationController(
             inPredictive = false
             transitionProgress.animateTo(0f, getAnimation())
             removeAndPop()
-            transitionEntry = null
-            isTransitioning = false
+            resetTransitionState()
         }
     }
 
@@ -642,8 +657,7 @@ class NavigationController(
     private fun cancelPredictiveBack() {
         scope.launch {
             transitionProgress.animateTo(1f, PredictiveUtil.cancelAnimation())
-            transitionEntry = null
-            isTransitioning = false
+            resetTransitionState()
             inPredictive = false
         }
     }
@@ -673,6 +687,11 @@ class NavigationController(
             return
         }
         isTransitioning = true
+    }
+
+    private fun resetTransitionState() {
+        transitionEntry = null
+        isTransitioning = false
     }
 
 

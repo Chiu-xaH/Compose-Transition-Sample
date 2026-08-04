@@ -245,9 +245,10 @@ class SharedRegistry(
         state.currentState = StatePause.CONTAINER
     }
 
-    fun cancelPop() {
-        val state = runningStates.firstOrNull() ?: return
+    fun cancelPop() : SharedContainerState? {
+        val state = runningStates.firstOrNull() ?: return null
         state.currentState = StatePause.CONTAINER
+        return state
     }
 
     private suspend fun snap(
