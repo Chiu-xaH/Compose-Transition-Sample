@@ -13,7 +13,7 @@ sealed interface ContentStrategy {
     data class Layer(val isFloating : Boolean) : ContentStrategy
 
     /**
-     * container不会隐藏也不会运动，content以透明开始从container出来过渡
+     * container不会隐藏也不会运动，content从container克隆出来过渡
      */
     data object Copy : ContentStrategy
 }

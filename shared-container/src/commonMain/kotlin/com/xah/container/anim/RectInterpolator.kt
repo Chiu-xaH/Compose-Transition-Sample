@@ -6,6 +6,9 @@ import androidx.compose.ui.util.lerp
 
 typealias RectInterpolator = (progress: Float, from: Rect, to: Rect) -> Rect
 
+/**
+ * 线性路径插值
+ */
 val LinearRectInterpolator: RectInterpolator = { t, from, to ->
     Rect(
         left = lerp(from.left, to.left, t),
@@ -15,31 +18,34 @@ val LinearRectInterpolator: RectInterpolator = { t, from, to ->
     )
 }
 
+/** 二次贝塞尔路径插值
+ * @param screenRect 屏幕Rect
+ * @param maxVerticalArc 垂直限制系数
+ * @param maxHorizontalArc 水平限制系数
+ */
 fun QuadraticBezierRectInterpolator(
-    contentHeight: Float,
-    contentWidth: Float,
-    maxVerticalArc: Float = contentHeight / 2f,
-    maxHorizontalArc: Float = contentWidth / 3f
+    screenRect : Rect,
+    maxVerticalArc: Float = 2f,
+    maxHorizontalArc: Float = 3f
 ): RectInterpolator = { t, from, to ->
-
     val startCenter = Offset(
         from.left + from.width / 2f,
         from.top + from.height / 2f
     )
-
     val endCenter = Offset(
         to.left + to.width / 2f,
         to.top + to.height / 2f
     )
 
     val avgY = (startCenter.y + endCenter.y) / 2f
-    val normalizedY = ((avgY / contentHeight) - 0.5f) * 2f
-    val verticalArc = -normalizedY * maxVerticalArc
+    val normalizedY = ((avgY / screenRect.height) - 0.5f) * 2f
+    val verticalArc = -normalizedY * (to.height / maxVerticalArc)
 
     val avgX = (startCenter.x + endCenter.x) / 2f
-    val normalizedX = ((avgX / contentWidth) - 0.5f) * 2f
-    val horizontalArc = -normalizedX * maxHorizontalArc
+    val normalizedX = ((avgX / screenRect.width) - 0.5f) * 2f
+    val horizontalArc = -normalizedX * (to.width / maxHorizontalArc)
 
+    // 控制点
     val control = Offset(
         x = (startCenter.x + endCenter.x) / 2f + horizontalArc,
         y = (startCenter.y + endCenter.y) / 2f + verticalArc
@@ -55,10 +61,12 @@ fun QuadraticBezierRectInterpolator(
     val width = lerp(from.width, to.width, t)
     val height = lerp(from.height, to.height, t)
 
+    val half = 2f
+
     Rect(
-        left = center.x - width / 2f,
-        top = center.y - height / 2f,
-        right = center.x + width / 2f,
-        bottom = center.y + height / 2f
+        left = center.x - width / half,
+        top = center.y - height / half,
+        right = center.x + width / half,
+        bottom = center.y + height / half
     )
 }

@@ -15,8 +15,8 @@ import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import com.sharednav.common.manager.AnimationSpecManager
 import com.sharednav.common.helper.EnableHelper
+import com.sharednav.common.manager.AnimationSpecManager
 import com.sharednav.common.util.LogUtil
 import com.sharednav.common.util.PredictiveUtil
 import com.xah.container.anim.LinearRectInterpolator
@@ -82,9 +82,6 @@ class SharedRegistry(
     fun <T> getPushAnimation() = tween<T>(AnimationSpecManager.getSharedTween(), easing = CubicBezierEasing(pushX1,pushY1,pushX2,pushY2))
     fun <T> getPopAnimation() = tween<T>(AnimationSpecManager.getSharedTween(), easing = CubicBezierEasing(popX1,popY1,popX2,popY2))
 
-    var FullScreenRectInterpolator: RectInterpolator = LinearRectInterpolator
-        private set
-
     var screenRect : Rect? = null
 
     // 渐隐、圆角、倾斜变化比容器变化时长
@@ -108,24 +105,6 @@ class SharedRegistry(
 
     var quadraticBezierRectInterpolatorVerticalRadio by mutableFloatStateOf(2f)
     var quadraticBezierRectInterpolatorHorizontalRadio by mutableFloatStateOf(3f)
-
-    fun initQuadraticBezierRectInterpolator() {
-        require(
-            quadraticBezierRectInterpolatorVerticalRadio >= 0 && quadraticBezierRectInterpolatorHorizontalRadio >= 0
-        ) {
-            error("Radio must >= 0")
-        }
-        if(quadraticBezierRectInterpolatorVerticalRadio == 0f || quadraticBezierRectInterpolatorHorizontalRadio == 0f) {
-            FullScreenRectInterpolator = LinearRectInterpolator
-            return
-        }
-        FullScreenRectInterpolator = QuadraticBezierRectInterpolator(
-            screenRect!!.height,
-            screenRect!!.width,
-            screenRect!!.height / quadraticBezierRectInterpolatorVerticalRadio,
-            screenRect!!.width / quadraticBezierRectInterpolatorHorizontalRadio
-        )
-    }
 
     fun register(
         key: String,
@@ -454,4 +433,18 @@ class SharedRegistry(
 
     fun canPush(key: String) = states.contains(key) && enabled
     fun canPop() = enabled
+
+    fun getRectInterpolator(): RectInterpolator {
+        return if(screenRect == null || quadraticBezierRectInterpolatorVerticalRadio == 0f || quadraticBezierRectInterpolatorHorizontalRadio == 0f) {
+            // 线性路径
+            LinearRectInterpolator
+        } else {
+            // 二次贝塞尔路径
+            QuadraticBezierRectInterpolator(
+                screenRect!!,
+                quadraticBezierRectInterpolatorVerticalRadio,
+                quadraticBezierRectInterpolatorHorizontalRadio,
+            )
+        }
+    }
 }

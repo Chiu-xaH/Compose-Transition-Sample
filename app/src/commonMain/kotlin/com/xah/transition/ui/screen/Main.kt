@@ -1382,17 +1382,17 @@ fun SecondScreen(
         ) {
             LazyColumn {
                 item { Spacer(Modifier.height(innerPadding.calculateTopPadding())) }
-                items(1) {
+                items(20) {
                     DividerTextExpandedWithShared("副标题$it") {
                         CustomCard(
                             color = cardNormalColor(),
                             modifier = Modifier.clickable {
                                 navController.push(ThirdDestination)
                             }
-                                .sharedContainer(
-                                    key = ThirdDestination.key,
-                                    shape = MaterialTheme.shapes.medium
-                                )
+//                                .sharedContainer(
+//                                    key = ThirdDestination.key,
+//                                    shape = MaterialTheme.shapes.medium
+//                                )
                         ) {
                             repeat(3) { r ->
                                 TransplantListItem(

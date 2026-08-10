@@ -18,12 +18,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.zIndex
 import com.sharednav.common.util.lerp
-import com.xah.container.anim.LinearRectInterpolator
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.model.ContentStrategy
 import com.xah.container.model.TiltEffect
 import com.xah.container.util.LocalSharedRegistry
-import com.xah.container.util.shader.genieWarpEffect
 import com.xah.container.util.shader.pixelExtension
 import kotlin.math.abs
 import kotlin.math.sign
@@ -49,19 +47,13 @@ fun SharedContainerOverlay() {
             )
 
             val useContainer = state.contentStrategy !is ContentStrategy.Copy
-            val useLinear = (state.contentStrategy as? ContentStrategy.Layer)?.isFloating == false
 
             // 进度
             val progress = state.animation.value
 
             // 路径曲线
-            val parent = (
-                if(useLinear || !useContainer) {
-                    LinearRectInterpolator
-                } else {
-                    registry.FullScreenRectInterpolator
-                }
-            ).invoke(progress, container, content)
+            val parent = registry.getRectInterpolator().invoke(progress, container, content)
+
             val progressOfAlpha = (progress * registry.speedUpRadioAlpha * if(useContainer) 1f else 2f).coerceIn(0f,1f)
             val contentAlpha = lerp(0f,1f,progressOfAlpha)
 
@@ -86,9 +78,10 @@ fun SharedContainerOverlay() {
             // 倾斜计算
             val maxTilt = registry.tiltMaxValue
             val actuallyUseTilt = (registry.tiltEffect != TiltEffect.NONE) && maxTilt > 0
-            val (roX, roY) = if (actuallyUseTilt && !useLinear) {
+            val (roX, roY) = if (actuallyUseTilt) {
                 val progressOfTilt = (progress * registry.speedUpRadioTilt * if(useContainer) 1f else 2f).coerceIn(0f,1f)
 
+                // 相对位置计算
                 val cCenterX = container.left + container.width / 2f
                 val cCenterY = container.top + container.height / 2f
 

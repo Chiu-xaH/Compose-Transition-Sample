@@ -45,16 +45,6 @@ fun SharedContainerRoot(
     }
     val density = LocalDensity.current
 
-    LaunchedEffect(
-        registry.quadraticBezierRectInterpolatorVerticalRadio,
-        registry.quadraticBezierRectInterpolatorHorizontalRadio
-    ) {
-        if(registry.screenRect == null) {
-            return@LaunchedEffect
-        }
-        registry.initQuadraticBezierRectInterpolator()
-    }
-
     CompositionLocalProvider(
         LocalSharedRegistrySafely provides registry,
         LocalSharedRegistry provides registry
@@ -66,7 +56,6 @@ fun SharedContainerRoot(
                     registry.screenRect = with(density) {
                         Rect(0f, 0f, width.toFloat(), height.toFloat())
                     }
-                    registry.initQuadraticBezierRectInterpolator()
                 }
         ) {
             // 界面
