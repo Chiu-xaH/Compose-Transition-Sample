@@ -43,4 +43,6 @@ class SharedContainerState(
     fun isInActive() = isActive <= 0
     // 跟手Offset
     var contentOffset by mutableStateOf(Offset.Zero)
+
+    internal fun useCopy() = contentStrategy is ContentStrategy.Copy && currentState == StatePause.TRANSITING_TO_CONTENT
 }

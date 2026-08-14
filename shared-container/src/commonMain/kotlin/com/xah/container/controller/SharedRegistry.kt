@@ -51,7 +51,7 @@ class SharedRegistry(
 
     var enablePredictiveBack by mutableStateOf(EnableHelper.canShader)
 
-    private fun SharedContainerState.isRunning() = currentState == StatePause.TRANSITING && containerRect != null && contentRect != null
+    private fun SharedContainerState.isRunning() = currentState.isTransiting() && containerRect != null && contentRect != null
 
     var enabled by mutableStateOf(true)
 
@@ -197,7 +197,8 @@ class SharedRegistry(
         }
         snap(state,true)
         // 开始标识位
-        state.currentState = StatePause.TRANSITING
+        LogUtil.debug("currentState=${state.currentState}")
+        state.currentState = state.currentState.getTargetTransiting()
         state.animation.animateTo(1f,getPushAnimation())
         onAnimatedFinished?.let { it() }
         state.containerRect = null
@@ -216,7 +217,8 @@ class SharedRegistry(
         // 重置位置
         snap(state,false)
         // 开始标识位
-        state.currentState = StatePause.TRANSITING
+        LogUtil.debug("currentState=${state.currentState}")
+        state.currentState = state.currentState.getTargetTransiting()
         state.animation.animateTo(0f,getPopAnimation())
         onAnimatedFinished?.let { it() }
         state.contentRect = null
@@ -234,7 +236,8 @@ class SharedRegistry(
         state: SharedContainerState,
         isPush : Boolean
     ) {
-        if(state.currentState != StatePause.TRANSITING) {
+        // 状态复位
+        if(!state.currentState.isTransiting()) {
             // 状态复位
             state.animation.snapTo(
                 if(isPush) {
@@ -290,7 +293,7 @@ class SharedRegistry(
 
         var frameCount = 0
         // 状态复位
-        if(state.currentState != StatePause.TRANSITING) {
+        if(!state.currentState.isTransiting()) {
             state.currentState = if(isContainer) {
                 StatePause.CONTENT
             } else {
@@ -362,7 +365,7 @@ class SharedRegistry(
         snap(state,false)
         // 开始标识位
         resetOffset(state)
-        state.currentState = StatePause.TRANSITING
+        state.currentState = StatePause.TRANSITING_TO_CONTAINER
         return state
     }
 
@@ -387,7 +390,7 @@ class SharedRegistry(
         if(!enablePredictiveBack) {
             return
         }
-        state.currentState = StatePause.TRANSITING
+        state.currentState = StatePause.TRANSITING_TO_CONTAINER
         state.animation.animateTo(0f,getPopAnimation())
         onAnimatedFinished?.let { it() }
         resetOffset(state)
@@ -404,7 +407,7 @@ class SharedRegistry(
             return@coroutineScope
         }
 
-        state.currentState = StatePause.TRANSITING
+        state.currentState = StatePause.TRANSITING_TO_CONTENT
 
         val job1 = launch {
             resetOffsetSmoothly(state)

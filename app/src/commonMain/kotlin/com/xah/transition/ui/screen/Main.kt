@@ -736,7 +736,7 @@ fun HomeScreen() {
                     item {
                         val window = DialogFloatingWindow(888)
                         Box(modifier = Modifier.padding(CARD_NORMAL_DP*2)) {
-                            SharedContainer (
+                            SharedContainer(
                                 key = window.key,
                                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                                 shape = MaterialTheme.shapes.small,

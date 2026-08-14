@@ -20,6 +20,7 @@ import androidx.compose.ui.zIndex
 import com.sharednav.common.util.lerp
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.model.ContentStrategy
+import com.xah.container.model.StatePause
 import com.xah.container.model.TiltEffect
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.container.util.shader.pixelExtension
@@ -46,18 +47,17 @@ fun SharedContainerOverlay() {
                 top = state.contentOffset.y + originContent.top
             )
 
-            val useContainer = state.contentStrategy !is ContentStrategy.Copy
-
             // 进度
             val progress = state.animation.value
 
             // 路径曲线
             val parent = registry.getRectInterpolator().invoke(progress, container, content)
 
-            val progressOfAlpha = (progress * registry.speedUpRadioAlpha * if(useContainer) 1f else 2f).coerceIn(0f,1f)
+            val useCopy = state.useCopy()
+            val progressOfAlpha = (progress * registry.speedUpRadioAlpha).coerceIn(0f,1f)
             val contentAlpha = lerp(0f,1f,progressOfAlpha)
 
-            val progressOfCorner = (progress * registry.speedUpRadioCorner * if(useContainer) 1f else 2f).coerceIn(0f,1f)
+            val progressOfCorner = (progress * registry.speedUpRadioCorner).coerceIn(0f,1f)
             val factor = 1f - registry.quadraticCornerLerpFactor
             val firstEnd = factor / 2f
             val corner = when {
@@ -79,7 +79,7 @@ fun SharedContainerOverlay() {
             val maxTilt = registry.tiltMaxValue
             val actuallyUseTilt = (registry.tiltEffect != TiltEffect.NONE) && maxTilt > 0
             val (roX, roY) = if (actuallyUseTilt) {
-                val progressOfTilt = (progress * registry.speedUpRadioTilt * if(useContainer) 1f else 2f).coerceIn(0f,1f)
+                val progressOfTilt = (progress * registry.speedUpRadioTilt).coerceIn(0f,1f)
 
                 // 相对位置计算
                 val cCenterX = container.left + container.width / 2f
@@ -151,6 +151,10 @@ fun SharedContainerOverlay() {
             Box(
                 modifier = Modifier
                     .graphicsLayer {
+                        if(useCopy) {
+                            alpha = progressOfAlpha
+                        }
+
                         translationX = parent.left
                         translationY = parent.top
 
@@ -177,144 +181,142 @@ fun SharedContainerOverlay() {
                     .clip(corner)
                     .let {
                         // 如果出现了边界空缺，说明SharedContainer里面的Content可能不是0圆角的矩形，导致取像素、裁切出现空缺，请把圆角裁剪挪到SharedContainer的corner参数中，里面的内容不要裁切任何圆角！
-                        if(containerFilledStrategy is ContainerFilledStrategy.Color && useContainer) {
+                        if(containerFilledStrategy is ContainerFilledStrategy.Color) {
                             it.background(containerFilledStrategy.color)
                         } else {
                             it
                         }
                     }
             ) {
-                if(useContainer) {
-                    // 容器
-                    Box {
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            Box(modifier = Modifier.align(
-                                if(containerFilledStrategy is ContainerFilledStrategy.Stretch) {
-                                    Alignment.TopStart
-                                } else {
-                                    if(isHorizontal) {
-                                        if(containerFilledStrategy is ContainerFilledStrategy.Clip) {
-                                            Alignment.CenterStart
-                                        } else {
-                                            if(!extensionDouble) {
-                                                Alignment.TopStart
-                                            } else {
-                                                Alignment.TopCenter
-                                            }
-                                        }
+                // 容器
+                Box {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Box(modifier = Modifier.align(
+                            if(containerFilledStrategy is ContainerFilledStrategy.Stretch) {
+                                Alignment.TopStart
+                            } else {
+                                if(isHorizontal) {
+                                    if(containerFilledStrategy is ContainerFilledStrategy.Clip) {
+                                        Alignment.CenterStart
                                     } else {
-                                        if(containerFilledStrategy is ContainerFilledStrategy.Clip) {
+                                        if(!extensionDouble) {
+                                            Alignment.TopStart
+                                        } else {
+                                            Alignment.TopCenter
+                                        }
+                                    }
+                                } else {
+                                    if(containerFilledStrategy is ContainerFilledStrategy.Clip) {
+                                        Alignment.TopCenter
+                                    } else {
+                                        if(!extensionDouble) {
                                             Alignment.TopCenter
                                         } else {
-                                            if(!extensionDouble) {
-                                                Alignment.TopCenter
-                                            } else {
-                                                Alignment.CenterStart
-                                            }
+                                            Alignment.CenterStart
                                         }
                                     }
                                 }
-                            )) {
-                                when(containerFilledStrategy) {
-                                    is ContainerFilledStrategy.Clip -> {
-                                        Box(modifier = Modifier
-                                            .drawWithCache {
-                                                onDrawWithContent {
-                                                    val layer = state.containerLayer ?: return@onDrawWithContent
-                                                    val scale = if(isHorizontal) {
-                                                        parent.width / container.width
+                            }
+                        )) {
+                            when(containerFilledStrategy) {
+                                is ContainerFilledStrategy.Clip -> {
+                                    Box(modifier = Modifier
+                                        .drawWithCache {
+                                            onDrawWithContent {
+                                                val layer = state.containerLayer ?: return@onDrawWithContent
+                                                val scale = if(isHorizontal) {
+                                                    parent.width / container.width
+                                                } else {
+                                                    parent.height / container.height
+                                                }
+                                                withTransform({
+                                                    scale(scale, scale)
+                                                    if(isHorizontal) {
+                                                        translate(left = 0f , top = -container.height/2f)
                                                     } else {
-                                                        parent.height / container.height
+                                                        translate(left = -container.width/2f , top = 0f)
                                                     }
-                                                    withTransform({
-                                                        scale(scale, scale)
+                                                }) {
+                                                    drawLayer(layer)
+                                                }
+                                            }
+                                        }
+                                    )
+                                }
+                                is ContainerFilledStrategy.Stretch -> {
+                                    Box(modifier = Modifier
+                                        .drawWithCache {
+                                            onDrawWithContent {
+                                                val layer = state.containerLayer ?: return@onDrawWithContent
+                                                val scaleX = parent.width / container.width
+                                                val scaleY = parent.height / container.height
+                                                withTransform({
+                                                    scale(scaleX, scaleY)
+                                                }) {
+                                                    drawLayer(layer)
+                                                }
+                                            }
+                                        }
+                                    )
+                                }
+                                else -> {
+                                    // 填充
+                                    Box(modifier = Modifier
+                                        .drawWithCache {
+                                            onDrawWithContent {
+                                                val layer = state.containerLayer ?: return@onDrawWithContent
+                                                val scale = if(!isHorizontal) {
+                                                    parent.width / container.width
+                                                } else {
+                                                    parent.height / container.height
+                                                }
+                                                withTransform({
+                                                    scale(scale, scale)
+                                                    if(!extensionDouble) {
                                                         if(isHorizontal) {
-                                                            translate(left = 0f , top = -container.height/2f)
+                                                            translate(left = 0f , top = 0f)
                                                         } else {
                                                             translate(left = -container.width/2f , top = 0f)
                                                         }
-                                                    }) {
-                                                        drawLayer(layer)
-                                                    }
-                                                }
-                                            }
-                                        )
-                                    }
-                                    is ContainerFilledStrategy.Stretch -> {
-                                        Box(modifier = Modifier
-                                            .drawWithCache {
-                                                onDrawWithContent {
-                                                    val layer = state.containerLayer ?: return@onDrawWithContent
-                                                    val scaleX = parent.width / container.width
-                                                    val scaleY = parent.height / container.height
-                                                    withTransform({
-                                                        scale(scaleX, scaleY)
-                                                    }) {
-                                                        drawLayer(layer)
-                                                    }
-                                                }
-                                            }
-                                        )
-                                    }
-                                    else -> {
-                                        // 填充
-                                        Box(modifier = Modifier
-                                            .drawWithCache {
-                                                onDrawWithContent {
-                                                    val layer = state.containerLayer ?: return@onDrawWithContent
-                                                    val scale = if(!isHorizontal) {
-                                                        parent.width / container.width
                                                     } else {
-                                                        parent.height / container.height
-                                                    }
-                                                    withTransform({
-                                                        scale(scale, scale)
-                                                        if(!extensionDouble) {
-                                                            if(isHorizontal) {
-                                                                translate(left = 0f , top = 0f)
-                                                            } else {
-                                                                translate(left = -container.width/2f , top = 0f)
-                                                            }
+                                                        if(isHorizontal) {
+                                                            translate(left = -container.width/2 , top = 0f)
                                                         } else {
-                                                            if(isHorizontal) {
-                                                                translate(left = -container.width/2 , top = 0f)
-                                                            } else {
-                                                                translate(left = 0f , top = -container.height/2f)
-                                                            }
+                                                            translate(left = 0f , top = -container.height/2f)
                                                         }
-                                                    }) {
-                                                        drawLayer(layer)
                                                     }
+                                                }) {
+                                                    drawLayer(layer)
                                                 }
                                             }
-                                        )
-                                    }
+                                        }
+                                    )
                                 }
                             }
                         }
-                        // 使用延展填充
-                        if(containerFilledStrategy is ContainerFilledStrategy.Pixel) {
-                            state.containerLayerForPixel?.let { layer ->
-                                Box(
-                                    modifier = Modifier
-                                        .zIndex(-1f)
-                                        .graphicsLayer {
-                                            val scale = if (!isHorizontal) {
-                                                parent.width / container.width
-                                            } else {
-                                                parent.height / container.height
-                                            }
-                                            scaleX = scale
-                                            scaleY = scale
+                    }
+                    // 使用延展填充
+                    if(containerFilledStrategy is ContainerFilledStrategy.Pixel) {
+                        state.containerLayerForPixel?.let { layer ->
+                            Box(
+                                modifier = Modifier
+                                    .zIndex(-1f)
+                                    .graphicsLayer {
+                                        val scale = if (!isHorizontal) {
+                                            parent.width / container.width
+                                        } else {
+                                            parent.height / container.height
                                         }
-                                        .pixelExtension(
-                                            layer,
-                                            container,
-                                            isHorizontal,
-                                            extensionDouble
-                                        )
-                                )
-                            }
+                                        scaleX = scale
+                                        scaleY = scale
+                                    }
+                                    .pixelExtension(
+                                        layer,
+                                        container,
+                                        isHorizontal,
+                                        extensionDouble
+                                    )
+                            )
                         }
                     }
                 }

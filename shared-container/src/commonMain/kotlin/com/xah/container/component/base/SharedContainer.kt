@@ -79,14 +79,9 @@ private fun Modifier.sharedContainer(
     val state = remember { registry.register(key) }
     val contentStrategy = state.contentStrategy
 
-    val graphicsLayer = if(contentStrategy !is ContentStrategy.Copy) {
-        rememberGraphicsLayer()
-    } else {
-        null
-    }
+    val graphicsLayer = rememberGraphicsLayer()
     val graphicsLayerForPixel = if(
-        containerFilledStrategy.getFinalStrategy(registry) is ContainerFilledStrategy.Pixel &&
-        contentStrategy !is ContentStrategy.Copy
+        containerFilledStrategy.getFinalStrategy(registry) is ContainerFilledStrategy.Pixel
     ) {
         rememberGraphicsLayer()
     } else {
@@ -138,19 +133,41 @@ private fun Modifier.sharedContainer(
                             drawContent()
                         }
                 }
-                StatePause.TRANSITING -> {
-                    if(contentStrategy !is ContentStrategy.Copy) {
-                        it.drawWithContent {
+                StatePause.TRANSITING_TO_CONTENT -> {
+                    it.drawWithContent {
+                        graphicsLayerForPixel?.record {
+                            this@drawWithContent.drawContent()
+                        }
+                        graphicsLayer.record {
+                            this@drawWithContent.drawContent()
+                        }
+                        if(contentStrategy is ContentStrategy.Copy) {
+                            drawContent()
+                        }
+                    }
+                }
+                StatePause.TRANSITING_TO_CONTAINER -> {
+                    val useCopy = contentStrategy is ContentStrategy.Copy
+                    it
+                        .let { sub ->
+                            if(useCopy) {
+                                val progressOfAlpha = (state.animation.value * registry.speedUpRadioAlpha).coerceIn(0f,1f)
+                                sub.graphicsLayer(alpha = progressOfAlpha)
+                            } else {
+                                sub
+                            }
+                        }
+                        .drawWithContent {
                             graphicsLayerForPixel?.record {
                                 this@drawWithContent.drawContent()
                             }
-                            graphicsLayer?.record {
+                            graphicsLayer.record {
                                 this@drawWithContent.drawContent()
                             }
+                            if(useCopy) {
+                                drawContent()
+                            }
                         }
-                    } else {
-                        it
-                    }
                 }
                 else -> {
                     it
@@ -259,7 +276,15 @@ private fun Modifier.mSharedContent(
                             drawContent()
                         }
                 }
-                StatePause.TRANSITING -> {
+                StatePause.TRANSITING_TO_CONTAINER -> {
+                    it
+                        .drawWithContent {
+                            graphicsLayer.record {
+                                this@drawWithContent.drawContent()
+                            }
+                        }
+                }
+                StatePause.TRANSITING_TO_CONTENT -> {
                     it.drawWithContent {
                         graphicsLayer.record {
                             this@drawWithContent.drawContent()
