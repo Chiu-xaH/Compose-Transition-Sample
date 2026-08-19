@@ -14,7 +14,7 @@ actual object LogUtil {
     }
 
     actual fun verbose(msg: String) { if (isDebug) baseLog(Level.FINEST, msg) }
-    actual fun info(msg: String)    { baseLog(Level.INFO, msg) }
+    actual fun info(msg: String)    { if (isDebug) baseLog(Level.INFO, msg) }
     actual fun debug(msg: String)   { if (isDebug) baseLog(Level.FINE, msg) }
     actual fun warn(msg: String)    { baseLog(Level.WARNING, msg) }
     actual fun error(msg: String)   { baseLog(Level.SEVERE, msg) }

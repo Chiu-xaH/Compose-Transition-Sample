@@ -17,7 +17,7 @@ actual object LogUtil {
     }
 
     actual fun info(msg: String) {
-        log("INFO", msg)
+        if (isDebug) log("INFO", msg)
     }
 
     actual fun debug(msg: String) {

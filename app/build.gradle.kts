@@ -37,10 +37,6 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(project(":navigation"))
-//            implementation(project(":shared-container"))
-//            implementation(project(":floating-window"))
-//            implementation(project(":common"))
-//            implementation(project(":shader"))
         }
 
         androidMain.dependencies {
