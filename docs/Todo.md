@@ -19,5 +19,3 @@
 - 优先级：High Bug
 10. shared-container 在着色器关闭时，路径存在偏移瑕疵
 - 优先级：High Bug
-11. KMP Wasm 适配
-- 优先级：High Feature

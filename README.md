@@ -1,9 +1,23 @@
 # SharedNav  [![](https://jitpack.io/v/Chiu-xaH/SharedNav.svg)](https://jitpack.io/#Chiu-xaH/SharedNav)
-基于 Compose 的容器共享（SharedContainer）、页面导航（Navigation）以及全局浮窗（FloatingWindow）库。支持背景模糊、镜面缩放，1像素填充、贝赛尔曲线、屏幕圆角插值、内容一次渲染、预测式返回、并行动画等特性；旨在减少开发流程、提高可定制性。
+基于 Compose Multiplatform 与 Kotlin Multiplatform 的容器共享（SharedContainer）、页面导航（Navigation）以及全局浮窗（FloatingWindow）库。
 
+复刻系统 Launcher 动画，支持背景模糊、镜面缩放，1像素填充、二次贝赛尔插值、屏幕圆角贴合、预测式返回、并行打断动画等特性；相比于目前[官方文档](https://developer.android.com/develop/ui/compose/animation/shared-elements/navigation?hl=zh-cn)推荐的方案(Navigation2+SharedElements)，可以显著简化 Compose 应用在此方面的开发流程，提高可定制性，且拥有更流畅、精美的交互视觉体验。
+
+支持平台：Wasm(JS)、Desktop(JVM)、iOS、Android
 ![cover](src/cover.jpg)
 
 ## [Demo App](https://github.com/Chiu-xaH/SharedNav/releases/download/1.0.0-dev01/app-release.apk)
+### Demo 编译
+```bash
+./gradlew :app:wasmJsBrowserDevelopmentRun 
+./gradlew :app:wasmJsBrowserProductRun
+./gradlew :app:jsBrowserDevelopmentRun
+./gradlew :app:jsBrowserProductRun
+./gradlew :app:run
+./gradlew :app:wasmJsBrowserDistribution
+./gradlew :appjsBrowserDistribution
+./gradlew :app:packageDistributionForCurrentOS
+```
 
 ## 快速开始
 
@@ -40,7 +54,7 @@ KMP 项目，按平台添加：
 implementation("com.github.Chiu-xaH.SharedNav:navigation-android:<version>")
 implementation("com.github.Chiu-xaH.SharedNav:navigation-jvm:<version>")
 implementation("com.github.Chiu-xaH.SharedNav:navigation-ios:<version>")
-implementation("com.github.Chiu-xaH.SharedNav:navigation-wasm:<version>")(Wasm 开发中)
+implementation("com.github.Chiu-xaH.SharedNav:navigation-wasmJs:<version>")
 ```
 
 #### 编译为本地产物
@@ -160,6 +174,7 @@ fun HomeScreen() {
 > **注意**：`SharedContainer` 内层组件的 `shape` 必须设置为无圆角，圆角统一由外层 `SharedContainer` 管理，否则在提取 1 像素时会缺失边角。
 
 ## [原理讲解](docs/Developer.md)
+已写好，待发布
 
 ## [接口文档](docs/Developer.md)
 

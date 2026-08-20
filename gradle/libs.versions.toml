@@ -2,23 +2,22 @@
 libraryVersionName = "1.0.0-dev08042325"
 libraryPackageName = "com.xah.sharednav"
 agp = "8.9.3"
-kotlin = "2.2.0"
+kotlin = "2.2.20"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.12.4"
 accompanistSystemuicontroller = "0.31.0-alpha"
 maxAndroidVersion = "36"
-metricsPerformance = "1.0.0"
 minAndroidVersion = "24"
 composeMultiplatform = "1.10.0"
 
 [libraries]
-androidx-metrics-performance = { module = "androidx.metrics:metrics-performance", version.ref = "metricsPerformance" }
 androidx-runtime-tracing = { module = "androidx.compose.runtime:runtime-tracing" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanistSystemuicontroller" }
 lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel", version.ref = "lifecycleRuntimeKtx" }
 lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }

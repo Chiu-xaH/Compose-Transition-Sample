@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="shader-wasm-js">
+    <output-path>$PROJECT_DIR$/shader/build/libs</output-path>
+    <root id="archive" name="shader-wasm-js.jar">
+      <element id="module-output" name="SharedNav.shader.wasmJsMain" />
+    </root>
+  </artifact>
+</component>

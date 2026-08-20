@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="common-wasm-js">
+    <output-path>$PROJECT_DIR$/common/build/libs</output-path>
+    <root id="archive" name="common-wasm-js.jar">
+      <element id="module-output" name="SharedNav.common.wasmJsMain" />
+    </root>
+  </artifact>
+</component>

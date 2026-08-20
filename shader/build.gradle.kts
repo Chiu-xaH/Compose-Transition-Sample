@@ -1,3 +1,6 @@
+@file:OptIn(ExperimentalWasmDsl::class)
+
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -31,6 +34,10 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
 
+    wasmJs {
+        browser()
+    }
+
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -61,12 +68,12 @@ kotlin {
             dependsOn(skiaMain)
         }
 
-        androidMain.dependencies {
-
+        val wasmJsMain by getting {
+            dependsOn(skiaMain)
         }
-        skiaMain.dependencies {
 
-        }
+        androidMain.dependencies {  }
+        skiaMain.dependencies {  }
     }
 }
 
@@ -90,8 +97,7 @@ android {
             )
         }
     }
-    buildFeatures {
-    }
+    buildFeatures {  }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11

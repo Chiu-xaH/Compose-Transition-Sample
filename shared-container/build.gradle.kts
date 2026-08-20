@@ -1,3 +1,6 @@
+@file:OptIn(ExperimentalWasmDsl::class)
+
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -31,6 +34,10 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
 
+    wasmJs {
+        browser()
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(compose.material3)
@@ -39,14 +46,10 @@ kotlin {
             api(project(":common"))
             api(project(":shader"))
         }
-        androidMain.dependencies {
-        }
-        jvmMain.dependencies {
-
-        }
-        iosMain.dependencies {
-
-        }
+        androidMain.dependencies {  }
+        jvmMain.dependencies {  }
+        iosMain.dependencies {  }
+        wasmJsMain.dependencies {  }
     }
 }
 
@@ -70,8 +73,7 @@ android {
             )
         }
     }
-    buildFeatures {
-    }
+    buildFeatures {  }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11

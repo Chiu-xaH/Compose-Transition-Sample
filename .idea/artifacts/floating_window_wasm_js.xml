@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="floating-window-wasm-js">
+    <output-path>$PROJECT_DIR$/floating-window/build/libs</output-path>
+    <root id="archive" name="floating-window-wasm-js.jar">
+      <element id="module-output" name="SharedNav.floating-window.wasmJsMain" />
+    </root>
+  </artifact>
+</component>
