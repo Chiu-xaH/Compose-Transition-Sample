@@ -32,7 +32,7 @@ class SharedContainerState(
     var enableQuadraticCorner = false
     // 容器填充策略
     var containerFilledStrategy : ContainerFilledStrategy = ContainerFilledStrategy.Pixel()
-    var contentStrategy : ContentStrategy = ContentStrategy.Navigation
+    var contentStrategy : ContentStrategy = ContentStrategy.Navigation()
 
     val animation = Animatable(0f)
     // 当前所处状态
@@ -43,6 +43,4 @@ class SharedContainerState(
     fun isInActive() = isActive <= 0
     // 跟手Offset
     var contentOffset by mutableStateOf(Offset.Zero)
-
-    internal fun useCopy() = contentStrategy is ContentStrategy.Copy && currentState == StatePause.TRANSITING_TO_CONTENT
 }

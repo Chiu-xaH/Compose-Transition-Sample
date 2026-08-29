@@ -125,7 +125,7 @@ fun DividerTextExpandedWithShared(
     ) {
         SharedContent(
             key = key,
-            contentStrategy = ContentStrategy.Copy,
+            contentStrategy = ContentStrategy.Shared(keepShowContainer = true,enableContainerAlpha = true),
             shape = shape,
         ) {
             Column {

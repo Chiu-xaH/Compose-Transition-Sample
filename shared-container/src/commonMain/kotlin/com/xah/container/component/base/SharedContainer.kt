@@ -107,6 +107,27 @@ private fun Modifier.sharedContainer(
             state.isActive--
         }
     }
+    val useCopy = contentStrategy is ContentStrategy.Shared && contentStrategy.keepShowContainer
+    fun Modifier.recordLayerAndAlpha() : Modifier = this
+        .let { sub ->
+            if(useCopy) {
+                val progressOfAlpha = (state.animation.value * registry.speedUpRadioAlpha).coerceIn(0f,1f)
+                sub.graphicsLayer(alpha = progressOfAlpha)
+            } else {
+                sub
+            }
+        }
+        .drawWithContent {
+            graphicsLayerForPixel?.record {
+                this@drawWithContent.drawContent()
+            }
+            graphicsLayer.record {
+                this@drawWithContent.drawContent()
+            }
+            if(useCopy) {
+                drawContent()
+            }
+        }
 
     return@composed this
         .let {
@@ -117,14 +138,14 @@ private fun Modifier.sharedContainer(
                     }
                 }
                 StatePause.CONTENT -> {
-                    if(contentStrategy is ContentStrategy.Layer) {
+                    if(contentStrategy is ContentStrategy.Shared && !contentStrategy.keepShowContainer) {
                         it.drawWithContent {}
                     } else {
                         it
                     }
                 }
                 StatePause.MEASURING_CONTAINER -> {
-                    if(contentStrategy !is ContentStrategy.Copy) {
+                    if(!useCopy) {
                         it.graphicsLayer(alpha = 0f)
                     } else {
                         it
@@ -134,40 +155,10 @@ private fun Modifier.sharedContainer(
                         }
                 }
                 StatePause.TRANSITING_TO_CONTENT -> {
-                    it.drawWithContent {
-                        graphicsLayerForPixel?.record {
-                            this@drawWithContent.drawContent()
-                        }
-                        graphicsLayer.record {
-                            this@drawWithContent.drawContent()
-                        }
-                        if(contentStrategy is ContentStrategy.Copy) {
-                            drawContent()
-                        }
-                    }
+                    it.recordLayerAndAlpha()
                 }
                 StatePause.TRANSITING_TO_CONTAINER -> {
-                    val useCopy = contentStrategy is ContentStrategy.Copy
-                    it
-                        .let { sub ->
-                            if(useCopy) {
-                                val progressOfAlpha = (state.animation.value * registry.speedUpRadioAlpha).coerceIn(0f,1f)
-                                sub.graphicsLayer(alpha = progressOfAlpha)
-                            } else {
-                                sub
-                            }
-                        }
-                        .drawWithContent {
-                            graphicsLayerForPixel?.record {
-                                this@drawWithContent.drawContent()
-                            }
-                            graphicsLayer.record {
-                                this@drawWithContent.drawContent()
-                            }
-                            if(useCopy) {
-                                drawContent()
-                            }
-                        }
+                    it.recordLayerAndAlpha()
                 }
                 else -> {
                     it
@@ -210,19 +201,16 @@ private fun isOutOfScreen(screenRect : Rect,containerRect : Rect) : Boolean {
 fun Modifier.sharedContent(
     key : String?,
     shape: CornerBasedShape,
-    contentStrategy: ContentStrategy = ContentStrategy.Navigation,
+    contentStrategy: ContentStrategy = ContentStrategy.Navigation(),
 ): Modifier {
     return this
         .let {
             when(contentStrategy) {
-                is ContentStrategy.Copy -> {
+                is ContentStrategy.Shared -> {
                     it.clip(shape)
                 }
                 is ContentStrategy.Navigation -> {
                     it
-                }
-                is ContentStrategy.Layer -> {
-                    it.clip(shape)
                 }
             }
         }
@@ -257,6 +245,12 @@ private fun Modifier.mSharedContent(
         onDispose {}
     }
 
+    fun Modifier.recordLayer() : Modifier = this.drawWithContent {
+        graphicsLayer.record {
+            this@drawWithContent.drawContent()
+        }
+    }
+
     this
         .let {
             when(state.currentState) {
@@ -266,10 +260,10 @@ private fun Modifier.mSharedContent(
                 StatePause.MEASURING_CONTENT -> {
                     it
                         .let {
-                            if(contentStrategy !is ContentStrategy.Copy) {
-                                it.graphicsLayer(alpha = 0f)
-                            } else {
+                            if(contentStrategy is ContentStrategy.Shared && contentStrategy.keepShowContainer) {
                                 it
+                            } else {
+                                it.graphicsLayer(alpha = 0f)
                             }
                         }
                         .drawWithContent {
@@ -277,19 +271,10 @@ private fun Modifier.mSharedContent(
                         }
                 }
                 StatePause.TRANSITING_TO_CONTAINER -> {
-                    it
-                        .drawWithContent {
-                            graphicsLayer.record {
-                                this@drawWithContent.drawContent()
-                            }
-                        }
+                    it.recordLayer()
                 }
                 StatePause.TRANSITING_TO_CONTENT -> {
-                    it.drawWithContent {
-                        graphicsLayer.record {
-                            this@drawWithContent.drawContent()
-                        }
-                    }
+                    it.recordLayer()
                 }
                 else -> {
                     it
@@ -320,7 +305,7 @@ fun SharedContent(
     key : String?,
     modifier : Modifier = Modifier,
     shape : CornerBasedShape = RoundedCornerShape(ScreenCornerHelper.corner),
-    contentStrategy: ContentStrategy = ContentStrategy.Navigation,
+    contentStrategy: ContentStrategy = ContentStrategy.Navigation(),
     content : @Composable () -> Unit
 )  {
     Box(modifier = modifier) {

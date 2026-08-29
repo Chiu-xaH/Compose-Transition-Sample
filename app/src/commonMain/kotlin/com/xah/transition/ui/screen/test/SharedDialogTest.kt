@@ -52,7 +52,7 @@ fun SharedDialogTest() {
                 SharedContent(
                     key = key,
                     shape = MaterialTheme.shapes.large,
-                    contentStrategy = ContentStrategy.Layer(isFloating = true),
+                    contentStrategy = ContentStrategy.Shared(keepShowContainer = false),
                     modifier = Modifier.padding(horizontal = APP_HORIZONTAL_DP)
                 ) {
                     Surface(

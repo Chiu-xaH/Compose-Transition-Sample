@@ -32,7 +32,7 @@ abstract class SharedWindow : Window() {
                     SharedContent(
                         key = key!!,
                         shape = shape,
-                        contentStrategy = ContentStrategy.Layer(true),
+                        contentStrategy = ContentStrategy.Shared(keepShowContainer = false),
                         modifier = modifier,
                         content = { Content() }
                     )

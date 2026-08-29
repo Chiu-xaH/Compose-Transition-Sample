@@ -15,12 +15,9 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.util.lerp
 import androidx.compose.ui.zIndex
 import com.sharednav.common.util.lerp
 import com.xah.container.model.ContainerFilledStrategy
-import com.xah.container.model.ContentStrategy
-import com.xah.container.model.StatePause
 import com.xah.container.model.TiltEffect
 import com.xah.container.util.LocalSharedRegistry
 import com.xah.container.util.shader.pixelExtension
@@ -53,9 +50,7 @@ fun SharedContainerOverlay() {
             // 路径曲线
             val parent = registry.getRectInterpolator().invoke(progress, container, content)
 
-            val useCopy = state.useCopy()
             val progressOfAlpha = (progress * registry.speedUpRadioAlpha).coerceIn(0f,1f)
-            val contentAlpha = lerp(0f,1f,progressOfAlpha)
 
             val progressOfCorner = (progress * registry.speedUpRadioCorner).coerceIn(0f,1f)
             val factor = 1f - registry.quadraticCornerLerpFactor
@@ -151,10 +146,6 @@ fun SharedContainerOverlay() {
             Box(
                 modifier = Modifier
                     .graphicsLayer {
-                        if(useCopy) {
-                            alpha = progressOfAlpha
-                        }
-
                         translationX = parent.left
                         translationY = parent.top
 
@@ -189,7 +180,15 @@ fun SharedContainerOverlay() {
                     }
             ) {
                 // 容器
-                Box {
+                Box(
+                    modifier = Modifier.let {
+                        if(state.contentStrategy.enableContainerAlpha) {
+                            it.graphicsLayer(alpha = 1f - progressOfAlpha)
+                        } else {
+                            it
+                        }
+                    }
+                ) {
                     Box(modifier = Modifier.fillMaxSize()) {
                         Box(modifier = Modifier.align(
                             if(containerFilledStrategy is ContainerFilledStrategy.Stretch) {
@@ -347,7 +346,9 @@ fun SharedContainerOverlay() {
                                             translate(left = 0f, top = 0f)
                                         }
                                     }) {
-                                        layer.alpha = contentAlpha
+                                        if(state.contentStrategy.enableContentAlpha) {
+                                            layer.alpha = progressOfAlpha
+                                        }
                                         drawLayer(layer)
                                     }
                                 }
