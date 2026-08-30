@@ -173,8 +173,7 @@ fun HomeScreen() {
 
 > **注意**：`SharedContainer` 内层组件的 `shape` 必须设置为无圆角，圆角统一由外层 `SharedContainer` 管理，否则在提取 1 像素时会缺失边角。
 
-## [原理讲解](docs/Developer.md)
-已写好，待发布
+## [原理讲解](docs/Doc.md)
 
 ## [接口文档](docs/Developer.md)
 
