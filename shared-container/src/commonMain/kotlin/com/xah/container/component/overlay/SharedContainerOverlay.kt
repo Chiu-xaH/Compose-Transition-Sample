@@ -20,6 +20,7 @@ import com.sharednav.common.util.lerp
 import com.xah.container.model.ContainerFilledStrategy
 import com.xah.container.model.TiltEffect
 import com.xah.container.util.LocalSharedRegistry
+import com.xah.container.util.shader.genieWarpEffect
 import com.xah.container.util.shader.pixelExtension
 import kotlin.math.abs
 import kotlin.math.sign
@@ -153,13 +154,13 @@ fun SharedContainerOverlay() {
                         val is4 = registry.tiltEffect == TiltEffect.SHADER_4
 
                         if(registry.enableShader && (is2 || is4)) {
-//                            renderEffect = genieWarpEffect(
-//                                roX,
-//                                roY,
-//                                parent.width,
-//                                parent.height,
-//                                if(is2) isHorizontal else null,
-//                            )
+                            renderEffect = genieWarpEffect(
+                                roX,
+                                roY,
+                                parent.width,
+                                parent.height,
+                                if(is2) isHorizontal else null,
+                            )
                         } else {
                             rotationX = roX
                             rotationY = roY

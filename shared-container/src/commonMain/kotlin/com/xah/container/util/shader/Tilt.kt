@@ -3,199 +3,159 @@ package com.xah.container.util.shader
 import androidx.compose.ui.graphics.RenderEffect
 import com.xah.shader.skia.RuntimeShader
 import com.xah.shader.skia.RuntimeShaderEffect
+import kotlin.math.abs
 
 /**
- * 开发中，目前这个效果不对
- * iOS26 非线性扭曲效果
+ * iOS26 风格的非线性扭曲（软体拖拽）
  *
- * @param rotationX X 轴旋转值（来自倾斜计算）
- * @param rotationY Y 轴旋转值（来自倾斜计算）
- * @param warpCurve 扭曲程度
+ * 与「倾斜(rotationX/rotationY)」共用同一套方向与强度语义：
+ * - rotationY 决定横向被拖拽的方向：>= 0 拖向右，< 0 拖向左
+ * - rotationX 决定纵向被拖拽的方向：>= 0 拖向上，< 0 拖向下
+ * 二者的绝对值除以 [maxTilt] 得到该轴的形变强度 0~1。
+ *
+ * 形变模型（"两边弯、两边直"）：
+ *
+ * 核心约束：
+ *   - 平行于拖拽方向的两条边 → 保持直线
+ *   - 垂直于拖拽方向的两条边 → 弯成曲线
+ *
+ * 实现原理：
+ *   纯纵向拉伸（dir.x=0, dir.y≠0）为例——
+ *   · disp.y（沿拖拽轴）：由 gy 控制拉多拉少（拖拽边多、对边少），与 x 无关
+ *     → 同一列各行位移不同，上/下边弯曲 ✓
+ *     → 但 disp.y 此时与 x 无关，左右边每行位移相同，仍是直线 ✓
+ *   · disp.x（垂直于拖拽轴）：颈缩，让中间的内容向中线靠拢、两侧不动
+ *     → disp.x 必须随 y 变化（靠近拖拽边时收拢越多）
+ *     → 对于左右两条竖边（x=0 和 x=W），颈缩量相同（关于中线对称）→ 竖边仍直线 ✓
+ *     → 对于上下两条横边（y=0 和 y=H）：下边 gy≈0 几乎没有颈缩，上边 gy=1 颈缩最强
+ *       → 横边各点 x 位移不同 → 上下边弯曲 ✓
+ *
+ * 斜向拉伸（dir.x≠0, dir.y≠0）：两轴叠加，形变集中到拖拽方向的那个角。
+ *
+ * @param rotationX X 轴旋转值，控制纵向拖拽方向与强度
+ * @param rotationY Y 轴旋转值，控制横向拖拽方向与强度
+ * @param width  形变区域宽度（px）
+ * @param height 形变区域高度（px）
+ * @param isHorizontal
+ *        - true  只做纵向形变（左右边直，上下边弯）
+ *        - false 只做横向形变（上下边直，左右边弯）
+ *        - null  双轴自由形变
+ * @param warpCurve 扭曲曲线，1f 线性，< 1f 更软，> 1f 更集中在拖拽边
+ * @param maxTilt 强度归一化基准，应与 SharedRegistry.tiltMaxValue 保持一致
+ * @param pullAmount 沿拖拽方向的最大位移比例
+ * @param neckAmount 颈缩强度（垂直于拖拽轴的收拢），0f 关闭
  */
 fun genieWarpEffect(
     rotationX: Float,
     rotationY: Float,
     width: Float,
     height: Float,
-    isHorizontal : Boolean? = null,
-    warpCurve: Float = 0.5f // 1f 线性 <1f 向内弯曲 > 1f 向外弯曲
+    isHorizontal: Boolean? = null,
+    warpCurve: Float = 0.5f,
+    maxTilt: Float = 20f,
+    pullAmount: Float = 0.14f,
+    neckAmount: Float = 0.7f,
+    neckBias: Float = 3f,   // 颈缩焦点偏移系数：0 始终居中（对称），1 最大偏向拖拽侧（差距最大）
 ): RenderEffect {
-    val shader = RuntimeShader((
-            when(isHorizontal) {
-                true -> GENIE_WARP_AGSL_2
-                false -> GENIE_WARP_AGSL_1
-                null -> GENIE_WARP_AGSL
-            }
-        ).trimIndent()
-    )
+    val shader = RuntimeShader(GENIE_WARP_AGSL.trimIndent())
+
+    val dirX = if (rotationY >= 0f) 1f else -1f
+    val dirY = if (rotationX >= 0f) -1f else 1f
+
+    val base = if (maxTilt > 0f) maxTilt else 1f
+    val magX = (abs(rotationY) / base).coerceIn(0f, 1f)
+    val magY = (abs(rotationX) / base).coerceIn(0f, 1f)
+
+    val axisMode = when (isHorizontal) {
+        true -> 2f   // 只做纵向：左右边直，上下边弯
+        false -> 1f  // 只做横向：上下边直，左右边弯
+        null -> 0f
+    }
+
     shader.setFloatUniform("size", width, height)
-    shader.setFloatUniform("rotationX", rotationX)
-    shader.setFloatUniform("rotationY", rotationY)
-    shader.setFloatUniform("warpCurve", warpCurve)
+    shader.setFloatUniform("dir", dirX, dirY)
+    shader.setFloatUniform("mag", magX, magY)
+    shader.setFloatUniform("warpCurve", warpCurve.coerceAtLeast(0.001f))
+    shader.setFloatUniform("neckBias", neckBias)
+    shader.setFloatUniform("axisMode", axisMode)
+    shader.setFloatUniform("pullAmount", pullAmount)
+    shader.setFloatUniform("neckAmount", neckAmount)
+
     return RuntimeShaderEffect(shader, "content")
 }
 
-// 四条边均变
 private const val GENIE_WARP_AGSL = """
 uniform shader content;
 uniform float2 size;
-uniform float rotationX;
-uniform float rotationY;
+uniform float2 dir;       // 拖拽方向分量，各为 +1 / -1（无对应轴分量时由 axisMode 控制）
+uniform float2 mag;       // 各轴形变强度 0~1
 uniform float warpCurve;
+uniform float axisMode;   // 0 双轴，1 只横向（禁纵向位移），2 只纵向（禁横向位移）
+uniform float pullAmount;
+uniform float neckAmount;
+uniform float neckBias;   // 颈缩焦点偏移系数 0~1：0=始终居中对称，1=最大偏向拖拽侧
 
-half4 main(float2 fragCoord) {
-    float2 uv = fragCoord;
-
-    // roY 控制横向吸附，roX 控制纵向吸附
-    // 正数吸向右/下，负数吸向左/上
-    float dirX = rotationY >= 0.0 ? 1.0 : -1.0;
-    float dirY = rotationX >= 0.0 ? -1.0 : 1.0;
-
-    float strengthX = clamp(abs(rotationY) / 20.0, 0.0, 0.95);
-    float strengthY = clamp(abs(rotationX) / 20.0, 0.0, 0.95);
-
-    // 0~1 坐标
-    float x = fragCoord.x / size.x;
-    float y = fragCoord.y / size.y;
-
-    // 按方向转成“离吸附边距离”：吸附边为 0，远端为 1
-    float ax = dirX > 0.0 ? 1.0 - x : x;
-    float ay = dirY > 0.0 ? 1.0 - y : y;
-
-    // 越靠近吸附边，收缩越强；远端几乎不变
-    float curve = max(warpCurve, 0.001);
-    float pinchX = pow(1.0 - ax, curve);
-    float pinchY = pow(1.0 - ay, curve);
-
-    // 横向运动时，压缩垂直方向；纵向运动时，压缩水平方向
-    float verticalScale = 1.0 - strengthX * pinchX;
-    float horizontalScale = 1.0 - strengthY * pinchY;
-
-    // 反向采样：以吸附边为锚点，避免中心缩放导致宽/高先缩小再恢复
-    float anchorX = dirX > 0.0 ? size.x : 0.0;
-    float anchorY = dirY > 0.0 ? size.y : 0.0;
-
-    uv.x = anchorX + (fragCoord.x - anchorX) / max(horizontalScale, 0.001);
-    uv.y = anchorY + (fragCoord.y - anchorY) / max(verticalScale, 0.001);
-
-    // 额外沿吸附方向做轻微拖拽，增强 Genie 的“被吸走”感
-    uv.x -= dirX * strengthX * pinchX * size.x * 0.08;
-    uv.y -= dirY * strengthY * pinchY * size.y * 0.08;
-
-    if (uv.x < 0.0 || uv.x > size.x || uv.y < 0.0 || uv.y > size.y) {
-        return half4(0.0, 0.0, 0.0, 0.0);
-    }
-
-    return content.eval(uv);
+/**
+ * 沿拖拽方向的归一化权重：
+ *   拖拽边 = 1，对边 = 0（对边天然钉住，不用额外锚点）
+ */
+float dragWeight(float t, float d) {
+    return d >= 0.0 ? t : 1.0 - t;
 }
-"""
 
-// 上下边不变
-private const val GENIE_WARP_AGSL_1 = """
-uniform shader content;
-uniform float2 size;
-uniform float rotationX;
-uniform float rotationY;
-uniform float warpCurve;
-
-half4 main(float2 fragCoord) {
-    float2 uv = fragCoord;
-
-    // roY 控制横向吸附，roX 控制纵向吸附
-    // 正数吸向右/下，负数吸向左/上
-    float dirX = rotationY >= 0.0 ? 1.0 : -1.0;
-    float dirY = rotationX >= 0.0 ? -1.0 : 1.0;
-
-    float strengthX = clamp(abs(rotationY) / 20.0, 0.0, 0.95);
-    float strengthY = clamp(abs(rotationX) / 20.0, 0.0, 0.95);
-
-    // 0~1 坐标
-    float x = fragCoord.x / size.x;
-    float y = fragCoord.y / size.y;
-
-    // 上下边保持水平：不再重映射 uv.y，只让每一行的 x 映射发生变化
-    // rotationY 决定左右吸附方向，rotationX 决定上下哪一侧的形变更强
+float2 warpDisplacement(float2 p) {
+    float2 t = p / size;
     float curve = max(warpCurve, 0.001);
-    float rowFromDirY = dirY > 0.0 ? y : 1.0 - y;
-    float rowFactor = pow(rowFromDirY, curve);
 
-    // 保留原版纵向动势，但转移到 x 方向做补偿，避免只剩横向压缩导致起始回缩
-    float ax = dirX > 0.0 ? 1.0 - x : x;
-    float pinchX = pow(1.0 - ax, curve);
-    float verticalScale = 1.0 - strengthX * pinchX;
-    float verticalInfluence = 1.0 - verticalScale;
+    // gy：沿纵向拖拽方向的权重（拖拽边=1，对边=0）
+    // gx：沿横向拖拽方向的权重（拖拽边=1，对边=0）
+    float gx = pow(clamp(dragWeight(t.x, dir.x), 0.0, 1.0), curve);
+    float gy = pow(clamp(dragWeight(t.y, dir.y), 0.0, 1.0), curve);
 
-    // 横向动势提供基础形变，纵向动势按行增强/补偿
-    float rowStrength = clamp(strengthY * rowFactor + verticalInfluence * (0.35 + 0.65 * rowFactor), 0.0, 0.95);
-    float horizontalScale = 1.0 - rowStrength;
+    // ── 主位移（沿拖拽轴）──
+    // disp.y 只含 gy（纯 y 函数）→ 同一列各行不同，上下边弯；左右边各行同步 → 竖边仍直
+    // disp.x 只含 gx（纯 x 函数）→ 同一行各列不同，左右边弯；上下边各列同步 → 横边仍直
+    // 斜向时两者叠加
+    float2 disp = float2(
+        dir.x * mag.x * size.x * pullAmount * gx,
+        dir.y * mag.y * size.y * pullAmount * gy
+    );
 
-    // 以横向吸附边为锚点做反向采样；每一行同一个 scale，所以水平边不会弯
-    float anchorX = dirX > 0.0 ? size.x : 0.0;
-    uv.x = anchorX + (fragCoord.x - anchorX) / max(horizontalScale, 0.001);
-    uv.y = fragCoord.y;
+    // ── 颈缩（垂直于拖拽轴的收拢）──
+    // 纵向拖拽的颈缩：disp.x 随 y 变化 → 使上下边（y=0/H）产生 x 方向弯曲
+    // neckFocusX 由 dir.x 和 mag.x 动态决定：
+    //   dir.x == 0（容器水平居中）→ focusX = 0.5，左右对称
+    //   dir.x != 0（容器偏左/偏右）→ focusX 偏向拖拽侧，偏移量随 mag.x 增大
+    //   效果：容器偏左时右侧颈缩更多，偏右时左侧颈缩更多，中央时完全对称
+    float neckFocusX = dir.x > 0.0 ? 0.5 + neckBias * 0.5 * mag.x : (dir.x < 0.0 ? 0.5 - neckBias * 0.5 * mag.x : 0.5);
+    float neckFocusY = dir.y > 0.0 ? 0.5 + neckBias * 0.5 * mag.y : (dir.y < 0.0 ? 0.5 - neckBias * 0.5 * mag.y : 0.5);
+    disp.x += -(t.x - neckFocusX) * size.x * neckAmount * mag.y * gy;
+    disp.y += -(t.y - neckFocusY) * size.y * neckAmount * mag.x * gx;
 
-    // 只做逐行水平拖拽，不碰 y；顶部/底部仍是水平直线，但宽度可以不同
-    uv.x -= dirX * rowStrength * size.x * 0.06;
-
-    if (uv.x < 0.0 || uv.x > size.x || uv.y < 0.0 || uv.y > size.y) {
-        return half4(0.0, 0.0, 0.0, 0.0);
+    if (axisMode == 1.0) {
+        // 只做横向：禁止纵向位移，上下边保持直线
+        disp.y = 0.0;
+    } else if (axisMode == 2.0) {
+        // 只做纵向：禁止横向位移，左右边保持直线
+        disp.x = 0.0;
     }
 
-    return content.eval(uv);
+    return disp;
 }
-"""
-
-// 左右边不变
-private const val GENIE_WARP_AGSL_2 = """
-uniform shader content;
-uniform float2 size;
-uniform float rotationX;
-uniform float rotationY;
-uniform float warpCurve;
 
 half4 main(float2 fragCoord) {
-    float2 uv = fragCoord;
+    float2 p = fragCoord;
+    p = fragCoord - warpDisplacement(p);
+    p = fragCoord - warpDisplacement(p);
+    p = fragCoord - warpDisplacement(p);
 
-    // roY 控制横向吸附，roX 控制纵向吸附
-    // 正数吸向右/下，负数吸向左/上
-    float dirX = rotationY >= 0.0 ? 1.0 : -1.0;
-    float dirY = rotationX >= 0.0 ? -1.0 : 1.0;
-
-    float strengthX = clamp(abs(rotationY) / 20.0, 0.0, 0.95);
-    float strengthY = clamp(abs(rotationX) / 20.0, 0.0, 0.95);
-
-    // 0~1 坐标
-    float x = fragCoord.x / size.x;
-    float y = fragCoord.y / size.y;
-
-    // 左右边保持直线：不再重映射 uv.x，只让每一列的 y 映射发生变化
-    // rotationX 决定上下吸附方向，rotationY 决定左右哪一侧的形变更强
-    float curve = max(warpCurve, 0.001);
-    float columnFromDirX = dirX > 0.0 ? x : 1.0 - x;
-    float columnFactor = pow(columnFromDirX, curve);
-
-    // 保留原版横向动势，但转移到 y 方向做补偿，避免只剩纵向压缩导致起始回缩
-    float ay = dirY > 0.0 ? 1.0 - y : y;
-    float pinchY = pow(1.0 - ay, curve);
-    float horizontalScale = 1.0 - strengthY * pinchY;
-    float horizontalInfluence = 1.0 - horizontalScale;
-
-    // 纵向动势提供基础形变，横向动势按列增强/补偿
-    float columnStrength = clamp(strengthX * columnFactor + horizontalInfluence * (0.35 + 0.65 * columnFactor), 0.0, 0.95);
-    float verticalScale = 1.0 - columnStrength;
-
-    // 以纵向吸附边为锚点做反向采样；每一列同一个 scale，所以左右边不会弯
-    float anchorY = dirY > 0.0 ? size.y : 0.0;
-    uv.x = fragCoord.x;
-    uv.y = anchorY + (fragCoord.y - anchorY) / max(verticalScale, 0.001);
-
-    // 只做逐列垂直拖拽，不碰 x；左右边仍是直线，但高度可以不同
-    uv.y -= dirY * columnStrength * size.y * 0.06;
-
-    if (uv.x < 0.0 || uv.x > size.x || uv.y < 0.0 || uv.y > size.y) {
+    if (p.x < 0.0 || p.x > size.x || p.y < 0.0 || p.y > size.y) {
         return half4(0.0, 0.0, 0.0, 0.0);
     }
 
-    return content.eval(uv);
+    float2 edge = min(p, size - p);
+    float feather = clamp(min(edge.x, edge.y), 0.0, 1.0);
+
+    return content.eval(p) * feather;
 }
 """
